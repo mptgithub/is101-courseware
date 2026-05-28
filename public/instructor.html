@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IS101 — Instructor Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--csn:#003876;--ok:#15803d;--ok-lt:#f0fdf4;--err:#dc2626;--warn:#d97706;
+  --bg:#f0f2f5;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#hdr{background:var(--csn);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:54px}
+.hlogo{font-size:15px;font-weight:700;color:#fff}
+.hlogo span{color:#93c5fd;font-size:12px;font-weight:400;margin-left:8px}
+.logout-btn{background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600}
+.logout-btn:hover{background:rgba(255,255,255,.25)}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:20px}
+.login-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:36px;max-width:420px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.lc-icon{font-size:40px;margin-bottom:14px;text-align:center}
+.lc-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;text-align:center}
+.lc-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
+.field input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:7px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--csn);box-shadow:0 0 0 2px rgba(0,56,118,.1)}
+.login-btn{width:100%;background:var(--csn);color:#fff;border:none;padding:11px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
+.login-btn:hover{background:#002a5c}
+.err-msg{color:var(--err);font-size:12px;margin-top:8px;text-align:center}
+
+/* MAIN DASHBOARD */
+#dashboard{display:none;padding:28px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px 20px}
+.stat-num{font-size:28px;font-weight:800;color:var(--csn)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.toolbar-title{font-size:16px;font-weight:700;flex:1}
+.btn{padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .15s}
+.btn-csn{background:var(--csn);color:#fff}.btn-csn:hover{background:#002a5c}
+.btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:#166534}
+.btn-outline{background:#fff;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--csn);color:var(--csn)}
+.search-input{padding:8px 14px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none;min-width:220px}
+.search-input:focus{border-color:var(--csn)}
+
+/* TABLE */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:var(--csn);color:#fff;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;cursor:pointer;user-select:none}
+th:hover{background:#002a5c}
+td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.badge-ok{background:var(--ok-lt);color:var(--ok)}
+.badge-no{background:#fff7ed;color:#c2410c}
+.badge-na{background:#f1f5f9;color:var(--muted)}
+.pct-bar{display:flex;align-items:center;gap:8px}
+.pct-track{flex:1;height:6px;background:#e2e8f0;border-radius:3px;min-width:60px}
+.pct-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--csn),#1a5fb4)}
+.pct-lbl{font-size:11px;font-weight:700;color:var(--csn);white-space:nowrap;min-width:32px}
+.link-btn{background:none;border:none;color:var(--csn);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:underline}
+
+/* ROSTER UPLOAD */
+.roster-panel{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.rp-title{font-size:14px;font-weight:700;margin-bottom:8px}
+.rp-sub{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.file-area{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:12px}
+.file-area:hover{border-color:var(--csn);background:#f8fafc}
+.file-area input{display:none}
+.file-area-text{font-size:13px;color:var(--muted)}
+.file-area-text strong{color:var(--csn)}
+
+/* STUDENT DETAIL MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:720px;width:calc(100% - 40px);max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-hd{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1}
+.modal-body{padding:20px 24px}
+.detail-section{margin-bottom:20px}
+.detail-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.step-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:5px 8px;border-radius:5px;background:#f8fafc}
+.step-item.done{background:var(--ok-lt);color:var(--ok)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="T"></div>
+
+<div id="hdr">
+  <div class="hlogo">IS101 Courseware <span>Instructor Dashboard</span></div>
+  <button class="logout-btn" id="logout-btn" style="display:none" onclick="logout()">Sign Out</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="lc-icon">&#128274;</div>
+    <div class="lc-title">Instructor Access</div>
+    <div class="lc-sub">IS101 Courseware &mdash; College of Southern Nevada</div>
+    <div class="field">
+      <label>Instructor Password</label>
+      <input type="password" id="pw-input" placeholder="Enter instructor password"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In &#8594;</button>
+    <div class="err-msg" id="login-err"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="stat-students">—</div><div class="stat-lbl">Students Active</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-avg">—</div><div class="stat-lbl">Avg Completion</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-exam-pass">—</div><div class="stat-lbl">AI Exam Passed</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-today">—</div><div class="stat-lbl">Active Today</div></div>
+  </div>
+
+  <!-- Roster upload -->
+  <div class="roster-panel" id="roster-panel">
+    <div class="rp-title">&#128196; Upload Class Roster (Optional)</div>
+    <div class="rp-sub">Upload a CSV file with columns: <strong>NSHE ID, Name, Section</strong>. This links student names to their NSHE IDs for your view only. Names are never shown to students.<br>Example row: <code>1234567890, Smith John, IS101-001</code></div>
+    <div class="file-area" id="file-area" onclick="document.getElementById('roster-file').click()">
+      <input type="file" id="roster-file" accept=".csv" onchange="handleRoster(this)">
+      <div class="file-area-text">&#128196; <strong>Click to upload a CSV file</strong><br>or drag and drop here</div>
+    </div>
+    <button class="btn btn-outline" onclick="document.getElementById('roster-panel').style.display='none'">Hide this panel</button>
+  </div>
+
+  <!-- Student table -->
+  <div class="toolbar">
+    <div class="toolbar-title">Student Progress</div>
+    <input class="search-input" id="search" placeholder="&#128269; Search by name or NSHE ID..." oninput="filterTable()">
+    <button class="btn btn-ok" onclick="exportCSV()">&#11015; Export CSV</button>
+    <button class="btn btn-outline" onclick="loadStudents()">&#8635; Refresh</button>
+  </div>
+  <div class="table-wrap">
+    <table id="students-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('nshe_id')">NSHE ID &#8645;</th>
+          <th onclick="sortBy('name')">Name &#8645;</th>
+          <th onclick="sortBy('section')">Section &#8645;</th>
+          <th onclick="sortBy('steps_done')">Steps Done &#8645;</th>
+          <th onclick="sortBy('exam_passed')">AI Exam &#8645;</th>
+          <th onclick="sortBy('last_seen')">Last Active &#8645;</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody id="students-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Student detail modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Student Detail</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+var TOKEN = '';
+var ALL_STUDENTS = [];
+var SORT_KEY = 'last_seen';
+var SORT_DIR = -1;
+
+// Total steps in the course (update this as you add content)
+var TOTAL_STEPS = 18; // Word (18) + Excel (10) + AI (4) steps approx
+
+async function doLogin() {
+  var pw = document.getElementById('pw-input').value;
+  var err = document.getElementById('login-err');
+  err.textContent = '';
+  try {
+    var r = await fetch('/api/instructor/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({password: pw})
+    });
+    var d = await r.json();
+    if (!r.ok) { err.textContent = d.error || 'Incorrect password'; return; }
+    TOKEN = d.token;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('logout-btn').style.display = 'block';
+    loadStudents();
+  } catch(e) {
+    err.textContent = 'Connection error. Is the server running?';
+  }
+}
+
+async function loadStudents() {
+  try {
+    var r = await fetch('/api/instructor/students', {
+      headers: {'x-instructor-token': TOKEN}
+    });
+    var data = await r.json();
+    ALL_STUDENTS = data;
+    updateStats();
+    renderTable(ALL_STUDENTS);
+  } catch(e) {
+    showToast('Error loading student data');
+  }
+}
+
+function updateStats() {
+  var total = ALL_STUDENTS.length;
+  var avgSteps = total ? Math.round(ALL_STUDENTS.reduce((s,x)=>s+(x.steps_done||0),0)/total) : 0;
+  var avgPct = Math.round(avgSteps/TOTAL_STEPS*100);
+  var examPassed = ALL_STUDENTS.filter(x=>x.exam_passed).length;
+  var today = new Date().toISOString().slice(0,10);
+  var activeToday = ALL_STUDENTS.filter(x=>x.last_seen&&x.last_seen.slice(0,10)===today).length;
+  document.getElementById('stat-students').textContent = total;
+  document.getElementById('stat-avg').textContent = avgPct+'%';
+  document.getElementById('stat-exam-pass').textContent = examPassed;
+  document.getElementById('stat-today').textContent = activeToday;
+}
+
+function renderTable(students) {
+  var tbody = document.getElementById('students-tbody');
+  if (!students.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">No students have logged in yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = students.map(function(s) {
+    var pct = Math.min(100, Math.round((s.steps_done||0)/TOTAL_STEPS*100));
+    var lastSeen = s.last_seen ? new Date(s.last_seen).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    var examBadge = s.exam_passed ? '<span class="badge badge-ok">&#10003; Passed</span>'
+                  : s.exam_passed===0 ? '<span class="badge badge-no">Not Yet</span>'
+                  : '<span class="badge badge-na">—</span>';
+    return '<tr>'
+      +'<td style="font-family:monospace;font-weight:600">'+s.nshe_id+'</td>'
+      +'<td>'+(s.name||'<span style="color:var(--muted)">—</span>')+'</td>'
+      +'<td>'+(s.section||'<span style="color:var(--muted)">—</span>')+'</td>'
+      +'<td><div class="pct-bar"><div class="pct-track"><div class="pct-fill" style="width:'+pct+'%"></div></div><div class="pct-lbl">'+pct+'%</div></div></td>'
+      +'<td>'+examBadge+'</td>'
+      +'<td style="color:var(--muted);font-size:12px">'+lastSeen+'</td>'
+      +'<td><button class="link-btn" onclick="showStudent(\''+s.nshe_id+'\')">View</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function filterTable() {
+  var q = document.getElementById('search').value.toLowerCase();
+  var filtered = ALL_STUDENTS.filter(function(s) {
+    return s.nshe_id.includes(q) || (s.name||'').toLowerCase().includes(q) || (s.section||'').toLowerCase().includes(q);
+  });
+  renderTable(filtered);
+}
+
+function sortBy(key) {
+  if (SORT_KEY === key) SORT_DIR *= -1;
+  else { SORT_KEY = key; SORT_DIR = 1; }
+  ALL_STUDENTS.sort(function(a,b) {
+    var av = a[key]||'', bv = b[key]||'';
+    if (av < bv) return -SORT_DIR;
+    if (av > bv) return SORT_DIR;
+    return 0;
+  });
+  renderTable(ALL_STUDENTS);
+}
+
+async function showStudent(nsheId) {
+  try {
+    var r = await fetch('/api/instructor/student/'+nsheId, {
+      headers: {'x-instructor-token': TOKEN}
+    });
+    var d = await r.json();
+    var s = d.student;
+    var modal = document.getElementById('modal');
+    var title = document.getElementById('modal-title');
+    var body = document.getElementById('modal-body');
+    title.textContent = (s.name||s.nshe_id) + (s.section?' — '+s.section:'');
+    var html = '';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">';
+    html += infoBox('NSHE ID', '<span style="font-family:monospace;font-weight:700">'+s.nshe_id+'</span>');
+    html += infoBox('Name', s.name||'—');
+    html += infoBox('Section', s.section||'—');
+    html += infoBox('First Seen', s.first_seen?new Date(s.first_seen).toLocaleString():'—');
+    html += infoBox('Last Active', s.last_seen?new Date(s.last_seen).toLocaleString():'—');
+    html += infoBox('Steps Complete', d.steps.length + ' steps');
+    html += '</div>';
+
+    // Exam summary
+    if (d.exams.length) {
+      html += '<div class="detail-section"><div class="detail-section-title">AI Knowledge Check</div>';
+      html += '<div style="display:flex;gap:10px;flex-wrap:wrap">';
+      var best = d.exams.reduce((b,e)=>e.score>b.score?e:b, d.exams[0]);
+      html += infoBox('Attempts', d.exams.length);
+      html += infoBox('Best Score', Math.round(best.score/best.total*100)+'%');
+      html += infoBox('Passed', best.passed?'&#10003; Yes':'&#10007; Not Yet');
+      html += '</div></div>';
+    }
+
+    // Lab scores
+    if (d.labs.length) {
+      html += '<div class="detail-section"><div class="detail-section-title">Lab Answers</div>';
+      var byLab = {};
+      d.labs.forEach(function(l){ if(!byLab[l.lab_id]) byLab[l.lab_id]={total:0,correct:0}; byLab[l.lab_id].total++; if(l.correct) byLab[l.lab_id].correct++; });
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">';
+      Object.entries(byLab).forEach(function([lab,sc]){
+        var pct = Math.round(sc.correct/sc.total*100);
+        html += '<div style="background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:10px 12px">'
+          +'<div style="font-size:11px;color:var(--muted);margin-bottom:3px">'+lab+'</div>'
+          +'<div style="font-size:18px;font-weight:800;color:var(--csn)">'+pct+'%</div>'
+          +'<div style="font-size:11px;color:var(--muted)">'+sc.correct+'/'+sc.total+' correct</div></div>';
+      });
+      html += '</div></div>';
+    }
+
+    // Checklist
+    if (d.checklist.length) {
+      html += '<div class="detail-section"><div class="detail-section-title">NotebookLM Checklist ('+d.checklist.length+' steps done)</div>';
+      html += '<div class="step-grid">';
+      d.checklist.forEach(function(c){
+        html += '<div class="step-item done">&#10003; '+c.step_id+'</div>';
+      });
+      html += '</div></div>';
+    }
+
+    body.innerHTML = html;
+    modal.classList.add('open');
+  } catch(e) {
+    showToast('Error loading student detail');
+  }
+}
+
+function infoBox(label, value) {
+  return '<div style="background:#f8fafc;border:1px solid var(--border);border-radius:7px;padding:10px 14px">'
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px">'+label+'</div>'
+    +'<div style="font-size:14px;font-weight:600;color:var(--text)">'+value+'</div></div>';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+
+async function handleRoster(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var text = await file.text();
+  var lines = text.trim().split('\n').filter(Boolean);
+  var students = [];
+  lines.forEach(function(line) {
+    var parts = line.split(',').map(function(p){ return p.trim().replace(/^"|"$/g,'').trim(); });
+    if (parts[0] && /^\d{10}$/.test(parts[0])) {
+      students.push({ nsheId: parts[0], name: parts[1]||'', section: parts[2]||'' });
+    }
+  });
+  if (!students.length) { showToast('No valid rows found. Check CSV format.'); return; }
+  var replace = confirm('Replace existing roster? Click OK to replace, Cancel to add/update only.');
+  try {
+    var r = await fetch('/api/instructor/roster', {
+      method:'POST', headers:{'Content-Type':'application/json','x-instructor-token':TOKEN},
+      body: JSON.stringify({students, replace})
+    });
+    var d = await r.json();
+    showToast('Imported '+d.imported+' students from roster');
+    loadStudents();
+  } catch(e) {
+    showToast('Error uploading roster');
+  }
+}
+
+async function exportCSV() {
+  var url = '/api/instructor/export';
+  var r = await fetch(url, {headers:{'x-instructor-token':TOKEN}});
+  var blob = await r.blob();
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'IS101_Progress_Export.csv';
+  a.click();
+}
+
+function logout() {
+  TOKEN = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('logout-btn').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+}
+
+function showToast(msg) {
+  var el = document.getElementById('T');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('show'); }, 4000);
+}
+</script>
+</body>
+</html>
