@@ -95,10 +95,8 @@ body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(
 
 <script src="/api-client.js"></script>
 <script>
-// If already logged in, redirect to the course
-if (IS101API.isLoggedIn()) {
-  window.location.href = '/index.html';
-}
+
+// already logged in - stay on login page for now
 
 function onInput(el) {
   // Keep only digits
