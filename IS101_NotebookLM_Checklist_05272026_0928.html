@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IS101 — NotebookLM Hands-On Walkthrough</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --csn:#003876;--nb:#1a73e8;--nb-dk:#0d47a1;--nb-lt:#e8f0fe;--nb-bd:#aecbfa;
+  --ok:#15803d;--ok-lt:#f0fdf4;--ok-bd:#86efac;
+  --bg:#f0f2f5;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;
+}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+#hdr{background:var(--csn);padding:0 24px;display:flex;align-items:center;gap:12px;height:50px;flex-shrink:0}
+.hlogo{font-size:14px;font-weight:700;color:#fff}
+.hlogo span{color:#93c5fd;font-size:11px;font-weight:400;margin-left:6px}
+
+#main{flex:1;max-width:820px;margin:0 auto;padding:28px 24px;width:100%}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--nb-dk),var(--nb));border-radius:14px;padding:24px 28px;margin-bottom:24px;color:#fff;display:flex;align-items:flex-start;gap:20px}
+.hero-icon{font-size:48px;flex-shrink:0;line-height:1}
+.hero-text{}
+.hero-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.65);margin-bottom:6px}
+.hero-title{font-size:22px;font-weight:800;margin-bottom:6px;line-height:1.2}
+.hero-desc{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6;margin-bottom:14px}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap}
+.hero-badge{background:rgba(255,255,255,.18);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600}
+
+/* PROGRESS */
+.prog-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.prog-bar{flex:1;height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--nb),#4285f4);border-radius:5px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.prog-lbl{font-size:13px;font-weight:700;color:var(--nb);white-space:nowrap}
+
+/* SECTION */
+.section{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.section-hd{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;background:#fff}
+.section-hd:hover{background:#f8fafc}
+.section-num{width:32px;height:32px;border-radius:8px;background:var(--nb-lt);color:var(--nb);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-num.done{background:var(--ok);color:#fff}
+.section-title{flex:1;font-size:14px;font-weight:700;color:var(--text)}
+.section-count{font-size:11px;color:var(--muted)}
+.section-chevron{color:var(--muted);font-size:16px;flex-shrink:0;transition:transform .2s}
+.section-chevron.open{transform:rotate(90deg)}
+.section-body{border-top:1px solid var(--border);display:none}
+.section-body.open{display:block}
+
+/* STEP */
+.step{padding:14px 18px 14px 62px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px;position:relative}
+.step:last-child{border-bottom:none}
+.step-check{position:absolute;left:18px;top:18px;width:26px;height:26px;border-radius:6px;border:2px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.step-check:hover{border-color:var(--nb);background:var(--nb-lt)}
+.step-check.checked{border-color:var(--ok);background:var(--ok)}
+.step-check.checked::after{content:'✓';color:#fff;font-size:14px;font-weight:800}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px}
+.step-tip{background:var(--nb-lt);border:1px solid var(--nb-bd);border-radius:6px;padding:8px 12px;font-size:11px;color:#0d47a1;line-height:1.55;margin-top:6px}
+.step-tip::before{content:'💡 ';font-size:11px}
+.step-link{display:inline-flex;align-items:center;gap:5px;color:var(--nb);font-size:11px;font-weight:600;text-decoration:none;margin-top:6px}
+.step-link:hover{text-decoration:underline}
+.step-link::after{content:'↗';font-size:10px}
+.step.done .step-title{color:var(--ok)}
+
+/* COMPLETE */
+.complete-card{background:linear-gradient(135deg,var(--ok),#16a34a);border-radius:12px;padding:28px;text-align:center;color:#fff;margin-bottom:20px}
+.cc-icon{font-size:52px;margin-bottom:12px}
+.cc-title{font-size:24px;font-weight:800;margin-bottom:8px}
+.cc-sub{font-size:14px;color:rgba(255,255,255,.85);line-height:1.5;margin-bottom:20px}
+.cc-btn{background:#fff;color:var(--ok);border:none;padding:11px 28px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.cc-btn:hover{background:#f0fdf4}
+
+/* OPEN NLM BUTTON */
+.open-nlm{display:flex;align-items:center;gap:10px;background:var(--nb);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:20px;text-decoration:none}
+.open-nlm:hover{background:var(--nb-dk)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="T"></div>
+<div id="hdr">
+  <div class="hlogo">IS101 <span>Unit 1 &mdash; Google NotebookLM Walkthrough</span></div>
+</div>
+<div id="main">
+  <div id="content"></div>
+</div>
+
+<script>
+var SECTIONS = [
+  {
+    id:'s1',
+    title:'Getting Started — Create Your First Notebook',
+    steps:[
+      {
+        id:'s1-1',
+        title:'Open Google NotebookLM',
+        desc:'Open a new browser tab and go to notebooklm.google.com. Sign in with your Google account (Gmail, Google Drive, or any Google account).',
+        tip:'NotebookLM is completely free. You do not need a special subscription — just a Google account.',
+        link:{text:'Open NotebookLM', url:'https://notebooklm.google.com/'}
+      },
+      {
+        id:'s1-2',
+        title:'Create a new notebook',
+        desc:'Click the "New Notebook" button (it may show as a + button or a card with "New notebook"). Give your notebook a name — for this walkthrough, name it "IS101 Practice Notebook".',
+        tip:'Each notebook is a separate workspace. You can create as many as you want and they are all saved automatically to your Google account.'
+      },
+      {
+        id:'s1-3',
+        title:'Notice the notebook interface',
+        desc:'Look at the screen. On the left you will see a Sources panel where you upload documents. On the right is the Chat panel where you ask questions. At the bottom is the Studio panel for features like Audio Overview. Take a moment to find all three areas before continuing.'
+      }
+    ]
+  },
+  {
+    id:'s2',
+    title:'Adding Sources to Your Notebook',
+    steps:[
+      {
+        id:'s2-1',
+        title:'Add a website URL as a source',
+        desc:'In the Sources panel, click "Add Source". Select "Website". Paste this URL and click Insert: https://support.google.com/notebooklm/answer/14273541',
+        tip:'NotebookLM will read the full page and make it searchable. You can add up to 50 sources per notebook.',
+        link:{text:'Copy this URL first', url:'https://support.google.com/notebooklm/answer/14273541'}
+      },
+      {
+        id:'s2-2',
+        title:'Add a PDF as a source',
+        desc:'Click "Add Source" again. This time select "Upload". Download and upload any PDF you have from a class, or use a free article from your professor. You can also paste copied text using the "Copied text" option.',
+        tip:'Good sources for practice: a syllabus PDF, a textbook chapter, a news article you copy and paste, or any Google Doc from your Google Drive.'
+      },
+      {
+        id:'s2-3',
+        title:'Check your sources loaded correctly',
+        desc:'After uploading, each source should appear as a card in the Sources panel with a checkbox next to it. Make sure both are checked (active). NotebookLM only uses checked sources when answering your questions.'
+      }
+    ]
+  },
+  {
+    id:'s3',
+    title:'Asking Questions and Getting Cited Answers',
+    steps:[
+      {
+        id:'s3-1',
+        title:'Ask your first question',
+        desc:'In the Chat panel on the right, click the text box at the bottom and type: "What is the main purpose of this source?" Press Enter or click Send.',
+        tip:'Notice how NotebookLM cites specific passages from your source in its answer. Those numbers in brackets link directly to the exact text it used.'
+      },
+      {
+        id:'s3-2',
+        title:'Click on a citation to verify it',
+        desc:'After receiving the answer, find one of the citation numbers in brackets. Click on it. NotebookLM will highlight the exact passage in your source that it used. This is how you verify the AI is not making things up — it shows its work.',
+        tip:'This is the key difference from ChatGPT. ChatGPT cannot show you where it got its information. NotebookLM can always show you the exact source passage.'
+      },
+      {
+        id:'s3-3',
+        title:'Ask a follow-up question',
+        desc:'Now ask: "Can you explain that in simpler terms?" NotebookLM will rephrase its answer while staying grounded in your uploaded sources.',
+        tip:'You can have a full back-and-forth conversation. NotebookLM remembers what you asked earlier in the conversation.'
+      }
+    ]
+  },
+  {
+    id:'s4',
+    title:'Generating Study Materials',
+    steps:[
+      {
+        id:'s4-1',
+        title:'Generate a summary',
+        desc:'In the Chat panel type: "Summarize this source in exactly 4 bullet points. Each bullet should be one sentence." Read the result and notice how every point is drawn from your uploaded source.',
+        tip:'Being specific about format (number of bullets, sentence length) gives you much more useful output than just asking for "a summary".'
+      },
+      {
+        id:'s4-2',
+        title:'Generate study questions',
+        desc:'Type: "Generate 5 study questions based on this source that I could use to prepare for an exam. Include the answers." Save or copy these — they are ready-made study material.',
+        tip:'You can ask for multiple choice questions, fill-in-the-blank, or short answer. Try: "Create 3 multiple choice questions with 4 options each and mark the correct answer."'
+      },
+      {
+        id:'s4-3',
+        title:'Create a structured outline',
+        desc:'Type: "Create a structured outline of this source with main sections and key points under each section." This is especially useful for understanding how a long article or textbook chapter is organized.',
+        tip:'You can then ask NotebookLM to expand any section: "Expand section 2 with more detail from the source."'
+      },
+      {
+        id:'s4-4',
+        title:'Ask it to find a specific piece of information',
+        desc:'Type: "Find and quote the most important statistic or specific fact in this source." Notice how it quotes directly from your document with a citation. You can verify the quote is accurate by clicking the citation.',
+        tip:'This is perfect for research. Instead of skimming a 20-page document, ask NotebookLM to pull out the specific data points you need.'
+      }
+    ]
+  },
+  {
+    id:'s5',
+    title:'Audio Overview — Your Personal Podcast',
+    steps:[
+      {
+        id:'s5-1',
+        title:'Find the Studio panel',
+        desc:'Look at the bottom of your NotebookLM screen. You should see a panel labeled "Studio" or "Audio Overview". Click on it to expand it. If you do not see it, look for a speaker or headphone icon.',
+        tip:'The Studio panel contains special features that go beyond basic Q&A, including Audio Overview and document guides.'
+      },
+      {
+        id:'s5-2',
+        title:'Generate an Audio Overview',
+        desc:'Click "Generate" under Audio Overview. NotebookLM will create a 5-15 minute podcast-style conversation between two AI hosts discussing the key ideas in your sources. This usually takes 1-3 minutes to generate.',
+        tip:'Audio Overview works best with multiple sources. If you have both a PDF and a website loaded, the hosts will naturally connect ideas across both documents.'
+      },
+      {
+        id:'s5-3',
+        title:'Listen to the Audio Overview',
+        desc:'Press Play. Listen for at least 2-3 minutes. Notice how the hosts discuss your actual source material, make connections between ideas, ask each other questions, and explain concepts in a conversational way.',
+        tip:'You can download the audio file and listen while commuting, exercising, or doing other tasks. This is a powerful study tool for auditory learners.'
+      }
+    ]
+  },
+  {
+    id:'s6',
+    title:'NotebookLM vs. ChatGPT — Side-by-Side Comparison',
+    steps:[
+      {
+        id:'s6-1',
+        title:'Ask the same question in ChatGPT',
+        desc:'Open a new tab and go to chatgpt.com. Without uploading any document, ask: "What are the main points of an article about [your source topic]?" Copy the response.',
+        tip:'Pay close attention to whether ChatGPT cites any specific source or just gives general information.',
+        link:{text:'Open ChatGPT', url:'https://chatgpt.com/'}
+      },
+      {
+        id:'s6-2',
+        title:'Ask the same question in NotebookLM',
+        desc:'Go back to NotebookLM and ask the exact same question. Compare the two responses. Write down (or just notice): Which answer is more specific to YOUR source? Which one can you verify? Which one might be about a completely different article?'
+      },
+      {
+        id:'s6-3',
+        title:'Reflect on the difference',
+        desc:'Think about this: If you were writing a paper and needed to cite a specific source, which tool is safer to use and why? The answer to this question is the most important thing to take away from this entire unit.',
+        tip:'NotebookLM cannot hallucinate information outside your sources because it is only allowed to use what you uploaded. ChatGPT can and does hallucinate — and you have no way to verify where its information came from.'
+      }
+    ]
+  }
+];
+
+var S = { checked: {}, open: {} };
+
+function load(){
+  try {
+    var d = JSON.parse(localStorage.getItem('is101-nlm-checklist')||'{}');
+    S.checked = d.checked||{};
+    S.open = d.open||{};
+  } catch(e){}
+  // Open first incomplete section by default
+  if(!Object.keys(S.open).length) S.open['s1'] = true;
+}
+
+function save(){
+  try { localStorage.setItem('is101-nlm-checklist', JSON.stringify(S)); } catch(e){}
+}
+
+function totalSteps(){
+  return SECTIONS.reduce(function(n,s){ return n+s.steps.length; }, 0);
+}
+function doneSteps(){
+  return Object.values(S.checked).filter(Boolean).length;
+}
+function sectionDone(sec){
+  return sec.steps.every(function(st){ return S.checked[st.id]; });
+}
+function allDone(){
+  return doneSteps() === totalSteps();
+}
+function pct(){
+  return Math.round(doneSteps()/totalSteps()*100);
+}
+
+function toggle(stepId){
+  S.checked[stepId] = !S.checked[stepId];
+  save();
+  render();
+  if(S.checked[stepId]) showToast('Step complete \u2713');
+}
+
+function toggleSection(secId){
+  S.open[secId] = !S.open[secId];
+  save();
+  render();
+}
+
+function render(){
+  var el = document.getElementById('content');
+  var p = pct();
+  var done = doneSteps();
+  var total = totalSteps();
+  var html = '';
+
+  if(allDone()){
+    html += '<div class="complete-card">'
+      + '<div class="cc-icon">\uD83C\uDF89</div>'
+      + '<div class="cc-title">NotebookLM Walkthrough Complete!</div>'
+      + '<div class="cc-sub">You have completed all '+total+' steps. You now know how to create notebooks, upload sources, generate study materials, use Audio Overview, and understand when to use NotebookLM vs. ChatGPT. Return to the Start Here page and mark this step complete.</div>'
+      + '<button class="cc-btn" onclick="markDone()">&#10003; Mark Complete &amp; Return</button>'
+      + '</div>';
+  }
+
+  // Hero
+  html += '<div class="hero">'
+    + '<div class="hero-icon">\uD83D\uDCD3</div>'
+    + '<div class="hero-text">'
+    + '<div class="hero-tag">Topic 2 \u2014 Step 2</div>'
+    + '<div class="hero-title">Google NotebookLM: Hands-On Walkthrough</div>'
+    + '<div class="hero-desc">Follow each step inside your own Google NotebookLM account. Check off each step as you complete it. Your progress saves automatically.</div>'
+    + '<div class="hero-meta">'
+    + '<div class="hero-badge">&#128203; '+total+' Steps</div>'
+    + '<div class="hero-badge">&#127891; Self-Guided</div>'
+    + '<div class="hero-badge">&#128279; Open NotebookLM Alongside This Page</div>'
+    + '</div></div></div>';
+
+  // Open NotebookLM button
+  html += '<a class="open-nlm" href="https://notebooklm.google.com/" target="_blank">'
+    + '\uD83D\uDCD3 Open Google NotebookLM in a New Tab</a>';
+
+  // Progress
+  html += '<div class="prog-wrap">'
+    + '<div class="prog-bar"><div class="prog-fill" style="width:'+p+'%"></div></div>'
+    + '<div class="prog-lbl">'+done+'/'+total+' steps complete</div></div>';
+
+  // Sections
+  SECTIONS.forEach(function(sec, si){
+    var isDone = sectionDone(sec);
+    var isOpen = !!S.open[sec.id];
+    var secDone = sec.steps.filter(function(st){ return S.checked[st.id]; }).length;
+
+    html += '<div class="section" id="sec-'+sec.id+'">'
+      + '<div class="section-hd" onclick="toggleSection(\''+sec.id+'\')">'
+      + '<div class="section-num '+(isDone?'done':'')+'">'+( isDone?'\u2713':(si+1))+'</div>'
+      + '<div class="section-title">'+sec.title+'</div>'
+      + '<div class="section-count">'+secDone+'/'+sec.steps.length+'</div>'
+      + '<div class="section-chevron '+(isOpen?'open':'')+'">&#9654;</div>'
+      + '</div>'
+      + '<div class="section-body '+(isOpen?'open':'')+'">';
+
+    sec.steps.forEach(function(step){
+      var checked = !!S.checked[step.id];
+      html += '<div class="step '+(checked?'done':'')+'">'
+        + '<div class="step-check '+(checked?'checked':'')+'" onclick="toggle(\''+step.id+'\')"></div>'
+        + '<div class="step-body">'
+        + '<div class="step-title">'+(checked?'\u2705 ':'')+ step.title+'</div>'
+        + '<div class="step-desc">'+step.desc+'</div>'
+        + (step.tip?'<div class="step-tip">'+step.tip+'</div>':'')
+        + (step.link?'<a class="step-link" href="'+step.link.url+'" target="_blank">'+step.link.text+'</a>':'')
+        + '</div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function markDone(){
+  try { window.parent.postMessage({type:'stepDone',labId:'nlm-checklist'},'*'); } catch(e){}
+  showToast('Walkthrough marked complete! Return to the Start Here page.');
+}
+
+function showToast(msg){
+  var el=document.getElementById('T');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(function(){el.classList.remove('show');},4000);
+}
+
+load();
+render();
+</script>
+</body>
+</html>
