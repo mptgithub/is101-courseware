@@ -122,7 +122,7 @@ async function doLogin() {
   try {
     var result = await IS101API.login(nsheId);
     if (result.success) {
-      window.location.href = '/index.html';
+      alert('Login successful! NSHE ID: ' + result.nsheId + ' — Server is working correctly!');
     } else {
       err.textContent = result.error || 'Sign in failed. Please try again.';
       err.classList.add('show');
