@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Excel — IS101 Training</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#1f1f1f;background:#fff}
+
+/* ════ TITLE BAR — Excel green ════ */
+#title-bar{height:32px;background:#217346;display:flex;align-items:center;padding:0 6px 0 8px;flex-shrink:0}
+.qat{display:flex;gap:2px;margin-right:8px}
+.qat button{width:24px;height:24px;background:transparent;border:none;color:rgba(255,255,255,.9);font-size:12px;cursor:pointer;border-radius:2px}
+.qat button:hover{background:rgba(255,255,255,.15)}
+.docname{flex:1;text-align:center;color:#fff;font-size:12px}
+.winbtns{display:flex}
+.winbtns button{width:44px;height:32px;background:transparent;border:none;color:rgba(255,255,255,.9);font-size:10px;cursor:pointer}
+.winbtns button:hover{background:rgba(255,255,255,.18)}
+.winbtns .cls:hover{background:#c42b1c}
+
+/* ════ RIBBON SHELL — Excel green ════ */
+#ribbon{background:#fff;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+#tab-strip{background:#217346;display:flex;align-items:flex-end;padding:0 2px;height:30px}
+.tab{height:26px;padding:0 12px;font-size:12px;font-family:inherit;color:rgba(255,255,255,.85);background:transparent;border:none;cursor:pointer;white-space:nowrap;border-radius:2px 2px 0 0;position:relative;bottom:-1px;transition:color .1s}
+.tab:hover{color:#fff;background:rgba(255,255,255,.12)}
+.tab.active{background:#fff;color:#000;font-weight:400;border-left:1px solid #c8c8c8;border-right:1px solid #c8c8c8;border-top:2px solid #217346;border-bottom:none;height:30px;bottom:-1px;z-index:2}
+.ctx-wrap{display:flex;flex-direction:column;align-items:flex-end}
+.ctx-lbl{font-size:9px;color:#fbbf24;font-weight:600;padding:0 10px 1px;letter-spacing:.3px}
+.tab.ctx{color:#fbbf24}
+.tab.ctx.active{color:#92400e;border-top-color:#f59e0b}
+
+/* ════ RIBBON BODY ════ */
+#ribbon-body{background:#fff;border-top:1px solid #c8c8c8;display:flex;align-items:stretch;height:88px;overflow-x:auto;overflow-y:hidden;padding:0 2px}
+.grp{display:flex;flex-direction:column;border-right:1px solid #e0e0e0;padding:0 2px;flex-shrink:0}
+.grp:last-child{border-right:none}
+.grp-btns{display:flex;align-items:flex-start;gap:1px;flex:1;padding:3px 2px 2px}
+.grp-lbl{font-size:9px;color:#666;text-align:center;padding:1px 4px 2px;white-space:nowrap;display:flex;align-items:center;justify-content:center;min-height:13px}
+.grp-lbl button{width:11px;height:11px;border:1px solid #c0c0c0;border-radius:1px;background:transparent;cursor:pointer;color:#777;font-size:7px;display:flex;align-items:center;justify-content:center;margin-left:3px;line-height:1}
+.grp-lbl button:hover{background:#e0f0e8;border-color:#217346;color:#217346}
+
+/* ════ LARGE BUTTON — icon above, label below ════ */
+.lb{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:68px;min-width:42px;padding:4px 4px 2px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;flex-shrink:0;transition:background .08s,border-color .08s;font-family:inherit}
+.lb:hover{background:#e0f0e8;border-color:#a8d5bb}
+.lb:active{background:#c5e8d1}
+.lb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.lb .li{display:flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:21px;flex-shrink:0;margin-bottom:1px}
+.lb .ll{font-size:9px;color:#333;text-align:center;line-height:1.25;white-space:normal;word-break:break-word;max-width:52px}
+
+/* ════ DROPDOWN WRAPPER ════ */
+.dd-wrap{position:relative;display:inline-flex;vertical-align:top}
+.dd-menu{position:fixed;top:0;left:0;background:#fff;border:1px solid #ababab;box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:500;min-width:180px;padding:2px 0;display:none}
+.dd-menu.open{display:block}
+.dd-item{display:block;width:100%;background:transparent;border:none;text-align:left;padding:6px 14px;font-size:12px;cursor:pointer;color:#1f1f1f;font-family:inherit}
+.dd-item:hover{background:#e0f0e8}
+.dd-sep{height:1px;background:#e5e7eb;margin:2px 0}
+
+/* ════ SMALL BUTTON — icon left, label right ════ */
+.sb{display:flex;align-items:center;gap:4px;height:20px;padding:0 6px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:11px;font-family:inherit;color:#1f1f1f;white-space:nowrap;min-width:68px;transition:background .08s}
+.sb:hover{background:#e0f0e8;border-color:#a8d5bb}
+.sb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.sb .si{font-size:13px;width:14px;text-align:center;flex-shrink:0}
+.sb .sl{font-size:11px;color:#1f1f1f}
+.sb-stack{display:flex;flex-direction:column;gap:1px;justify-content:center;height:68px}
+
+/* ════ ICON-ONLY BUTTON (Alignment, Number groups) ════ */
+.ib{width:24px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;color:#1f1f1f;flex-shrink:0;font-size:13px}
+.ib:hover{background:#e0f0e8;border-color:#a8d5bb}
+.ib.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.ib-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0;align-self:center}
+.ib-dd{position:relative;display:inline-flex}
+.ib-dd-btn{width:28px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:10px;color:#1f1f1f;gap:1px;flex-shrink:0}
+.ib-dd-btn:hover{background:#e0f0e8;border-color:#a8d5bb}
+.ib-dd-btn.hl{background:#fff3cd;border-color:#f59e0b}
+.two-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.icon-row{display:flex;align-items:center;gap:1px}
+
+/* ════ NUMBER GROUP SPECIFIC ════ */
+.num-fmt-dd{height:20px;border:1px solid #ababab;border-radius:2px;background:#fff;display:flex;align-items:center;padding:0 5px;gap:3px;cursor:pointer;font-size:11px;color:#1f1f1f;margin-bottom:2px}
+.num-fmt-dd:hover{border-color:#555}
+.num-fmt-dd .fa{font-size:7px;color:#777;margin-left:auto}
+.num-wide-btn{height:20px;padding:0 6px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:11px;font-weight:600;color:#1f1f1f;min-width:24px;font-family:inherit}
+.num-wide-btn:hover{background:#e0f0e8;border-color:#a8d5bb}
+.num-wide-btn.hl{background:#fff3cd;border-color:#f59e0b}
+
+/* ════ FONT GROUP ════ */
+.font-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.font-row{display:flex;align-items:center;gap:1px}
+.font-combo{height:20px;border:1px solid #ababab;border-radius:2px;background:#fff;font-size:11px;font-family:inherit;padding:0 3px;color:#1f1f1f;display:flex;align-items:center;gap:2px;cursor:text}
+.font-combo:hover{border-color:#555}
+.font-combo .fa{font-size:7px;color:#777;flex-shrink:0}
+.font-sq{width:22px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:12px;color:#1f1f1f;flex-shrink:0}
+.font-sq:hover{background:#e0f0e8;border-color:#a8d5bb}
+.font-sq.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.font-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0}
+
+/* ════ FORMULA BAR ════ */
+#fbar-wrap{background:#fff;border-bottom:1px solid #c8c8c8;display:flex;align-items:center;height:24px;flex-shrink:0}
+#name-box{width:68px;height:100%;border-right:1px solid #c8c8c8;padding:0 6px;font-size:12px;font-family:"Segoe UI",sans-serif;display:flex;align-items:center;cursor:default;flex-shrink:0;background:#fff}
+#fbar-btns{display:flex;align-items:center;padding:0 4px;gap:2px;flex-shrink:0}
+#fbar-btns button{background:transparent;border:none;cursor:pointer;font-size:13px;color:#555;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:2px}
+#fbar-btns button:hover{background:#e0f0e8}
+#fbar-fx{font-size:12px;color:#555;font-style:italic;padding:0 4px;flex-shrink:0}
+#fbar-sep{width:1px;height:16px;background:#c8c8c8;flex-shrink:0}
+#fbar-input{flex:1;height:100%;border:none;outline:none;padding:0 6px;font-size:12px;font-family:"Consolas","Courier New",monospace;color:#1f1f1f;background:#fff}
+#fbar-input::placeholder{color:#aaa;font-family:"Segoe UI",sans-serif;font-style:italic;font-size:11px}
+
+/* ════ BODY ════ */
+#body-wrap{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+#sidebar{width:188px;background:#1e293b;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-hd{padding:14px 14px 10px;border-bottom:1px solid #334155}
+.sb-exam{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:2px}
+.sb-title{font-size:14px;font-weight:700;color:#f1f5f9}
+.sb-score-box{padding:10px 14px;border-bottom:1px solid #334155}
+.sb-lbl{font-size:9px;color:#64748b;margin-bottom:3px}
+.sb-val{font-size:22px;font-weight:700;color:#60a5fa}
+.sb-bar{height:3px;background:#334155;border-radius:2px;margin-top:5px}
+.sb-fill{height:100%;background:#217346;border-radius:2px;transition:width .4s}
+.sb-domain{padding:8px 14px 3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#475569}
+.lab-btn{display:flex;align-items:center;gap:7px;width:100%;background:transparent;border:none;border-left:3px solid transparent;cursor:pointer;padding:7px 12px;text-align:left;color:#94a3b8;font-family:inherit;transition:all .15s}
+.lab-btn:hover{background:#273244;color:#e2e8f0}
+.lab-btn.active{background:#163a22;border-left-color:#217346;color:#fff}
+.lab-btn.done{color:#34d399;border-left-color:#10b981}
+.lab-dot{width:20px;height:20px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;color:#94a3b8}
+.lab-dot.active{background:#217346;color:#fff}
+.lab-dot.done{background:#10b981;color:#fff}
+.lab-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lab-obj{font-size:9px;opacity:.6;margin-top:1px}
+
+/* ════ MAIN PANE ════ */
+#main-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff}
+
+/* Row/col headers + sheet area */
+#sheet-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff}
+
+/* Column headers */
+#col-headers{display:flex;background:#f2f2f2;border-bottom:1px solid #c8c8c8;flex-shrink:0;overflow:hidden}
+.row-num-spacer{width:42px;height:20px;border-right:1px solid #c8c8c8;flex-shrink:0;background:#f2f2f2}
+.col-hdr{height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#555;border-right:1px solid #d9d9d9;flex-shrink:0;user-select:none}
+.col-hdr.active-col{background:#217346;color:#fff;font-weight:600}
+.col-hdr.has-data{background:#e0ece6}
+
+/* Sheet cells */
+#sheet-body{flex:1;overflow:auto;background:#fff}
+#sheet-body table{border-collapse:collapse;font-family:"Calibri","Segoe UI",sans-serif;font-size:12px}
+.row-num{width:42px;height:20px;background:#f2f2f2;border-right:1px solid #c8c8c8;border-bottom:1px solid #d9d9d9;text-align:center;font-size:11px;color:#555;cursor:default;user-select:none;flex-shrink:0}
+.row-num.active-row{background:#217346;color:#fff;font-weight:600}
+.cell{min-width:90px;height:20px;border-right:1px solid #d9d9d9;border-bottom:1px solid #d9d9d9;padding:0 4px;cursor:default;white-space:nowrap;overflow:hidden;background:#fff;position:relative}
+.cell.header-cell{background:#f2f2f2;font-weight:600;text-align:center;color:#1f1f1f}
+.cell.num-cell{text-align:right}
+.cell.target-cell{background:#fff2cc;border:2px solid #217346}
+.cell.target-cell.correct{background:#e2f0e8;border-color:#217346}
+.cell.target-cell.wrong{background:#fce8e8;border-color:#c00}
+.cell.selected{background:#d9e8f0;border:1px solid #5d9dc5}
+.cell.result-cell{color:#217346;font-weight:600}
+.cell.error-cell{color:#c00}
+
+/* Sheet tabs at bottom */
+#sheet-tabs{height:26px;background:#f2f2f2;border-top:1px solid #c8c8c8;display:flex;align-items:flex-end;padding:0 4px;flex-shrink:0}
+.sheet-tab{height:22px;padding:0 14px;font-size:11px;color:#1f1f1f;background:#fff;border:1px solid #c8c8c8;border-bottom:none;cursor:pointer;font-family:inherit;border-radius:2px 2px 0 0;margin-right:2px}
+.sheet-tab.active{border-bottom:1px solid #fff;color:#217346;font-weight:500}
+#new-sheet-btn{width:22px;height:22px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;color:#555;font-size:16px;display:flex;align-items:center;justify-content:center}
+#new-sheet-btn:hover{background:#e0ece6}
+
+/* Progress */
+#prog-bar{height:3px;background:#e5e7eb;flex-shrink:0}
+#prog-fill{height:100%;background:#217346;transition:width .4s}
+
+/* Status bar */
+#status-bar{height:22px;background:#217346;display:flex;align-items:center;padding:0 12px;color:rgba(255,255,255,.88);font-size:11px;flex-shrink:0;gap:16px}
+
+/* Task panel */
+#task-panel{background:#fff;border-top:2px solid #217346;padding:10px 16px;flex-shrink:0}
+.task-row{display:flex;align-items:flex-start;gap:10px}
+.task-badge{background:#217346;color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:3px 8px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.task-text{font-size:13px;color:#14532d;font-weight:500;line-height:1.4;flex:1}
+.task-acts{display:flex;gap:6px;flex-shrink:0}
+.btn{padding:5px 14px;border-radius:2px;font-size:12px;cursor:pointer;font-family:inherit;border:1px solid transparent}
+.btn-green{background:#217346;color:#fff}.btn-green:hover{background:#185c37}
+.btn-ghost{background:#fff;border-color:#ababab;color:#374151}.btn-ghost:hover{background:#f5f5f5}
+.hint-area{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.hint-row{padding:7px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#78350f;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.hint-row-0{background:#fff8e1;border-color:#fde68a}
+.hint-row-1{background:#fff3cd;border-color:#fbbf24}
+.hint-row-2{background:#fef3c7;border-color:#f59e0b}
+.hint-answer{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.hint-num{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;padding:1px 7px;border-radius:10px;background:rgba(0,0,0,.08);margin-top:1px}
+.answer-tag{background:#15803d;color:#fff}
+.fb{margin-top:7px;padding:9px 14px;font-size:12px;line-height:1.5}
+.fb-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.fb-err{background:#fff1f1;border:1px solid #fca5a5;color:#991b1b}
+.fb-next{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}
+
+/* backdrop + dialog */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;display:none}
+.w-dlg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #ababab;box-shadow:0 8px 28px rgba(0,0,0,.25);z-index:300;width:360px;display:none;font-family:"Segoe UI",sans-serif}
+.dlg-hd{background:#217346;color:#fff;padding:8px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.dlg-close{background:transparent;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0 4px}
+.dlg-body{padding:16px}
+.dlg-body label{display:block;font-size:12px;color:#374151;margin-bottom:3px;margin-top:10px}
+.dlg-body label:first-child{margin-top:0}
+.dlg-body input{width:100%;padding:5px 9px;border:1px solid #ababab;font-size:13px;font-family:inherit}
+.dlg-body input:focus{outline:none;border-color:#217346}
+.dlg-ft{padding:10px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px;background:#f9f9f9}
+
+@keyframes hlpulse{0%,100%{box-shadow:0 0 0 0 rgba(33,115,70,.4)}60%{box-shadow:0 0 0 4px rgba(33,115,70,.08)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- Find Function dialog -->
+<div class="backdrop" id="backdrop" onclick="closeDlg()"></div>
+<div class="w-dlg" id="dlg">
+  <div class="dlg-hd">Insert Function <button class="dlg-close" onclick="closeDlg()">✕</button></div>
+  <div class="dlg-body">
+    <label>Search for a function:</label>
+    <input id="dlg-fn" placeholder="e.g. SUM, VLOOKUP, IF…">
+    <label>Or select a category: All</label>
+    <input id="dlg-cat" value="All" readonly>
+  </div>
+  <div class="dlg-ft">
+    <button class="btn btn-ghost" onclick="closeDlg()">Cancel</button>
+    <button class="btn btn-green" onclick="doInsertFn()">OK</button>
+  </div>
+</div>
+
+<!-- TITLE BAR -->
+<div id="title-bar">
+  <div class="qat">
+    <button title="Save">💾</button>
+    <button title="Undo" style="font-size:11px">↩</button>
+    <button title="Redo" style="font-size:11px">↪</button>
+  </div>
+  <div class="docname" id="doc-title">Book1.xlsx — Excel</div>
+  <div class="winbtns">
+    <button>─</button><button>❐</button><button class="cls">✕</button>
+  </div>
+</div>
+
+<!-- RIBBON -->
+<div id="ribbon">
+  <div id="tab-strip"></div>
+  <div id="ribbon-body"></div>
+</div>
+
+<!-- FORMULA BAR -->
+<div id="fbar-wrap">
+  <div id="name-box" id="name-box-el"></div>
+  <div id="fbar-btns">
+    <button title="Cancel (Esc)">✕</button>
+    <button title="Enter">✔</button>
+  </div>
+  <div id="fbar-fx">fx</div>
+  <div id="fbar-sep"></div>
+  <input id="fbar-input" type="text" placeholder="Click the highlighted cell, type your formula, then press Enter">
+</div>
+
+<!-- PROGRESS -->
+<div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+
+<!-- BODY -->
+<div id="body-wrap">
+  <div id="sidebar">
+    <div class="sb-hd"><div class="sb-exam">IS101 Associate</div><div class="sb-title">Excel Training</div></div>
+    <div class="sb-score-box">
+      <div class="sb-lbl">SCORE</div>
+      <div class="sb-val" id="sb-score">0 / 100</div>
+      <div class="sb-bar"><div class="sb-fill" id="sb-fill" style="width:0%"></div></div>
+    </div>
+    <div id="sb-nav"></div>
+  </div>
+  <div id="main-pane">
+    <div id="sheet-wrap">
+      <div id="col-headers"></div>
+      <div id="sheet-body"></div>
+      <div id="sheet-tabs">
+        <button class="sheet-tab active">Sheet1</button>
+        <button class="sheet-tab">Sheet2</button>
+        <button id="new-sheet-btn" title="New Sheet">+</button>
+      </div>
+    </div>
+    <div id="status-bar">
+      <span id="st-mode">Ready</span>
+      <span style="margin-left:auto;display:flex;gap:16px">
+        <span id="st-avg"></span>
+        <span id="st-cnt"></span>
+        <span id="st-sum"></span>
+        <span>🔲 🔲 🔲  100%</span>
+      </span>
+    </div>
+    <div id="task-panel"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// LAB DATA — 10 formula labs (IS101)
+// ═══════════════════════════════════════════
+const DOMAINS=[
+  {label:'D4 · Formulas ()',labs:[0,1,2,3,4]},
+  {label:'D4 · Functions ()',labs:[5,6,7,8,9]},
+];
+const LABS=[
+  {id:0,name:'SUM',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:7,
+   cells:{A1:'Month',B1:'Sales ($)',A2:'January',B2:2400,A3:'February',B3:3100,A4:'March',B4:2850,A5:'April',B5:3200,A6:'May',B6:2750,A7:'TOTAL',B7:null},
+   target:'B7',colWidths:{A:110,B:90},
+   scenario:'Calculate total monthly sales using SUM.',
+   task:'The monthly sales figures are in cells B2 through B6. Calculate the <strong>total sales</strong> for all months and display the result in cell <strong>B7</strong>.',
+   hints:[
+     'This function adds up a range of numbers — think about what mathematical operation you need.',
+     'The function name starts with S and is the most common Excel function for adding numbers together.',
+     'The function is SUM. Type =SUM( then select the range B2:B6, close with ), and press Enter.'
+   ],
+   answer:'=SUM(B2:B6)',
+   validate(f,v){const ok=/^=SUM\(B2:B6\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-14300)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! SUM adds every value in a range.':vok?'Right answer — use =SUM(B2:B6) for full marks.':'The total is 14,300. Try =SUM(B2:B6).'};},
+   exp:'=SUM(B2:B6) adds cells B2 through B6. The colon defines a range — shorthand for adding each cell individually.'},
+  {id:1,name:'AVERAGE',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:7,
+   cells:{A1:'Student',B1:'Quiz Score',A2:'Alice',B2:88,A3:'Bob',B3:74,A4:'Carol',B4:92,A5:'David',B5:65,A6:'Emma',B6:81,A7:'Average',B7:null},
+   target:'B7',colWidths:{A:110,B:90},
+   scenario:'Calculate the class quiz average.',
+   task:'The student scores are in cells B2 through B6. Calculate the <strong>average score</strong> and display the result in cell <strong>B7</strong>.',
+   hints:[
+     'You need a function that calculates the mean — the middle value when all numbers are added and divided.',
+     'The function name describes exactly what it does — it finds the average of a range.',
+     'The function is AVERAGE. Type =AVERAGE( then select the range B2:B6, close with ), and press Enter.'
+   ],
+   answer:'=AVERAGE(B2:B6)',
+   validate(f,v){const ok=/^=AVERAGE\(B2:B6\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-80)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! AVERAGE computes the arithmetic mean.':'The class average is 80. Try =AVERAGE(B2:B6).'};},
+   exp:'=AVERAGE(B2:B6) sums all values and divides by the count: (88+74+92+65+81)÷5 = 80.'},
+  {id:2,name:'MAX',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:8,
+   cells:{A1:'Day',B1:'High (°F)',A2:'Monday',B2:78,A3:'Tuesday',B3:82,A4:'Wednesday',B4:91,A5:'Thursday',B5:85,A6:'Friday',B6:73,A7:'',B7:null,A8:'Hottest day',B8:null},
+   target:'B8',colWidths:{A:110,B:90},
+   scenario:'Find the highest temperature recorded during the week.',
+   task:'The recorded temperatures are in cells B2 through B6. Find the <strong>highest temperature</strong> recorded and display it in cell <strong>B8</strong>.',
+   hints:[
+     'You need a function that finds the highest value in a range of numbers.',
+     'The function name is a short word meaning the largest or greatest value.',
+     'The function is MAX. Type =MAX( then select the range B2:B6, close with ), and press Enter.'
+   ],
+   answer:'=MAX(B2:B6)',
+   validate(f,v){const ok=/^=MAX\(B2:B6\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-91)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! MAX returns the largest value.':'The hottest day was 91°F. Try =MAX(B2:B6).'};},
+   exp:'=MAX(B2:B6) scans all cells and returns 91 (Wednesday). Use MIN for the lowest value.'},
+  {id:3,name:'COUNT',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:8,
+   cells:{A1:'Product',B1:'Units Sold',A2:'Widget A',B2:142,A3:'Widget B',B3:'N/A',A4:'Widget C',B4:98,A5:'Widget D',B5:215,A6:'Widget E',B6:'N/A',A7:'Widget F',B7:67,A8:'Products with data',B8:null},
+   target:'B8',colWidths:{A:130,B:100},
+   scenario:'Count only cells that contain numeric sales data.',
+   task:'The data in B2:B7 includes some "N/A" entries that should be ignored. Count only the cells that contain <strong>actual numbers</strong> and display the result in cell <strong>B8</strong>.',
+   hints:[
+     'You need a function that counts how many cells in a range contain numbers.',
+     'The function name is simply the action you want to perform on the range.',
+     'The function is COUNT. Type =COUNT( then select the range B2:B7, close with ), and press Enter.'
+   ],
+   answer:'=COUNT(B2:B7)',
+   validate(f,v){const ok=/^=COUNT\(B2:B7\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-4)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! COUNT only counts numeric cells — text is ignored.':'4 products have numeric data. Try =COUNT(B2:B7).'};},
+   exp:'=COUNT(B2:B7) returns 4. COUNT skips text cells like "N/A". Use COUNTA to count all non-empty cells.'},
+  {id:4,name:'IF',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B','C'],rows:6,
+   cells:{A1:'Student',B1:'Score',C1:'Result',A2:'Alice',B2:88,C2:null,A3:'Bob',B3:54,C3:'Fail',A4:'Carol',B4:92,C4:'Pass',A5:'David',B5:65,C5:'Pass',A6:'Emma',B6:42,C6:'Fail'},
+   target:'C2',colWidths:{A:90,B:70,C:70},
+   scenario:'Label each student Pass or Fail based on whether their score meets the threshold.',
+   task:'Students need a Pass or Fail result based on their score in column B. In cell <strong>C2</strong>, write a formula that shows <strong>"Pass"</strong> if the score is 60 or above, and <strong>"Fail"</strong> if it is below 60.',
+   hints:[
+     'You need a function that makes a decision — if a condition is true it shows one value, otherwise another.',
+     'The IF function has three parts: the condition to test, what to show when true, what to show when false.',
+     'Type =IF( then the condition B2>=60, then comma, then "Pass", then comma, then "Fail", then close with ).'
+   ],
+   answer:'=IF(B2>=60,"Pass","Fail")',
+   validate(f,v){const ok=/^=IF\(B2>=60,["']Pass["'],["']Fail["']\)$/i.test(f.trim());const vok=typeof v==='string'&&v.toLowerCase()==='pass';return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! IF evaluates a condition and returns one of two values.':'Alice scored 88 (≥60) so result is "Pass". Try =IF(B2>=60,"Pass","Fail").'};},
+   exp:'IF(condition, value_if_true, value_if_false): since 88≥60 is TRUE, "Pass" is returned. Always three arguments separated by commas.'},
+  {id:5,name:'MIN',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:7,
+   cells:{A1:'Product',B1:'Unit Price ($)',A2:'Laptop',B2:899,A3:'Mouse',B3:29,A4:'Keyboard',B4:49,A5:'Monitor',B5:249,A6:'Headset',B6:79,A7:'Lowest price',B7:null},
+   target:'B7',colWidths:{A:130,B:100},
+   scenario:'Find the cheapest product in the catalog.',
+   task:'The product prices are listed in cells B2 through B6. Find the <strong>lowest price</strong> in the list and display it in cell <strong>B7</strong>.',
+   hints:[
+     'You need a function that finds the lowest value in a range of numbers.',
+     'The function name is a short word meaning the smallest or lowest value.',
+     'The function is MIN. Type =MIN( then select the range B2:B6, close with ), and press Enter.'
+   ],
+   answer:'=MIN(B2:B6)',
+   validate(f,v){const ok=/^=MIN\(B2:B6\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-29)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! MIN returns the smallest value in a range.':'The cheapest product is $29. Try =MIN(B2:B6).'};},
+   exp:'=MIN(B2:B6) returns 29 (Mouse). Pair with MAX to show the full price range.'},
+  {id:6,name:'ROUND',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:8,
+   cells:{A1:'Student',B1:'Score',A2:'Alice',B2:87.6,A3:'Bob',B3:92.3,A4:'Carol',B4:78.9,A5:'David',B5:95.1,A6:'',B6:null,A7:'Raw average',B7:88.475,A8:'Rounded (1 dp)',B8:null},
+   target:'B8',colWidths:{A:130,B:100},
+   scenario:'Management wants the average displayed to one decimal place.',
+   task:'The calculated result in B7 has too many decimal places. In cell <strong>B8</strong>, write a formula that rounds that value to exactly <strong>1 decimal place</strong>.',
+   hints:[
+     'You need a function that limits how many decimal places a number shows.',
+     'The ROUND function takes two arguments: the number to round, and how many decimal places to keep.',
+     'Type =ROUND( then the cell reference B7, then comma, then the number 1 for one decimal place, then close with ).'
+   ],
+   answer:'=ROUND(B7,1)',
+   validate(f,v){const ok=/^=ROUND\(B7,1\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-88.5)<.001;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! ROUND(value, digits) controls decimal precision.':'88.475 rounded to 1 decimal is 88.5. Try =ROUND(B7,1).'};},
+   exp:'=ROUND(B7,1) rounds 88.475 to 88.5. Second argument = decimal places (0=whole number, 2=hundredths).'},
+  {id:7,name:'COUNTIF',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:8,
+   cells:{A1:'Month',B1:'Sales ($)',A2:'January',B2:8500,A3:'February',B3:12400,A4:'March',B4:9800,A5:'April',B5:15200,A6:'May',B6:7600,A7:'June',B7:11000,A8:'Months over $10K',B8:null},
+   target:'B8',colWidths:{A:140,B:100},
+   scenario:'Count how many months exceeded the $10,000 sales target.',
+   task:'The sales figures are in B2:B7. The manager wants to know how many products had sales <strong>greater than $10,000</strong>. Write a formula in cell <strong>B8</strong> that counts only those cells.',
+   hints:[
+     'You need a function that counts cells — but only the ones that meet a specific condition.',
+     'COUNTIF takes two arguments: the range to check, and the condition in quotes as a text string.',
+     'Type =COUNTIF( then the range B2:B7, then comma, then the condition in quotes ">10000", then close with ).'
+   ],
+   answer:'=COUNTIF(B2:B7,">10000")',
+   validate(f,v){const ok=/^=COUNTIF\(B2:B7,["']?>10000["']?\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-3)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! COUNTIF counts cells matching a condition.':'3 months exceeded $10K (Feb, Apr, Jun). Try =COUNTIF(B2:B7,">10000").'};},
+   exp:'COUNTIF(range, criteria): criteria must be quoted when using operators. ">10000" counts all values above 10,000.'},
+  {id:8,name:'SUMIF',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:8,
+   cells:{A1:'Category',B1:'Amount ($)',A2:'Food',B2:85,A3:'Transport',B3:120,A4:'Food',B4:65,A5:'Technology',B5:340,A6:'Food',B6:45,A7:'Transport',B7:95,A8:'Total food',B8:null},
+   target:'B8',colWidths:{A:110,B:90},
+   scenario:'Total only the Food expenses from a mixed expense log.',
+   task:'The spending categories are in column A and amounts are in column B. In cell <strong>B8</strong>, write a formula that adds up only the amounts where the category is <strong>"Food"</strong>.',
+   hints:[
+     'You need a function that adds numbers — but only from rows where a condition in another column is met.',
+     'SUMIF takes three arguments: the range to check for the condition, the condition itself, and the range to add up.',
+     'Type =SUMIF( then the category range A2:A7, then comma, then "Food" in quotes, then comma, then the amounts range B2:B7, then close with ).'
+   ],
+   answer:'=SUMIF(A2:A7,"Food",B2:B7)',
+   validate(f,v){const ok=/^=SUMIF\(A2:A7,["']Food["'],B2:B7\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-195)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! SUMIF sums values where a condition is met.':'Food total is $195 (85+65+45). Try =SUMIF(A2:A7,"Food",B2:B7).'};},
+   exp:'SUMIF(range, criteria, sum_range): checks A2:A7 for "Food" and adds the matching B values. Total: 85+65+45=195.'},
+  {id:9,name:'VLOOKUP',domain:'D4',obj:'',tab:'formulas',action:'formula',
+   cols:['A','B'],rows:9,
+   cells:{A1:'Product',B1:'Price ($)',A2:'Alpha',B2:29.99,A3:'Beta',B3:54.99,A4:'Gamma',B4:14.50,A5:'Delta',B5:74.99,A6:'Epsilon',B6:39.99,A7:'',B7:null,A8:'Look up:',B8:'Gamma',A9:'Price:',B9:null},
+   target:'B9',colWidths:{A:110,B:90},
+   scenario:'Look up a product price automatically from the table.',
+   task:'Cell B8 contains a product name. The price list is in the table A2:B6. In cell <strong>B9</strong>, write a formula that automatically <strong>looks up the price</strong> of whatever product is named in B8.',
+   hints:[
+     'You need a function that looks up a value in a table and returns related information from another column.',
+     'VLOOKUP takes four arguments: what to look for, the table range, which column number to return, and whether to use exact match.',
+     'Type =VLOOKUP( then the lookup value B8, then comma, then the table A2:B6, then comma, then column number 2, then comma, then FALSE for exact match, then close with ).'
+   ],
+   answer:'=VLOOKUP(B8,A2:B6,2,FALSE)',
+   validate(f,v){const ok=/^=VLOOKUP\(B8,A2:B6,2,(FALSE|0)\)$/i.test(f.trim());const vok=typeof v==='number'&&Math.abs(v-14.5)<.01;return{correct:ok&&vok,score:ok&&vok?10:vok?6:0,msg:ok&&vok?'Correct! VLOOKUP found "Gamma" and returned its price.':'Gamma costs $14.50. Try =VLOOKUP(B8,A2:B6,2,FALSE).'};},
+   exp:'VLOOKUP(lookup_value, table_array, col_index, [exact]): searches column A for "Gamma", returns column 2 (price). FALSE = exact match.'},
+];
+
+// ═══════════════════════════════════════════
+// FORMULA EVALUATOR
+// ═══════════════════════════════════════════
+function expandRange(ref,cells){
+  const m=ref.match(/^([A-Z])(\d+):([A-Z])(\d+)$/i);
+  if(!m)return[cells[ref.toUpperCase()]??null];
+  const[,sc,sr,ec,er]=m,res=[];
+  for(let c=sc.toUpperCase().charCodeAt(0);c<=ec.toUpperCase().charCodeAt(0);c++)
+    for(let r=+sr;r<=+er;r++)res.push(cells[String.fromCharCode(c)+r]??null);
+  return res;
+}
+function toNum(v){return typeof v==='number'?v:(parseFloat(v)||0);}
+function splitArgs(s){const a=[];let d=0,c='';for(const ch of s){if(ch==='(')d++;else if(ch===')')d--;if(ch===','&&d===0){a.push(c);c='';}else c+=ch;}if(c)a.push(c);return a;}
+function parseCrit(cr){const m=cr.match(/^(>=|<=|<>|>|<|=)?(.+)$/);if(!m)return{op:'=',val:cr,n:parseFloat(cr)};return{op:m[1]||'=',val:m[2],n:parseFloat(m[2])};}
+function matchCrit(cv,cr){const{op,val,n}=parseCrit(cr);const nv=typeof cv==='number'?cv:parseFloat(cv)||0;if(op==='=')return String(cv).toLowerCase()===val.toLowerCase()||nv===n;if(op==='>')return nv>n;if(op==='>=')return nv>=n;if(op==='<')return nv<n;if(op==='<=')return nv<=n;if(op==='<>')return nv!==n;return false;}
+function evalFormula(f,cells){
+  if(!f||!f.startsWith('='))return f;
+  const raw=f.slice(1).trim();
+  const fm=raw.match(/^([A-Za-z]+)\((.+)\)$/s);
+  if(fm){
+    const fn=fm[1].toUpperCase(),args=splitArgs(fm[2]);
+    const rng=a=>expandRange(a.trim().toUpperCase(),cells);
+    switch(fn){
+      case'SUM':return rng(args[0]).map(toNum).reduce((a,b)=>a+b,0);
+      case'AVERAGE':{const v=rng(args[0]).map(toNum);return v.reduce((a,b)=>a+b,0)/v.length;}
+      case'MAX':return Math.max(...rng(args[0]).map(toNum));
+      case'MIN':return Math.min(...rng(args[0]).map(toNum));
+      case'COUNT':return rng(args[0]).filter(v=>typeof v==='number').length;
+      case'COUNTA':return rng(args[0]).filter(v=>v!=null&&v!=='').length;
+      case'IF':{if(args.length<3)return'#VALUE!';const cond=evalCond(args[0].trim().toUpperCase(),cells);const tv=args[1].trim().replace(/^["']|["']$/g,'');const fv=args[2].trim().replace(/^["']|["']$/g,'');return cond?tv:fv;}
+      case'ROUND':{const ref=args[0].trim().toUpperCase();const val=/^[A-Z]\d+$/.test(ref)?toNum(cells[ref]):parseFloat(args[0])||0;const d=parseInt(args[1]);const f2=Math.pow(10,d);return Math.round(val*f2)/f2;}
+      case'COUNTIF':{const vals=rng(args[0]);const cr=args[1].trim().replace(/^["']|["']$/g,'');return vals.filter(v=>matchCrit(v,cr)).length;}
+      case'SUMIF':{if(args.length<2)return'#VALUE!';const cv=rng(args[0]);const cr=args[1].trim().replace(/^["']|["']$/g,'');const sv=args.length>=3?rng(args[2]):cv;return cv.reduce((s,v,i)=>matchCrit(v,cr)?s+toNum(sv[i]):s,0);}
+      case'VLOOKUP':{if(args.length<3)return'#N/A';const a0=args[0].trim().toUpperCase();const lv=/^[A-Z]\d+$/.test(a0)?String(cells[a0]??''):args[0].trim().replace(/^["']|["']$/g,'');const tm=args[1].trim().toUpperCase().match(/^([A-Z])(\d+):([A-Z])(\d+)$/);if(!tm)return'#N/A';const[,sc,sr,ec,er]=tm;const ci=parseInt(args[2])-1;for(let r=+sr;r<=+er;r++){const fc=cells[sc+r];if(String(fc??'').toLowerCase()===lv.toLowerCase()){const tc=String.fromCharCode(sc.charCodeAt(0)+ci);return cells[tc+r]??'#N/A';}}return'#N/A';}
+      default:return'#NAME?';
+    }
+  }
+  if(/^[A-Za-z]\d+$/.test(raw))return cells[raw.toUpperCase()]??'';
+  return'#VALUE!';
+}
+function evalCond(e,cells){
+  for(const op of['>=','<=','<>','!=','>','<','=']){
+    const i=e.indexOf(op);if(i>0){const L=e.slice(0,i).trim(),R=e.slice(i+op.length).trim();const lv=/^[A-Z]\d+$/.test(L)?toNum(cells[L]):parseFloat(L)||0;const rv=/^[A-Z]\d+$/.test(R)?toNum(cells[R]):parseFloat(R)||0;if(op==='>=')return lv>=rv;if(op==='<=')return lv<=rv;if(op==='<>'||op==='!=')return lv!==rv;if(op==='>')return lv>rv;if(op==='<')return lv<rv;if(op==='=')return lv===rv;}
+  }
+  return false;
+}
+function fmtVal(v){if(v===null||v===undefined||v==='')return'';if(typeof v==='number'){if(Number.isInteger(v))return v.toLocaleString();return parseFloat(v.toFixed(4)).toLocaleString();}return String(v);}
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const S={lab:0,tab:'home',dd:null,hintCount:0,wrongCount:0,wrong:false,res:{},selCell:null,formula:''};
+const MAX=LABS.length*10;
+const score=()=>Object.values(S.res).reduce((a,v)=>a+(v||0),0);
+
+// ═══════════════════════════════════════════
+// RIBBON BUILDER
+// ═══════════════════════════════════════════
+function LB(icon,label,action,ddItems){
+  const lab=LABS[S.lab];
+  const isHL=lab&&action===lab.action&&action!=='formula'; // formula action is handled via fbar
+  const cls=`lb${isHL?' hl':''}`;
+  const lbl=ddItems?`${label} <span style="font-size:7px;color:#555">▾</span>`:label;
+  const inner=`<span class="li">${icon}</span><span class="ll">${lbl}</span>`;
+  if(ddItems){
+    const open=S.dd===action;
+    return`<div class="dd-wrap"><button class="${cls}" data-action="${action}" data-dd="${action}" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start">${inner}</button><div class="dd-menu${open?' open':''}">${ddItems.map(d=>`<button class="dd-item" data-dditem="${d[1]}">${d[0]}</button>`).join('')}</div></div>`;
+  }
+  return`<button class="${cls}" data-action="${action}" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start">${inner}</button>`;
+}
+function SB(icon,label,action){
+  const lab=LABS[S.lab];
+  const isHL=lab&&action===lab.action&&action!=='formula';
+  return`<button class="sb${isHL?' hl':''}" data-action="${action}"><span class="si">${icon}</span><span class="sl">${label}</span></button>`;
+}
+function STACK(...b){return`<div class="sb-stack">${b.join('')}</div>`;}
+function GRP(label,html,launcher){return`<div class="grp"><div class="grp-btns">${html}</div><div class="grp-lbl">${label}${launcher?'<button title="Open dialog">↗</button>':''}</div></div>`;}
+function IB(content,action,title,w){
+  const lab=LABS[S.lab];const isHL=lab&&action===lab.action&&action!=='formula';
+  return`<button class="ib${isHL?' hl':''}" data-action="${action}" title="${title||action}" style="width:${w||24}px">${content}</button>`;
+}
+function IBDD(content,action,title,items){
+  const open=S.dd===action;
+  return`<div class="ib-dd"><button class="ib-dd-btn${LABS[S.lab]&&action===LABS[S.lab].action?' hl':''}" data-action="${action}" data-dd="${action}" title="${title}">${content}<span style="font-size:6px;color:#555">▾</span></button><div class="dd-menu${open?' open':''}">${items.map(d=>`<button class="dd-item" data-dditem="${d[1]}">${d[0]}</button>`).join('')}</div></div>`;
+}
+const IBSEP=`<span class="ib-sep"></span>`;
+
+function buildRibbon(){
+  const curTab=S.tab;
+  const lab=LABS[S.lab];
+  const ctxTabs=[];
+  // Build tab strip
+  const tabs=[['home','Home'],['insert','Insert'],['page-layout','Page Layout'],['formulas','Formulas'],['data','Data'],['review','Review'],['view','View']];
+  let tabHtml='';
+  tabs.forEach(([id,lbl])=>{tabHtml+=`<button class="tab${curTab===id?' active':''}" data-settab="${id}">${lbl}</button>`;});
+  document.getElementById('tab-strip').innerHTML=tabHtml;
+
+  let body='';
+
+  // ── HOME ──────────────────────────────────────────────────────
+  if(curTab==='home'){
+    // Clipboard
+    body+=GRP('Clipboard',
+      LB('📋','Paste','paste',[['Paste  Ctrl+V','paste'],['Paste Special…','paste-special'],['Paste as Values','paste-values'],['Transpose','paste-transpose']])+
+      STACK(SB('✂','Cut','cut'),SB('📄','Copy','copy'),SB('🖌','Format Painter','fmt-painter')),true);
+
+    // Font
+    const fhl=a=>LABS[S.lab]&&a===LABS[S.lab].action?' hl':'';
+    body+=GRP('Font',`<div class="font-rows">
+      <div class="font-row">
+        <div class="font-combo" style="width:110px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">Calibri</span><span class="fa">▾</span></div>
+        <div class="font-combo" style="width:36px"><span style="font-size:11px">11</span><span class="fa">▾</span></div>
+        <button class="font-sq" data-action="grow" title="Grow Font"><b style="font-size:13px">A</b><sup style="font-size:7px">▲</sup></button>
+        <button class="font-sq" data-action="shrink" title="Shrink Font"><span style="font-size:10px">A</span><sup style="font-size:7px">▼</sup></button>
+      </div>
+      <div class="font-row">
+        <button class="font-sq${fhl('bold')}" data-action="bold"><b style="font-size:14px;font-family:Georgia,serif">B</b></button>
+        <button class="font-sq${fhl('italic')}" data-action="italic"><i style="font-size:14px;font-family:Georgia,serif">I</i></button>
+        <button class="font-sq${fhl('underline')}" data-action="underline"><u style="font-size:13px">U</u></button>
+        <span class="font-sep"></span>
+        <button class="font-sq" data-action="borders" title="Borders">⊟</button>
+        <button class="font-sq" data-action="fill-color" title="Fill Color"><span style="border-bottom:3px solid #ffff00;font-size:11px;padding:0 1px">A</span></button>
+        <button class="font-sq" data-action="font-color" title="Font Color"><span style="border-bottom:3px solid #c00;font-size:11px;padding:0 1px">A</span></button>
+      </div>
+    </div>`,true);
+
+    // Alignment — Excel-specific: wrap text, merge, alignment icons
+    body+=GRP('Alignment',`<div class="two-rows">
+      <div class="icon-row">
+        ${IB('<svg width="13" height="12" viewBox="0 0 13 12"><line x1="0" y1="1" x2="13" y2="1" stroke="currentColor" stroke-width="1.3"/><line x1="0" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.3"/><line x1="0" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1.3"/><polygon points="12,7 13,12 11,12" fill="currentColor"/></svg>','wrap-text','Wrap Text',26)}
+        ${IBSEP}
+        ${IBDD('<svg width="13" height="12" viewBox="0 0 13 12"><rect x="0" y="0" width="13" height="12" fill="none" stroke="currentColor" stroke-width="1"/><line x1="4" y1="0" x2="4" y2="12" stroke="#aaa" stroke-width=".8"/><line x1="9" y1="0" x2="9" y2="12" stroke="#aaa" stroke-width=".8"/><line x1="0" y1="6" x2="13" y2="6" stroke="#aaa" stroke-width=".8"/><line x1="6.5" y1="2" x2="6.5" y2="10" stroke="#217346" stroke-width="1.5"/><line x1="3" y1="6" x2="10" y2="6" stroke="#217346" stroke-width="1.5"/></svg>','merge-center','Merge & Center',[['Merge & Center','merge-center'],['Merge Across','merge-across'],['Merge Cells','merge-cells'],['Unmerge Cells','unmerge']])}
+      </div>
+      <div class="icon-row">
+        ${IB('<svg width="13" height="12" viewBox="0 0 13 12"><line x1="1" y1="2" x2="12" y2="2" stroke="currentColor" stroke-width="1"/><line x1="1" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1"/><line x1="1" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="1"/><line x1="0" y1="0" x2="0" y2="12" stroke="#217346" stroke-width="2"/></svg>','align-left','Align Left')}
+        ${IB('<svg width="13" height="12" viewBox="0 0 13 12"><line x1="0" y1="2" x2="13" y2="2" stroke="currentColor" stroke-width="1"/><line x1="1.5" y1="5" x2="11.5" y2="5" stroke="currentColor" stroke-width="1"/><line x1="0" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1"/></svg>','align-center','Center')}
+        ${IB('<svg width="13" height="12" viewBox="0 0 13 12"><line x1="1" y1="2" x2="12" y2="2" stroke="currentColor" stroke-width="1"/><line x1="3" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1"/><line x1="1" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="1"/><line x1="13" y1="0" x2="13" y2="12" stroke="#217346" stroke-width="2"/></svg>','align-right','Align Right')}
+        ${IBSEP}
+        ${IB('<svg width="13" height="12" viewBox="0 0 13 12"><line x1="2" y1="0" x2="2" y2="12" stroke="currentColor" stroke-width="1"/><line x1="2" y1="4" x2="11" y2="4" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.2"/><polygon points="0,6 2,4 2,8" fill="#217346" /><polygon points="13,6 11,4 11,8" fill="#217346"/></svg>','dec-indent','Decrease Indent')}
+        ${IB('<svg width="13" height="12" viewBox="0 0 13 12"><line x1="0" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1"/><line x1="0" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1"/><polygon points="2,2 4.5,0 4.5,4" fill="#217346"/><polygon points="2,10 4.5,8 4.5,12" fill="#217346"/></svg>','inc-indent','Increase Indent')}
+      </div>
+    </div>`,true);
+
+    // Number — Excel's distinctive Number group
+    body+=GRP('Number',`<div class="two-rows" style="padding-top:4px">
+      <div style="margin-bottom:2px">
+        <div class="num-fmt-dd" data-action="num-format" style="width:100%">
+          <span style="font-size:11px">General</span>
+          <span class="fa">▾</span>
+        </div>
+      </div>
+      <div class="icon-row">
+        <button class="num-wide-btn" data-action="currency" title="Accounting Number Format">$</button>
+        <button class="num-wide-btn" data-action="percent" title="Percent Style">%</button>
+        <button class="num-wide-btn" data-action="comma" title="Comma Style">,</button>
+        ${IBSEP}
+        <button class="num-wide-btn" data-action="dec-inc" title="Increase Decimal">.0→.00</button>
+        <button class="num-wide-btn" data-action="dec-dec" title="Decrease Decimal">.00→.0</button>
+      </div>
+    </div>`,true);
+
+    // Styles — Excel's 3 large style buttons
+    body+=GRP('Styles',
+      LB('☰','Conditional\nFormatting','cond-fmt',[['Highlight Cell Rules ▸','hcr'],['Top/Bottom Rules ▸','tbr'],['Data Bars ▸','dbars'],['Color Scales ▸','cscales'],['Icon Sets ▸','isets'],['New Rule…','new-rule'],['Manage Rules…','manage-rules']])+
+      LB('📊','Format\nas Table','fmt-table',[['Light','fmt-tbl-light'],['Medium','fmt-tbl-med'],['Dark','fmt-tbl-dark']])+
+      LB('☑','Cell\nStyles','cell-styles',[['Good, Bad and Neutral','style-gbn'],['Data and Model','style-dm'],['Themed Cell Styles','style-theme']]));
+
+    // Cells
+    body+=GRP('Cells',
+      LB('⊞','Insert','insert-row',[['Insert Cells…','insert-cells'],['Insert Sheet Rows','insert-row'],['Insert Sheet Columns','insert-col'],['Insert Sheet','insert-sheet']])+
+      LB('⊟','Delete','delete-row',[['Delete Cells…','delete-cells'],['Delete Sheet Rows','delete-row'],['Delete Sheet Columns','delete-col'],['Delete Sheet','delete-sheet']])+
+      LB('⚙','Format','format-cells',[['Row Height…','row-height'],['AutoFit Row Height','autofit-row'],['Column Width…','col-width'],['AutoFit Column Width','autofit-col'],['Default Width…','default-width'],['Visibility ▸','visibility'],['Organize Sheets ▸','org-sheets'],['Protection ▸','protection']]));
+
+    // Editing — AutoSum, Fill, Sort, Find are large Excel icons
+    body+=GRP('Editing',
+      LB('Σ','AutoSum','autosum',[['Sum','autosum'],['Average','autosum-avg'],['Count Numbers','autosum-cnt'],['Max','autosum-max'],['Min','autosum-min'],['More Functions…','autosum-more']])+
+      LB('↓','Fill','fill',[['Down','fill-down'],['Right','fill-right'],['Up','fill-up'],['Left','fill-left'],['Series…','fill-series'],['Flash Fill','flash-fill']])+
+      LB('↑↓','Sort &\nFilter','sort-filter',[['Sort A to Z','sort-az'],['Sort Z to A','sort-za'],['Custom Sort…','custom-sort'],['Filter','filter'],['Clear','clear-filter'],['Reapply','reapply']])+
+      LB('🔍','Find &\nSelect','find-select',[['Find…  Ctrl+F','find'],['Replace…  Ctrl+H','replace'],['Go To…  Ctrl+G','goto'],['Go To Special…','goto-special']]));
+  }
+
+  // ── INSERT ──────────────────────────────────────────────────
+  else if(curTab==='insert'){
+    body+=GRP('Tables',
+      LB('⊞','PivotTable','pivot',[['PivotTable…','pivot'],['Recommended PivotTables…','rec-pivot']])+
+      LB('📊','Recommended\nPivotTables','rec-pivot')+
+      LB('⊞','Table','insert-table'));
+    body+=GRP('Illustrations',
+      LB('🖼','Pictures','picture',[['This Device…','pic-device'],['Online Pictures…','pic-online'],['Stock Images…','pic-stock']])+
+      LB('◈','SmartArt','smartart')+
+      LB('📊','3D Models','3d-model'));
+    body+=GRP('Charts',
+      LB('📊','Recommended\nCharts','rec-charts')+
+      LB('📈','Column or\nBar Chart','bar-chart',[['Clustered Column','clust-col'],['Stacked Column','stk-col'],['100% Stacked','100-col'],['Clustered Bar','clust-bar']])+
+      LB('📉','Insert Line or\nArea Chart','line-chart',[['Line','line'],['Stacked Line','stk-line'],['Area','area']])+
+      LB('⊙','Insert Pie or\nDoughnut Chart','pie-chart',[['Pie','pie'],['3-D Pie','3d-pie'],['Doughnut','doughnut']])+
+      LB('✦','Insert\nScatter','scatter-chart'));
+    body+=GRP('Sparklines',STACK(SB('📈','Line','spark-line'),SB('📊','Column','spark-col'),SB('⊟','Win/Loss','spark-wl')));
+    body+=GRP('Filters',LB('⊽','Slicer','slicer')+LB('⏱','Timeline','timeline'));
+    body+=GRP('Links',LB('🔗','Link','link'));
+    body+=GRP('Text',STACK(SB('A','Text Box','textbox'),SB('Ω','Symbol','symbol')));
+  }
+
+  // ── PAGE LAYOUT ─────────────────────────────────────────────
+  else if(curTab==='page-layout'){
+    body+=GRP('Themes',
+      LB('🎨','Themes','themes',[['Office','theme-office'],['Facet','theme-facet'],['Ion','theme-ion'],['Browse for Themes…','theme-browse']])+
+      STACK(SB('🎨','Colors','theme-colors'),SB('A','Fonts','theme-fonts'),SB('✦','Effects','theme-effects')));
+    body+=GRP('Page Setup',
+      LB('⬜','Margins','margins',[['Normal','margin-normal'],['Wide','margin-wide'],['Narrow','margin-narrow'],['Custom Margins…','margin-custom']])+
+      LB('⊡','Orientation','orientation',[['Portrait','portrait'],['Landscape','landscape']])+
+      LB('📄','Size','page-size',[['Letter  8.5"×11"','letter'],['A4  8.27"×11.69"','a4'],['Legal  8.5"×14"','legal']])+
+      LB('⫿','Print Area','print-area',[['Set Print Area','set-print-area'],['Clear Print Area','clear-print-area']])+
+      LB('─','Breaks','breaks',[['Insert Page Break','ins-break'],['Remove Page Break','rem-break'],['Reset All Page Breaks','reset-breaks']])+
+      LB('📋','Background','background')+
+      LB('↔','Print Titles','print-titles'));
+    body+=GRP('Sheet Options',
+      `<div class="two-rows" style="padding-top:5px;gap:4px">
+        <div style="font-size:9px;color:#555;margin-bottom:2px">Gridlines</div>
+        <div class="icon-row" style="gap:6px;margin-bottom:4px">
+          <label style="display:flex;align-items:center;gap:3px;font-size:10px;cursor:pointer"><input type="checkbox" checked style="margin:0"> View</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:10px;cursor:pointer"><input type="checkbox" style="margin:0"> Print</label>
+        </div>
+        <div style="font-size:9px;color:#555;margin-bottom:2px">Headings</div>
+        <div class="icon-row" style="gap:6px">
+          <label style="display:flex;align-items:center;gap:3px;font-size:10px;cursor:pointer"><input type="checkbox" checked style="margin:0"> View</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:10px;cursor:pointer"><input type="checkbox" style="margin:0"> Print</label>
+        </div>
+      </div>`);
+    body+=GRP('Arrange',
+      LB('⊞','Bring\nForward','bring-fwd',[['Bring Forward','bring-fwd'],['Bring to Front','bring-front']])+
+      LB('⊟','Send\nBackward','send-back',[['Send Backward','send-back'],['Send to Back','send-back-all']])+
+      STACK(SB('☰','Selection Pane','sel-pane'),SB('⊡','Align','align'),SB('⊞','Group','group'),SB('↺','Rotate','rotate')));
+  }
+
+  // ── FORMULAS ────────────────────────────────────────────────
+  else if(curTab==='formulas'){
+    // Function Library — THE most important tab for this course
+    body+=GRP('Function Library',
+      LB('fx','Insert\nFunction','insert-fn')+
+      LB('Σ','AutoSum','autosum',[['Sum','autosum'],['Average','autosum-avg'],['Count Numbers','autosum-cnt'],['Max','autosum-max'],['Min','autosum-min'],['More Functions…','autosum-more']])+
+      LB('⏱','Recently\nUsed','recently-used',[['SUM','fn-sum'],['AVERAGE','fn-avg'],['IF','fn-if'],['VLOOKUP','fn-vlookup'],['COUNT','fn-count'],['MAX','fn-max'],['More Functions…','autosum-more']])+
+      LB('$','Financial','financial',[['DB','fn-db'],['FV','fn-fv'],['NPV','fn-npv'],['PMT','fn-pmt'],['PV','fn-pv'],['RATE','fn-rate'],['More Financial Functions…','more-financial']])+
+      LB('✓','Logical','logical',[['AND','fn-and'],['FALSE','fn-false'],['IF','fn-if'],['IFERROR','fn-iferror'],['IFS','fn-ifs'],['NOT','fn-not'],['OR','fn-or'],['TRUE','fn-true'],['XOR','fn-xor']])+
+      LB('A','Text','text-fn',[['CONCAT','fn-concat'],['LEFT','fn-left'],['LEN','fn-len'],['LOWER','fn-lower'],['MID','fn-mid'],['RIGHT','fn-right'],['TEXT','fn-text'],['TRIM','fn-trim'],['UPPER','fn-upper']])+
+      LB('📅','Date &\nTime','date-time',[['DATE','fn-date'],['DAY','fn-day'],['MONTH','fn-month'],['NOW','fn-now'],['TODAY','fn-today'],['WEEKDAY','fn-weekday'],['YEAR','fn-year']])+
+      LB('↔','Lookup &\nReference','lookup',[['CHOOSE','fn-choose'],['HLOOKUP','fn-hlookup'],['INDEX','fn-index'],['INDIRECT','fn-indirect'],['MATCH','fn-match'],['OFFSET','fn-offset'],['VLOOKUP','fn-vlookup'],['XLOOKUP','fn-xlookup']])+
+      LB('∑','Math &\nTrig','math',[['ABS','fn-abs'],['CEILING','fn-ceiling'],['COS','fn-cos'],['FLOOR','fn-floor'],['INT','fn-int'],['MOD','fn-mod'],['PI','fn-pi'],['POWER','fn-power'],['RAND','fn-rand'],['ROUND','fn-round'],['SIN','fn-sin'],['SQRT','fn-sqrt'],['SUM','fn-sum'],['SUMIF','fn-sumif'],['SUMIFS','fn-sumifs']])+
+      LB('⊞','More\nFunctions','more-fns',[['Statistical ▸','stat'],['Engineering ▸','eng'],['Cube ▸','cube'],['Information ▸','info'],['Compatibility ▸','compat'],['Web ▸','web']]));
+
+    // Defined Names
+    body+=GRP('Defined Names',
+      LB('⊞','Name\nManager','name-manager')+
+      LB('✎','Define\nName','define-name',[['Define Name…','define-name'],['Apply Names…','apply-names']])+
+      LB('fx','Use in\nFormula','use-in-formula',[['Paste Names…','paste-names']])+
+      LB('⊠','Create from\nSelection','create-from-sel'));
+
+    // Formula Auditing
+    body+=GRP('Formula Auditing',
+      LB('↑','Trace\nPrecedents','trace-prec')+
+      LB('↓','Trace\nDependents','trace-dep')+
+      LB('✕','Remove\nArrows','remove-arrows',[['Remove Arrows','remove-arrows'],['Remove Precedent Arrows','rem-prec'],['Remove Dependent Arrows','rem-dep']])+
+      LB('☐','Show\nFormulas','show-formulas')+
+      LB('⚠','Error\nChecking','error-check',[['Error Checking…','error-check'],['Trace Error','trace-error'],['Circular References ▸','circ-ref']])+
+      LB('=','Evaluate\nFormula','eval-formula')+
+      LB('👁','Watch\nWindow','watch-win'));
+
+    // Calculation
+    body+=GRP('Calculation',
+      LB('⚙','Calculation\nOptions','calc-opts',[['Automatic','calc-auto'],['Automatic Except for Data Tables','calc-partial'],['Manual','calc-manual']])+
+      LB('↻','Calculate\nNow','calc-now')+
+      LB('📄','Calculate\nSheet','calc-sheet'));
+  }
+
+  // ── DATA ────────────────────────────────────────────────────
+  else if(curTab==='data'){
+    body+=GRP('Get & Transform Data',
+      LB('🗄','Get\nData','get-data',[['From File ▸','from-file'],['From Database ▸','from-db'],['From Azure ▸','from-azure'],['From Other Sources ▸','from-other'],['Combine Queries ▸','combine'],['Data Source Settings…','ds-settings'],['Query Options…','query-opts']])+
+      STACK(SB('📄','From Text/CSV','from-csv'),SB('🌐','From Web','from-web'),SB('⊞','From Table/Range','from-table'),SB('⏱','Recent Sources','recent-src'),SB('🔗','Existing Connections','exist-conn')));
+
+    body+=GRP('Queries & Connections',
+      LB('↻','Refresh\nAll','refresh-all',[['Refresh','refresh-one'],['Refresh All','refresh-all'],['Connection Properties…','conn-props'],['Edit Links…','edit-links']])+
+      STACK(SB('≡','Queries & Connections','q-and-c'),SB('⊟','Properties','data-props'),SB('🔗','Edit Links','edit-links')));
+
+    body+=GRP('Sort & Filter',
+      LB('↑A','Sort A\nto Z','sort-az')+
+      LB('↓Z','Sort Z\nto A','sort-za')+
+      LB('☰','Sort','custom-sort')+
+      LB('⊽','Filter','filter')+
+      STACK(SB('✕','Clear','clear-filter'),SB('↻','Reapply','reapply'),SB('⊽','Advanced','advanced-filter')));
+
+    body+=GRP('Data Tools',
+      LB('⫿','Text to\nColumns','text-cols')+
+      LB('⚡','Flash\nFill','flash-fill')+
+      LB('⊟','Remove\nDuplicates','remove-dups')+
+      LB('✓','Data\nValidation','data-val',[['Data Validation…','data-val'],['Circle Invalid Data','circle-invalid'],['Clear Validation Circles','clear-circles']])+
+      LB('⊞','Consolidate','consolidate')+
+      LB('?','What-If\nAnalysis','what-if',[['Scenario Manager…','scenarios'],['Goal Seek…','goal-seek'],['Data Table…','data-table']]));
+
+    body+=GRP('Forecast',LB('📈','Forecast\nSheet','forecast'));
+
+    body+=GRP('Outline',
+      LB('⊞','Group','group-rows',[['Group…','group-rows'],['Auto Outline','auto-outline']])+
+      LB('⊟','Ungroup','ungroup',[['Ungroup…','ungroup'],['Clear Outline','clear-outline']])+
+      LB('Σ','Subtotal','subtotal')+
+      STACK(SB('▼','Show Detail','show-detail'),SB('▲','Hide Detail','hide-detail')));
+  }
+
+  // ── REVIEW ──────────────────────────────────────────────────
+  else if(curTab==='review'){
+    body+=GRP('Proofing',
+      LB('✔','Spelling','spelling')+
+      LB('📖','Thesaurus','thesaurus')+
+      STACK(SB('#','Workbook Statistics','wb-stats')));
+    body+=GRP('Accessibility',LB('!','Check\nAccessibility','check-a11y'));
+    body+=GRP('Insights',LB('💡','Smart\nLookup','smart-lookup'));
+    body+=GRP('Language',STACK(SB('⇄','Translate','translate'),SB('Aa','Language','set-lang')));
+    body+=GRP('Comments',
+      LB('💬','New\nComment','new-comment')+
+      LB('🗑','Delete','del-comment')+
+      LB('←','Previous','prev-cmt')+
+      LB('→','Next','next-cmt')+
+      STACK(SB('☰','Show All Comments','show-cmts'),SB('💬','Show/Hide Comment','toggle-cmt')));
+    body+=GRP('Notes',STACK(SB('📌','New Note','new-note'),SB('☰','Show All Notes','show-notes')));
+    body+=GRP('Changes',
+      LB('🔒','Protect\nSheet','protect-sheet')+
+      LB('📗','Protect\nWorkbook','protect-wb')+
+      LB('🔓','Allow Edit\nRanges','allow-edit')+
+      LB('↕','Share\nWorkbook','share-wb'));
+  }
+
+  // ── VIEW ────────────────────────────────────────────────────
+  else if(curTab==='view'){
+    body+=GRP('Workbook Views',
+      LB('📄','Normal','normal-view')+
+      LB('⬚','Page\nBreak Preview','page-break-preview')+
+      LB('📋','Page\nLayout','page-layout-view')+
+      STACK(SB('☐','Custom Views…','custom-views')));
+    body+=GRP('Show',`<div class="two-rows" style="padding-top:6px;gap:3px">
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer"><input type="checkbox" checked style="margin:0"> Ruler</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer"><input type="checkbox" checked style="margin:0"> Gridlines</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer"><input type="checkbox" checked style="margin:0"> Formula Bar</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer"><input type="checkbox" checked style="margin:0"> Headings</label>
+    </div>`);
+    body+=GRP('Zoom',
+      LB('🔍','Zoom','zoom')+
+      LB('1:1','100%','zoom-100')+
+      LB('⊡','Zoom to\nSelection','zoom-sel'));
+    body+=GRP('Window',
+      LB('📄','New\nWindow','new-win')+
+      LB('⊟','Arrange\nAll','arrange-all')+
+      LB('❄','Freeze\nPanes','freeze-panes',[['Freeze Panes','freeze-panes'],['Freeze Top Row','freeze-top'],['Freeze First Column','freeze-col']])+
+      LB('⊡','Split','split')+
+      STACK(SB('☐','Hide','hide-win'),SB('☑','Unhide','unhide-win'),SB('↔','View Side by Side','side-by-side'),SB('↕','Synchronous Scrolling','sync-scroll'),SB('⊞','Switch Windows','switch-win')));
+    body+=GRP('Macros',
+      LB('⚙','Macros','macros',[['View Macros…','view-macros'],['Record Macro…','record-macro'],['Use Relative References','rel-ref']]));
+  }
+
+  document.getElementById('ribbon-body').innerHTML=body;
+  bindRibbon();
+}
+
+function bindRibbon(){
+  document.querySelectorAll('[data-settab]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.tab=b.dataset.settab;S.dd=null;buildRibbon();}));
+  document.querySelectorAll('[data-dd]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    S.dd = S.dd===b.dataset.dd ? null : b.dataset.dd;
+    buildRibbon();
+    if(S.dd){
+      var menu = b.parentElement.querySelector('.dd-menu');
+      if(menu){
+        var r = b.getBoundingClientRect();
+        menu.style.top = (r.bottom+2)+'px';
+        menu.style.left = r.left+'px';
+        var mw = menu.offsetWidth||200;
+        if(r.left+mw > window.innerWidth) menu.style.left=(window.innerWidth-mw-4)+'px';
+      }
+    }
+  }));
+  document.querySelectorAll('[data-dditem]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.dd=null;doAction(b.dataset.dditem);}));
+  document.querySelectorAll('[data-action]:not([data-dd])').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();doAction(b.dataset.action);}));
+}
+document.addEventListener('click',()=>{if(S.dd){S.dd=null;buildRibbon();}});
+
+// ═══════════════════════════════════════════
+// ACTION HANDLER
+// ═══════════════════════════════════════════
+function doAction(a){
+  S.dd=null;
+  if(a==='insert-fn'){
+    document.getElementById('dlg').style.display='block';
+    document.getElementById('backdrop').style.display='block';
+    return;
+  }
+  buildRibbon();
+}
+window.doInsertFn=function(){closeDlg();};
+window.closeDlg=function(){document.getElementById('dlg').style.display='none';document.getElementById('backdrop').style.display='none';};
+
+// ═══════════════════════════════════════════
+// SHEET / CELL RENDER
+// ═══════════════════════════════════════════
+function renderSheet(){
+  const lab=LABS[S.lab];
+  const done=!!S.res[lab.id];
+  const result=S.res[lab.id];
+  const cols=lab.cols;
+  const colW=lab.colWidths||{};
+
+  // Column headers
+  let colHtml=`<div class="row-num-spacer"></div>`;
+  cols.forEach(c=>{
+    const w=colW[c]||90;
+    const act=S.selCell&&S.selCell[0]===c;
+    colHtml+=`<div class="col-hdr${act?' active-col':''}" style="width:${w}px">${c}</div>`;
+  });
+  document.getElementById('col-headers').innerHTML=colHtml;
+
+  // Build cells with computed formula value
+  const displayCells={...lab.cells};
+  if(done&&result){
+    displayCells[lab.target]=result.computed;
+  }
+
+  // Sheet table
+  let html='<table><tbody>';
+  for(let r=1;r<=lab.rows;r++){
+    const actRow=S.selCell&&S.selCell.slice(1)===String(r);
+    html+=`<tr><td class="row-num${actRow?' active-row':''}">${r}</td>`;
+    cols.forEach(c=>{
+      const ref=c+r;
+      const isTarget=ref===lab.target;
+      const isSel=S.selCell===ref;
+      const rawVal=lab.cells[ref];
+      const dispVal=displayCells[ref];
+      let cls='cell';
+      if(r===1)cls+=' header-cell';
+      else if(typeof rawVal==='number'||typeof dispVal==='number')cls+=' num-cell';
+      if(isTarget&&!done)cls+=' target-cell';
+      if(isTarget&&done&&result?.correct)cls+=' target-cell correct result-cell';
+      if(isTarget&&done&&!result?.correct)cls+=' target-cell wrong';
+      if(isSel&&!isTarget)cls+=' selected';
+      const w=colW[c]||90;
+      const txt=isTarget&&done&&result?fmtVal(result.computed):(dispVal!==null&&dispVal!==undefined?fmtVal(dispVal):'');
+      const txtColor=isTarget&&done?result?.correct?'color:#217346':'color:#c00':'';
+      html+=`<td class="${cls}" data-ref="${ref}" style="width:${w}px;${txtColor}" title="${ref}">${txt}</td>`;
+    });
+    html+='</tr>';
+  }
+  html+='</tbody></table>';
+  document.getElementById('sheet-body').innerHTML=html;
+
+  // Bind cell clicks
+  document.querySelectorAll('[data-ref]').forEach(td=>{
+    td.addEventListener('click',()=>{
+      S.selCell=td.dataset.ref;
+      const fbar=document.getElementById('fbar-input');
+      const nb=document.getElementById('name-box');
+      if(nb)nb.textContent=S.selCell;
+      if(fbar){
+        if(S.selCell===lab.target){
+          fbar.value=S.formula;
+          fbar.focus();
+          fbar.placeholder=`Type your formula, e.g. ${lab.hint}`;
+        } else {
+          const v=lab.cells[S.selCell];
+          fbar.value=v!==null&&v!==undefined?String(v):'';
+        }
+      }
+      renderSheet();
+    });
+  });
+
+  // Update formula bar name box
+  const nb=document.getElementById('name-box');
+  if(nb)nb.textContent=S.selCell||lab.target;
+
+  // Status bar updates
+  if(done&&result){document.getElementById('st-sum').textContent=`Sum: ${fmtVal(result.computed)}`;}
+}
+
+// ═══════════════════════════════════════════
+// FORMULA BAR HANDLER
+// ═══════════════════════════════════════════
+function initFbar(){
+  const fbar=document.getElementById('fbar-input');
+  const nb=document.getElementById('name-box');
+  fbar.addEventListener('input',e=>{
+    S.formula=e.target.value;
+    if(nb)nb.textContent=LABS[S.lab].target;
+  });
+  fbar.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();gradeFormula();}
+    if(e.key==='Escape'){e.preventDefault();S.formula='';fbar.value='';renderSheet();}
+  });
+}
+
+function gradeFormula(){
+  const lab=LABS[S.lab];
+  const f=S.formula.trim();
+  if(!f)return;
+  if(!f.startsWith('=')){
+    S.res[lab.id]={correct:false,score:0,computed:'#VALUE!',msg:'Formulas must start with = (equals sign).'};
+    renderAll();return;
+  }
+  const computed=evalFormula(f,lab.cells);
+  const result=lab.validate(f,computed);
+  S.res[lab.id]={...result,computed};
+  S.wrong=!result.correct;
+  renderAll();
+}
+
+// ═══════════════════════════════════════════
+// TASK PANEL
+// ═══════════════════════════════════════════
+function renderTask(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id],result=S.res[lab.id];
+  let fb='';
+  if(result&&!result.correct) fb=`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>✗ ${result.score}/10</strong> — ${result.msg}</div>`;
+  if(result?.correct){
+    fb=`<div class="fb fb-ok" style="animation:fadeIn .25s"><strong>✓ ${result.score}/10</strong> — ${result.msg}<div style="margin-top:6px;padding-top:6px;border-top:1px solid #86efac;font-size:11px">${lab.exp}</div></div>`;
+    fb+=`<div class="fb-next">
+      ${S.lab===LABS.length-1
+        ?`<button class="btn btn-green" onclick="showFinal()">View results →</button>`
+        :`<button class="btn btn-ghost" onclick="resetLab()">Try again</button><button class="btn btn-green" onclick="goLab(${S.lab+1})">Next lab →</button>`}
+    </div>`;
+  }
+  document.getElementById('task-panel').innerHTML=`
+    <div class="task-row">
+      <span class="task-badge">${lab.obj}</span>
+      <div class="task-text">${lab.task}</div>
+      <div class="task-acts">
+        <button class="btn btn-ghost" onclick="toggleHint()">${S.hint?'Hide hint':'Hint'}</button>
+        ${!done?`<button class="btn btn-ghost" onclick="gradeFormula()">Grade ↵</button>`:''}
+        ${!done?`<button class="btn btn-ghost" onclick="resetLab()">Reset</button>`:''}
+      </div>
+    </div>
+    ${S.hint?`<div class="hint-row">💡 Hint: <code style="font-family:Consolas,monospace;font-size:12px">${lab.hint}</code></div>`:''}
+    <div style="font-size:11px;color:#6b7280;margin-top:5px">Scenario: ${lab.scenario} | Click the highlighted cell (${lab.target}), type your formula, press Enter.</div>
+    ${fb}`;
+}
+window.toggleHint=function(){S.hint=!S.hint;renderTask();};
+window.resetLab=function(){delete S.res[LABS[S.lab].id];S.formula='';S.hintCount=0;S.selCell=LABS[S.lab].target;document.getElementById('fbar-input').value='';renderAll();};
+
+// ═══════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════
+function renderSidebar(){
+  const ts=score();
+  document.getElementById('sb-score').textContent=`${ts} / ${MAX}`;
+  document.getElementById('sb-fill').style.width=`${(ts/MAX*100).toFixed(0)}%`;
+  document.getElementById('prog-fill').style.width=`${(ts/MAX*100).toFixed(0)}%`;
+  let h='';
+  DOMAINS.forEach(d=>{
+    h+=`<div class="sb-domain">${d.label}</div>`;
+    d.labs.forEach(li=>{
+      const l=LABS[li],done=!!S.res[l.id],act=li===S.lab;
+      h+=`<button class="lab-btn${act?' active':''}${done?' done':''}" onclick="goLab(${li})">
+        <span class="lab-dot${act?' active':''}${done?' done':''}">${done?'✓':li+1}</span>
+        <div><div class="lab-name">${l.name}</div><div class="lab-obj">${l.domain}</div></div>
+      </button>`;
+    });
+  });
+  document.getElementById('sb-nav').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════
+// FINAL SCREEN
+// ═══════════════════════════════════════════
+window.showFinal=function(){
+  const ts=score(),pct=Math.round(ts/MAX*100);
+  document.getElementById('sheet-body').innerHTML=`<div style="padding:30px;text-align:center;background:#fff;min-height:300px">
+    <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">Excel — IS101 — Formulas Domain</div>
+    <div style="font-size:60px;font-weight:800;color:${pct>=80?'#15803d':pct>=60?'#d97706':'#dc2626'};line-height:1">${ts}<span style="font-size:30px;font-weight:400;color:#9ca3af"> / ${MAX}</span></div>
+    <div style="font-size:14px;color:#6b7280;margin:8px 0 24px">${pct}% — ${pct>=80?'Course ready!':pct>=60?'Good — review missed labs.':'Keep practising.'}</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-width:500px;margin:0 auto;text-align:left">
+      ${LABS.map(l=>{const ok=S.res[l.id];return`<div style="background:${ok?.correct?'#f0fdf4':'#fef2f2'};border:1px solid ${ok?.correct?'#86efac':'#fca5a5'};padding:8px 10px;border-radius:4px">
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${ok?.correct?'#15803d':'#dc2626'};margin-bottom:3px">${ok?.correct?'✓':'✗'} ${ok?.score||0}/10</div>
+        <div style="font-size:12px;font-weight:600;color:${ok?.correct?'#166534':'#991b1b'};font-family:Consolas,monospace">${l.name}</div>
+      </div>`;}).join('')}
+    </div>
+    <button class="btn btn-green" style="margin-top:20px" onclick="goLab(0)">Restart all labs</button>
+  </div>`;
+  document.getElementById('col-headers').innerHTML='';
+  document.getElementById('task-panel').innerHTML='';
+};
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+window.goLab=function(i){
+  S.lab=i;S.formula='';S.hintCount=0;S.wrong=false;S.dd=null;
+  S.selCell=LABS[i].target;
+  S.tab=LABS[i].tab||'formulas';
+  document.getElementById('fbar-input').value='';
+  const nb=document.getElementById('name-box');
+  if(nb)nb.textContent=LABS[i].target;
+  renderAll();
+};
+
+function renderAll(){
+  renderSidebar();
+  buildRibbon();
+  renderSheet();
+  renderTask();
+}
+
+initFbar();
+renderAll();
+</script>
+</body>
+</html>
