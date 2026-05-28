@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IS101 — Sign In</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--csn:#003876;--ai:#6d28d9;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;--bg:#f0f2f5}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+
+.login-wrap{width:100%;max-width:420px}
+
+.csn-badge{background:var(--csn);color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:4px;display:inline-block;margin-bottom:18px;letter-spacing:1px;text-transform:uppercase}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+
+.card-icon{font-size:44px;text-align:center;margin-bottom:14px}
+
+.card-title{font-size:22px;font-weight:800;color:var(--text);text-align:center;margin-bottom:4px}
+
+.card-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.5}
+
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:.3px}
+
+.field input{
+  width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:8px;
+  font-size:22px;font-family:monospace;font-weight:600;color:var(--text);
+  letter-spacing:3px;text-align:center;outline:none;transition:border-color .15s;
+}
+.field input:focus{border-color:var(--csn);box-shadow:0 0 0 3px rgba(0,56,118,.1)}
+.field input::placeholder{font-size:14px;letter-spacing:0;color:#94a3b8;font-family:inherit;font-weight:400}
+
+.field-note{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+
+.login-btn{
+  width:100%;background:var(--csn);color:#fff;border:none;
+  padding:13px;border-radius:9px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:inherit;margin-top:20px;transition:background .15s;
+}
+.login-btn:hover{background:#002a5c}
+.login-btn:disabled{background:#94a3b8;cursor:not-allowed}
+
+.err-msg{
+  background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;
+  color:#dc2626;font-size:13px;padding:10px 14px;margin-top:14px;
+  text-align:center;display:none;
+}
+.err-msg.show{display:block}
+
+.privacy-note{
+  margin-top:20px;padding:12px 16px;background:#f0fdf4;
+  border:1px solid #86efac;border-radius:8px;
+  font-size:11px;color:#15803d;line-height:1.55;text-align:center;
+}
+
+.footer{margin-top:20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div style="text-align:center;margin-bottom:6px">
+    <div class="csn-badge">College of Southern Nevada</div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">&#127979;</div>
+    <div class="card-title">IS101 &mdash; Introduction to Computing</div>
+    <div class="card-sub">Sign in with your 10-digit NSHE Student ID to access the course and save your progress.</div>
+
+    <div class="field">
+      <label>NSHE Student ID Number</label>
+      <input type="tel" id="nshe-input" maxlength="10" placeholder="0000000000"
+        oninput="onInput(this)" onkeydown="if(event.key==='Enter') doLogin()">
+      <div class="field-note">Enter your 10-digit NSHE ID (numbers only)</div>
+    </div>
+
+    <div class="err-msg" id="err-msg"></div>
+
+    <button class="login-btn" id="login-btn" disabled onclick="doLogin()">
+      Access Course &#8594;
+    </button>
+
+    <div class="privacy-note">
+      &#128274; Your NSHE ID is your only identifier. No name or email is collected by this application. Your progress is saved privately and is only accessible to you and your instructor.
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; Dr. Mark Taormino &middot; All Rights Reserved<br>
+    College of Southern Nevada &middot; IS101
+  </div>
+</div>
+
+<script src="/api-client.js"></script>
+<script>
+// If already logged in, redirect to the course
+if (IS101API.isLoggedIn()) {
+  window.location.href = '/index.html';
+}
+
+function onInput(el) {
+  // Keep only digits
+  el.value = el.value.replace(/\D/g,'');
+  document.getElementById('login-btn').disabled = el.value.length !== 10;
+  document.getElementById('err-msg').classList.remove('show');
+}
+
+async function doLogin() {
+  var nsheId = document.getElementById('nshe-input').value.trim();
+  var btn = document.getElementById('login-btn');
+  var err = document.getElementById('err-msg');
+
+  if (nsheId.length !== 10 || !/^\d{10}$/.test(nsheId)) {
+    err.textContent = 'Please enter your 10-digit NSHE ID number.';
+    err.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in\u2026';
+
+  try {
+    var result = await IS101API.login(nsheId);
+    if (result.success) {
+      window.location.href = '/index.html';
+    } else {
+      err.textContent = result.error || 'Sign in failed. Please try again.';
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Access Course \u2192';
+    }
+  } catch(e) {
+    err.textContent = 'Cannot connect to server. Please try again or contact your instructor.';
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Access Course \u2192';
+  }
+}
+</script>
+</body>
+</html>
