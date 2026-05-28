@@ -1,0 +1,182 @@
+IS101 COURSEWARE SERVER — CSN DEPLOYMENT GUIDE
+© Dr. Mark Taormino · All Rights Reserved · College of Southern Nevada
+═══════════════════════════════════════════════════════════════════════
+
+
+WHAT THIS IS
+────────────
+A lightweight web server for the IS101 Courseware application.
+Built with Node.js + Express + SQLite (no external database required).
+The database is a single file (data/is101.db) that lives on the server.
+
+
+REQUIREMENTS
+────────────
+• Node.js version 18 or higher
+  Download: https://nodejs.org/en/download/
+
+• The server does NOT require a separate database installation.
+  SQLite is bundled — the database is a single local file.
+
+• Minimum server spec: 512MB RAM, any modern CPU, 1GB disk space.
+
+
+INSTALLATION STEPS
+──────────────────
+
+1. TRANSFER FILES
+   Copy the entire IS101Server folder to your server. Suggested path:
+     /var/www/is101/
+   Or on Windows:
+     C:\inetpub\wwwroot\is101\
+
+2. INSTALL DEPENDENCIES
+   Open a terminal in the IS101Server folder and run:
+     npm install
+
+   This installs: Express, better-sqlite3, express-session, uuid.
+   It requires internet access to npm registry. Run once only.
+
+3. SET THE INSTRUCTOR PASSWORD
+   Open server.js in a text editor. Find this line near the top:
+     const INSTRUCTOR_PASSWORD = process.env.INSTRUCTOR_PASSWORD || 'IS101admin2026!';
+
+   Option A — Change the default directly in the file (easiest):
+     const INSTRUCTOR_PASSWORD = 'YourSecurePassword123!';
+
+   Option B — Set as an environment variable (recommended for production):
+     Set INSTRUCTOR_PASSWORD=YourSecurePassword in your server environment.
+
+4. ADD THE COURSEWARE HTML FILES
+   Copy all IS101 HTML files into the public/ folder:
+     IS101_START_HERE_[timestamp].html
+     IS101_Video_Lessons_[timestamp].html
+     IS101_Word_Labs_[timestamp].html
+     IS101_Excel_Labs_[timestamp].html
+     IS101_Project_Grader_[timestamp].html
+     IS101_AI_Exam_[timestamp].html
+     IS101_NotebookLM_Checklist_[timestamp].html
+
+   IMPORTANT: Also rename or copy IS101_START_HERE_[timestamp].html to index.html
+   so that students going to the root URL see the course automatically.
+
+5. START THE SERVER
+   In the IS101Server folder, run:
+     npm start
+
+   The server will start on port 3000 by default. You should see:
+     IS101 Courseware Server
+     Running at: http://localhost:3000
+
+6. SET UP PORT / DOMAIN (CSN IT step)
+   The app runs on port 3000 by default. CSN IT will typically:
+   • Set up a reverse proxy (nginx or Apache) to forward
+     https://is101.csn.edu → http://localhost:3000
+   • Or change the PORT: set PORT=80 before running (requires root)
+
+   To change the port without editing code:
+     PORT=8080 npm start (Linux/Mac)
+     set PORT=8080 && npm start (Windows)
+
+
+STUDENT ACCESS
+──────────────
+Students go to:   https://[your-domain]/login.html
+First time: they enter their 10-digit NSHE ID and press Enter.
+Returning: they enter the same NSHE ID — their progress loads automatically.
+No password is needed for students. The NSHE ID IS their credential.
+
+IMPORTANT: Sessions expire after 8 hours. Students must re-enter their
+NSHE ID each time they return (like a library computer kiosk).
+
+
+INSTRUCTOR DASHBOARD
+────────────────────
+Instructor goes to:   https://[your-domain]/instructor.html
+Password:             Whatever you set in step 3 above.
+
+Features:
+• View all students who have logged in
+• See completion % per student
+• Upload a class roster CSV (NSHE ID, Name, Section) to see real names
+• Export all progress as a CSV for Canvas grade entry
+• Click any student for detailed step-by-step progress view
+
+ROSTER CSV FORMAT (no header row needed):
+  1234567890, Smith John, IS101-001
+  0987654321, Jones Maria, IS101-002
+
+The app never shows student names to anyone except the instructor
+dashboard. Students only see their own NSHE ID. This is FERPA compliant.
+
+
+DATA STORAGE
+────────────
+All data is stored in:   IS101Server/data/is101.db
+
+This is a single SQLite file. Back it up regularly.
+To back up: copy is101.db to a safe location. That is all.
+To restore: replace is101.db with the backup copy.
+
+The data directory is created automatically on first run.
+
+
+RUNNING AS A SERVICE (so it starts automatically on reboot)
+──────────────────────────────────────────────────────────
+
+LINUX (systemd):
+  Create /etc/systemd/system/is101.service:
+
+    [Unit]
+    Description=IS101 Courseware Server
+    After=network.target
+
+    [Service]
+    WorkingDirectory=/var/www/is101
+    ExecStart=/usr/bin/node server.js
+    Restart=always
+    Environment=PORT=3000
+    Environment=INSTRUCTOR_PASSWORD=YourSecurePassword123!
+
+    [Install]
+    WantedBy=multi-user.target
+
+  Then run:
+    sudo systemctl enable is101
+    sudo systemctl start is101
+
+WINDOWS:
+  Use PM2 (npm install -g pm2) or Windows Task Scheduler
+  to run "node server.js" at startup.
+
+
+UPDATING THE COURSEWARE
+───────────────────────
+When new HTML files are delivered:
+1. Copy new files to the public/ folder
+2. Update index.html to point to the new IS101_START_HERE file
+   (or rename/copy the new file to index.html)
+3. No server restart required — static files are served immediately.
+
+The database and all student progress is preserved across updates.
+
+
+SECURITY NOTES
+──────────────
+• Change the default INSTRUCTOR_PASSWORD before deploying to students.
+• The server does not use HTTPS by itself — set up SSL termination at
+  the nginx/Apache reverse proxy layer (CSN IT standard practice).
+• Student NSHE IDs are stored in the database. Treat this server with
+  the same data security standards as any CSN student information system.
+• No student names are stored unless the instructor uploads a roster.
+
+
+SUPPORT
+───────
+For courseware questions: Dr. Mark Taormino
+For server/hosting questions: CSN IT Department
+
+═══════════════════════════════════════════════════════════════════════
+IS101 Courseware · College of Southern Nevada
+© Dr. Mark Taormino · All Rights Reserved
+═══════════════════════════════════════════════════════════════════════
