@@ -1,0 +1,16 @@
+{
+  "name": "is101-courseware-server",
+  "version": "1.0.0",
+  "description": "IS101 Courseware Server — College of Southern Nevada",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "express": "^4.18.3",
+    "express-session": "^1.18.0",
+    "uuid": "^9.0.0"
+  }
+}
