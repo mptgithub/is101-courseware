@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Word — IS101 Training</title>
+<style>
+/* ── RESET ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#808080;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#1f1f1f}
+
+/* ════════════ TITLE BAR ════════════ */
+#title-bar{
+  height:32px;background:#2b579a;display:flex;align-items:center;
+  padding:0 6px 0 8px;flex-shrink:0;
+}
+#title-bar .qat{display:flex;gap:2px;margin-right:8px}
+#title-bar .qat button{
+  width:24px;height:24px;background:transparent;border:none;
+  color:rgba(255,255,255,.88);font-size:12px;cursor:pointer;border-radius:2px;
+}
+#title-bar .qat button:hover{background:rgba(255,255,255,.15)}
+#title-bar .docname{flex:1;text-align:center;color:#fff;font-size:12px}
+#title-bar .winbtns{display:flex}
+#title-bar .winbtns button{
+  width:44px;height:32px;background:transparent;border:none;
+  color:rgba(255,255,255,.88);font-size:10px;cursor:pointer;
+}
+#title-bar .winbtns button:hover{background:rgba(255,255,255,.18)}
+#title-bar .winbtns .cls:hover{background:#c42b1c}
+
+/* ════════════ RIBBON SHELL ════════════ */
+#ribbon{background:#fff;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+
+/* Tab strip — blue background, active tab rises into ribbon body */
+#tab-strip{
+  background:#2b579a;display:flex;align-items:flex-end;
+  padding:0 2px;height:30px;
+}
+.tab{
+  height:26px;padding:0 12px;font-size:12px;font-family:inherit;
+  color:rgba(255,255,255,.82);background:transparent;border:none;
+  cursor:pointer;white-space:nowrap;border-radius:2px 2px 0 0;
+  position:relative;bottom:-1px;transition:color .1s;
+}
+.tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+.tab.active{
+  background:#fff;color:#000;font-weight:400;
+  border-left:1px solid #c8c8c8;border-right:1px solid #c8c8c8;
+  border-top:2px solid #2b579a;border-bottom:none;
+  height:30px;bottom:-1px;z-index:2;
+}
+/* Context tab wrapper */
+.ctx-wrap{display:flex;flex-direction:column;align-items:flex-end}
+.ctx-lbl{font-size:9px;color:#fbbf24;font-weight:600;padding:0 10px 1px;letter-spacing:.3px}
+.tab.ctx{color:#fbbf24}
+.tab.ctx.active{color:#92400e;border-top-color:#f59e0b}
+
+/* Ribbon body: groups in a row */
+#ribbon-body{
+  background:#fff;border-top:1px solid #c8c8c8;
+  display:flex;align-items:stretch;
+  height:88px;overflow-x:auto;overflow-y:hidden;
+  padding:0 2px;
+}
+
+/* ════════════ RIBBON GROUP ════════════
+   A group = vertical flex column:
+     top = .grp-btns (the buttons, flexed horizontally)
+     bottom = .grp-lbl (the group name, 12px area)
+*/
+.grp{
+  display:flex;flex-direction:column;
+  border-right:1px solid #e0e0e0;
+  padding:0 2px;flex-shrink:0;
+}
+.grp:last-child{border-right:none}
+.grp-btns{
+  display:flex;align-items:flex-start;gap:1px;
+  flex:1;padding:3px 2px 2px;
+}
+.grp-lbl{
+  font-size:9px;color:#666;text-align:center;
+  padding:1px 4px 2px;white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;
+  min-height:13px;
+}
+/* Dialog launcher — small arrow at right of group label */
+.grp-lbl button{
+  width:11px;height:11px;border:1px solid #c0c0c0;border-radius:1px;
+  background:transparent;cursor:pointer;color:#777;font-size:7px;
+  display:flex;align-items:center;justify-content:center;
+  margin-left:3px;line-height:1;
+}
+.grp-lbl button:hover{background:#e8f0fb;border-color:#2b579a;color:#2b579a}
+
+/* ════════════ LARGE BUTTON ════════════
+   Word's tall primary action button.
+   MUST be flex-column so icon is ABOVE label — no exceptions.
+   height:68px = 3px top padding + 32px icon + 2px gap + ~20px label + 3px bottom padding
+*/
+.lb{
+  /* layout */
+  display:flex;
+  flex-direction:column;   /* ← ICON TOP, LABEL BOTTOM */
+  align-items:center;
+  justify-content:flex-start;
+  /* size */
+  height:68px;
+  min-width:42px;
+  padding:4px 4px 2px;
+  /* appearance */
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:2px;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:background .08s,border-color .08s;
+}
+.lb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.lb:active{background:#ccd9ee}
+.lb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+
+/* Icon area inside large button — fixed 32px tall block */
+.lb .li{
+  display:flex;           /* center the icon */
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:32px;            /* FIXED HEIGHT keeps icon from collapsing */
+  font-size:21px;
+  flex-shrink:0;
+  margin-bottom:1px;
+}
+/* Label area inside large button — sits BELOW the icon */
+.lb .ll{
+  font-size:9px;
+  color:#333;
+  text-align:center;
+  line-height:1.25;
+  white-space:normal;
+  word-break:break-word;
+  max-width:52px;
+}
+
+/* ════════════ SPLIT BUTTON (large with dropdown arrow) ════════════ */
+.lb-dd-wrap{position:relative;display:inline-flex;vertical-align:top}
+.lb-dd-wrap .dd-arrow{
+  position:absolute;bottom:6px;right:2px;
+  font-size:7px;color:#555;line-height:1;pointer-events:none;
+}
+
+/* ════════════ SMALL BUTTON ════════════
+   Word's secondary action — icon left, label right, stacked 3 high.
+   These correctly have HORIZONTAL layout in real Word 365.
+*/
+.sb{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  height:20px;
+  padding:0 6px;
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:2px;
+  cursor:pointer;
+  font-size:11px;
+  font-family:inherit;
+  color:#1f1f1f;
+  white-space:nowrap;
+  min-width:70px;
+  transition:background .08s;
+}
+.sb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.sb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.sb .si{font-size:13px;width:14px;text-align:center;flex-shrink:0}
+.sb .sl{font-size:11px;color:#1f1f1f}
+
+/* Stack of small buttons — same height as one large button */
+.sb-stack{
+  display:flex;flex-direction:column;
+  gap:1px;justify-content:center;
+  height:68px;
+}
+
+/* ════════════ FONT GROUP SPECIFIC ════════════ */
+.font-combos{display:flex;align-items:center;gap:2px;margin-bottom:2px}
+.font-combo{
+  height:20px;border:1px solid #ababab;border-radius:2px;background:#fff;
+  font-size:11px;font-family:inherit;padding:0 3px;color:#1f1f1f;
+  display:flex;align-items:center;gap:2px;cursor:text;
+}
+.font-combo:hover{border-color:#555}
+.font-combo .fa{font-size:7px;color:#777;flex-shrink:0}
+.font-sq{
+  width:22px;height:20px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:2px;
+  cursor:pointer;font-size:12px;color:#1f1f1f;flex-shrink:0;
+}
+.font-sq:hover{background:#e8f0fb;border-color:#c5d9f7}
+.font-sq.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.font-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0}
+.font-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.font-row{display:flex;align-items:center;gap:1px}
+
+/* ════════════ STYLES GALLERY ════════════ */
+.styles-gallery{display:flex;align-items:stretch;gap:1px;padding:2px 0}
+.style-btn{
+  width:52px;height:64px;border:1px solid transparent;border-radius:2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;background:transparent;font-family:inherit;padding:4px 2px;gap:3px;
+}
+.style-btn:hover{border-color:#c5d9f7;background:#e8f0fb}
+.style-btn.hl{border-color:#f59e0b;background:#fff3cd;animation:hlpulse 1.4s infinite}
+.style-preview{font-size:15px;color:#000;line-height:1}
+.style-name{font-size:8px;color:#555;text-align:center;line-height:1.2}
+
+/* ════════════ PARAGRAPH ICON BUTTONS ════════════ */
+.ico-btn{
+  width:24px;height:20px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:2px;
+  cursor:pointer;color:#1f1f1f;flex-shrink:0;
+}
+.ico-btn:hover{background:#e8f0fb;border-color:#c5d9f7}
+.ico-btn.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.ico-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0;align-self:center}
+.para-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.para-row{display:flex;align-items:center;gap:1px}
+.ico-dd{position:relative;display:inline-flex}
+.ico-dd-btn{
+  width:26px;height:20px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:2px;
+  cursor:pointer;font-size:9px;color:#1f1f1f;gap:1px;flex-shrink:0;
+}
+.ico-dd-btn:hover{background:#e8f0fb;border-color:#c5d9f7}
+.ico-dd-btn .dda{font-size:6px;color:#555}
+
+/* ════════════ SPINNER INPUTS (Layout > Paragraph) ════════════ */
+.spinner-wrap{display:flex;flex-direction:column;gap:3px;padding:4px 4px 0}
+.spinner-section{font-size:9px;color:#555;margin-bottom:1px}
+.spinner-row{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.spinner-lbl{font-size:10px;color:#444;min-width:34px;text-align:right;flex-shrink:0}
+.spinner{
+  width:46px;height:18px;border:1px solid #ababab;border-radius:2px;
+  background:#fff;display:flex;align-items:center;flex-shrink:0;
+}
+.spinner-val{font-size:10px;color:#1f1f1f;flex:1;padding-left:4px}
+.spinner-arrows{display:flex;flex-direction:column;border-left:1px solid #e0e0e0;width:13px}
+.spinner-arrows button{
+  flex:1;border:none;background:transparent;cursor:pointer;
+  font-size:5px;color:#666;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;
+}
+.spinner-arrows button:hover{background:#e8f0fb}
+
+/* ════════════ MARKUP DROPDOWN (Review > Tracking) ════════════ */
+.markup-dd{
+  height:20px;border:1px solid #ababab;border-radius:2px;background:#fff;
+  display:flex;align-items:center;padding:0 5px;gap:3px;cursor:pointer;
+  font-size:11px;color:#1f1f1f;min-width:100px;margin-bottom:2px;
+}
+.markup-dd:hover{border-color:#555}
+.markup-dd .mda{font-size:7px;color:#777;margin-left:auto}
+
+/* ════════════ DROPDOWN MENU ════════════ */
+.dd-wrap{position:relative;display:inline-flex;vertical-align:top}
+.dd-menu{
+  position:fixed;top:0;left:0;
+  background:#fff;border:1px solid #ababab;
+  box-shadow:0 4px 12px rgba(0,0,0,.18);
+  z-index:9999;min-width:180px;padding:2px 0;display:none;
+}
+.dd-menu.open{display:block}
+.dd-item{
+  display:block;width:100%;background:transparent;border:none;
+  text-align:left;padding:8px 16px;font-size:13px;
+  cursor:pointer;color:#1f1f1f;font-family:inherit;
+}
+.dd-item:hover{background:#e8f0fb}
+.dd-sep{height:1px;background:#e5e7eb;margin:2px 0}
+
+/* ════════════ BODY LAYOUT ════════════ */
+#body-wrap{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+#sidebar{width:188px;background:#1e293b;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-hd{padding:14px 14px 10px;border-bottom:1px solid #334155}
+.sb-exam{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:2px}
+.sb-title{font-size:14px;font-weight:700;color:#f1f5f9}
+.sb-score-box{padding:10px 14px;border-bottom:1px solid #334155}
+.sb-lbl{font-size:9px;color:#64748b;margin-bottom:3px}
+.sb-val{font-size:22px;font-weight:700;color:#60a5fa}
+.sb-bar{height:3px;background:#334155;border-radius:2px;margin-top:5px}
+.sb-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width .4s}
+.sb-domain{padding:8px 14px 3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#475569}
+.lab-btn{
+  display:flex;align-items:center;gap:7px;width:100%;
+  background:transparent;border:none;border-left:3px solid transparent;
+  cursor:pointer;padding:7px 12px;text-align:left;
+  color:#94a3b8;font-family:inherit;transition:all .15s;
+}
+.lab-btn:hover{background:#273244;color:#e2e8f0}
+.lab-btn.active{background:#1e3a5f;border-left-color:#3b82f6;color:#fff}
+.lab-btn.done{color:#34d399;border-left-color:#10b981}
+.lab-dot{
+  width:20px;height:20px;border-radius:50%;background:#334155;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;flex-shrink:0;color:#94a3b8;
+}
+.lab-dot.active{background:#3b82f6;color:#fff}
+.lab-dot.done{background:#10b981;color:#fff}
+.lab-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lab-obj{font-size:9px;opacity:.6;margin-top:1px}
+
+/* Main pane */
+#main-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Ruler */
+#ruler-wrap{
+  height:17px;background:#f0f0f0;border-bottom:1px solid #c8c8c8;
+  display:flex;flex-shrink:0;
+}
+#ruler-corner{width:30px;height:17px;background:#f0f0f0;border-right:1px solid #c8c8c8;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:9px;color:#888}
+#ruler{flex:1;background:#fff;height:17px;position:relative;overflow:hidden;display:flex}
+.ruler-margin{background:#f0f0f0;flex-shrink:0}
+.ruler-tick{position:absolute;top:0}
+.rtline{width:1px;height:8px;background:#999;margin-top:5px}
+.rtline.major{height:12px;margin-top:3px}
+.rtnum{position:absolute;font-size:7px;color:#777;top:0;transform:translateX(-50%)}
+
+/* Progress bar */
+#prog-bar{height:3px;background:#e5e7eb;flex-shrink:0}
+#prog-fill{height:100%;background:#2b579a;transition:width .4s}
+
+/* Document canvas */
+#canvas{flex:1;overflow-y:auto;background:#808080;display:flex;justify-content:center;align-items:flex-start;padding:20px}
+#doc-page{width:680px;min-height:460px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.4);font-family:"Calibri",serif;padding:72px 96px}
+#doc-page.narrow{padding:48px 60px}
+#doc-page.landscape{padding:60px 96px;width:880px}
+
+/* Status bar */
+#status-bar{
+  height:22px;background:#2b579a;display:flex;align-items:center;
+  padding:0 12px;color:rgba(255,255,255,.85);font-size:11px;flex-shrink:0;gap:16px;
+}
+
+/* Task panel */
+#task-panel{background:#fff;border-top:2px solid #2b579a;padding:10px 16px;flex-shrink:0}
+.task-row{display:flex;align-items:flex-start;gap:10px}
+.task-badge{background:#2b579a;color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:3px 8px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.task-text{font-size:13px;color:#1e3a8a;font-weight:500;line-height:1.4;flex:1}
+.task-acts{display:flex;gap:6px;flex-shrink:0}
+.btn{padding:5px 14px;border-radius:2px;font-size:12px;cursor:pointer;font-family:inherit;border:1px solid transparent}
+.btn-blue{background:#2b579a;color:#fff}.btn-blue:hover{background:#1e3a8a}
+.btn-ghost{background:#fff;border-color:#ababab;color:#374151}.btn-ghost:hover{background:#f5f5f5}
+.hint-area{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.hint-row{padding:7px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#78350f;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.hint-row-0{background:#fff8e1;border-color:#fde68a}
+.hint-row-1{background:#fff3cd;border-color:#fbbf24}
+.hint-row-2{background:#fef3c7;border-color:#f59e0b}
+.hint-answer{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.hint-num{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;padding:1px 7px;border-radius:10px;background:rgba(0,0,0,.08);margin-top:1px}
+.answer-tag{background:#15803d;color:#fff}
+.fb{margin-top:7px;padding:9px 14px;font-size:12px;line-height:1.5}
+.fb-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.fb-err{background:#fff1f1;border:1px solid #fca5a5;color:#991b1b}
+.fb-next{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}
+
+/* Doc styles */
+.dt{font-size:24px;font-weight:800;color:#000;letter-spacing:-.5px;margin-bottom:6px}
+.dh1{font-size:17px;font-weight:700;color:#2e74b5;margin:14px 0 8px;border-bottom:1px solid #2e74b5;padding-bottom:3px}
+.dh2{font-size:14px;font-weight:600;color:#2e74b5;margin:10px 0 6px}
+.dp{font-size:13px;color:#1a1a1a;line-height:1.65;margin-bottom:8px;font-family:"Calibri",serif}
+.dsel{background:#b4d5fe;border-radius:1px}
+.dfn{font-size:9px;vertical-align:super;color:#2b579a;font-weight:700}
+.dtoc{background:#f8faff;border:1px solid #dbeafe;padding:14px 18px;margin-bottom:14px}
+.dtoc-t{font-size:13px;font-weight:700;color:#1e40af;margin-bottom:8px}
+.dtoc-r{display:flex;justify-content:space-between;font-size:12px;color:#374151;padding:2px 0;border-bottom:1px dotted #93c5fd}
+.dtbl{width:100%;border-collapse:collapse;margin:10px 0}
+.dtbl th{background:#2b579a;color:#fff;padding:6px 10px;font-size:12px;font-weight:600;text-align:left;border:1px solid #1e3a8a}
+.dtbl td{border:1px solid #d1d5db;padding:6px 10px;font-size:12px}
+.dtbl tr:nth-child(even) td{background:#f0f4ff}
+.dnum{padding-left:22px;text-indent:-18px;margin-bottom:4px;font-size:13px;color:#1a1a1a;line-height:1.6}
+.dfna{border-top:1px solid #aaa;margin-top:24px;padding-top:6px;font-size:11px;color:#555}
+.dcmt{background:#fef9c3;border:1px solid #fde047;padding:8px 12px;margin-top:8px;font-size:11px;color:#713f12}
+.dsa{background:#f0f4ff;border:1px solid #bfdbfe;padding:14px;margin:10px 0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.dsa-ceo{background:#2b579a;color:#fff;padding:5px 22px;font-size:12px;font-weight:700}
+.dsa-row{display:flex;gap:10px}
+.dsa-c{background:#60a5fa;color:#fff;padding:4px 14px;font-size:11px;font-weight:600}
+.ddel{color:#c00;text-decoration:line-through}
+.dins{color:#00b;text-decoration:underline}
+
+/* backdrop + dialog */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;display:none}
+.w-dlg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #ababab;box-shadow:0 8px 28px rgba(0,0,0,.25);z-index:300;width:360px;display:none;font-family:"Segoe UI",sans-serif}
+.dlg-hd{background:#2b579a;color:#fff;padding:8px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.dlg-close{background:transparent;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0 4px}
+.dlg-body{padding:16px}
+.dlg-body label{display:block;font-size:12px;color:#374151;margin-bottom:3px;margin-top:10px}
+.dlg-body label:first-child{margin-top:0}
+.dlg-body input{width:100%;padding:5px 9px;border:1px solid #ababab;font-size:13px;font-family:inherit}
+.dlg-body input:focus{outline:none;border-color:#2b579a}
+.dlg-ft{padding:10px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px;background:#f9f9f9}
+
+@keyframes hlpulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}60%{box-shadow:0 0 0 4px rgba(245,158,11,.08)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeDlg()"></div>
+<div class="w-dlg" id="dlg">
+  <div class="dlg-hd">Find and Replace <button class="dlg-close" onclick="closeDlg()">✕</button></div>
+  <div class="dlg-body">
+    <label>Find what:</label><input id="dlg-find" value="employees">
+    <label>Replace with:</label><input id="dlg-rep" value="team members">
+  </div>
+  <div class="dlg-ft">
+    <button class="btn btn-ghost" onclick="closeDlg()">Cancel</button>
+    <button class="btn btn-ghost" onclick="closeDlg()">Replace</button>
+    <button class="btn btn-blue" onclick="doReplace()">Replace All</button>
+  </div>
+</div>
+
+<div id="title-bar">
+  <div class="qat">
+    <button title="Save">💾</button>
+    <button title="Undo" style="font-size:11px">↩</button>
+    <button title="Redo" style="font-size:11px">↪</button>
+  </div>
+  <div class="docname" id="doc-title">Document1.docx — Word</div>
+  <div class="winbtns">
+    <button>─</button><button>❐</button><button class="cls">✕</button>
+  </div>
+</div>
+
+<div id="ribbon">
+  <div id="tab-strip"></div>
+  <div id="ribbon-body"></div>
+</div>
+
+<div id="ruler-wrap">
+  <div id="ruler-corner">⊡</div>
+  <div id="ruler"></div>
+</div>
+
+<div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+
+<div id="body-wrap">
+  <div id="sidebar">
+    <div class="sb-hd"><div class="sb-exam">IS101 Associate</div><div class="sb-title">Word Training</div></div>
+    <div class="sb-score-box">
+      <div class="sb-lbl">SCORE</div>
+      <div class="sb-val" id="sb-score">0 / 180</div>
+      <div class="sb-bar"><div class="sb-fill" id="sb-fill" style="width:0%"></div></div>
+    </div>
+    <div id="sb-nav"></div>
+  </div>
+  <div id="main-pane">
+    <div id="canvas"><div id="doc-page"></div></div>
+    <div id="status-bar">
+      <span>Page 1 of 1</span><span id="st-words">Words: 0</span><span>English (United States)</span>
+      <span style="margin-left:auto;display:flex;gap:8px;font-size:13px">▤ 🌐 📖</span>
+    </div>
+    <div id="task-panel"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// TRAINING LAB DATA — 18 hands-on labs
+// ═══════════════════════════════════════════
+const DOMAINS=[
+  {label:'D1 · Manage Documents',labs:[0,1,2]},
+  {label:'D2 · Format Text & Sections',labs:[3,4,5,6]},
+  {label:'D3 · Tables & Lists',labs:[7,8,9,10]},
+  {label:'D4 · References',labs:[11,12,13]},
+  {label:'D5 · Graphic Elements',labs:[14,15]},
+  {label:'D6 · Collaboration',labs:[16,17]},
+];
+const LABS=[
+  {id:0,name:'Change Margins',domain:'D1',obj:'',tab:'layout',action:'margin-narrow',
+   before(){return`<p class="dh1">Proposal: Digital Marketing Strategy</p><p class="dp">This proposal outlines our approach to expanding brand presence across digital channels in the upcoming fiscal year, targeting the 25–40 demographic.</p><p class="dh2">Recommendation</p><p class="dp">We recommend allocating 40% of the marketing budget to digital in Q2, scaling to 60% by Q4 based on measured KPI performance at each milestone.</p>`},
+   after(){return this.before()+`<p style="margin-top:14px;font-size:10px;color:#15803d;font-weight:700">✓ Margins changed to Narrow (0.5" all sides)</p>`},
+   pageClass:'narrow',
+   task:'This proposal needs <strong>Narrow</strong> margins so more text fits on each page when printed. Change the page margins to Narrow.',
+   hints:[
+     'Think about which tab controls the physical layout of your page.',
+     'Look in the Layout tab — find the Page Setup group on the left side of the ribbon.',
+     'In the Page Setup group, click the Margins button and look through the dropdown options.'
+   ],
+   answer:'Layout tab → Page Setup group → Margins button → select Narrow.',
+   exp:'Margins (Layout → Page Setup → Margins): Narrow = 0.5", Normal (default) = 1", Wide = 1.5". Controls how much text fits per line.'},
+  {id:1,name:'Page Orientation',domain:'D1',obj:'',tab:'layout',action:'orientation-landscape',
+   before(){return`<p class="dh1">Q3 Financial Summary</p><table class="dtbl"><thead><tr><th>Division</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>YTD</th></tr></thead><tbody><tr><td>North</td><td>$120K</td><td>$145K</td><td>$162K</td><td>$180K</td><td>$607K</td></tr><tr><td>South</td><td>$98K</td><td>$112K</td><td>$130K</td><td>$150K</td><td>$490K</td></tr><tr><td>East</td><td>$88K</td><td>$101K</td><td>$118K</td><td>$140K</td><td>$447K</td></tr></tbody></table>`},
+   after(){return this.before()+`<p style="margin-top:8px;font-size:10px;color:#15803d;font-weight:700">✓ Page orientation: Landscape (11" × 8.5")</p>`},
+   pageClass:'',
+   task:'The wide table is getting cut off on the right side. Change the page orientation so the page is wider than it is tall.',
+   hints:[
+     'This command changes which direction your page faces — look for a tab about page layout.',
+     'Open the Layout tab and look for a group that controls page setup options.',
+     'In the Page Setup group, find the Orientation button — it shows a portrait and landscape page icon.'
+   ],
+   answer:'Layout tab → Page Setup group → Orientation button → select Landscape.',
+   exp:'Orientation (Layout → Orientation): Landscape rotates the page to 11"×8.5", giving wide tables more room.'},
+  {id:2,name:'Find & Replace',domain:'D1',obj:'',tab:'home',action:'find-replace',
+   before(){return`<p class="dh1">Staff Handbook</p><p class="dp">All <span class="dsel">employees</span> are required to complete onboarding within their first week. This ensures all <span class="dsel">employees</span> have the tools they need to be productive.</p><p class="dp">Managers should review each <span class="dsel">employees</span>' progress and submit feedback to HR.</p>`},
+   after(){return`<p class="dh1">Staff Handbook</p><p class="dp">All <strong>team members</strong> are required to complete onboarding within their first week. This ensures all <strong>team members</strong> have the tools they need to be productive.</p><p class="dp">Managers should review each <strong>team members</strong>' progress and submit feedback to HR.</p><p style="margin-top:10px;font-size:10px;color:#15803d;font-weight:700">✓ 3 replacements: "employees" → "team members"</p>`},
+   pageClass:'',
+   task:'HR has decided to replace the word <strong>"employees"</strong> with <strong>"team members"</strong> throughout this entire document. Make that change everywhere the word appears at once.',
+   hints:[
+     'You need a tool that can find every instance of a word and swap it for another word throughout the document.',
+     'Look on the Home tab — the command you need is in the far-right group called Editing.',
+     'In the Editing group on the Home tab, click the Replace button (or try pressing Ctrl+H on your keyboard).'
+   ],
+   answer:'Home tab → Editing group → Replace button (or Ctrl+H) → type in both boxes → Replace All.',
+   exp:'Find & Replace (Ctrl+H): replaces all instances at once. Use Replace to step through one-by-one.'},
+  {id:3,name:'Apply Title Style',domain:'D2',obj:'',tab:'home',action:'style-title',
+   before(){return`<p class="dsel" style="font-size:17px;font-weight:600;color:#111;margin-bottom:12px">Regional Sales Conference 2024</p><p class="dp">Join us for the annual sales conference where teams from all regions will present results, share strategies, and align on goals.</p><p class="dp">Date: June 12–14, 2024 &nbsp;·&nbsp; Chicago Marriott Downtown</p>`},
+   after(){return`<p class="dt">Regional Sales Conference 2024</p><p class="dp">Join us for the annual sales conference where teams from all regions will present results, share strategies, and align on goals.</p><p class="dp">Date: June 12–14, 2024 &nbsp;·&nbsp; Chicago Marriott Downtown</p>`},
+   pageClass:'',
+   task:'The document title text is selected (shown highlighted). Apply the built-in <strong>Title</strong> style to make it look like a professional document title.',
+   hints:[
+     'Word has built-in styles that format your text with one click — look for a group that shows different text styles.',
+     'On the Home tab, find the Styles group — it shows a gallery of named styles like Normal, Heading 1, Title.',
+     'In the Styles gallery on the Home tab, find and click the style named Title.'
+   ],
+   answer:'Home tab → Styles group → click the Title style in the gallery.',
+   exp:'Title style (Home → Styles → Title): applies the document title format — larger, heavier, distinct from Heading 1.'},
+  {id:4,name:'Apply Heading 1',domain:'D2',obj:'',tab:'home',action:'style-heading1',
+   before(){return`<p class="dt">Annual Report 2024</p><p class="dsel" style="font-size:14px;color:#374151;font-weight:600;margin:12px 0 6px">Executive Summary</p><p class="dp">An overview of performance including revenue growth, operational efficiency, and strategic milestones.</p><p class="dsel" style="font-size:14px;color:#374151;font-weight:600;margin:12px 0 6px">Financial Highlights</p><p class="dp">Total revenue reached $18.4M — a 14% increase year-over-year.</p>`},
+   after(){return`<p class="dt">Annual Report 2024</p><p class="dh1">Executive Summary</p><p class="dp">An overview of performance including revenue growth, operational efficiency, and strategic milestones.</p><p class="dh1">Financial Highlights</p><p class="dp">Total revenue reached $18.4M — a 14% increase year-over-year.</p>`},
+   pageClass:'',
+   task:'The two section headings are selected (shown highlighted). Apply the built-in <strong>Heading 1</strong> style so they are formatted as major section headings.',
+   hints:[
+     'This is a built-in style — look for the group on the Home tab that shows named formatting styles.',
+     'On the Home tab, look at the Styles group where you can see a gallery of preset formats.',
+     'In the Styles gallery, find the style named Heading 1 and click it.'
+   ],
+   answer:'Home tab → Styles group → click Heading 1 in the gallery.',
+   exp:'Heading 1 (Home → Styles → Heading 1): structures the document and populates the Navigation Pane and Table of Contents automatically.'},
+  {id:5,name:'Bold + Italic',domain:'D2',obj:'',tab:'home',action:'bold-italic',
+   before(){return`<p class="dh1">Policy Reminder</p><p class="dp">Review the following guideline before submitting:</p><p class="dsel" style="font-size:13px;color:#374151;line-height:1.65;margin-bottom:8px">All reports must be submitted by 5:00 PM on the last Friday of each month without exception.</p><p class="dp">Failure requires 48 hours written notice to your team lead.</p>`},
+   after(){return`<p class="dh1">Policy Reminder</p><p class="dp">Review the following guideline before submitting:</p><p style="font-size:13px;color:#374151;line-height:1.65;margin-bottom:8px"><strong><em>All reports must be submitted by 5:00 PM on the last Friday of each month without exception.</em></strong></p><p class="dp">Failure requires 48 hours written notice to your team lead.</p>`},
+   pageClass:'',
+   task:'The highlighted sentence needs to stand out. Apply both <strong>Bold</strong> and <strong>Italic</strong> formatting to the selected text at the same time.',
+   hints:[
+     'These are character formatting commands — look for the group on the Home tab that controls font appearance.',
+     'On the Home tab, find the Font group — it contains buttons for changing how text looks.',
+     'In the Font group, click the B button for Bold, then click the I button for Italic.'
+   ],
+   answer:'Home tab → Font group → click B (Bold), then click I (Italic).',
+   exp:'Bold (Ctrl+B) and Italic (Ctrl+I) can be combined. Both buttons appear pressed/highlighted when active.'},
+  {id:6,name:'Double Line Spacing',domain:'D2',obj:'',tab:'home',action:'spacing-double',
+   before(){return`<p class="dh1">Research Paper</p><p class="dsel" style="font-size:13px;color:#1a1a1a;line-height:1.5;margin-bottom:8px">The relationship between employee engagement and organizational productivity has been studied extensively. Findings show engaged teams outperform disengaged counterparts by 17–21%, with the strongest effects in knowledge-intensive industries.</p><p class="dp">See Section 2 for methodology.</p>`},
+   after(){return`<p class="dh1">Research Paper</p><p style="font-size:13px;color:#1a1a1a;line-height:2.3;margin-bottom:8px">The relationship between employee engagement and organizational productivity has been studied extensively. Findings show engaged teams outperform disengaged counterparts by 17–21%, with the strongest effects in knowledge-intensive industries.</p><p class="dp">See Section 2 for methodology.</p>`},
+   pageClass:'',
+   task:'The highlighted paragraph is too cramped and hard to read. Change the line spacing to <strong>Double (2.0)</strong> so there is more space between each line.',
+   hints:[
+     'Line spacing controls how much vertical space appears between each line — look for a paragraph formatting group.',
+     'On the Home tab, find the Paragraph group — it has a line spacing button that looks like lines with up/down arrows.',
+     'Click the Line Spacing button in the Paragraph group, then choose 2.0 from the dropdown list.'
+   ],
+   answer:'Home tab → Paragraph group → Line Spacing button → select 2.0.',
+   exp:'Line spacing 2.0 (Ctrl+2): standard for academic papers and legal drafts. Access via Home → Paragraph → Line Spacing button.'},
+  {id:7,name:'Insert a Table',domain:'D3',obj:'',tab:'insert',action:'insert-table-3x4',
+   before(){return`<p class="dh1">Project Team Directory</p><p class="dp">Insert a 3-column × 4-row table below (Name · Role · Email).</p><p class="dp" style="color:#6b7280;font-style:italic">← Use Insert → Table to add a 3×4 table here.</p>`},
+   after(){return`<p class="dh1">Project Team Directory</p><table class="dtbl"><thead><tr><th>Name</th><th>Role</th><th>Email</th></tr></thead><tbody><tr><td>Alice Johnson</td><td>Project Lead</td><td>alice@co.com</td></tr><tr><td>Bob Martinez</td><td>Developer</td><td>bob@co.com</td></tr><tr><td>Carol Lee</td><td>Designer</td><td>carol@co.com</td></tr></tbody></table>`},
+   pageClass:'',
+   task:'You need to add a table to organize the data below the cursor. Insert a new table with <strong>3 columns</strong> and <strong>4 rows</strong>.',
+   hints:[
+     'Think about which tab you would use to add something new to your document, like a table.',
+     'Open the Insert tab and look for a group specifically for creating tables.',
+     'In the Tables group, click the Table button, then hover your mouse over the grid that appears to select 3 columns and 4 rows, then click.'
+   ],
+   answer:'Insert tab → Tables group → Table button → hover grid to 3×4 → click.',
+   exp:'Insert Table (Insert → Table): hover the grid for quick selection. The table auto-fits to page width.'},
+  {id:8,name:'Convert Text to Table',domain:'D3',obj:'',tab:'insert',action:'convert-text-table',
+   before(){return`<p class="dh1">Product Catalog</p><p class="dp">Convert this comma-separated data into a table:</p><div style="background:#f8faff;border:1px solid #dbeafe;padding:10px 14px;font-family:monospace;font-size:12px;color:#374151;margin:8px 0;border-left:3px solid #2b579a">Product,Category,Price<br>Laptop Pro,Electronics,$1,299<br>Wireless Mouse,Accessories,$49<br>USB-C Hub,Accessories,$79<br>4K Monitor,Electronics,$449</div>`},
+   after(){return`<p class="dh1">Product Catalog</p><table class="dtbl"><thead><tr><th>Product</th><th>Category</th><th>Price</th></tr></thead><tbody><tr><td>Laptop Pro</td><td>Electronics</td><td>$1,299</td></tr><tr><td>Wireless Mouse</td><td>Accessories</td><td>$49</td></tr><tr><td>USB-C Hub</td><td>Accessories</td><td>$79</td></tr><tr><td>4K Monitor</td><td>Electronics</td><td>$449</td></tr></tbody></table>`},
+   pageClass:'',
+   task:'The comma-separated text below needs to become a proper table. Convert the selected text into a table using commas as the column separator.',
+   hints:[
+     'Word can turn existing text into a table automatically — think about which tab handles inserting tables.',
+     'Open the Insert tab, go to the Tables group, and look at the dropdown arrow on the Table button.',
+     'Click the Table dropdown arrow, choose Convert Text to Table, then set the separator to Commas and click OK.'
+   ],
+   answer:'Insert tab → Tables group → Table dropdown → Convert Text to Table → Commas → OK.',
+   exp:'Convert Text to Table splits delimited text into columns. Perfect for CSV or spreadsheet data.'},
+  {id:9,name:'Numbered List',domain:'D3',obj:'',tab:'home',action:'numbering',
+   before(){return`<p class="dh1">Onboarding Checklist</p><p class="dp">Complete in order during your first week:</p><p class="dsel" style="font-size:13px;margin:3px 0">Meet with your manager for a 1:1 orientation</p><p class="dsel" style="font-size:13px;margin:3px 0">Set up your workstation and request IT access</p><p class="dsel" style="font-size:13px;margin:3px 0">Complete mandatory compliance training online</p><p class="dsel" style="font-size:13px;margin:3px 0">Submit signed confidentiality agreement to HR</p><p class="dsel" style="font-size:13px;margin:3px 0">Schedule intro calls with each team member</p>`},
+   after(){return`<p class="dh1">Onboarding Checklist</p><p class="dp">Complete in order during your first week:</p><p class="dnum">1.&nbsp;&nbsp;Meet with your manager for a 1:1 orientation</p><p class="dnum">2.&nbsp;&nbsp;Set up your workstation and request IT access</p><p class="dnum">3.&nbsp;&nbsp;Complete mandatory compliance training online</p><p class="dnum">4.&nbsp;&nbsp;Submit signed confidentiality agreement to HR</p><p class="dnum">5.&nbsp;&nbsp;Schedule intro calls with each team member</p>`},
+   pageClass:'',
+   task:'The five highlighted steps need to appear as an ordered sequence. Format the selected lines as a <strong>numbered list</strong>.',
+   hints:[
+     'Lists are a paragraph formatting feature — look for the group on the Home tab that controls paragraph layout.',
+     'On the Home tab, find the Paragraph group — it has buttons for both bulleted and numbered lists.',
+     'In the Paragraph group, click the Numbering button — it shows the 1. 2. 3. icon.'
+   ],
+   answer:'Home tab → Paragraph group → Numbering button (1. 2. 3. icon).',
+   exp:'Numbering (Home → Paragraph → Numbering): auto-numbers paragraphs. Re-numbers automatically when items are added or removed.'},
+  {id:10,name:'Merge Table Cells',domain:'D3',obj:'',tab:'table-layout',action:'merge-cells',
+   before(){return`<p class="dh1">Q4 Sales Report</p><table class="dtbl"><thead><tr><th style="background:#9b1c1c">Q4 Regional Results ▸</th><th style="background:#9b1c1c">·</th><th style="background:#9b1c1c">·</th><th style="background:#9b1c1c">·</th></tr><tr><th>Region</th><th>Revenue</th><th>Growth</th><th>Status</th></tr></thead><tbody><tr><td>North</td><td>$162K</td><td>+14%</td><td>On target</td></tr><tr><td>South</td><td>$130K</td><td>+8%</td><td>Below</td></tr><tr><td>East</td><td>$118K</td><td>+19%</td><td>Exceeded</td></tr></tbody></table><p style="font-size:11px;color:#6b7280;margin-top:5px">↑ The 4 red cells are selected — merge them into one header.</p>`},
+   after(){return`<p class="dh1">Q4 Sales Report</p><table class="dtbl"><thead><tr><th colspan="4">Q4 Regional Results</th></tr><tr><th>Region</th><th>Revenue</th><th>Growth</th><th>Status</th></tr></thead><tbody><tr><td>North</td><td>$162K</td><td>+14%</td><td>On target</td></tr><tr><td>South</td><td>$130K</td><td>+8%</td><td>Below</td></tr><tr><td>East</td><td>$118K</td><td>+19%</td><td>Exceeded</td></tr></tbody></table>`},
+   pageClass:'',
+   task:'The 4 selected cells in the top row need to become one wide cell for the table title. <strong>Merge</strong> the selected cells into a single cell.',
+   hints:[
+     'Merging cells is a table-specific command — you need to click inside the table first so the right tab appears.',
+     'When your cursor is inside a table, extra tabs appear in the ribbon called Table Tools — look for the Layout tab.',
+     'In the Table Tools Layout tab, find the Merge group and click the Merge Cells button.'
+   ],
+   answer:'Click in table → Table Tools Layout tab → Merge group → Merge Cells.',
+   exp:'Merge Cells (Table Layout → Merge Cells): combines adjacent cells. Used for spanning column headers.'},
+  {id:11,name:'Table of Contents',domain:'D4',obj:'',tab:'references',action:'insert-toc',
+   before(){return`<p class="dt">IT Security Policy</p><p class="dp" style="color:#6b7280;font-style:italic">← Automatic Table of Contents will appear here.</p><p class="dh1">1. Password Requirements</p><p class="dp">All passwords must be 12+ characters and rotated every 90 days. MFA required for remote access.</p><p class="dh1">2. Data Classification</p><p class="dp">Data is classified as Public, Internal, Confidential, or Restricted.</p><p class="dh1">3. Incident Response</p><p class="dp">Any suspected incident must be reported to IT Security within one hour.</p>`},
+   after(){return`<p class="dt">IT Security Policy</p><div class="dtoc"><div class="dtoc-t">Table of Contents</div><div class="dtoc-r"><span>1. Password Requirements</span><span>2</span></div><div class="dtoc-r"><span>2. Data Classification</span><span>3</span></div><div class="dtoc-r"><span>3. Incident Response</span><span>4</span></div></div><p class="dh1">1. Password Requirements</p><p class="dp">All passwords must be 12+ characters and rotated every 90 days. MFA required for remote access.</p><p class="dh1">2. Data Classification</p><p class="dp">Data is classified as Public, Internal, Confidential, or Restricted.</p><p class="dh1">3. Incident Response</p><p class="dp">Any suspected incident must be reported to IT Security within one hour.</p>`},
+   pageClass:'',
+   task:'This document has multiple sections with Heading styles applied. Insert an automatic <strong>Table of Contents</strong> at the current cursor position.',
+   hints:[
+     'A Table of Contents is a reference feature — look for a tab in the ribbon dedicated to document references.',
+     'Open the References tab and look for the group at the far left that is specifically about Tables of Contents.',
+     'In the Table of Contents group, click the Table of Contents button and choose Automatic Table 1 from the dropdown.'
+   ],
+   answer:'References tab → Table of Contents group → Table of Contents button → Automatic Table 1.',
+   exp:'Table of Contents (References → TOC): reads all Heading 1/2/3 styles and builds a page-numbered TOC. Right-click → Update Field after editing.'},
+  {id:12,name:'Insert Footnote',domain:'D4',obj:'',tab:'references',action:'insert-footnote',
+   before(){return`<p class="dh1">Market Research</p><p class="dp">Global e-commerce sales are expected to reach $7.4 trillion by 2025<span class="dsel">[insert footnote]</span>, driven by mobile commerce and improved logistics in emerging markets.</p><p class="dp">Domestic growth is projected at 11% CAGR, with grocery and healthcare sectors leading adoption.</p>`},
+   after(){return`<p class="dh1">Market Research</p><p class="dp">Global e-commerce sales are expected to reach $7.4 trillion by 2025<span class="dfn">1</span>, driven by mobile commerce and improved logistics in emerging markets.</p><p class="dp">Domestic growth is projected at 11% CAGR, with grocery and healthcare sectors leading adoption.</p><div class="dfna"><sup>1</sup> Statista Global E-Commerce Report, 2024. Projected gross merchandise value across all B2C platforms.</div>`},
+   pageClass:'',
+   task:'The cursor is positioned after the statistic "$7.4 trillion by 2025" which needs a source citation. Insert a <strong>footnote</strong> at this location.',
+   hints:[
+     'Footnotes are a referencing feature — look for the ribbon tab that handles document references and citations.',
+     'Open the References tab and find the Footnotes group — it contains commands for footnotes and endnotes.',
+     'In the Footnotes group, click Insert Footnote. You can also press Alt+Ctrl+F as a shortcut.'
+   ],
+   answer:'References tab → Footnotes group → Insert Footnote button (or Alt+Ctrl+F).',
+   exp:'Insert Footnote (References → Insert Footnote): adds superscript number and entry at the page bottom. Word auto-numbers all footnotes.'},
+  {id:13,name:'Insert Endnote',domain:'D4',obj:'',tab:'references',action:'insert-endnote',
+   before(){return`<p class="dh1">Literature Review</p><p class="dp">Research shows remote work flexibility significantly improves satisfaction scores<span class="dsel">[insert endnote]</span> while maintaining productivity across knowledge-worker roles.</p><p class="dp">A 2023 meta-analysis of 42 studies confirmed results across technology, finance, and professional services.</p>`},
+   after(){return`<p class="dh1">Literature Review</p><p class="dp">Research shows remote work flexibility significantly improves satisfaction scores<span class="dfn">i</span> while maintaining productivity across knowledge-worker roles.</p><p class="dp">A 2023 meta-analysis of 42 studies confirmed results across technology, finance, and professional services.</p><div class="dfna" style="margin-top:40px"><strong>Endnotes</strong><br><sup>i</sup> Bloom, N. et al. (2023). "Hybrid Work and Productivity." Journal of Labor Economics, 41(2), 88–124.</div>`},
+   pageClass:'',
+   task:'The cursor is positioned at text that needs a citation that will appear at the end of the document rather than the bottom of the page. Insert an <strong>endnote</strong> here.',
+   hints:[
+     'Endnotes collect at the end of the document — look for the tab that handles document references.',
+     'Open the References tab and look in the Footnotes group — it handles both footnotes and endnotes.',
+     'In the Footnotes group, click Insert Endnote. You can also press Alt+Ctrl+D as a shortcut.'
+   ],
+   answer:'References tab → Footnotes group → Insert Endnote button (or Alt+Ctrl+D).',
+   exp:'Endnotes (References → Insert Endnote): like footnotes but all collected at the document end. Preferred in academic writing.'},
+  {id:14,name:'Wrap Text (Square)',domain:'D5',obj:'',tab:'picture-format',action:'wrap-square',
+   before(){return`<p class="dh1">Company Newsletter Q2</p><div style="display:flex;gap:12px;align-items:flex-start;margin:8px 0"><div style="width:88px;height:66px;background:#dbeafe;border:1px solid #93c5fd;display:flex;align-items:center;justify-content:center;font-size:10px;color:#1d4ed8;font-weight:600;flex-shrink:0">[Photo]</div><div><p class="dp">Welcome to the Q2 edition of our newsletter. This quarter we celebrate 20 years of innovation.</p><p class="dp">We expanded into three new markets and welcomed 40 new team members.</p></div></div><p style="font-size:11px;color:#6b7280;font-style:italic">↑ Photo is selected. Change its Text Wrap to Square using the Picture Format tab.</p>`},
+   after(){return`<p class="dh1">Company Newsletter Q2</p><div style="overflow:hidden;margin:8px 0"><div style="float:left;width:88px;height:66px;background:#dbeafe;border:1px solid #93c5fd;display:flex;align-items:center;justify-content:center;font-size:10px;color:#1d4ed8;font-weight:600;margin:2px 12px 4px 0">[Photo]</div><p class="dp">Welcome to the Q2 edition of our newsletter. This quarter we celebrate 20 years of innovation.</p><p class="dp">We expanded into three new markets and welcomed 40 new team members.</p></div><p style="font-size:10px;color:#15803d;font-weight:700;clear:both">✓ Wrap Text: Square — text flows around all four sides.</p>`},
+   pageClass:'',
+   task:'The image is selected but text is not flowing around it properly. Change the text wrapping so text flows around all four sides of the image using <strong>Square</strong> wrap.',
+   hints:[
+     'Text wrapping is a picture formatting option — first click on the image, then look for a new tab that appears.',
+     'When a picture is selected, a Picture Format tab appears in the ribbon — open it and look for an Arrange group.',
+     'In the Arrange group of the Picture Format tab, click Wrap Text and choose Square from the dropdown.'
+   ],
+   answer:'Click image → Picture Format tab → Arrange group → Wrap Text → Square.',
+   exp:'Wrap Text (Picture Format → Wrap Text): Square wraps text on all four sides. In Line treats the image as a text character.'},
+  {id:15,name:'Insert SmartArt',domain:'D5',obj:'',tab:'insert',action:'insert-smartart',
+   before(){return`<p class="dh1">Organizational Structure</p><p class="dp">Insert a SmartArt hierarchy: CEO → VP Sales, VP Engineering, VP Marketing.</p><p class="dp" style="color:#6b7280;font-style:italic">← Use Insert → SmartArt → Hierarchy → Organization Chart.</p>`},
+   after(){return`<p class="dh1">Organizational Structure</p><div class="dsa"><div class="dsa-ceo">CEO</div><div style="width:1px;height:12px;background:#60a5fa"></div><div class="dsa-row"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:1px;height:8px;background:#93c5fd"></div><div class="dsa-c">VP Sales</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:1px;height:8px;background:#93c5fd"></div><div class="dsa-c">VP Engineering</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:1px;height:8px;background:#93c5fd"></div><div class="dsa-c">VP Marketing</div></div></div></div><p style="font-size:10px;color:#15803d;font-weight:700">✓ SmartArt Hierarchy inserted.</p>`},
+   pageClass:'',
+   task:'The company needs an org chart to show their reporting structure. Insert a <strong>SmartArt Hierarchy</strong> graphic using the Organization Chart layout.',
+   hints:[
+     'SmartArt is a type of graphic you insert — think about which tab you use to add things to a document.',
+     'Open the Insert tab and find the Illustrations group — it contains SmartArt along with other graphic options.',
+     'Click SmartArt, choose the Hierarchy category on the left, then select Organization Chart and click OK.'
+   ],
+   answer:'Insert tab → Illustrations group → SmartArt → Hierarchy category → Organization Chart → OK.',
+   exp:'SmartArt (Insert → SmartArt): professionally designed diagram templates. Hierarchy category has org charts.'},
+  {id:16,name:'Insert Comment',domain:'D6',obj:'',tab:'review',action:'new-comment',
+   before(){return`<p class="dh1">Budget Proposal</p><p class="dp">The proposed Q3 marketing budget is <span class="dsel">$85,000</span>, allocated across digital advertising (50%), events (30%), and content production (20%).</p><p class="dp">This represents a 15% increase over Q2 spend, justified by the planned August product launch.</p>`},
+   after(){return`<p class="dh1">Budget Proposal</p><p class="dp">The proposed Q3 marketing budget is <span style="background:#fef08a">$85,000</span>, allocated across digital advertising (50%), events (30%), and content production (20%).</p><p class="dp">This represents a 15% increase over Q2 spend, justified by the planned August product launch.</p><div class="dcmt"><div style="font-weight:700;font-size:10px;color:#92400e;margin-bottom:3px">You · Just now</div>Please verify with Finance — Q2 actual was $76K not $74K. Confirm before sending to CFO.</div>`},
+   pageClass:'',
+   task:'The value "$85,000" is selected and needs a reviewer note attached to it. Add a <strong>comment</strong> to the selected text so reviewers can see a note without changing the document.',
+   hints:[
+     'Comments are a collaboration and review feature — look for a tab in the ribbon about reviewing documents.',
+     'Open the Review tab and find the Comments group — it contains all the commands for adding and managing comments.',
+     'In the Comments group, click New Comment. You can also use the shortcut Ctrl+Alt+M.'
+   ],
+   answer:'Review tab → Comments group → New Comment button (or Ctrl+Alt+M).',
+   exp:'New Comment (Review → New Comment): attaches a note to selected text without changing the document.'},
+  {id:17,name:'Track Changes',domain:'D6',obj:'',tab:'review',action:'track-accept',
+   before(){return`<p class="dh1">Contract Amendment</p><p class="dp">Agreement commences on <span class="ddel">January 1, 2024</span> <span class="dins">March 1, 2024</span> for a period of <span class="ddel">twelve (12) months</span> <span class="dins">twenty-four (24) months</span>, unless terminated with thirty days written notice.</p><p class="dp">Invoices due within <span class="ddel">30 days</span> <span class="dins">45 days</span> of receipt.</p><p style="font-size:10px;color:#6b7280;font-style:italic;margin-top:8px">Red strikethrough = deleted · Blue underline = inserted. These tracked changes await review.</p>`},
+   after(){return`<p class="dh1">Contract Amendment</p><p style="font-size:10px;color:#15803d;font-weight:700;margin-bottom:8px">✓ All tracked changes accepted.</p><p class="dp">Agreement commences on <strong>March 1, 2024</strong> for a period of <strong>twenty-four (24) months</strong>, unless terminated with thirty days written notice.</p><p class="dp">Invoices due within <strong>45 days</strong> of receipt.</p>`},
+   pageClass:'',
+   task:'This document has tracked changes shown in red markup from a previous reviewer. The changes have been approved — <strong>accept all tracked changes</strong> to finalize the document.',
+   hints:[
+     'Accepting tracked changes is a review workflow action — look for the ribbon tab about document review.',
+     'Open the Review tab and find the Changes group — it contains commands to accept or reject tracked changes.',
+     'In the Changes group, click the dropdown arrow on the Accept button, then choose Accept All Changes.'
+   ],
+   answer:'Review tab → Changes group → Accept dropdown arrow → Accept All Changes.',
+   exp:'Track Changes (Review → Track Changes): records every edit. Accept All Changes finalizes the document and removes markup.'},
+];
+
+// ═══════════════════════════════════════════
+// RIBBON BUILDER — generates each tab's HTML
+// ═══════════════════════════════════════════
+const S={lab:0,tab:'home',res:{},wrong:false,wrongCount:0,hintCount:0,dd:null};
+const MAX=LABS.length*10;
+const score=()=>Object.values(S.res).reduce((a,v)=>a+(v||0),0);
+
+// Large button — ALWAYS flex-column with icon above label
+// Uses inline style for flex-direction to be 100% override-proof
+function LB(icon,label,action,ddItems){
+  const isHL=S.lab>=0&&LABS[S.lab]&&action===LABS[S.lab].action;
+  const cls=`lb${isHL?' hl':''}`;
+  const lbl=ddItems?`${label} <span style="font-size:7px;color:#555">▾</span>`:label;
+  const inner=`<span class="li">${icon}</span><span class="ll">${lbl}</span>`;
+  if(ddItems){
+    const open=S.dd===action;
+    return `<div class="dd-wrap"><button class="${cls}" data-action="${action}" data-dd="${action}" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start">${inner}</button><div class="dd-menu${open?' open':''}">${ddItems.map(d=>`<button class="dd-item" data-dditem="${d[1]}">${d[0]}</button>`).join('')}</div></div>`;
+  }
+  return `<button class="${cls}" data-action="${action}" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start">${inner}</button>`;
+}
+// Small button — icon LEFT, label RIGHT (correct for stacked secondary buttons in Word)
+function SB(icon,label,action){
+  const isHL=S.lab>=0&&LABS[S.lab]&&action===LABS[S.lab].action;
+  return `<button class="sb${isHL?' hl':''}" data-action="${action}"><span class="si">${icon}</span><span class="sl">${label}</span></button>`;
+}
+// Stack of small buttons
+function STACK(...btns){return`<div class="sb-stack">${btns.join('')}</div>`;}
+// Group
+function GRP(label,html,launcher){
+  return `<div class="grp"><div class="grp-btns">${html}</div><div class="grp-lbl">${label}${launcher?'<button title="Open dialog">↗</button>':''}</div></div>`;
+}
+
+function buildRibbon(){
+  const lab=LABS[S.lab];
+  const curTab=S.tab;
+
+  // Tab strip
+  const baseTabs=[['home','Home'],['insert','Insert'],['layout','Layout'],['references','References'],['review','Review']];
+  const ctxTabs=lab.tab==='picture-format'?[['picture-format','Picture Format','Picture Tools']]:
+                lab.tab==='table-layout'?[['table-layout','Layout','Table Tools']]:[];
+
+  let tabHtml='';
+  baseTabs.forEach(([id,lbl])=>{
+    tabHtml+=`<button class="tab${curTab===id?' active':''}" data-settab="${id}">${lbl}</button>`;
+  });
+  ctxTabs.forEach(([id,lbl,ctx])=>{
+    tabHtml+=`<div class="ctx-wrap"><div class="ctx-lbl">${ctx}</div><button class="tab ctx${curTab===id?' active':''}" data-settab="${id}">${lbl}</button></div>`;
+  });
+  document.getElementById('tab-strip').innerHTML=tabHtml;
+
+  // Ribbon body
+  let body='';
+
+  if(curTab==='home'){
+    // ── Clipboard ──
+    const clip=
+      LB('📋','Paste','paste',[['Paste  Ctrl+V','paste'],['Paste Special…','paste-special'],['Paste as Plain Text','paste-plain']])+
+      STACK(SB('✂','Cut','cut'),SB('📄','Copy','copy'),SB('🖌','Format Painter','fmt-painter'));
+    body+=GRP('Clipboard',clip,true);
+
+    // ── Font ── (special two-row layout)
+    const fontHL=a=>lab.action===a?' hl':'';
+    const fontGrp=`<div class="font-rows">
+      <div class="font-row">
+        <div class="font-combo" style="width:126px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">Calibri (Body)</span><span class="fa">▾</span></div>
+        <div class="font-combo" style="width:36px"><span style="font-size:11px">11</span><span class="fa">▾</span></div>
+        <button class="font-sq" data-action="grow" title="Grow Font"><b style="font-size:13px">A</b><sup style="font-size:7px">▲</sup></button>
+        <button class="font-sq" data-action="shrink" title="Shrink Font"><span style="font-size:10px">A</span><sup style="font-size:7px">▼</sup></button>
+        <span class="font-sep"></span>
+        <button class="font-sq" data-action="change-case" title="Change Case"><span style="font-size:11px">Aa</span></button>
+        <button class="font-sq" data-action="clear-fmt" title="Clear Formatting">⌫</button>
+      </div>
+      <div class="font-row">
+        <button class="font-sq${fontHL('bold')}" data-action="bold" title="Bold (Ctrl+B)"><b style="font-size:14px;font-family:Georgia,serif">B</b></button>
+        <button class="font-sq${fontHL('italic')}" data-action="italic" title="Italic (Ctrl+I)"><i style="font-size:14px;font-family:Georgia,serif">I</i></button>
+        <button class="font-sq${fontHL('underline')}" data-action="underline" title="Underline (Ctrl+U)"><u style="font-size:13px">U</u></button>
+        <span class="font-sep"></span>
+        <button class="font-sq" data-action="strike" title="Strikethrough"><span style="text-decoration:line-through;font-size:12px">ab</span></button>
+        <button class="font-sq" data-action="subscript" title="Subscript">x<sub style="font-size:8px">2</sub></button>
+        <button class="font-sq" data-action="superscript" title="Superscript">x<sup style="font-size:8px">2</sup></button>
+        <span class="font-sep"></span>
+        <button class="font-sq" data-action="highlight" title="Highlight"><span style="background:#ff0;font-size:11px;padding:0 1px">A</span></button>
+        <button class="font-sq" data-action="font-color" title="Font Color"><span style="border-bottom:2.5px solid #c00;font-size:12px;padding:0 1px">A</span></button>
+        <span class="font-sep"></span>
+        <button class="font-sq${fontHL('bold-italic')}" data-action="bold-italic" title="Bold+Italic (exam task)"><b><i style="font-size:12px">BI</i></b></button>
+      </div>
+    </div>`;
+    body+=GRP('Font',fontGrp,true);
+
+    // ── Paragraph ── (two rows of icon-only buttons — NO text labels)
+    const pi=(svg,action,title,w)=>`<button class="ico-btn${lab.action===action?' hl':''}" data-action="${action}" title="${title}" style="width:${w||24}px">${svg}</button>`;
+    const pidd=(svg,action,title,items)=>{
+      const open=S.dd===action;
+      return`<div class="ico-dd"><button class="ico-dd-btn${lab.action===action?' hl':''}" data-action="${action}" data-dd="${action}" title="${title}">${svg}<span class="dda">▾</span></button><div class="dd-menu${open?' open':''}">${items.map(d=>`<button class="dd-item" data-dditem="${d[1]}">${d[0]}</button>`).join('')}</div></div>`;
+    };
+    const isep=`<span class="ico-sep"></span>`;
+    const paraGrp=`<div class="para-rows">
+      <div class="para-row">
+        ${pidd('<svg width="12" height="11" viewBox="0 0 12 11"><circle cx="1.5" cy="1.5" r="1.5" fill="currentColor"/><rect x="4" y=".5" width="8" height="2" rx=".8" fill="currentColor"/><circle cx="1.5" cy="5.5" r="1.5" fill="currentColor"/><rect x="4" y="4.5" width="8" height="2" rx=".8" fill="currentColor"/><circle cx="1.5" cy="9.5" r="1.5" fill="currentColor"/><rect x="4" y="8.5" width="8" height="2" rx=".8" fill="currentColor"/></svg>','bullets','Bullets',[['Bullet •','bullets'],['Filled ●','bullets'],['Square ▪','bullets']])}
+        ${pidd('<svg width="12" height="11" viewBox="0 0 12 11"><text x="0" y="4" font-size="4" fill="currentColor">1.</text><rect x="5" y="1" width="7" height="2" rx=".8" fill="currentColor"/><text x="0" y="7.5" font-size="4" fill="currentColor">2.</text><rect x="5" y="5" width="7" height="2" rx=".8" fill="currentColor"/><text x="0" y="11" font-size="4" fill="currentColor">3.</text><rect x="5" y="9" width="7" height="2" rx=".8" fill="currentColor"/></svg>','numbering','Numbering',[['1. 2. 3.','numbering'],['a. b. c.','numbering'],['I. II. III.','numbering']])}
+        ${pidd('<svg width="12" height="11" viewBox="0 0 12 11"><text x="0" y="4" font-size="3.5" fill="currentColor">1.</text><rect x="4" y="1" width="8" height="2" rx=".8" fill="currentColor"/><text x="2" y="7.5" font-size="3.5" fill="currentColor">a.</text><rect x="6" y="5" width="6" height="2" rx=".8" fill="currentColor"/><text x="4" y="11" font-size="3" fill="currentColor">i.</text><rect x="8" y="9" width="4" height="2" rx=".8" fill="currentColor"/></svg>','multilevel','Multilevel List',[['Multilevel 1','multilevel'],['Multilevel 2','multilevel']])}
+        ${isep}
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="3" y="0" width="9" height="2" rx=".8" fill="currentColor"/><rect x="3" y="4" width="8" height="2" rx=".8" fill="currentColor"/><rect x="3" y="8" width="7" height="2" rx=".8" fill="currentColor"/><polygon points="0,5 2.5,2.5 2.5,7.5" fill="#2b579a"/></svg>','dec-indent','Decrease Indent')}
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="3" y="0" width="9" height="2" rx=".8" fill="currentColor"/><rect x="3" y="4" width="8" height="2" rx=".8" fill="currentColor"/><rect x="3" y="8" width="7" height="2" rx=".8" fill="currentColor"/><polygon points="2.5,5 0,2.5 0,7.5" fill="#2b579a"/></svg>','inc-indent','Increase Indent')}
+        ${isep}
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><text x="0" y="8" font-size="7" font-weight="bold" fill="currentColor">A</text><text x="6" y="7" font-size="5" fill="currentColor">Z</text><line x1="10" y1="1" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/><polygon points="12,9 10,11 8,9" fill="currentColor"/></svg>','sort','Sort')}
+        ${pi('<b style="font-size:13px;font-family:serif">¶</b>','show-para','Show/Hide ¶')}
+      </div>
+      <div class="para-row">
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="0" y="0" width="12" height="2" rx=".8" fill="currentColor"/><rect x="0" y="4" width="10" height="2" rx=".8" fill="currentColor"/><rect x="0" y="8" width="12" height="2" rx=".8" fill="currentColor"/></svg>','align-left','Align Left Ctrl+L')}
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="0" y="0" width="12" height="2" rx=".8" fill="currentColor"/><rect x="1.5" y="4" width="9" height="2" rx=".8" fill="currentColor"/><rect x="0" y="8" width="12" height="2" rx=".8" fill="currentColor"/></svg>','align-center','Center Ctrl+E')}
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="0" y="0" width="12" height="2" rx=".8" fill="currentColor"/><rect x="2" y="4" width="10" height="2" rx=".8" fill="currentColor"/><rect x="0" y="8" width="12" height="2" rx=".8" fill="currentColor"/></svg>','align-right','Align Right Ctrl+R')}
+        ${pi('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="0" y="0" width="12" height="2" rx=".8" fill="currentColor"/><rect x="0" y="4" width="12" height="2" rx=".8" fill="currentColor"/><rect x="0" y="8" width="10" height="2" rx=".8" fill="currentColor"/></svg>','justify','Justify Ctrl+J')}
+        ${isep}
+        ${pidd('<svg width="11" height="11" viewBox="0 0 11 11"><line x1="5.5" y1="0" x2="5.5" y2="11" stroke="currentColor" stroke-width="1.5"/><polygon points="5.5,0 3,3.5 8,3.5" fill="currentColor"/><polygon points="5.5,11 3,7.5 8,7.5" fill="currentColor"/><rect x="0" y="4.5" width="3" height="2" rx=".5" fill="currentColor"/><rect x="8" y="4.5" width="3" height="2" rx=".5" fill="currentColor"/></svg>','spacing-double','Line Spacing',[['1.0','spacing-1'],['1.15','spacing-115'],['1.5','spacing-15'],['2.0  Double','spacing-double'],['2.5','spacing-25'],['3.0','spacing-3']])}
+        ${isep}
+        ${pidd('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="0" y="0" width="12" height="11" rx="1" fill="#c8dfff" stroke="currentColor" stroke-width=".8"/></svg>','shading','Shading',[['No Color','shading-none'],['Blue','shading-blue'],['More Colors…','shading-more']])}
+        ${pidd('<svg width="12" height="11" viewBox="0 0 12 11"><rect x="0" y="0" width="12" height="11" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5.5" x2="12" y2="5.5" stroke="currentColor" stroke-width=".8"/><line x1="6" y1="0" x2="6" y2="11" stroke="currentColor" stroke-width=".8"/></svg>','borders','Borders',[['Bottom Border','border-bottom'],['Top Border','border-top'],['All Borders','border-all'],['Outside Borders','border-outside'],['No Border','border-none']])}
+      </div>
+    </div>`;
+    body+=GRP('Paragraph',paraGrp,true);
+
+    // ── Styles gallery ──
+    const sg=a=>lab.action===a?' hl':'';
+    const stylesGrp=`<div class="styles-gallery">
+      <button class="style-btn${sg('style-normal')}" data-action="style-normal"><span class="style-preview" style="font-size:12px;color:#333">AaBbCc</span><span class="style-name">Normal</span></button>
+      <button class="style-btn${sg('no-space')}" data-action="no-space"><span class="style-preview" style="font-size:12px;color:#333">AaBbCc</span><span class="style-name">No Spacing</span></button>
+      <button class="style-btn${sg('style-heading1')}" data-action="style-heading1"><span class="style-preview" style="font-size:15px;font-weight:700;color:#2e74b5">Aa</span><span class="style-name">Heading 1</span></button>
+      <button class="style-btn${sg('style-heading2')}" data-action="style-heading2"><span class="style-preview" style="font-size:13px;font-weight:600;color:#2e74b5">Aa</span><span class="style-name">Heading 2</span></button>
+      <button class="style-btn${sg('style-title')}" data-action="style-title"><span class="style-preview" style="font-size:17px;font-weight:800;color:#000">Aa</span><span class="style-name">Title</span></button>
+      <button class="style-btn" data-action="styles-more" style="min-width:22px;width:22px;padding:2px"><span style="font-size:9px;color:#666">▾</span><span class="style-name">More</span></button>
+    </div>`;
+    body+=GRP('Styles',stylesGrp);
+
+    // ── Editing ──
+    body+=GRP('Editing',STACK(SB('🔍','Find','find'),SB('↔','Replace','find-replace'),SB('→','Select All','select-all')));
+  }
+
+  else if(curTab==='insert'){
+    body+=GRP('Pages',STACK(SB('📄','Cover Page','cover'),SB('⬜','Blank Page','blank'),SB('─','Page Break','pagebreak')));
+    body+=GRP('Tables',LB('⊞','Table','insert-table-3x4',[['Insert Table…','insert-table-3x4'],['Draw Table','draw-table'],['Convert Text to Table…','convert-text-table'],['Excel Spreadsheet','excel-tbl'],['Quick Tables ▸','quick-tables']]));
+    body+=GRP('Illustrations',LB('🖼','Pictures','picture')+LB('◈','SmartArt','insert-smartart')+LB('⬡','Shapes','shapes')+LB('📊','Chart','chart'));
+    body+=GRP('Header & Footer',STACK(SB('⊤','Header','header'),SB('⊥','Footer','footer'),SB('#','Page Number','pagenum')));
+    body+=GRP('Text',STACK(SB('A','Text Box','textbox'),SB('✦','WordArt','wordart'),SB('╠','Drop Cap','dropcap')));
+    body+=GRP('Symbols',STACK(SB('Ω','Symbol','symbol'),SB('∑','Equation','equation')));
+  }
+
+  else if(curTab==='layout'){
+    // ── Page Setup: 4 large buttons + small stack ──
+    const ps=
+      LB('⬜','Margins','margin-narrow',[['Normal — 1" all sides','margin-normal'],['Narrow — 0.5" all sides','margin-narrow'],['Moderate — 0.75" sides','margin-moderate'],['Wide — 1.5" sides','margin-wide'],['Custom Margins…','custom-margins']])+
+      LB('⊡','Orientation','orientation-landscape',[['Portrait','orientation-portrait'],['Landscape','orientation-landscape']])+
+      LB('📄','Size','page-size',[['Letter  8.5" × 11"','letter'],['A4  8.27" × 11.69"','a4'],['Legal  8.5" × 14"','legal'],['More Paper Sizes…','more-sizes']])+
+      LB('⫿','Columns','columns',[['One','col1'],['Two','col2'],['Three','col3'],['Left','col-left'],['Right','col-right'],['More Columns…','more-cols']])+
+      STACK(SB('─','Breaks','breaks'),SB('#','Line Numbers','linenums'),SB('⊃','Hyphenation','hyph'));
+    body+=GRP('Page Setup',ps,true);
+
+    // ── Page Background ──
+    body+=GRP('Page Background',
+      LB('📋','Watermark','watermark',[['Confidential 1','wm-conf1'],['Draft 1','wm-draft'],['Urgent 1','wm-urgent'],['Custom Watermark…','wm-custom'],['Remove Watermark','wm-remove']])+
+      LB('🎨','Page Color','page-color',[['No Color','pgc-none'],['More Colors…','pgc-more']])+
+      LB('⊟','Page Borders','page-borders'));
+
+    // ── Paragraph — spinner controls, not buttons ──
+    const sp=(val,act)=>`<div class="spinner"><span class="spinner-val">${val}</span><div class="spinner-arrows"><button data-action="${act}">▲</button><button data-action="${act}">▼</button></div></div>`;
+    const paraSpinner=`<div class="spinner-wrap">
+      <div class="spinner-section">Indent</div>
+      <div class="spinner-row"><span class="spinner-lbl">Left:</span>${sp('0"','indent-l')}<span style="width:4px"></span><span class="spinner-lbl">Right:</span>${sp('0"','indent-r')}</div>
+      <div class="spinner-section" style="margin-top:3px">Spacing</div>
+      <div class="spinner-row"><span class="spinner-lbl">Before:</span>${sp('0 pt','sp-before')}<span style="width:4px"></span><span class="spinner-lbl">After:</span>${sp('8 pt','sp-after')}</div>
+    </div>`;
+    body+=GRP('Paragraph',paraSpinner,true);
+
+    // ── Arrange ──
+    const arr=
+      LB('⊞','Position','position',[['In Line with Text','pos-inline'],['Top Left','pos-tl'],['Top Center','pos-tc'],['Top Right','pos-tr'],['Middle Left','pos-ml'],['Middle Right','pos-mr'],['Bottom Left','pos-bl'],['Bottom Right','pos-br'],['More Layout Options…','pos-more']])+
+      LB('⇄','Wrap Text','wrap',[['In Line with Text','wrap-inline'],['Square','wrap-sq'],['Tight','wrap-tight'],['Through','wrap-thru'],['Top and Bottom','wrap-topbot'],['Behind Text','wrap-behind'],['In Front of Text','wrap-front']])+
+      LB('↑','Bring Forward','bring-fwd',[['Bring Forward','bring-fwd'],['Bring to Front','bring-front']])+
+      LB('↓','Send Backward','send-back',[['Send Backward','send-back'],['Send to Back','send-back-all']])+
+      STACK(SB('☰','Selection Pane','sel-pane'),SB('⊡','Align','align'),SB('⊞','Group','group'),SB('↺','Rotate','rotate'));
+    body+=GRP('Arrange',arr);
+  }
+
+  else if(curTab==='references'){
+    // ── Table of Contents ──
+    body+=GRP('Table of Contents',
+      LB('≡','Table of\nContents','insert-toc',[['Automatic Table 1','insert-toc'],['Automatic Table 2','insert-toc'],['Manual Table','toc-manual'],['Custom Table of Contents…','toc-custom'],['Remove Table of Contents','toc-remove']])+
+      STACK(SB('+','Add Text','add-text'),SB('↻','Update Table','update-toc')));
+
+    // ── Footnotes: Insert Footnote and Insert Endnote are LARGE buttons ──
+    body+=GRP('Footnotes',
+      LB('AB¹','Insert\nFootnote','insert-footnote')+
+      LB('ABⁱ','Insert\nEndnote','insert-endnote')+
+      STACK(SB('→¹','Next Footnote','next-fn'),SB('⇄','Show Notes','show-notes')));
+
+    // ── Citations & Bibliography ──
+    body+=GRP('Citations & Bibliography',
+      LB('📚','Insert\nCitation','citation',[['Add New Source…','add-source'],['Add New Placeholder…','add-placeholder']])+
+      STACK(SB('🗂','Manage Sources','manage-src'),SB('APA','Style: APA','citation-style'),SB('≡','Bibliography','bibliography')));
+
+    // ── Captions ──
+    body+=GRP('Captions',
+      LB('☞','Insert\nCaption','caption')+
+      STACK(SB('≡','Table of Figures','tof'),SB('↻','Update Table','upd-capt'),SB('↔','Cross-reference','xref')));
+
+    // ── Index ──
+    body+=GRP('Index',STACK(SB('✎','Mark Entry','mark-entry'),SB('≡','Insert Index','insert-index'),SB('↻','Update Index','upd-index')));
+
+    // ── Table of Authorities ──
+    body+=GRP('Table of Authorities',STACK(SB('§','Mark Citation','mark-cit'),SB('≡','Insert Table','insert-toa'),SB('↻','Update Table','upd-toa')));
+  }
+
+  else if(curTab==='review'){
+    // ── Proofing: Spelling & Thesaurus are LARGE ──
+    body+=GRP('Proofing',
+      LB('✔','Spelling &\nGrammar','spelling')+
+      LB('📖','Thesaurus','thesaurus')+
+      STACK(SB('#','Word Count','word-count'),SB('!','Check Accessibility','check-a11y')));
+
+    // ── Speech ──
+    body+=GRP('Speech',LB('🔊','Read Aloud','read-aloud'));
+
+    // ── Language ──
+    body+=GRP('Language',STACK(SB('⇄','Translate','translate'),SB('Aa','Language','set-lang')));
+
+    // ── Comments: New Comment and Delete are LARGE ──
+    body+=GRP('Comments',
+      LB('💬','New\nComment','new-comment')+
+      LB('🗑','Delete','del-comment',[['Delete Comment','del-comment'],['Delete All Shown Comments','del-shown'],['Delete All Comments in Document','del-all-cmts']])+
+      STACK(SB('◀','Previous','prev-cmt'),SB('▶','Next','next-cmt'),SB('☰','Show Comments','show-cmts'),SB('✔','Resolve','resolve-cmt')));
+
+    // ── Tracking: Track Changes is LARGE, then the All Markup combobox ──
+    const trackContent=
+      LB('✎','Track\nChanges','track-changes',[['Track Changes','track-changes'],['Lock Tracking…','lock-tracking']])+
+      `<div style="display:flex;flex-direction:column;gap:2px;padding-top:3px;align-self:flex-start">
+        <div class="markup-dd" data-action="show-markup"><span>All Markup</span><span class="mda">▾</span></div>
+        ${SB('☰','Show Markup','show-markup')}
+        ${SB('⊟','Reviewing Pane','rev-pane')}
+      </div>`;
+    body+=GRP('Tracking',trackContent);
+
+    // ── Changes: Accept and Reject are LARGE ──
+    body+=GRP('Changes',
+      LB('<span style="color:#15803d">✔</span>','Accept','track-accept',[['Accept This Change','accept-one'],['Accept All Changes Shown','accept-shown'],['Accept All Changes','track-accept'],['Accept All and Stop Tracking','track-accept']])+
+      LB('<span style="color:#dc2626">✖</span>','Reject','reject',[['Reject This Change','reject-one'],['Reject All Changes','reject-all']])+
+      STACK(SB('◀','Previous','prev-chg'),SB('▶','Next','next-chg')));
+
+    // ── Compare ──
+    body+=GRP('Compare',
+      LB('⊡','Compare','compare',[['Compare…','compare'],['Combine…','combine']])+
+      STACK(SB('⊕','Combine','combine'),SB('↔','Show Source','show-src')));
+
+    // ── Protect ──
+    body+=GRP('Protect',
+      LB('🔒','Restrict\nEditing','restrict-edit')+
+      STACK(SB('✎','Block Authors','block-authors')));
+  }
+
+  else if(curTab==='picture-format'){
+    body+=GRP('Adjust',STACK(SB('🔆','Corrections','corrections'),SB('🎨','Color','color'),SB('✦','Artistic Effects','art-fx'),SB('🗜','Compress','compress')));
+    body+=GRP('Picture Styles',STACK(SB('◻','Quick Styles','pic-style'),SB('▭','Picture Border','pic-border'),SB('✦','Picture Effects','pic-fx')));
+    body+=GRP('Arrange',
+      LB('⇄','Wrap\nText','wrap-square',[['In Line with Text','wrap-inline'],['Square','wrap-square'],['Tight','wrap-tight'],['Through','wrap-thru'],['Top and Bottom','wrap-topbot'],['Behind Text','wrap-behind'],['In Front of Text','wrap-front']])+
+      STACK(SB('↑','Bring Forward','bring-fwd'),SB('↓','Send Back','send-back'),SB('⊡','Align','align'),SB('⊞','Group','group')));
+    body+=GRP('Size',STACK(SB('↕','Height','height'),SB('↔','Width','width'),SB('✂','Crop','crop')));
+  }
+
+  else if(curTab==='table-layout'){
+    body+=GRP('Table',STACK(SB('☰','Select','select-tbl'),SB('⊞','View Gridlines','gridlines'),SB('⚙','Properties','tbl-props')));
+    body+=GRP('Rows & Columns',
+      LB('↑','Insert\nAbove','row-above')+LB('↓','Insert\nBelow','row-below')+LB('←','Insert\nLeft','col-left')+LB('→','Insert\nRight','col-right')+
+      STACK(SB('✗','Delete','delete-row')));
+    body+=GRP('Merge',
+      LB('⊞⊡','Merge\nCells','merge-cells')+LB('⊡⊞','Split\nCells','split-cells')+LB('═','Split\nTable','split-tbl'));
+    body+=GRP('Cell Size',STACK(SB('↕','Height','cell-h'),SB('↔','Width','cell-w'),SB('⊞','AutoFit','autofit')));
+    body+=GRP('Alignment',STACK(SB('↖','Align Top Left','atl'),SB('↑','Align Top Center','atc'),SB('↕','Text Direction','txtdir')));
+  }
+
+  document.getElementById('ribbon-body').innerHTML=body;
+  bindRibbon();
+}
+
+function bindRibbon(){
+  document.querySelectorAll('[data-settab]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.tab=b.dataset.settab;S.dd=null;buildRibbon();}));
+  document.querySelectorAll('[data-dd]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    S.dd = S.dd===b.dataset.dd ? null : b.dataset.dd;
+    buildRibbon();
+    if(S.dd){
+      var menu = b.parentElement.querySelector('.dd-menu');
+      if(menu){
+        var r = b.getBoundingClientRect();
+        menu.style.top = (r.bottom+2)+'px';
+        menu.style.left = r.left+'px';
+        var mw = menu.offsetWidth||200;
+        if(r.left+mw > window.innerWidth) menu.style.left=(window.innerWidth-mw-4)+'px';
+      }
+    }
+  }));
+  document.querySelectorAll('[data-dditem]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.dd=null;doAction(b.dataset.dditem);}));
+  document.querySelectorAll('[data-action]:not([data-dd])').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();doAction(b.dataset.action);}));
+}
+document.addEventListener('click',()=>{if(S.dd){S.dd=null;buildRibbon();}});
+
+// ═══════════════════════════════════════════
+// ACTION HANDLER
+// ═══════════════════════════════════════════
+function doAction(a){
+  S.dd=null;
+  const lab=LABS[S.lab];
+  if(a==='find-replace'){
+    if(lab.action==='find-replace'){document.getElementById('dlg').style.display='block';document.getElementById('backdrop').style.display='block';}
+    else wrong();
+    return;
+  }
+  if(a===lab.action) grade();
+  else wrong();
+  buildRibbon();
+}
+window.doReplace=function(){closeDlg();grade();};
+window.closeDlg=function(){document.getElementById('dlg').style.display='none';document.getElementById('backdrop').style.display='none';};
+function grade(){S.res[LABS[S.lab].id]=10;S.wrong=false;S.wrongCount=0;S.hintCount=0;renderAll();}
+function wrong(){if(!S.res[LABS[S.lab].id]){S.wrong=true;S.wrongCount++;renderTask();renderSidebar();}}
+
+// ═══════════════════════════════════════════
+// DOCUMENT RENDER
+// ═══════════════════════════════════════════
+function renderDoc(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  const pg=document.getElementById('doc-page');
+  pg.className=done&&lab.pageClass?lab.pageClass:'';
+  pg.innerHTML=done?lab.after():lab.before();
+}
+
+// ═══════════════════════════════════════════
+// TASK PANEL
+// ═══════════════════════════════════════════
+function renderTask(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  let fb='';
+  if(S.wrong&&!done){
+    if(S.wrongCount>=3){
+      var ansLab=LABS[S.lab];
+      var ans=ansLab.answer||ansLab.hint||'';
+      fb=`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Not quite — let's look at this together.</strong> You have attempted this 3 times. Here is the answer: <strong>${ans}</strong></div>`;
+    } else {
+      var attLeft=3-S.wrongCount;
+      fb=`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Not the right command.</strong> ${S.wrongCount===1?'Re-read the task carefully and look for the highlighted button.':S.wrongCount===2?'One attempt left — use a hint if you need help.':''} (Attempt ${S.wrongCount} of 3)</div>`;
+    }
+  }
+  if(done){
+    fb=`<div class="fb fb-ok" style="animation:fadeIn .25s"><strong>✓ Correct!</strong> ${lab.exp}</div>`;
+    fb+=`<div class="fb-next">
+      ${S.lab===LABS.length-1
+        ?`<button class="btn btn-blue" onclick="showFinal()">View final results →</button>`
+        :`<button class="btn btn-ghost" onclick="goLab(${S.lab})">Replay</button><button class="btn btn-blue" onclick="goLab(${S.lab+1})">Next lab →</button>`}
+    </div>`;
+  }
+  document.getElementById('task-panel').innerHTML=`
+    <div class="task-row">
+      <span class="task-badge">${lab.obj}</span>
+      <div class="task-text">${lab.task}</div>
+      <div class="task-acts">
+        ${(!done&&S.wrongCount<3)?`<button class="btn btn-ghost" onclick="showHint()" ${S.hintCount>=(LABS[S.lab].hints||[]).length?'disabled style="opacity:.5;cursor:default"':''}>
+          ${S.hintCount===0?'💡 Get a Hint':S.hintCount>=(LABS[S.lab].hints||[]).length?'💡 All Hints Used':'💡 Next Hint ('+S.hintCount+'/'+(LABS[S.lab].hints||[]).length+')'}
+        </button>`:''}
+        ${!done?`<button class="btn btn-ghost" onclick="resetLab()">Reset</button>`:''}
+      </div>
+    </div>
+    ${(()=>{
+      if(!S.hintCount) return '';
+      var hints=lab.hints||[];
+      var answer=lab.answer||'';
+      var shownHints=hints.slice(0,S.hintCount);
+      var showAnswer=S.wrongCount>=3;
+      var html='<div class="hint-area">';
+      shownHints.forEach(function(h,i){
+        html+='<div class="hint-row hint-row-'+i+'"><span class="hint-num">Hint '+(i+1)+'</span> '+h+'</div>';
+      });
+      if(showAnswer && answer){
+        html+='<div class="hint-row hint-answer"><span class="hint-num answer-tag">✓ Answer</span> '+answer+'</div>';
+      }
+      html+='</div>';
+      return html;
+    })()}
+    ${fb}`;
+}
+window.showHint=function(){
+  var lab=LABS[S.lab];
+  var hints=lab.hints||[];
+  if(S.hintCount<hints.length) S.hintCount++;
+  renderTask();
+};
+window.resetLab=function(){delete S.res[LABS[S.lab].id];S.wrong=false;S.wrongCount=0;S.hintCount=0;renderAll();};
+
+// ═══════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════
+function renderSidebar(){
+  const ts=score();
+  document.getElementById('sb-score').textContent=`${ts} / ${MAX}`;
+  document.getElementById('sb-fill').style.width=`${(ts/MAX*100).toFixed(0)}%`;
+  document.getElementById('prog-fill').style.width=`${(ts/MAX*100).toFixed(0)}%`;
+  let h='';
+  DOMAINS.forEach(d=>{
+    h+=`<div class="sb-domain">${d.label}</div>`;
+    d.labs.forEach(li=>{
+      const l=LABS[li],done=!!S.res[l.id],act=li===S.lab;
+      h+=`<button class="lab-btn${act?' active':''}${done?' done':''}" onclick="goLab(${li})">
+        <span class="lab-dot${act?' active':''}${done?' done':''}">${done?'✓':li+1}</span>
+        <div><div class="lab-name">${l.name}</div><div class="lab-obj">${l.domain}</div></div>
+      </button>`;
+    });
+  });
+  document.getElementById('sb-nav').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════
+// FINAL SCREEN
+// ═══════════════════════════════════════════
+window.showFinal=function(){
+  const ts=score(),pct=Math.round(ts/MAX*100);
+  document.getElementById('doc-page').className='';
+  document.getElementById('doc-page').innerHTML=`
+  <div style="text-align:center;padding:28px 0 16px">
+    <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">Word — IS101 — All 6 Domains</div>
+    <div style="font-size:60px;font-weight:800;color:${pct>=80?'#15803d':pct>=60?'#d97706':'#dc2626'};line-height:1">${ts}<span style="font-size:30px;font-weight:400;color:#9ca3af"> / ${MAX}</span></div>
+    <div style="font-size:14px;color:#6b7280;margin:8px 0 24px">${pct}% — ${pct>=80?'Course ready!':pct>=60?'Good — review missed labs.':'Keep practising.'}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;max-width:540px;margin:0 auto;text-align:left">
+      ${LABS.map(l=>{const ok=S.res[l.id];return`<div style="background:${ok?'#f0fdf4':'#fef2f2'};border:1px solid ${ok?'#86efac':'#fca5a5'};padding:6px 9px">
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${ok?'#15803d':'#dc2626'};margin-bottom:2px">${l.domain} ${ok?'✓':'✗'}</div>
+        <div style="font-size:11px;color:${ok?'#166534':'#991b1b'}">${l.name}</div>
+      </div>`;}).join('')}
+    </div>
+    <button class="btn btn-blue" style="margin-top:20px" onclick="goLab(0)">Restart all labs</button>
+  </div>`;
+  document.getElementById('task-panel').innerHTML='';
+};
+
+// ═══════════════════════════════════════════
+// RULER
+// ═══════════════════════════════════════════
+function renderRuler(){
+  const r=document.getElementById('ruler');
+  const mLeft=96,mRight=96,docW=680;
+  const textW=docW-mLeft-mRight;
+  const inchPx=textW/4.5;
+  let html=`<div class="ruler-margin" style="width:${mLeft+30}px"></div><div style="flex:1;position:relative;background:#fff;height:100%">`;
+  for(let i=0;i<=5;i++){
+    const x=(i*inchPx).toFixed(1);
+    html+=`<div class="ruler-tick" style="left:${x}px"><div class="rtline major"></div>${i>0&&i<5?`<span class="rtnum" style="left:${x}px">${i}</span>`:''}</div>`;
+    if(i<5){const hx=((i+.5)*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${hx}px"><div class="rtline"></div></div>`;}
+  }
+  html+=`</div><div class="ruler-margin" style="width:${mRight}px"></div>`;
+  r.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+window.goLab=function(i){
+  S.lab=i;S.wrong=false;S.wrongCount=0;S.hintCount=0;S.dd=null;
+  const ctxTabs=['picture-format','table-layout'];
+  S.tab=ctxTabs.includes(LABS[i].tab)?LABS[i].tab:LABS[i].tab;
+  renderAll();
+};
+
+function renderAll(){
+  renderSidebar();
+  buildRibbon();
+  renderDoc();
+  renderTask();
+}
+
+renderRuler();
+renderAll();
+</script>
+</body>
+</html>
