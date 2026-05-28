@@ -2,6 +2,7 @@
   "name": "is101-courseware-server",
   "version": "1.0.0",
   "description": "IS101 Courseware Server — College of Southern Nevada",
+  "engines": { "node": "20.x" },
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
