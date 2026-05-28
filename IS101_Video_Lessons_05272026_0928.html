@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IS101 Learning Resource Center</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --csn:#003876;--csn-lt:#e8eef7;
+  --word:#2b579a;--word-lt:#e8f0fb;
+  --excel:#217346;--excel-lt:#e0f0e8;
+  --bg:#f0f2f5;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;
+  --ai:#7c3aed;--ai-lt:#f5f3ff;--ai-bd:#c4b5fd;
+  --yt:#dc2626;--yt-lt:#fef2f2;--yt-bd:#fca5a5;
+  --read:#0369a1;--read-lt:#eff6ff;--read-bd:#bfdbfe;
+  --vid:#d97706;--vid-lt:#fffbeb;--vid-bd:#fde68a;
+  --ok:#15803d;--ok-lt:#f0fdf4;--ok-bd:#86efac;
+}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+#nav{background:var(--csn);padding:0 24px;display:flex;align-items:center;gap:12px;height:50px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.nav-logo{font-size:14px;font-weight:700;color:#fff}
+.nav-logo span{color:#93c5fd;font-size:11px;font-weight:400;margin-left:6px}
+.nav-spacer{flex:1}
+.instructor-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.instructor-btn:hover{background:rgba(255,255,255,.2)}
+.instructor-btn.on{background:#1d4ed8;border-color:#3b82f6}
+
+/* ── INSTRUCTOR BANNER ── */
+#instructor-banner{display:none;background:#1d4ed8;padding:14px 24px;border-bottom:2px solid #1e40af}
+#instructor-banner.show{display:block}
+.ib-inner{max-width:1000px;margin:0 auto}
+.ib-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.ib-desc{font-size:12px;color:rgba(255,255,255,.85);line-height:1.5;margin-bottom:10px}
+.ib-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ib-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.ib-btn:hover{background:rgba(255,255,255,.25)}
+.ib-close{margin-left:auto}
+
+/* ── EXAM TABS ── */
+#exam-strip{background:#fff;border-bottom:2px solid var(--border);padding:0 24px;display:flex;gap:0}
+.exam-tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--muted);border:none;background:transparent;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:6px;transition:all .15s}
+.exam-tab:hover{color:var(--text)}
+.exam-tab.active.word{color:var(--word);border-bottom-color:var(--word);font-weight:600}
+.exam-tab.active.ai{color:#7c3aed;border-bottom-color:#7c3aed;font-weight:600}
+.exam-tab.active.excel{color:var(--excel);border-bottom-color:var(--excel);font-weight:600}
+
+/* ── MAIN ── */
+#main{max-width:1000px;margin:0 auto;padding:24px}
+
+/* ── DOMAIN SECTION ── */
+.domain-section{margin-bottom:32px}
+.domain-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.domain-pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:20px}
+.domain-pill.word{background:var(--word-lt);color:var(--word)}
+.domain-pill.excel{background:var(--excel-lt);color:var(--excel)}
+.domain-name{font-size:17px;font-weight:700;color:var(--text)}
+
+/* ── RESOURCE CARD ── */
+.resource-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.rc-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.rc-num{width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rc-num.word{background:var(--word-lt);color:var(--word)}
+.rc-num.excel{background:var(--excel-lt);color:var(--excel)}
+.rc-meta{flex:1}
+.rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.rc-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.rc-status{font-size:11px;flex-shrink:0}
+
+/* ── LEARN OBJECTIVES ── */
+/* ── OBJECTIVES — visually prominent ── */
+.learn-obj{padding:0;border-bottom:3px solid rgba(0,0,0,.08);background:transparent;overflow:hidden}
+.learn-obj.word{background:linear-gradient(135deg,#1e3a8a 0%,#2b579a 60%,#3b6cc4 100%)}
+.learn-obj.excel{background:linear-gradient(135deg,#14532d 0%,#217346 60%,#2e9e5e 100%)}
+.lo-inner{padding:20px 22px 22px}
+.lo-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.65);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.lo-eyebrow::before{content:'';display:inline-block;width:18px;height:2px;background:rgba(255,255,255,.5);border-radius:2px}
+.lo-eyebrow::after{content:'';display:inline-block;width:18px;height:2px;background:rgba(255,255,255,.5);border-radius:2px}
+.lo-headline{font-size:19px;font-weight:800;color:#fff;margin-bottom:14px;line-height:1.2;letter-spacing:-.3px}
+.lo-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:600px){.lo-list{grid-template-columns:1fr}}
+.lo-item{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:10px 12px;backdrop-filter:blur(4px)}
+.lo-check{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;font-weight:700;color:#fff;margin-top:0}
+.lo-text{font-size:12px;font-weight:600;color:#fff;line-height:1.45;flex:1}
+.lo-bar{height:3px;background:rgba(255,255,255,.15);position:relative;overflow:hidden}
+.lo-bar::after{content:'';position:absolute;left:0;top:0;height:100%;background:rgba(255,255,255,.4);animation:lobar 2s ease-in-out infinite alternate}
+@keyframes lobar{from{width:30%}to{width:90%}}
+
+/* ── CHOOSE YOUR RESOURCE SELECTOR ── */
+.resource-chooser{padding:18px 20px 0;background:#fff;border-bottom:1px solid var(--border)}
+.chooser-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.chooser-label::before,.chooser-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.chooser-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:0}
+.chooser-card{border:2px solid var(--border);border-radius:10px;padding:14px 14px 12px;cursor:pointer;font-family:inherit;background:#fff;text-align:left;transition:all .15s;position:relative;display:flex;flex-direction:column;gap:4px}
+.chooser-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.chooser-card.active-ai{border-color:var(--ai);background:var(--ai-lt);box-shadow:0 4px 14px rgba(124,58,237,.15)}
+.chooser-card.active-watch{border-color:var(--yt);background:var(--yt-lt);box-shadow:0 4px 14px rgba(220,38,38,.12)}
+.chooser-card.active-read{border-color:var(--read);background:var(--read-lt);box-shadow:0 4px 14px rgba(3,105,161,.12)}
+.chooser-card.active-vid{border-color:var(--vid);background:var(--vid-lt);box-shadow:0 4px 14px rgba(217,119,6,.12)}
+.cc-icon{font-size:26px;margin-bottom:2px}
+.cc-title{font-size:13px;font-weight:700;color:var(--text)}
+.chooser-card.active-ai .cc-title{color:var(--ai)}
+.chooser-card.active-watch .cc-title{color:var(--yt)}
+.chooser-card.active-read .cc-title{color:var(--read)}
+.chooser-card.active-vid .cc-title{color:var(--vid)}
+.cc-desc{font-size:11px;color:var(--muted);line-height:1.45}
+.cc-active-bar{position:absolute;bottom:-1px;left:0;right:0;height:3px;border-radius:0 0 2px 2px;display:none}
+.chooser-card.active-ai .cc-active-bar{display:block;background:var(--ai)}
+.chooser-card.active-watch .cc-active-bar{display:block;background:var(--yt)}
+.chooser-card.active-read .cc-active-bar{display:block;background:var(--read)}
+.chooser-card.active-vid .cc-active-bar{display:block;background:var(--vid)}
+.cc-selected-tag{position:absolute;top:8px;right:8px;background:var(--ai);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;display:none}
+.chooser-card.active-ai .cc-selected-tag{display:block;background:var(--ai)}
+.chooser-card.active-watch .cc-selected-tag{display:block;background:var(--yt)}
+.chooser-card.active-read .cc-selected-tag{display:block;background:var(--read)}
+.chooser-card.active-vid .cc-selected-tag{display:block;background:var(--vid)}
+/* instructor video tab — smaller, appended */
+.chooser-vid-row{display:flex;justify-content:flex-end;padding:8px 0 0}
+.chooser-vid-btn{border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;font-family:inherit;background:#fff;font-size:11px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:5px;transition:all .12s}
+.chooser-vid-btn:hover{border-color:var(--vid);color:var(--vid)}
+.chooser-vid-btn.active-vid{border-color:var(--vid);background:var(--vid-lt);color:var(--vid)}
+.tab-panel{display:none;padding:18px 20px}
+.tab-panel.active{display:block}
+
+/* ── ASK AI PANEL ── */
+.ai-intro{background:var(--ai-lt);border:1px solid var(--ai-bd);border-radius:8px;padding:10px 14px;font-size:12px;color:#4c1d95;line-height:1.55;margin-bottom:14px}
+.ai-intro strong{color:var(--ai)}
+.prompt-card{border:1px solid var(--ai-bd);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.prompt-label{background:var(--ai-lt);padding:7px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ai);display:flex;align-items:center;gap:6px}
+.prompt-text{padding:10px 12px;font-size:12px;color:#374151;line-height:1.6;font-style:italic;border-bottom:1px solid var(--ai-bd);background:#fff}
+.prompt-actions{display:flex;gap:6px;padding:8px 12px;background:#faf5ff;flex-wrap:wrap}
+.copy-btn{background:var(--ai);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:background .1s}
+.copy-btn:hover{background:#6d28d9}
+.copy-btn.copied{background:var(--ok)}
+/* ── AI OBJECTIVE CARDS ── */
+.ai-intro-box{background:linear-gradient(135deg,#4c1d95,#6d28d9);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.ai-intro-box .aib-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.ai-intro-box .aib-desc{font-size:12px;color:rgba(255,255,255,.85);line-height:1.55}
+.ai-intro-box .aib-tip{font-size:11px;color:rgba(255,255,255,.7);margin-top:8px;padding:6px 10px;background:rgba(0,0,0,.2);border-radius:6px;line-height:1.5}
+.obj-prompts{display:flex;flex-direction:column;gap:10px}
+.obj-prompt-card{border:1px solid var(--ai-bd);border-radius:9px;overflow:hidden;background:#fff}
+.opc-header{background:var(--ai-lt);padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--ai-bd)}
+.opc-num{width:20px;height:20px;border-radius:50%;background:var(--ai);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opc-skill{font-size:12px;font-weight:700;color:var(--ai);flex:1}
+.opc-body{padding:10px 14px;background:#faf5ff}
+.opc-prompt{font-size:11px;color:#374151;line-height:1.65;border-left:3px solid var(--ai-bd);padding-left:10px;margin-bottom:10px;font-style:italic}
+.opc-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ai-launch-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:7px 13px;border-radius:6px;text-decoration:none;border:none;cursor:pointer;transition:all .12s;white-space:nowrap}
+.ai-launch-btn.perplexity{background:#20b2aa;color:#fff}.ai-launch-btn.perplexity:hover{background:#178a84;transform:translateY(-1px)}
+.ai-launch-btn.youtube{background:#dc2626;color:#fff}.ai-launch-btn.youtube:hover{background:#b91c1c;transform:translateY(-1px)}
+.ai-launch-btn.chatgpt{background:#f9fafb;color:#374151;border:1px solid #d1d5db}.ai-launch-btn.chatgpt:hover{background:#f3f4f6}
+.copy-btn{background:transparent;border:1px solid var(--ai-bd);color:var(--ai);padding:5px 10px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .1s}
+.copy-btn:hover{background:var(--ai-lt)}
+.copy-btn.copied{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+/* ── WATCH PANEL ── */
+.watch-intro{background:var(--yt-lt);border:1px solid var(--yt-bd);border-radius:8px;padding:10px 14px;font-size:12px;color:#991b1b;line-height:1.55;margin-bottom:14px}
+/* LinkedIn Learning — featured card */
+.li-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#0a66c2,#0077b5);border-radius:10px;padding:16px 18px;text-decoration:none;color:#fff;margin-bottom:14px;transition:all .15s;position:relative;overflow:hidden;border:2px solid #0a66c2}
+.li-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(10,102,194,.35)}
+.li-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,.08);border-radius:50%}
+.li-logo{font-size:28px;flex-shrink:0}
+.li-body{flex:1}
+.li-badge{background:rgba(255,255,255,.25);color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:5px}
+.li-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.li-sub{font-size:11px;color:rgba(255,255,255,.85);line-height:1.45}
+.li-arrow{font-size:20px;color:rgba(255,255,255,.8);flex-shrink:0}
+/* CSN Library note */
+.li-library-note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px 12px;font-size:11px;color:#1e40af;margin-bottom:14px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.li-library-note .ln-icon{font-size:16px;flex-shrink:0}
+/* YouTube search */
+.yt-search-btn{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--yt);border-radius:8px;padding:12px 16px;cursor:pointer;font-family:inherit;color:var(--text);width:100%;text-align:left;margin-bottom:12px;transition:all .15s}
+.yt-search-btn:hover{background:var(--yt-lt);transform:translateY(-1px)}
+.yt-icon{font-size:24px;flex-shrink:0}
+.yt-text{flex:1}
+.yt-label{font-size:11px;font-weight:700;color:var(--yt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px}
+.yt-query{font-size:13px;font-weight:600;color:var(--text)}
+.yt-arrow{font-size:16px;color:var(--yt);flex-shrink:0}
+.suggested-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px}
+.suggested-links{display:flex;flex-direction:column;gap:6px}
+.vid-link{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--text);background:#fff;transition:all .12s;font-size:12px}
+.vid-link:hover{border-color:var(--yt);background:var(--yt-lt);transform:translateX(2px)}
+.vid-link .vl-source{font-size:10px;font-weight:700;color:var(--yt);flex-shrink:0;min-width:80px}
+.vid-link .vl-title{flex:1;font-weight:500}
+.vid-link .vl-arr{color:var(--muted);flex-shrink:0}
+
+/* ── READ PANEL ── */
+.read-intro{background:var(--read-lt);border:1px solid var(--read-bd);border-radius:8px;padding:10px 14px;font-size:12px;color:#075985;line-height:1.55;margin-bottom:14px}
+.read-links{display:flex;flex-direction:column;gap:8px}
+.read-link{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;text-decoration:none;color:var(--text);background:#fff;transition:all .12s}
+.read-link:hover{border-color:var(--read);background:var(--read-lt);transform:translateX(2px)}
+.rl-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.rl-body{flex:1}
+.rl-source{font-size:10px;font-weight:700;color:var(--read);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px}
+.rl-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.rl-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.rl-arr{color:var(--muted);flex-shrink:0;margin-top:2px}
+
+/* ── INSTRUCTOR VIDEO PANEL ── */
+.vid-panel-intro{background:var(--vid-lt);border:1px solid var(--vid-bd);border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;line-height:1.55;margin-bottom:14px}
+.video-embed-wrap{background:#0f172a;border-radius:8px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative}
+.video-embed-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.no-video-placeholder{text-align:center;color:rgba(255,255,255,.4);padding:20px}
+.no-video-placeholder .nv-icon{font-size:32px;margin-bottom:8px}
+.no-video-placeholder .nv-text{font-size:12px;line-height:1.5}
+.source-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.source-tab{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--muted);transition:all .12s}
+.source-tab:hover{border-color:#93c5fd;color:#2563eb}
+.source-tab.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8;font-weight:600}
+.source-panel{display:none}
+.source-panel.active{display:block}
+.source-instr{background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:11px;color:#78350f;line-height:1.6;margin-bottom:8px}
+.source-instr ol{padding-left:16px;margin-top:4px}
+.url-row{display:flex;gap:6px;margin-bottom:4px}
+.url-input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;color:var(--text);outline:none;min-width:0;background:#fff}
+.url-input:focus{border-color:#1d4ed8;box-shadow:0 0 0 2px rgba(29,78,216,.1)}
+.url-save-btn{padding:7px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:#1d4ed8;color:#fff;white-space:nowrap;flex-shrink:0}
+.url-save-btn:hover{background:#1e40af}
+.url-clear-btn{padding:7px 10px;border-radius:6px;border:1px solid #fca5a5;background:#fff;font-size:12px;cursor:pointer;color:#dc2626;flex-shrink:0}
+.url-status{font-size:11px;padding:4px 8px;border-radius:5px;margin-top:4px}
+.url-status.ok{color:var(--ok);background:var(--ok-lt);border:1px solid var(--ok-bd)}
+.url-status.err{color:#dc2626;background:#fef2f2;border:1px solid #fca5a5}
+.local-zone{border:2px dashed var(--border);border-radius:8px;padding:18px;text-align:center;background:#fafafa;margin-bottom:8px}
+.local-zone p{font-size:12px;color:var(--muted);margin-bottom:8px}
+.local-btn{background:#fff;border:1px solid var(--border);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* ── READY BUTTON ── */
+.ready-section{padding:14px 18px;border-top:2px solid var(--ok-bd);background:var(--ok-lt);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ready-text{font-size:12px;color:var(--ok);line-height:1.4;flex:1}
+.ready-text strong{display:block;font-size:13px;margin-bottom:2px}
+.ready-btn{background:var(--ok);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .1s;flex-shrink:0}
+.ready-btn:hover{background:#166534}
+.ready-btn.done{background:#64748b;cursor:default}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px;line-height:1.4;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── EXAM SCREENS ── */
+#screen-ai,#screen-word,#screen-excel{display:none}
+#screen-ai.active,#screen-word.active,#screen-excel.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<div id="nav">
+  <div class="nav-logo">IS101 <span>Learning Resource Center</span></div>
+  <div class="nav-spacer"></div>
+  <button class="instructor-btn" id="instructor-btn" onclick="toggleInstructor()">✏️ Instructor — Add Videos</button>
+</div>
+
+<!-- INSTRUCTOR BANNER -->
+<div id="instructor-banner">
+  <div class="ib-inner">
+    <div class="ib-title">Instructor Video Setup</div>
+    <div class="ib-desc">Students use this page to find their own learning resources using AI and free links. Optionally, add your own instructional video to any topic by scrolling down and clicking the "📹 Video" tab on a topic card. Videos are saved and shared with all students automatically.</div>
+    <div class="ib-actions">
+      <button class="ib-btn" onclick="exportConfig()">📤 Export video links</button>
+      <label class="ib-btn">📥 Import video links<input type="file" accept=".json" style="display:none" onchange="importConfig(this)"></label>
+      <button class="ib-btn ib-close" onclick="toggleInstructor()">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM TABS -->
+<div id="exam-strip">
+  <button class="exam-tab ai" onclick="showExam('ai')" style="color:rgba(255,255,255,.6)">🧠 Unit 1: Artificial Intelligence</button>
+  <button class="exam-tab word active" onclick="showExam('word')">📝 Unit 2: Microsoft Word</button>
+  <button class="exam-tab excel" onclick="showExam('excel')">📊 Unit 3: Microsoft Excel</button>
+</div>
+
+<div id="main">
+  <div id="screen-ai"></div>
+  <div id="screen-word" class="active"></div>
+  <div id="screen-excel"></div>
+</div>
+
+<input type="file" id="file-input" accept="video/*" style="display:none">
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// RESOURCE DATA
+// Each topic has: objectives, 2 AI prompts, YouTube search,
+// suggested video links, and reading links
+// ═══════════════════════════════════════════════════════════
+
+const TOPICS = [
+
+// ── UNIT 1: AI ─────────────────────────────────────────────────────────────────
+
+{
+  id:'ai-t1', exam:'ai', code:'Topic 1', name:'Understanding AI',
+  videoSlotId:'ai-t1-v1',
+  objectives:[
+    {text:'Define AI and explain how it fundamentally differs from traditional software',
+     prompt:'I am a college student. Explain clearly what makes artificial intelligence different from regular software. In regular software a programmer writes exact rules for every situation. How is AI different? Use a spam filter or music recommendation as an example. Avoid technical jargon and keep it under 200 words.'},
+    {text:'Explain how machine learning works using training data, patterns, and predictions',
+     prompt:'I am learning about AI. Explain how machine learning works in plain language with no math or coding. Focus on three ideas only: what training data is, how the system finds patterns in that data, and how it makes predictions on new inputs. Use one clear real-world example like photo recognition or Netflix recommendations.'},
+    {text:'Explain what AI hallucinations are and give a real example of one causing harm',
+     prompt:'I am a student learning about AI limitations. Explain what an AI hallucination is and why it happens. Give me one real documented example where an AI hallucination caused a real problem in law, medicine, or journalism. Then tell me two practical things I should always do before trusting or using AI-generated information.'},
+    {text:'Explain why source-grounded AI like NotebookLM is safer than open-ended AI for academic work',
+     prompt:'I am a college student. Explain the difference between open-ended AI like ChatGPT and source-grounded AI like Google NotebookLM. Why is NotebookLM safer to use for academic research and studying? What specific things can go wrong when using ChatGPT for academic tasks that NotebookLM avoids? Keep it under 250 words and be specific.'},
+  ],
+  ytSearch:'What is artificial intelligence explained simply 2025',
+  suggestedVideos:[
+    {source:'Microsoft',title:'What is AI? A beginner guide to artificial intelligence',url:'https://azure.microsoft.com/en-us/resources/cloud-computing-dictionary/what-is-artificial-intelligence'},
+    {source:'IBM',title:'What is artificial intelligence?',url:'https://www.ibm.com/topics/artificial-intelligence'},
+    {source:'Google',title:'Introduction to Machine Learning',url:'https://developers.google.com/machine-learning/crash-course/ml-intro'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft',title:'What is artificial intelligence (AI)?',desc:'Microsoft beginner overview of AI concepts, types, and real-world applications.',url:'https://azure.microsoft.com/en-us/resources/cloud-computing-dictionary/what-is-artificial-intelligence'},
+    {icon:'📄',source:'IBM',title:'What is artificial intelligence?',desc:'Plain-language explanation of AI, machine learning, and how these technologies work.',url:'https://www.ibm.com/topics/artificial-intelligence'},
+    {icon:'📄',source:'MIT',title:'Explainer: What is artificial intelligence?',desc:'MIT Technology Review plain-language explainer on what AI is and how it works today.',url:'https://www.technologyreview.com/2018/11/17/103781/what-is-artificial-intelligence-ai/'},
+  ]
+},
+
+{
+  id:'ai-t2', exam:'ai', code:'Topic 2', name:'Google NotebookLM: A Deep Dive',
+  videoSlotId:'ai-t2-v1',
+  objectives:[
+    {text:'Create a Google NotebookLM notebook and upload sources including PDFs, URLs, and Google Docs',
+     prompt:'I am learning to use Google NotebookLM for the first time. Give me step-by-step instructions for: (1) going to notebooklm.google.com and signing in with a Google account, (2) creating a new notebook and giving it a name, (3) uploading a PDF document as a source, (4) adding a website URL as a source, (5) adding a Google Doc as a source. For each step describe exactly what I will see on screen and what to click. Keep each step short and clear.'},
+    {text:'Ask effective questions, generate summaries, study guides, and outlines from uploaded sources',
+     prompt:'I have uploaded a source document to Google NotebookLM. Teach me how to use it effectively. Show me: (1) how to ask a specific question about my source and get a cited answer, (2) how to ask NotebookLM to write a 3-bullet summary of the document, (3) how to ask it to generate 5 study questions I can use to quiz myself, (4) how to ask it to create a structured outline of the main topics, (5) what it means when NotebookLM cites a specific passage and how to find that passage in my source. Be specific about what to type.'},
+    {text:'Use the Audio Overview feature to generate a podcast-style discussion of source material',
+     prompt:'I am learning to use Google NotebookLM. Explain the Audio Overview feature step by step: (1) what the Audio Overview feature does and what it produces, (2) exactly where to find it in the NotebookLM interface and what to click, (3) how long it typically takes to generate, (4) what the resulting audio sounds like and how it is structured, (5) two specific situations where Audio Overview would be especially useful for a college student, and (6) one limitation of Audio Overview I should be aware of. Keep each point concise.'},
+    {text:'Compare NotebookLM vs. ChatGPT on the same task and choose the right tool for a given situation',
+     prompt:'I am a college student deciding between Google NotebookLM and ChatGPT for different tasks. For each of the following 5 situations, tell me which tool is better and give me a one-sentence reason why: (1) I need to understand a specific 20-page PDF my professor assigned, (2) I need to brainstorm creative ideas for a presentation topic, (3) I need to create study flashcards from my own class notes, (4) I need to write a first draft of a short essay on a topic I know nothing about, (5) I need to find out if a specific claim in an article I uploaded is supported by the source. After each answer, tell me what could go wrong if I used the wrong tool for that task.'},
+  ],
+  ytSearch:'Google NotebookLM tutorial complete guide 2025',
+  suggestedVideos:[
+    {source:'Google',title:'Google NotebookLM - Getting Started Guide',url:'https://notebooklm.google.com/'},
+    {source:'Google',title:'NotebookLM Help Center - Official Documentation',url:'https://support.google.com/notebooklm'},
+    {source:'YouTube',title:'Search: NotebookLM tutorial 2025 complete guide',url:'https://www.youtube.com/results?search_query=NotebookLM+tutorial+2025+complete+guide'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Google',title:'Google NotebookLM - Official Help Center',desc:'Official Google documentation for NotebookLM including how to upload sources, use features, and get the most out of notebooks.',url:'https://support.google.com/notebooklm'},
+    {icon:'📄',source:'Google',title:'NotebookLM - Getting Started',desc:'The official NotebookLM app where you will do all your hands-on work. Sign in with a Google account to begin.',url:'https://notebooklm.google.com/'},
+    {icon:'📄',source:'Microsoft',title:'Get started with Microsoft Copilot for comparison',desc:'Official Microsoft guide to Copilot - useful for understanding how a different AI tool handles similar tasks to NotebookLM.',url:'https://support.microsoft.com/en-us/copilot'},
+  ]
+},
+
+// ── WORD ───────────────────────────────────────────────────
+
+{
+  id:'wd-d1', exam:'word', code:'Topic 1', name:'Creating & Managing Documents',
+  videoSlotId:'wd-d1-v1',
+  objectives:[
+    {text:'Create, open, and save Word documents',
+     prompt:'I am using Microsoft Word 365 on Windows. Show me step-by-step how to create a new blank document, type a few lines, and save it as a .docx file on my computer. For each step: tell me exactly which tab or menu to use, which button to click, and describe what I will see on screen after I do it. Number every step.'},
+    {text:'Set page margins, orientation, and paper size',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to change page margins to Narrow, switch orientation from Portrait to Landscape, and change paper size to Letter. Step by step: tell me which ribbon tab to click, which group to find the command in, and what the screen looks like after each change. Number every step.'},
+    {text:'Use Find & Replace to change text throughout a document',
+     prompt:'I am using Microsoft Word 365. Show me exactly how to use Find & Replace to find every instance of one word and replace it with a different word throughout my entire document. Tell me the exact keyboard shortcut or ribbon location to open Find & Replace, what to type in each box, and how to replace all instances at once. Number every step and describe what I see on screen.'},
+    {text:'Insert and edit headers, footers, and page numbers',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to: (1) add a header with text that appears at the top of every page, and (2) add automatic page numbers in the footer at the bottom. For each part tell me which tab to click, which command to select, where to type, and how to close the header/footer and return to the document. Number every step.'},
+  ],
+  ytSearch:'Microsoft Word 365 page margins orientation headers footers tutorial beginners',
+  suggestedVideos:[
+    {source:'Microsoft 365 Training',title:'Word for Windows — Full Training Center',url:'https://support.microsoft.com/en-us/office/word-for-windows-training-7bcd85e6-2522-4d3d-8641-d69898a9af44'},
+    {source:'Microsoft Support',title:'Video training: Change page margins in Word',url:'https://support.microsoft.com/en-us/office/video-change-margins-6b1c7a1c-7b37-4f07-b1b0-b3dd6cf7c03f'},
+    {source:'Microsoft Support',title:'Add headers, footers, and page numbers in Word',url:'https://support.microsoft.com/en-us/office/add-page-numbers-to-a-header-or-footer-9f366518-0500-4b45-903d-987d3827c007'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Change page margins in Word',desc:'Step-by-step for Normal, Narrow, Wide, and custom margins in Microsoft 365.',url:'https://support.microsoft.com/en-us/office/change-margins-in-word-80f936d3-f0f6-4e9d-a4a3-ae3e5bfeac17'},
+    {icon:'📄',source:'Microsoft Support',title:'Add page numbers to a header or footer',desc:'Insert automatic page numbers anywhere in a Word 365 document.',url:'https://support.microsoft.com/en-us/office/add-page-numbers-to-a-header-or-footer-9f366518-0500-4b45-903d-987d3827c007'},
+    {icon:'📄',source:'Microsoft Support',title:'Find and replace text in Word',desc:'Use Find & Replace to search and update text throughout a document.',url:'https://support.microsoft.com/en-us/office/find-and-replace-text-c6728c16-469e-43cd-afe4-7708c6c779b7'},
+  ]
+},
+
+{
+  id:'wd-d2', exam:'word', code:'Topic 2', name:'Formatting Text & Paragraphs',
+  videoSlotId:'wd-d2-v1',
+  objectives:[
+    {text:'Apply bold, italic, underline, and font color to selected text',
+     prompt:'I am using Microsoft Word 365. Show me step-by-step how to: select text in my document, make it Bold, make it Italic, add an Underline, and change the font color to red. For each formatting action tell me exactly where the button is in the ribbon — which tab, which group, and which button to click. Describe what the text looks like on screen after each change. Number every step.'},
+    {text:'Change paragraph alignment to left, center, right, or justify',
+     prompt:'I am using Microsoft Word 365. Explain exactly how to change paragraph alignment. Show me where the alignment buttons are in the ribbon and walk me through clicking each one: Left Align, Center, Right Align, and Justify. Tell me what changes on screen after each one. Which is the default and when would I use Justify? Number every step.'},
+    {text:'Set line spacing to single, 1.5, or double',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to change line spacing to Double (2.0) for selected paragraphs. Tell me: which tab in the ribbon, which group, which button to click, and which value to select. Also show me how to set it to 1.5 and back to Single. Describe what the text looks like on screen after each change. Number every step.'},
+    {text:'Apply Title, Heading 1, and Heading 2 styles from the Styles gallery',
+     prompt:'I am using Microsoft Word 365. Show me step-by-step how to apply the built-in Title style to my document title, then Heading 1 to a main section, then Heading 2 to a sub-section. Tell me exactly where the Styles gallery is on the ribbon, how to click on a style, and what the text looks like after each style is applied. Also explain why these styles matter for creating a Table of Contents later. Number every step.'},
+  ],
+  ytSearch:'Microsoft Word 365 bold italic styles heading formatting paragraph spacing tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Video: Format text in Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/word-for-windows-training-7bcd85e6-2522-4d3d-8641-d69898a9af44'},
+    {source:'Microsoft Support',title:'Change line spacing in Word',url:'https://support.microsoft.com/en-us/office/change-the-line-spacing-in-word-64408da0-28a6-4ba8-8d5f-f15c9dbc4ede'},
+    {source:'Microsoft Support',title:'Apply styles in Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/use-styles-in-word-b2c9c6c1-e0ae-4a84-8c72-df3f7e11e016'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Change font, size, and color — Word for Microsoft 365',desc:'How to apply bold, italic, underline, font color and size in Word 365.',url:'https://support.microsoft.com/en-us/office/add-or-delete-words-in-the-spelling-checker-dictionary-56e5c373-29f8-4d11-baf6-87151725c0dc'},
+    {icon:'📄',source:'Microsoft Support',title:'Use styles in Word',desc:'What styles are, why they matter, and how to apply Title and Heading styles.',url:'https://support.microsoft.com/en-us/office/use-styles-in-word-b2c9c6c1-e0ae-4a84-8c72-df3f7e11e016'},
+    {icon:'📄',source:'Microsoft Support',title:'Change line and paragraph spacing in Word',desc:'Set single, 1.5, and double spacing for paragraphs in Microsoft 365.',url:'https://support.microsoft.com/en-us/office/change-the-line-spacing-in-word-64408da0-28a6-4ba8-8d5f-f15c9dbc4ede'},
+  ]
+},
+
+{
+  id:'wd-d3', exam:'word', code:'Topic 3', name:'Tables & Lists',
+  videoSlotId:'wd-d3-v1',
+  objectives:[
+    {text:'Insert a table and add rows, columns, and data',
+     prompt:'I am using Microsoft Word 365. Walk me through step-by-step how to insert a table with 3 columns and 5 rows. Tell me exactly which tab and which button to use, how to use the grid to choose the size, and how to click in cells and type data. Also show me how to add a new row at the bottom of the table. Describe what I see on screen at each step. Number every step.'},
+    {text:'Apply a table style and merge cells to create a spanning header',
+     prompt:'I am using Microsoft Word 365. My cursor is inside a table. Show me how to: (1) apply a colored table style from the Table Design tab, and (2) select the entire top row and merge all its cells into one wide cell to use as a title. For each action tell me exactly which tab appears, which group to find, and which button to click. Describe what the table looks like after each step. Number every step.'},
+    {text:'Convert comma-separated text into a formatted table',
+     prompt:'I am using Microsoft Word 365. I have a line of text with commas separating the values, like: Name,Department,Start Date,Salary. Walk me through exactly how to select that text and use Insert > Table > Convert Text to Table to turn it into a proper table, with commas as the separator. Tell me every dialog box I will see and what to click in each one. Number every step.'},
+    {text:'Create numbered and bulleted lists from the Paragraph group',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to: (1) create a numbered list starting from a blank line, (2) create a bulleted list, and (3) increase the indent level to create a sub-item under a list item. For each action tell me which tab, which group, and which button to click. Show me what the list looks like on screen after each change. Number every step.'},
+  ],
+  ytSearch:'Microsoft Word 365 insert table format merge cells numbered list tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Insert a table in Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/insert-a-table-in-word-a138f745-73ef-4879-b99a-2f3d38be612a'},
+    {source:'Microsoft Support',title:'Add bullets or numbered lists in Word',url:'https://support.microsoft.com/en-us/office/add-or-remove-bullets-or-numbered-lists-1ced3ffe-9c5b-4a07-96f4-06c9ca9ecaf1'},
+    {source:'Microsoft Support',title:'Convert text to a table in Word',url:'https://support.microsoft.com/en-us/office/convert-text-to-a-table-or-a-table-to-text-b5a9e0fc-cde9-4e86-b7a5-f71e6b0a99c8'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Insert a table in Word',desc:'Insert a table using the grid selector and add rows, columns, and data.',url:'https://support.microsoft.com/en-us/office/insert-a-table-in-word-a138f745-73ef-4879-b99a-2f3d38be612a'},
+    {icon:'📄',source:'Microsoft Support',title:'Merge or split table cells',desc:'Merge cells to create a spanning header row in a Word 365 table.',url:'https://support.microsoft.com/en-us/office/merge-or-split-table-cells-8699f9a7-08d8-4f6d-9e0a-b3cc7e2f6a17'},
+    {icon:'📄',source:'Microsoft Support',title:'Add bullets or numbered lists',desc:'Create, customize, and indent bulleted and numbered lists in Word 365.',url:'https://support.microsoft.com/en-us/office/add-or-remove-bullets-or-numbered-lists-1ced3ffe-9c5b-4a07-96f4-06c9ca9ecaf1'},
+  ]
+},
+
+{
+  id:'wd-d4', exam:'word', code:'Topic 4', name:'References & Citations',
+  videoSlotId:'wd-d4-v1',
+  objectives:[
+    {text:'Insert an automatic Table of Contents from heading styles',
+     prompt:'I am using Microsoft Word 365. My document already has headings formatted with Heading 1 and Heading 2 styles. Walk me through exactly how to insert an Automatic Table of Contents at the top of the document. Tell me which tab, which group, which button, and which TOC style to select. Describe what the TOC looks like on screen when it appears. Number every step.'},
+    {text:'Update the TOC after making changes to the document',
+     prompt:'I am using Microsoft Word 365. I have a Table of Contents in my document and I added a new Heading 1 section. Walk me through exactly how to update the TOC to include the new heading. Tell me how to click on the TOC, what option appears, and how to choose Update Entire Table. Describe what changes on screen. Number every step.'},
+    {text:'Insert footnotes at the bottom of the page',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to insert a footnote. Show me: where to position my cursor in the text, which tab in the ribbon, which group, and which button to click. Explain what happens automatically — where the footnote number appears in the text and where the footnote area appears. Describe what I see on screen. Number every step.'},
+    {text:'Insert endnotes that collect at the end of the document',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to insert an endnote. Tell me which tab, which group, and which specific button to click for an endnote (not a footnote). Explain the difference between where a footnote appears versus where an endnote appears in the document. Describe what I see on screen after inserting it. Number every step.'},
+  ],
+  ytSearch:'Microsoft Word 365 table of contents automatic footnotes endnotes references tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Insert a Table of Contents in Word',url:'https://support.microsoft.com/en-us/office/insert-a-table-of-contents-882e9f6c-dae0-49ed-b49b-a7add5e05f3b'},
+    {source:'Microsoft Support',title:'Insert footnotes and endnotes in Word',url:'https://support.microsoft.com/en-us/office/insert-footnotes-and-endnotes-61f3fb1a-4717-414c-9a18-d09b5fc8c292'},
+    {source:'Microsoft Support',title:'Video: Table of Contents training — Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/word-for-windows-training-7bcd85e6-2522-4d3d-8641-d69898a9af44'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Insert a Table of Contents',desc:'Create and update an automatic TOC from Heading styles in Word 365.',url:'https://support.microsoft.com/en-us/office/insert-a-table-of-contents-882e9f6c-dae0-49ed-b49b-a7add5e05f3b'},
+    {icon:'📄',source:'Microsoft Support',title:'Insert footnotes and endnotes',desc:'Add footnotes at the page bottom and endnotes at the document end in Word 365.',url:'https://support.microsoft.com/en-us/office/insert-footnotes-and-endnotes-61f3fb1a-4717-414c-9a18-d09b5fc8c292'},
+    {icon:'📄',source:'Microsoft Support',title:'Update a Table of Contents',desc:'How to refresh the TOC after editing headings or adding sections.',url:'https://support.microsoft.com/en-us/office/update-a-table-of-contents-bbc34929-c995-4890-80ab-6f2c1af52fe9'},
+  ]
+},
+
+{
+  id:'wd-d5', exam:'word', code:'Topic 5', name:'Graphics & Visual Elements',
+  videoSlotId:'wd-d5-v1',
+  objectives:[
+    {text:'Insert a picture and resize and position it in the document',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to insert a picture from my computer into my document. Tell me which tab, which group, and which button to click. Then show me how to resize the image by dragging a corner handle, and how to move it to a different position on the page. Describe what I see on screen at each step. Number every step.'},
+    {text:'Set text wrapping to Square, Tight, or Behind Text',
+     prompt:'I am using Microsoft Word 365. I have clicked on an image in my document. Walk me through exactly how to change the text wrapping to Square so that text flows around all four sides of the image. Tell me which tab appears when I click the image, which group, which button, and which option to select. Then show me how to change it to Tight and how to change it to Behind Text. Describe what happens to the document text after each change. Number every step.'},
+    {text:'Create a SmartArt Hierarchy diagram for an org chart',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to insert a SmartArt Hierarchy graphic to create an org chart. Tell me which tab, which group, and which button to click. Show me how to select the Hierarchy category and choose the Organization Chart layout. Then walk me through how to click on the shape placeholders and type names into them. Describe what I see on screen at each step. Number every step.'},
+    {text:'Insert a shape and type text inside it',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to insert a rectangle shape into my document. Tell me which tab, which group, and how to select and draw the shape. Then show me how to type text directly inside the shape. Describe what I see on screen at each step. Number every step.'},
+  ],
+  ytSearch:'Microsoft Word 365 insert picture text wrap SmartArt shapes tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Wrap text around a picture in Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/wrap-text-in-word-08b9f1ce-91fc-4c87-9a93-21c6de8e5d96'},
+    {source:'Microsoft Support',title:'Video: Create and change SmartArt — Microsoft 365',url:'https://support.microsoft.com/en-us/office/video-create-and-change-smartart-393bd987-c33a-4821-aaea-fd9ea71916cd'},
+    {source:'Microsoft Support',title:'Insert pictures in Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/insert-pictures-3c51edf4-22e1-460a-b372-9329a8724344'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Insert and resize pictures in Word',desc:'Insert photos from your device and control their position in Word 365.',url:'https://support.microsoft.com/en-us/office/insert-pictures-3c51edf4-22e1-460a-b372-9329a8724344'},
+    {icon:'📄',source:'Microsoft Support',title:'Wrap text around a picture in Word',desc:'Set text wrap to Square, Tight, or Behind Text in Microsoft 365.',url:'https://support.microsoft.com/en-us/office/wrap-text-in-word-08b9f1ce-91fc-4c87-9a93-21c6de8e5d96'},
+    {icon:'📄',source:'Microsoft Support',title:'Create a SmartArt graphic',desc:'Insert a Hierarchy org chart or other SmartArt layout in Microsoft 365.',url:'https://support.microsoft.com/en-us/office/create-a-smartart-graphic-fac94c93-500b-4a0a-97af-124040594842'},
+  ]
+},
+
+{
+  id:'wd-d6', exam:'word', code:'Topic 6', name:'Collaboration Tools',
+  videoSlotId:'wd-d6-v1',
+  objectives:[
+    {text:'Insert a comment to annotate text without changing the document',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to select a phrase in my document and add a comment to it. Tell me which tab, which group, and which button to click to insert a comment. Show me where the comment appears on screen, how to type inside it, and how to close or dismiss the comment box. Number every step.'},
+    {text:'Enable Track Changes to record every edit',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to turn on Track Changes so that every edit I make is recorded and visible. Tell me which tab, which group, and which button to click. Then show me what happens on screen when I type something new, delete text, and change formatting while Track Changes is on. Describe how the markup looks. Number every step.'},
+    {text:'Accept or reject individual tracked changes',
+     prompt:'I am using Microsoft Word 365. My document has tracked changes shown in red markup. Walk me through exactly how to: (1) click on one tracked change and accept just that one change, (2) reject a single change, and (3) accept all changes in the entire document at once. Tell me which tab, which group, and which buttons to use for each action. Describe what happens to the markup on screen. Number every step.'},
+    {text:'Use Restrict Editing to protect a finalized document',
+     prompt:'I am using Microsoft Word 365. Walk me through exactly how to turn on Restrict Editing so that other people cannot make changes to my document. Tell me which tab, which group, and which button opens the Restrict Editing panel. Show me how to enable the editing restriction and start enforcing it. Describe what appears on screen and what happens if someone tries to type in the document afterward. Number every step.'},
+  ],
+  ytSearch:'Microsoft Word 365 track changes comments accept reject restrict editing review tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Track changes in Word for Microsoft 365',url:'https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a'},
+    {source:'Microsoft Support',title:'Insert or delete a comment in Word',url:'https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4df2-8c68-bf96671641e2'},
+    {source:'Microsoft Support',title:'Accept or reject tracked changes in Word',url:'https://support.microsoft.com/en-us/office/accept-or-reject-tracked-changes-7bf4af5a-64e8-4ad5-ab90-13aaab43f88e'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Track changes in Word',desc:'Enable, view, and manage all tracked changes in Microsoft 365.',url:'https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a'},
+    {icon:'📄',source:'Microsoft Support',title:'Insert or delete a comment in Word',desc:'Add review comments to any text selection in Microsoft 365 Word.',url:'https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4df2-8c68-bf96671641e2'},
+    {icon:'📄',source:'Microsoft Support',title:'Restrict editing in Word',desc:'Lock a document so others cannot make changes to the final version.',url:'https://support.microsoft.com/en-us/office/protect-a-document-with-a-password-0e3e00d8-5002-474e-8c42-3e1c04a1c85c'},
+  ]
+},
+
+// ── EXCEL ──────────────────────────────────────────────────
+
+{
+  id:'xl-d1', exam:'excel', code:'Topic 1', name:'Worksheets & Workbooks',
+  videoSlotId:'xl-d1-v1',
+  objectives:[
+    {text:'Insert, rename, and organize worksheets in a workbook',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to: (1) insert a new worksheet tab, (2) rename a worksheet tab by double-clicking it and typing a new name, and (3) drag a worksheet tab to reorder it. Tell me exactly where to right-click, what menu appears, and what I should see on screen after each action. Number every step.'},
+    {text:'Freeze the top row so column headers stay visible while scrolling',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to freeze the top row of my spreadsheet so that my column headers remain visible when I scroll down. Tell me which tab in the ribbon, which group, which button to click, and which option to choose. Describe what visual indicator appears on screen to show that the row is frozen. Then show me how to unfreeze it. Number every step.'},
+    {text:'Set page orientation, margins, and print area for printing',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to: (1) change the page orientation to Landscape, (2) change the margins to Narrow, and (3) set a specific range of cells as the print area so only that section prints. For each action tell me which tab, which group, and which button to click. Describe what I see on screen after each change. Number every step.'},
+    {text:'Add a header and footer with page numbers for printing',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to add a header that shows my name on the left, and a footer that shows the page number in the center. Tell me which tab, which button to click to enter header/footer view, and how to navigate between the left, center, and right sections. Describe what the screen looks like in header/footer edit mode. Number every step.'},
+  ],
+  ytSearch:'Microsoft Excel 365 worksheets rename freeze panes page layout print setup tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Freeze rows and columns in Excel for Microsoft 365',url:'https://support.microsoft.com/en-us/office/freeze-panes-to-lock-rows-and-columns-dab2ffc9-020d-4026-8121-67dd25f2508f'},
+    {source:'Microsoft Support',title:'Insert or delete a worksheet in Excel',url:'https://support.microsoft.com/en-us/office/insert-or-delete-a-worksheet-19d3d21e-a3b3-4e13-a422-d1f43543d2c9'},
+    {source:'Microsoft Support',title:'Excel for Windows training — Microsoft 365',url:'https://support.microsoft.com/en-us/office/excel-for-windows-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Insert or delete a worksheet',desc:'Add, rename, move, copy, and delete worksheets in Excel 365.',url:'https://support.microsoft.com/en-us/office/insert-or-delete-a-worksheet-19d3d21e-a3b3-4e13-a422-d1f43543d2c9'},
+    {icon:'📄',source:'Microsoft Support',title:'Freeze rows and columns',desc:'Lock the top row or first column visible while scrolling in Excel 365.',url:'https://support.microsoft.com/en-us/office/freeze-panes-to-lock-rows-and-columns-dab2ffc9-020d-4026-8121-67dd25f2508f'},
+    {icon:'📄',source:'Microsoft Support',title:'Print a worksheet in Excel',desc:'Set print area, orientation, margins, and scale for professional printing.',url:'https://support.microsoft.com/en-us/office/print-a-worksheet-or-workbook-f4ad7962-b1d5-4eb5-b239-3b8b000d4ae9'},
+  ]
+},
+
+{
+  id:'xl-d2', exam:'excel', code:'Topic 2', name:'Formatting Cells & Ranges',
+  videoSlotId:'xl-d2-v1',
+  objectives:[
+    {text:'Apply currency, percentage, and date number formats to cells',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to: (1) select a range of cells with dollar amounts and format them as Currency with 2 decimal places, (2) format another range as Percentage, and (3) format a date cell to show as MM/DD/YYYY. For each format tell me exactly which tab, which group, and which button or dropdown to use. Describe what the numbers look like on screen before and after. Number every step.'},
+    {text:'Create a named range using the Name Box',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to select a range of cells and give it a name using the Name Box at the left end of the formula bar. Tell me exactly where to click, what to type, and how to press Enter to confirm. Then show me how to use that name in a simple SUM formula instead of typing the cell addresses. Describe what I see on screen. Number every step.'},
+    {text:'Apply a dropdown list data validation rule to cells',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to set up data validation on a column of cells so that each cell shows a dropdown list with fixed options like: Full-Time, Part-Time, Contract. Tell me which tab, which group, and which button to click. Show me how to type the list options in the dialog box and confirm. Describe what the dropdown arrow looks like in the cell. Number every step.'},
+    {text:'Use conditional formatting to automatically highlight cells',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to apply conditional formatting to a range of cells so that any cell with a value greater than 1000 is automatically highlighted in green. Tell me which tab, which button, which rule type, what values to enter in the dialog box, and how to pick the green fill color. Describe what the cells look like on screen before and after. Number every step.'},
+  ],
+  ytSearch:'Microsoft Excel 365 cell formatting currency named range data validation conditional formatting tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Format numbers in Excel for Microsoft 365',url:'https://support.microsoft.com/en-us/office/format-numbers-as-currency-0a03bb38-1a07-458d-9e30-2b54366bc7a4'},
+    {source:'Microsoft Support',title:'Apply conditional formatting in Excel',url:'https://support.microsoft.com/en-us/office/use-conditional-formatting-to-highlight-information-fed60dfa-1d3f-4e13-9ecb-f1951ff89d7f'},
+    {source:'Microsoft Support',title:'Apply data validation to cells in Excel',url:'https://support.microsoft.com/en-us/office/apply-data-validation-to-cells-29fecbcc-d1b9-42c1-9d76-eff3ce5f7249'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Format numbers as currency in Excel',desc:'Apply currency, percentage, and date number formats in Excel 365.',url:'https://support.microsoft.com/en-us/office/format-numbers-as-currency-0a03bb38-1a07-458d-9e30-2b54366bc7a4'},
+    {icon:'📄',source:'Microsoft Support',title:'Apply conditional formatting in Excel',desc:'Automatically highlight cells based on their values using color rules.',url:'https://support.microsoft.com/en-us/office/use-conditional-formatting-to-highlight-information-fed60dfa-1d3f-4e13-9ecb-f1951ff89d7f'},
+    {icon:'📄',source:'Microsoft Support',title:'Apply data validation to cells',desc:'Create dropdown lists and restrict cell input in Excel 365.',url:'https://support.microsoft.com/en-us/office/apply-data-validation-to-cells-29fecbcc-d1b9-42c1-9d76-eff3ce5f7249'},
+  ]
+},
+
+{
+  id:'xl-d3', exam:'excel', code:'Topic 3', name:'Excel Tables',
+  videoSlotId:'xl-d3-v1',
+  objectives:[
+    {text:'Convert a data range to an Excel Table using Insert > Table',
+     prompt:'I am using Microsoft Excel 365. I have a range of data with column headers in row 1. Walk me through exactly how to convert this range into an Excel Table. Tell me which tab, which group, which button to click, what the Create Table dialog box looks like, and what to confirm. Describe what visually changes on screen — the banded rows, filter arrows, and Table Design tab that appear. Number every step.'},
+    {text:'Apply a table style and enable the Total Row',
+     prompt:'I am using Microsoft Excel 365. I have an Excel Table selected. Walk me through exactly how to: (1) apply a different table style from the Table Design tab, and (2) turn on the Total Row so a summary row appears at the bottom. Show me where to click to change the Total Row calculation from Count to Sum for a specific column. Describe what the table looks like after each change. Number every step.'},
+    {text:'Sort and filter table data using the dropdown arrows',
+     prompt:'I am using Microsoft Excel 365. My data is formatted as an Excel Table with dropdown arrows in the column headers. Walk me through exactly how to: (1) sort the table by one column from A to Z, (2) filter the table to show only rows where a specific column equals a specific value, and (3) clear the filter to show all rows again. Describe what changes on screen after each action. Number every step.'},
+    {text:'Remove duplicate rows using Data > Remove Duplicates',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to remove duplicate rows from my spreadsheet data. Tell me which tab, which group, and which button to click. Show me what the Remove Duplicates dialog box looks like and how to choose which columns to check for duplicates. Describe the message Excel shows you after removing duplicates, and what the data looks like after. Number every step.'},
+  ],
+  ytSearch:'Microsoft Excel 365 create table format style total row sort filter remove duplicates tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Create and format Excel Tables — Microsoft 365',url:'https://support.microsoft.com/en-us/office/create-and-format-tables-e81aa349-b006-4f8a-9806-5af9df0ac664'},
+    {source:'Microsoft Support',title:'Sort data in a range or table in Excel',url:'https://support.microsoft.com/en-us/office/sort-data-in-a-range-or-table-62d0b95d-2a90-4610-a6ae-2e545c4a4654'},
+    {source:'Microsoft Support',title:'Filter data in a range or table in Excel',url:'https://support.microsoft.com/en-us/office/filter-data-in-a-range-or-table-01832226-31b5-4568-8806-38c37dcc180e'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Create and format Excel Tables',desc:'Convert a data range to an Excel Table with auto-filter and Total Row in Excel 365.',url:'https://support.microsoft.com/en-us/office/create-and-format-tables-e81aa349-b006-4f8a-9806-5af9df0ac664'},
+    {icon:'📄',source:'Microsoft Support',title:'Sort data in a range or table',desc:'Sort one or multiple columns in ascending, descending, or custom order.',url:'https://support.microsoft.com/en-us/office/sort-data-in-a-range-or-table-62d0b95d-2a90-4610-a6ae-2e545c4a4654'},
+    {icon:'📄',source:'Microsoft Support',title:'Filter data in a range or table',desc:'Use dropdown arrows to filter rows by value or condition in Excel 365.',url:'https://support.microsoft.com/en-us/office/filter-data-in-a-range-or-table-01832226-31b5-4568-8806-38c37dcc180e'},
+  ]
+},
+
+{
+  id:'xl-d4', exam:'excel', code:'Topic 4', name:'Formulas & Functions',
+  videoSlotId:'xl-d4-v1',
+  objectives:[
+    {text:'Write SUM, AVERAGE, MIN, MAX, and COUNT formulas',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to write each of these formulas in a cell: SUM, AVERAGE, MIN, MAX, and COUNT — each applied to the range B2:B10. For each formula: show me the exact syntax to type, tell me what the formula calculates, and describe what result I will see in the cell. Also show me how to click on a cell and see the formula appear in the formula bar. Number every step.'},
+    {text:'Write an IF formula to return different values based on a condition',
+     prompt:'I am using Microsoft Excel 365. Walk me through exactly how to write an IF formula in cell C2 that checks if B2 is greater than or equal to 60, and shows "Pass" if true and "Fail" if false. Show me the exact formula to type. Explain each part: the logical test, the value if true, and the value if false. Then show me how to copy the formula down to C3:C10 using the fill handle. Describe what I see on screen. Number every step.'},
+    {text:'Write COUNTIF and SUMIF formulas to analyze data by category',
+     prompt:'I am using Microsoft Excel 365. I have a spreadsheet with a Category column in A and an Amount column in B. Walk me through exactly how to write: (1) a COUNTIF formula to count how many rows have "Food" in column A, and (2) a SUMIF formula to add up all the amounts in column B where column A says "Food". Show me the exact syntax for each formula with the correct range and criteria arguments. Number every step.'},
+    {text:'Write a VLOOKUP formula to retrieve data from a lookup table',
+     prompt:'I am using Microsoft Excel 365. I have a lookup table in A1:B6 with product names in column A and prices in column B. I have a product name in cell D2 and I want to find its price using VLOOKUP. Walk me through exactly how to write the VLOOKUP formula in cell E2 — explain each argument: the lookup value, the table array, the column index number, and whether to use exact or approximate match. Show me the exact formula to type. Number every step.'},
+  ],
+  ytSearch:'Microsoft Excel 365 SUM AVERAGE IF VLOOKUP COUNTIF SUMIF formulas functions tutorial beginners',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Excel functions by category — Microsoft 365',url:'https://support.microsoft.com/en-us/office/excel-functions-by-category-5f91f4e9-7b42-46d2-9bd1-63f26a86c0eb'},
+    {source:'Microsoft Support',title:'Overview of formulas in Excel for Microsoft 365',url:'https://support.microsoft.com/en-us/office/overview-of-formulas-in-excel-ecfdc708-9162-49e8-b993-c311f47ca173'},
+    {source:'Microsoft Support',title:'VLOOKUP function — Microsoft 365 reference',url:'https://support.microsoft.com/en-us/office/vlookup-function-0bbc8083-26fe-4963-8ab8-93a18ad188a1'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Overview of formulas in Excel',desc:'How formulas work, cell references, and the = sign in Microsoft 365.',url:'https://support.microsoft.com/en-us/office/overview-of-formulas-in-excel-ecfdc708-9162-49e8-b993-c311f47ca173'},
+    {icon:'📄',source:'Microsoft Support',title:'Excel functions by category',desc:'Complete reference for SUM, AVERAGE, IF, COUNT, ROUND, VLOOKUP and more.',url:'https://support.microsoft.com/en-us/office/excel-functions-by-category-5f91f4e9-7b42-46d2-9bd1-63f26a86c0eb'},
+    {icon:'📄',source:'Microsoft Support',title:'VLOOKUP function reference',desc:'How to write a VLOOKUP formula to look up values in a table in Excel 365.',url:'https://support.microsoft.com/en-us/office/vlookup-function-0bbc8083-26fe-4963-8ab8-93a18ad188a1'},
+  ]
+},
+
+{
+  id:'xl-d5', exam:'excel', code:'Topic 5', name:'Charts & Data Visualization',
+  videoSlotId:'xl-d5-v1',
+  objectives:[
+    {text:'Select data and insert a column or bar chart',
+     prompt:'I am using Microsoft Excel 365. I have a table with months in column A and sales figures in column B. Walk me through exactly how to select that data and insert a Clustered Column chart. Tell me which tab, which group, and which chart type to click. Describe where the chart appears on the worksheet and what it looks like immediately after inserting. Number every step.'},
+    {text:'Add a chart title and axis labels for clarity',
+     prompt:'I am using Microsoft Excel 365. I have a chart selected. Walk me through exactly how to: (1) add a chart title above the chart and type text into it, and (2) add axis titles to label the horizontal axis and the vertical axis. Tell me which tab appears when I click the chart, which button to click for Add Chart Element, and the exact sequence of menus to navigate. Describe what I see on screen. Number every step.'},
+    {text:'Create a pie chart and add percentage data labels to each slice',
+     prompt:'I am using Microsoft Excel 365. I have a table with category names in column A and values in column B. Walk me through exactly how to insert a 2-D Pie chart, then add data labels that show percentages on each slice. Tell me how to right-click the pie chart to add data labels and how to change the label format to show percentages instead of values. Describe what the chart looks like after. Number every step.'},
+    {text:'Move a chart to a dedicated chart sheet',
+     prompt:'I am using Microsoft Excel 365. I have a chart on my regular data worksheet. Walk me through exactly how to move this chart to its own dedicated chart sheet named "Sales Chart". Tell me which tab appears when I click the chart, which button to click for Move Chart, what the dialog box looks like, and how to name the new sheet. Describe what changes in the workbook tabs. Number every step.'},
+  ],
+  ytSearch:'Microsoft Excel 365 create chart column bar pie chart title axis labels data labels tutorial',
+  suggestedVideos:[
+    {source:'Microsoft Support',title:'Create a chart in Excel for Microsoft 365',url:'https://support.microsoft.com/en-us/office/create-a-chart-from-start-to-finish-0baf399e-dd61-4e18-8a73-b3fd5d5680c2'},
+    {source:'Microsoft Support',title:'Add data labels to a chart in Excel',url:'https://support.microsoft.com/en-us/office/add-data-labels-to-a-chart-884bf2f1-2e29-454e-8b42-f467c9f4eb2d'},
+    {source:'Microsoft Support',title:'Move a chart to a chart sheet in Excel',url:'https://support.microsoft.com/en-us/office/move-a-chart-to-another-sheet-4e6c69ac-1e5a-4017-b35a-be42e4c4b3d7'},
+  ],
+  readLinks:[
+    {icon:'📄',source:'Microsoft Support',title:'Create a chart from start to finish',desc:'Insert column, bar, line, and pie charts in Excel for Microsoft 365.',url:'https://support.microsoft.com/en-us/office/create-a-chart-from-start-to-finish-0baf399e-dd61-4e18-8a73-b3fd5d5680c2'},
+    {icon:'📄',source:'Microsoft Support',title:'Add data labels to a chart',desc:'Show values or percentages directly on pie slices and bar columns.',url:'https://support.microsoft.com/en-us/office/add-data-labels-to-a-chart-884bf2f1-2e29-454e-8b42-f467c9f4eb2d'},
+    {icon:'📄',source:'Microsoft Support',title:'Move a chart to a dedicated chart sheet',desc:'Move a chart out of the data worksheet onto its own named sheet in Excel 365.',url:'https://support.microsoft.com/en-us/office/move-a-chart-to-another-sheet-4e6c69ac-1e5a-4017-b35a-be42e4c4b3d7'},
+  ]
+},
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let currentExam = 'word';
+let instructorMode = false;
+const activeTabs = {}; // topicId → active tab name
+const activeSrcTabs = {}; // topicId → active source tab
+
+function loadVideos(){try{return JSON.parse(localStorage.getItem('mos-videos')||'{}');}catch{return {};}}
+function saveVideo(id,data){const v=loadVideos();v[id]=data;localStorage.setItem('mos-videos',JSON.stringify(v));}
+function removeVideo(id){const v=loadVideos();delete v[id];localStorage.setItem('mos-videos',JSON.stringify(v));}
+function isStepReady(topicId){return !!localStorage.getItem('is101-'+topicId+'-step0');}
+function markReady(topicId){localStorage.setItem('is101-'+topicId+'-step0','1');}
+
+// ═══════════════════════════════════════════════════════════
+// YOUTUBE URL PARSING (for instructor video tab)
+// ═══════════════════════════════════════════════════════════
+function parseVideoSource(url, type){
+  url = url.trim();
+  if(!url) return null;
+  if(type==='youtube'||type==='auto'){
+    const patterns=[/youtu\.be\/([A-Za-z0-9_-]{11})/,/youtube\.com\/watch\?(?:.*&)?v=([A-Za-z0-9_-]{11})/,/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/,/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/];
+    for(const p of patterns){const m=url.match(p);if(m)return{kind:'youtube',id:m[1]};}
+    if(/^[A-Za-z0-9_-]{11}$/.test(url))return{kind:'youtube',id:url};
+  }
+  if(type==='drive'||type==='auto'){const m=url.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/);if(m)return{kind:'drive',id:m[1]};}
+  if(type==='onedrive'||type==='auto'){if(url.includes('onedrive.live.com')||url.includes('1drv.ms')||url.includes('sharepoint.com'))return{kind:'onedrive',embedUrl:url};}
+  if(type==='vimeo'||type==='auto'){const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);if(m)return{kind:'vimeo',id:m[1]};}
+  if(type==='direct'||type==='auto'){if(/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url))return{kind:'direct',url};}
+  if(url.startsWith('http'))return{kind:'iframe',url};
+  return null;
+}
+function buildEmbedHtml(src){
+  if(!src)return null;
+  switch(src.kind){
+    case'youtube':return`<iframe src="https://www.youtube.com/embed/${src.id}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    case'drive':return`<iframe src="https://drive.google.com/file/d/${src.id}/preview" allow="autoplay" allowfullscreen></iframe>`;
+    case'vimeo':return`<iframe src="https://player.vimeo.com/video/${src.id}?title=0&byline=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+    case'direct':return`<video controls style="position:absolute;inset:0;width:100%;height:100%"><source src="${src.url}">Your browser does not support video.</video>`;
+    default:return`<iframe src="${src.embedUrl||src.url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// BUILD PROMPT OPEN URLS
+// ═══════════════════════════════════════════════════════════
+function perplexityUrl(prompt){return 'https://www.perplexity.ai/search?q='+encodeURIComponent(prompt);}
+function youtubeSkillUrl(skillText,exam){const app=exam==='word'?'Microsoft Word 365':'Microsoft Excel 365';return 'https://www.youtube.com/results?search_query='+encodeURIComponent(skillText+' '+app+' tutorial');}
+function chatGPTUrl(prompt){return 'https://chatgpt.com/?q='+encodeURIComponent(prompt);}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+function render(){
+  const videos = loadVideos();
+  ['ai','word','excel'].forEach(exam => {
+    const topics = TOPICS.filter(t => t.exam === exam);
+    const el = document.getElementById('screen-'+exam);
+
+    // Group by... they're already in order, just render all
+    let html = '';
+    topics.forEach(topic => {
+      const ready = isStepReady(topic.id);
+      const savedVideo = videos[topic.videoSlotId];
+      html += buildTopicCard(topic, ready, savedVideo);
+    });
+    el.innerHTML = html;
+  });
+  bindEvents();
+}
+
+function buildTopicCard(topic, ready, savedVideo){
+  const tab = activeTabs[topic.id] || 'ai';
+  const exam = topic.exam;
+  const embedHtml = savedVideo ? buildEmbedHtml(savedVideo) : null;
+
+  // Show video tab only to instructors or if video is set
+  const showVidTab = instructorMode || !!embedHtml;
+
+  return `
+  <div class="resource-card" id="card-${topic.id}">
+
+    <!-- Header -->
+    <div class="rc-header">
+      <div class="rc-num ${exam}">${topic.code.replace('Topic ','')}</div>
+      <div class="rc-meta">
+        <div class="rc-title">${topic.name}</div>
+        <div class="rc-desc">${topic.exam === 'word' ? 'Unit 2: Microsoft Word' : 'Unit 3: Microsoft Excel'} · ${topic.code}</div>
+      </div>
+      <div class="rc-status">${ready ? '<span style="color:var(--ok);font-weight:700;font-size:12px">✅ Ready</span>' : '<span style="color:var(--muted);font-size:11px">○ Not started</span>'}</div>
+    </div>
+
+    <!-- Learning objectives — visually prominent -->
+    <div class="learn-obj ${exam}">
+      <div class="lo-inner">
+        <div class="lo-eyebrow">Learning Objectives</div>
+        <div class="lo-headline">After completing this topic you will be able to:</div>
+        <div class="lo-list">
+          ${topic.objectives.map((o,i) => `<div class="lo-item"><div class="lo-check">${i+1}</div><div class="lo-text">${o.text||o}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="lo-bar"></div>
+    </div>
+
+    <!-- Resource chooser -->
+    <div class="resource-chooser">
+      <div class="chooser-label">Choose how you want to learn this topic</div>
+      <div class="chooser-cards">
+        <button class="chooser-card${tab==='ai'?' active-ai':''}" onclick="setTab('${topic.id}','ai')">
+          <div class="cc-selected-tag">Selected</div>
+          <div class="cc-icon">🤖</div>
+          <div class="cc-title">Ask AI</div>
+          <div class="cc-desc">Get exact step-by-step instructions with ribbon locations and what you will see on screen</div>
+          <div class="cc-active-bar"></div>
+        </button>
+        <button class="chooser-card${tab==='watch'?' active-watch':''}" onclick="setTab('${topic.id}','watch')">
+          <div class="cc-selected-tag">Selected</div>
+          <div class="cc-icon">▶️</div>
+          <div class="cc-title">Watch Videos</div>
+          <div class="cc-desc">Watch a step-by-step tutorial on LinkedIn Learning (free with library card) or YouTube</div>
+          <div class="cc-active-bar"></div>
+        </button>
+        <button class="chooser-card${tab==='read'?' active-read':''}" onclick="setTab('${topic.id}','read')">
+          <div class="cc-selected-tag">Selected</div>
+          <div class="cc-icon">📖</div>
+          <div class="cc-title">Read</div>
+          <div class="cc-desc">Read official Microsoft Support articles written specifically for Microsoft 365</div>
+          <div class="cc-active-bar"></div>
+        </button>
+      </div>
+      ${showVidTab ? `<div class="chooser-vid-row"><button class="chooser-vid-btn${tab==='vid'?' active-vid':''}" onclick="setTab('${topic.id}','vid')">📹 Instructor Video${embedHtml?' ✓':''}</button></div>` : '<div style="height:10px"></div>'}
+    </div>
+
+    <!-- ASK AI PANEL -->
+    <div class="tab-panel${tab==='ai'?' active':''}" id="tab-ai-${topic.id}">
+      <div class="ai-intro-box">
+        <div class="aib-title">🤖 Ask AI for step-by-step help with each skill</div>
+        <div class="aib-desc">Each button below opens an AI assistant with a ready-made question about that specific skill. The AI will give you exact steps — which tab to click, which group to look in, and what you will see on screen.</div>
+        <div class="aib-tip">💡 <strong>Tip:</strong> After the AI answers, ask it: <em>"Can you show me a screenshot of where to find this in the ribbon?"</em> or <em>"Can you find a YouTube video showing this?"</em></div>
+      </div>
+      <div class="obj-prompts">
+        ${topic.objectives.map((obj,i) => {
+          const pid = topic.id+'-'+i;
+          return '<div class="obj-prompt-card">'
+            + '<div class="opc-header">'
+            + '<div class="opc-num">'+(i+1)+'</div>'
+            + '<div class="opc-skill">'+obj.text+'</div>'
+            + '</div>'
+            + '<div class="opc-body">'
+            + '<div class="opc-prompt" id="prompt-'+pid+'">'+obj.prompt+'</div>'
+            + '<div class="opc-actions">'
+            + '<button class="copy-btn" id="copy-'+pid+'" onclick="copyPrompt(\''+topic.id+'\','+i+',\''+pid+'\')">📋 Copy</button>'
+            + '<a class="ai-launch-btn perplexity" href="'+perplexityUrl(obj.prompt)+'" target="_blank">🔍 Perplexity <span style="font-size:9px;opacity:.8">(finds videos)</span></a>'
+            + '<a class="ai-launch-btn youtube" href="'+youtubeSkillUrl(obj.text,topic.exam)+'" target="_blank">▶ YouTube Search</a>'
+            + '<a class="ai-launch-btn chatgpt" href="'+chatGPTUrl(obj.prompt)+'" target="_blank">💬 ChatGPT</a>'
+            + '</div></div></div>';
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- WATCH PANEL -->
+    <div class="tab-panel${tab==='watch'?' active':''}" id="tab-watch-${topic.id}">
+
+      <!-- LinkedIn Learning — featured first -->
+      <a class="li-card" href="https://www.linkedin.com/learning-login/go/lvccld" target="_blank">
+        <div class="li-logo">🎓</div>
+        <div class="li-body">
+          <div class="li-badge">⭐ Recommended — Free with Library Card</div>
+          <div class="li-title">LinkedIn Learning — ${topic.name}</div>
+          <div class="li-sub">Sign in with your <strong>Clark County Library District</strong> card for free access to professional Microsoft 365 video courses with step-by-step demonstrations.</div>
+        </div>
+        <div class="li-arrow">→</div>
+      </a>
+      <div class="li-library-note">
+        <span class="ln-icon">🏛️</span>
+        <span><strong>How to access:</strong> Click the button above → sign in at the Clark County Library page → search for "<strong>${topic.ytSearch.split(' ').slice(0,5).join(' ')}</strong>" to find relevant courses. You need a free Clark County Library card — get one at <strong>lvccld.org</strong>.</span>
+      </div>
+
+      <!-- YouTube search -->
+      <div class="suggested-title" style="margin-bottom:8px">Also available free on YouTube:</div>
+      <a class="yt-search-btn" href="https://www.youtube.com/results?search_query=${encodeURIComponent(topic.ytSearch)}" target="_blank">
+        <div class="yt-icon">▶</div>
+        <div class="yt-text">
+          <div class="yt-label">🔍 Search YouTube for this topic</div>
+          <div class="yt-query">${topic.ytSearch}</div>
+        </div>
+        <div class="yt-arrow">→</div>
+      </a>
+
+      <div class="suggested-title">Other free resources:</div>
+      <div class="suggested-links">
+        ${topic.suggestedVideos.map(v => `
+        <a class="vid-link" href="${v.url}" target="_blank">
+          <div class="vl-source">${v.source}</div>
+          <div class="vl-title">${v.title}</div>
+          <div class="vl-arr">→</div>
+        </a>`).join('')}
+      </div>
+    </div>
+
+    <!-- READ PANEL -->
+    <div class="tab-panel${tab==='read'?' active':''}" id="tab-read-${topic.id}">
+      <div class="read-intro">
+        <strong>📖 Read before you practice:</strong> These are free, official learning resources for this topic. Read through at least one article before moving to the practice labs. They're short — most take 5–10 minutes to read.
+      </div>
+      <div class="read-links">
+        ${topic.readLinks.map(l => `
+        <a class="read-link" href="${l.url}" target="_blank">
+          <div class="rl-icon">${l.icon}</div>
+          <div class="rl-body">
+            <div class="rl-source">${l.source}</div>
+            <div class="rl-title">${l.title}</div>
+            <div class="rl-desc">${l.desc}</div>
+          </div>
+          <div class="rl-arr">→</div>
+        </a>`).join('')}
+      </div>
+    </div>
+
+    <!-- INSTRUCTOR VIDEO PANEL -->
+    ${showVidTab ? buildVidPanel(topic, savedVideo, tab) : ''}
+
+    <!-- I'M READY BUTTON -->
+    <div class="ready-section">
+      <div class="ready-text">
+        <strong>${ready ? '✅ You have marked this topic as ready' : 'Done reviewing the resources?'}</strong>
+        ${ready ? 'The Practice Labs step is unlocked. Return to the course dashboard.' : 'Use the tabs above to explore the AI prompts, watch a tutorial, or read the articles. When you feel ready, click the button to unlock Practice Labs.'}
+      </div>
+      <button class="ready-btn${ready?' done':''}" onclick="markTopicReady('${topic.id}')">
+        ${ready ? '✅ Already unlocked' : "✓ I'm Ready — Unlock Practice Labs →"}
+      </button>
+    </div>
+
+  </div>`;
+}
+
+function buildVidPanel(topic, savedData, activeTab){
+  const embedHtml = savedData ? buildEmbedHtml(savedData) : null;
+  const srcTab = activeSrcTabs[topic.id] || 'youtube';
+  const sources = [
+    {id:'youtube',icon:'▶',label:'YouTube'},
+    {id:'drive',icon:'🔴',label:'Google Drive'},
+    {id:'onedrive',icon:'🔵',label:'OneDrive'},
+    {id:'vimeo',icon:'🎥',label:'Vimeo'},
+    {id:'direct',icon:'🔗',label:'Direct URL'},
+    {id:'local',icon:'📂',label:'Local File'},
+  ];
+  const instructions = {
+    youtube:'Upload to <a href="https://studio.youtube.com" target="_blank" style="color:#2563eb">YouTube Studio</a>, set to Public or Unlisted, copy the URL (youtube.com/watch?v=...), paste below.',
+    drive:'Upload .mp4 to <a href="https://drive.google.com" target="_blank" style="color:#2563eb">Google Drive</a>, right-click → Share → "Anyone with link" → copy link, paste below.',
+    onedrive:'Upload to <a href="https://onedrive.live.com" target="_blank" style="color:#2563eb">OneDrive</a> or Microsoft Stream, click Share → copy link, paste below.',
+    vimeo:'Upload to <a href="https://vimeo.com" target="_blank" style="color:#2563eb">Vimeo</a>, set to Anyone, copy the video URL (vimeo.com/123456789), paste below.',
+    direct:'Host your .mp4 on a web server and paste the direct URL ending in .mp4 below.',
+    local:'Choose a video file from your computer. It plays locally only — students on other computers cannot see it.',
+  };
+
+  return `
+  <div class="tab-panel${activeTab==='vid'?' active':''}" id="tab-vid-${topic.id}">
+    <div class="vid-panel-intro">
+      <strong>📹 Instructor Video:</strong> ${embedHtml ? 'A video has been added for this topic. Students see this when they open the Video tab.' : 'No video added yet. Add an optional instructor video using the source tabs below. The AI, Watch, and Read tabs above are fully functional without a video.'}
+    </div>
+    <div class="video-embed-wrap">
+      ${embedHtml ? embedHtml : `<div class="no-video-placeholder"><div class="nv-icon">🎬</div><div class="nv-text">No instructor video yet<br><span style="font-size:10px">Optional — students use AI & links above</span></div></div>`}
+    </div>
+    ${instructorMode ? `
+    <div class="source-tabs">
+      ${sources.map(s => `<button class="source-tab${srcTab===s.id?' active':''}" onclick="setSrcTab('${topic.id}','${s.id}')">${s.icon} ${s.label}</button>`).join('')}
+    </div>
+    ${sources.map(s => {
+      if(s.id==='local') return `<div class="source-panel${srcTab==='local'?' active':''}" id="src-${topic.id}-local">
+        <div class="source-instr">${instructions.local}</div>
+        <div class="local-zone"><p>Choose a video file (.mp4, .webm, .mov)</p><label class="local-btn">Choose File<input type="file" accept="video/*" onchange="handleLocalFile('${topic.videoSlotId}',this)" style="display:none"></label></div>
+      </div>`;
+      return `<div class="source-panel${srcTab===s.id?' active':''}" id="src-${topic.id}-${s.id}">
+        <div class="source-instr">${instructions[s.id]}</div>
+        <div class="url-row">
+          <input class="url-input" id="url-${topic.id}-${s.id}" type="text" placeholder="Paste link here…" value="${savedData&&srcTab===s.id?savedData.srcUrl||'':''}">
+          <button class="url-save-btn" onclick="applyVideo('${topic.id}','${topic.videoSlotId}','${s.id}')">Save Video</button>
+          ${savedData ? `<button class="url-clear-btn" onclick="clearVideo('${topic.videoSlotId}')">✕</button>` : ''}
+        </div>
+        <div id="vstatus-${topic.id}" class="url-status" style="display:none"></div>
+      </div>`;
+    }).join('')}
+    ` : ''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════
+window.setTab = function(topicId, tab){
+  activeTabs[topicId] = tab;
+  render();
+  // Scroll card into view
+  const card = document.getElementById('card-'+topicId);
+  if(card) card.scrollIntoView({behavior:'smooth', block:'nearest'});
+};
+
+window.setSrcTab = function(topicId, tab){
+  activeSrcTabs[topicId] = tab;
+  render();
+};
+
+window.copyPrompt = function(topicId, idx, elemId){
+  const el = document.getElementById('prompt-'+elemId);
+  const btn = document.getElementById('copy-'+elemId);
+  if(!el||!btn) return;
+  const text = el.textContent;
+  const doFallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  };
+  const ok = () => { btn.textContent = '✅ Copied!'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2500); };
+  if(navigator.clipboard){ navigator.clipboard.writeText(text).then(ok).catch(()=>{ doFallback(); ok(); }); }
+  else { doFallback(); ok(); }
+};
+
+window.markTopicReady = function(topicId){
+  markReady(topicId);
+  showToast('✅ Practice Labs unlocked for this topic! Return to the course dashboard to continue.');
+  render();
+  // Notify parent dashboard if in iframe
+  try { window.parent.postMessage({type:'stepDone', topicId, stepIdx:0}, '*'); } catch(e){}
+};
+
+window.applyVideo = function(topicId, slotId, type){
+  const input = document.getElementById('url-'+topicId+'-'+type);
+  const statusEl = document.getElementById('vstatus-'+topicId);
+  if(!input) return;
+  const val = input.value.trim();
+  if(!val){ showVStatus(statusEl,'Please paste a URL first.','err'); return; }
+  const src = parseVideoSource(val, type);
+  if(!src){ showVStatus(statusEl,'Could not recognise that URL. Check the format above.','err'); return; }
+  const embed = buildEmbedHtml(src);
+  if(!embed){ showVStatus(statusEl,'Could not build a player for this URL.','err'); return; }
+  saveVideo(slotId, {...src, srcUrl:val});
+  showVStatus(statusEl,'✓ Video saved! Students will see it in the Video tab.','ok');
+  render();
+};
+
+window.clearVideo = function(slotId){
+  if(!confirm('Remove this video?')) return;
+  removeVideo(slotId);
+  render();
+};
+
+window.handleLocalFile = function(slotId, input){
+  const file = input.files[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  saveVideo(slotId, {kind:'direct', url, srcUrl:'local:'+file.name});
+  render();
+};
+
+function showVStatus(el, msg, cls){
+  if(!el) return;
+  el.textContent = msg;
+  el.className = 'url-status '+cls;
+  el.style.display = 'block';
+}
+
+window.toggleInstructor = function(){
+  instructorMode = !instructorMode;
+  const btn = document.getElementById('instructor-btn');
+  const banner = document.getElementById('instructor-banner');
+  btn.classList.toggle('on', instructorMode);
+  btn.textContent = instructorMode ? '✕ Exit Instructor Mode' : '✏️ Instructor — Add Videos';
+  banner.classList.toggle('show', instructorMode);
+  render();
+};
+
+window.showExam = function(exam){
+  currentExam = exam;
+  document.getElementById('screen-ai').classList.toggle('active', exam==='ai');
+  document.getElementById('screen-word').classList.toggle('active', exam==='word');
+  document.getElementById('screen-excel').classList.toggle('active', exam==='excel');
+  document.querySelectorAll('.exam-tab').forEach(t => {
+    t.classList.toggle('active', t.classList.contains(exam));
+  });
+};
+
+window.exportConfig = function(){
+  const data = loadVideos();
+  if(!Object.keys(data).length){ alert('No videos saved yet.'); return; }
+  const blob = new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),videos:data},null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'IS101_video_links.json';
+  a.click();
+};
+
+window.importConfig = function(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      const videos = data.videos || data;
+      localStorage.setItem('mos-videos', JSON.stringify(videos));
+      alert('Imported '+Object.keys(videos).length+' video link(s).');
+      render();
+    }catch(err){ alert('Could not import: '+err.message); }
+  };
+  reader.readAsText(file);
+};
+
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 4000);
+}
+
+function bindEvents(){
+  // Source tabs close on outside click
+}
+
+// ─── Server sync (when running on IS101 server) ────────────
+(function(){
+  const isServer = window.location.hostname !== '' && !window.location.protocol.startsWith('file');
+  if(!isServer) return;
+  const origSave = window.saveVideo;
+  window.saveVideo = function(id, data){
+    try{ localStorage.setItem('mos-videos', JSON.stringify({...loadVideos(), [id]:data})); }catch(e){}
+    fetch('/api/videos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({videoId:id,sourceData:data})}).catch(()=>{});
+  };
+  window.removeVideo = function(id){
+    const v=loadVideos(); delete v[id];
+    try{ localStorage.setItem('mos-videos',JSON.stringify(v)); }catch(e){}
+    fetch('/api/videos/'+encodeURIComponent(id),{method:'DELETE'}).catch(()=>{});
+  };
+  fetch('/api/videos').then(r=>r.json()).then(sv=>{
+    if(sv&&typeof sv==='object'){
+      const merged={...loadVideos(),...sv};
+      try{localStorage.setItem('mos-videos',JSON.stringify(merged));}catch(e){}
+      render();
+    }
+  }).catch(()=>{});
+})();
+
+// ═══════════════════════════════════════════════════════════
+// INIT — check for anchor hash to jump to correct exam/topic
+// ═══════════════════════════════════════════════════════════
+function init(){
+  const hash = window.location.hash.replace('#','');
+  if(hash){
+    const topic = TOPICS.find(t => t.id === hash);
+    if(topic){
+      currentExam = topic.exam;
+      showExam(topic.exam);
+      render();
+      setTimeout(()=>{
+        const card = document.getElementById('card-'+hash);
+        if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 100);
+      return;
+    }
+    // Legacy domain anchor support
+    const legacyMap = {'wd-d1':'wd-d1','wd-d2':'wd-d2','wd-d3':'wd-d3','wd-d4':'wd-d4','wd-d5':'wd-d5','wd-d6':'wd-d6','xl-d1':'xl-d1','xl-d2':'xl-d2','xl-d3':'xl-d3','xl-d4':'xl-d4','xl-d5':'xl-d5'};
+    if(legacyMap[hash]){
+      const t = TOPICS.find(t => t.id === legacyMap[hash]);
+      if(t){ currentExam = t.exam; showExam(t.exam); }
+    }
+  }
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
