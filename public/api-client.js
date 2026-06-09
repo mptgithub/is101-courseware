@@ -85,3 +85,20 @@ var IS101API = (function() {
     loadProgress, markStepDone, saveLabAnswer, saveExamAttempt, toggleChecklistStep
   };
 })();
+
+// ── ApiClient alias — used by START_HERE and new courseware files ─────────────
+var ApiClient = {
+  login: function(nsheId) { return IS101API.login(nsheId); },
+  logout: function() { return IS101API.logout(); },
+  getProgress: function() { return IS101API.loadProgress(); },
+  saveStepProgress: function(stepId) {
+    // stepId format: 'unit-topic-step' e.g. 'ai-t1-watch'
+    var parts = stepId.split('-');
+    return IS101API.markStepDone(parts[0] || 'u', parts[1] || 'unknown', parts[2] || 0);
+  },
+  getSession: function() {
+    // Return session info from sessionStorage — no server call needed
+    if (!IS101API.isLoggedIn()) return Promise.resolve(null);
+    return Promise.resolve({ nsheId: IS101API.getNsheId() });
+  }
+};
