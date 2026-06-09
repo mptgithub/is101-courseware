@@ -2,1498 +2,1909 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>IS101 — Introduction to Computing | College of Southern Nevada</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Introduction to Computing | CSN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --csn:#003876;--csn-dk:#002558;--csn-lt:#e8eef7;--csn-mid:#d0dced;
-  --word:#2b579a;--word-dk:#1e3a8a;--word-lt:#e8f0fb;
-  --excel:#217346;--excel-dk:#155c32;--excel-lt:#e0f0e8;
-  --bg:#f0f2f5;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;
-  --step1:#7c3aed;--step1-lt:#f5f3ff;--step1-bd:#c4b5fd;
-  --step2:#0369a1;--step2-lt:#eff6ff;--step2-bd:#bfdbfe;
-  --step3:#b45309;--step3-lt:#fffbeb;--step3-bd:#fde68a;
-  --done:#15803d;--done-lt:#f0fdf4;--done-bd:#86efac;
-  --locked:#94a3b8;--locked-lt:#f8fafc;--locked-bd:#e2e8f0;
-}
-body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+  :root {
+    --navy: #0d1b2e;
+    --navy-mid: #152540;
+    --navy-light: #1e3358;
+    --gold: #c9943a;
+    --gold-bright: #e8b04b;
+    --gold-pale: #f5d98a;
+    --cream: #f7f2ea;
+    --cream-dark: #ede5d4;
+    --white: #ffffff;
+    --text-dark: #0d1b2e;
+    --text-mid: #3a4e6b;
+    --text-muted: #7a8fa8;
+    --success: #2e7d4f;
+    --success-bg: #e8f5ee;
+    --warn: #b85c1a;
+    --warn-bg: #fdf0e6;
+    --border: rgba(13,27,46,0.12);
+    --shadow-sm: 0 2px 8px rgba(13,27,46,0.08);
+    --shadow-md: 0 6px 24px rgba(13,27,46,0.12);
+    --shadow-lg: 0 16px 48px rgba(13,27,46,0.18);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
 
-/* ── HEADER ── */
-#header{background:var(--csn);flex-shrink:0}
-.header-top{display:flex;align-items:center;gap:16px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.12)}
-.header-brand{display:flex;align-items:center;gap:14px}
-.header-csn-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;letter-spacing:.5px}
-.header-course{color:#fff}
-.header-course-code{font-size:11px;color:rgba(255,255,255,.65);font-weight:400;margin-bottom:1px}
-.header-course-name{font-size:16px;font-weight:700;letter-spacing:-.2px}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
-.student-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:6px 14px 6px 8px}
-.student-pill .sp-avatar{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
-.student-pill input{background:transparent;border:none;font-size:12px;color:#fff;font-family:inherit;width:150px;outline:none}
-.student-pill input::placeholder{color:rgba(255,255,255,.45)}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Unit nav tabs */
-.unit-nav{display:flex;padding:0 28px;gap:2px}
-.unit-nav-tab{padding:11px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);border:none;background:transparent;cursor:pointer;font-family:inherit;border-bottom:3px solid transparent;transition:all .15s;display:flex;align-items:center;gap:7px;white-space:nowrap}
-.unit-nav-tab:hover{color:#fff;background:rgba(255,255,255,.07)}
-.unit-nav-tab.active{color:#fff;border-bottom-color:#fff;font-weight:600}
-.unit-nav-tab .unt-icon{font-size:14px}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* ── BODY ── */
-#body{display:flex;flex:1;overflow:hidden}
+  /* ── TOP HEADER ── */
+  .site-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  }
+  .site-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-crest {
+    width: 36px;
+    height: 36px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--navy);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .header-title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  .header-title .course-id {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-pale);
+  }
+  .header-title .course-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .student-badge {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .student-badge .dot {
+    width: 7px;
+    height: 7px;
+    background: #4ade80;
+    border-radius: 50%;
+  }
+  .logout-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.9);
+  }
 
-/* ── SIDEBAR ── */
-#sidebar{width:252px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.sb-unit-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 18px 6px;display:flex;align-items:center;gap:6px}
-.sb-unit-label .sul-icon{font-size:13px}
-.sb-topic-btn{width:100%;background:transparent;border:none;border-left:3px solid transparent;padding:9px 18px;text-align:left;cursor:pointer;font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:9px}
-.sb-topic-btn:hover{background:#f8fafc}
-.sb-topic-btn.active{background:var(--csn-lt);border-left-color:var(--csn)}
-.sb-topic-btn .stb-num{font-size:10px;font-weight:700;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#e2e8f0;color:var(--muted)}
-.sb-topic-btn.word-topic .stb-num{background:var(--word-lt);color:var(--word)}
-.sb-topic-btn.excel-topic .stb-num{background:var(--excel-lt);color:var(--excel)}
-.sb-topic-btn.active .stb-num{background:var(--csn);color:#fff}
-.sb-topic-btn .stb-name{font-size:12px;font-weight:500;color:var(--text);flex:1;text-align:left;line-height:1.3}
-.sb-topic-btn .stb-status{font-size:13px;flex-shrink:0}
-.sb-divider{height:1px;background:var(--border);margin:6px 0}
-.sb-progress{padding:14px 18px;border-top:1px solid var(--border);margin-top:auto}
-.sb-prog-lbl{font-size:10px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
-.sb-prog-bar{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
-.sb-prog-fill{height:100%;border-radius:3px;background:var(--csn);transition:width .4s}
+  /* ── OVERALL PROGRESS BAR ── */
+  .overall-progress {
+    background: var(--navy-mid);
+    padding: 12px 2rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .overall-progress .label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 3px;
+    transition: width 0.8s ease;
+    width: 0%;
+  }
+  .overall-progress .pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-pale);
+    min-width: 36px;
+    text-align: right;
+  }
 
-/* ── MAIN ── */
-#main{flex:1;overflow-y:auto;padding:24px 28px}
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
 
-/* ── TOPIC HERO ── */
-.topic-hero{border-radius:12px;padding:20px 24px;margin-bottom:22px;display:flex;align-items:flex-start;gap:16px;justify-content:space-between}
-.topic-hero.word-hero{background:linear-gradient(135deg,var(--word) 0%,#3b6cc4 100%)}
-.topic-hero.excel-hero{background:linear-gradient(135deg,var(--excel) 0%,#2e9e5e 100%)}
-.topic-hero.csn-hero{background:linear-gradient(135deg,var(--csn) 0%,#1a5cb0 100%)}
-.th-unit-tag{font-size:10px;background:rgba(255,255,255,.2);color:#fff;padding:3px 10px;border-radius:20px;font-weight:600;margin-bottom:6px;display:inline-block}
-.th-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:3px}
-.th-desc{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6;max-width:540px}
-.th-right{text-align:right;flex-shrink:0}
-.th-pct{font-size:30px;font-weight:800;color:#fff;line-height:1}
-.th-pct-lbl{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
+  /* ── HOME VIEW ── */
+  .home-hero {
+    background: var(--navy);
+    color: var(--white);
+    padding: 56px 2rem 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% 110%, rgba(201,148,58,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .home-hero .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .home-hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .home-hero h1 em {
+    font-style: italic;
+    color: var(--gold-pale);
+  }
+  .home-hero .subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
 
-/* ── LEARNING PATH CARDS ── */
-.path-heading{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.path-heading::after{content:'';flex:1;height:1px;background:var(--border)}
-.learning-path{display:grid;grid-template-columns:1fr 38px 1fr 38px 1fr;align-items:stretch;margin-bottom:28px}
-.path-arrow{display:flex;align-items:center;justify-content:center;padding-top:22px;font-size:20px;color:#d1d5db}
+  .units-grid {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 2rem 60px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 20px;
+  }
 
-.step-card{border-radius:10px;border:2px solid;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .15s,transform .15s}
-.step-card:hover:not(.locked){transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
-.step-card.locked{cursor:not-allowed;opacity:.65}
+  /* ── UNIT CARD ── */
+  .unit-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .unit-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .unit-card.locked {
+    opacity: 0.65;
+    cursor: default;
+  }
+  .unit-card.locked:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-accent {
+    height: 5px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  }
+  .unit-card.u2 .card-accent { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .unit-card.u3 .card-accent { background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .unit-card.u4 .card-accent { background: linear-gradient(90deg, #9333ea, #c084fc); }
 
-.step-card.step-1{border-color:var(--step1-bd);background:var(--step1-lt)}
-.step-card.step-2{border-color:var(--step2-bd);background:var(--step2-lt)}
-.step-card.step-3{border-color:var(--step3-bd);background:var(--step3-lt)}
-.step-card.done{border-color:var(--done-bd);background:var(--done-lt)}
-.step-card.locked{border-color:var(--locked-bd);background:var(--locked-lt)}
+  .card-body {
+    padding: 24px 24px 20px;
+  }
+  .card-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .unit-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .unit-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-dark);
+    line-height: 1.25;
+  }
+  .unit-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 12px;
+    margin-top: 2px;
+  }
+  .badge-active { background: var(--success-bg); color: var(--success); }
+  .badge-coming { background: var(--cream-dark); color: var(--text-muted); }
+  .badge-complete { background: #dbeafe; color: #1d4ed8; }
 
-.step-hd{padding:12px 14px 10px;border-bottom:1px solid rgba(0,0,0,.06)}
-.step-hd-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
-.step-badge{width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-1 .step-badge{background:var(--step1);color:#fff}
-.step-2 .step-badge{background:var(--step2);color:#fff}
-.step-3 .step-badge{background:var(--step3);color:#fff}
-.done .step-badge{background:var(--done);color:#fff}
-.locked .step-badge{background:var(--locked);color:#fff}
-.step-type-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px}
-.step-1 .step-type-lbl{color:var(--step1)}
-.step-2 .step-type-lbl{color:var(--step2)}
-.step-3 .step-type-lbl{color:var(--step3)}
-.done .step-type-lbl{color:var(--done)}
-.locked .step-type-lbl{color:var(--locked)}
-.step-title{font-size:13px;font-weight:700;color:var(--text)}
+  .unit-desc {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
 
-.step-body{padding:10px 14px;flex:1}
-.step-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
-.step-checklist{display:flex;flex-direction:column;gap:3px}
-.sc-item{font-size:11px;color:#374151;display:flex;align-items:flex-start;gap:5px;line-height:1.4}
-.sc-dot{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;margin-top:1px}
-.sc-dot.done{background:var(--done);color:#fff}
-.sc-dot.open{background:#dde3ea;color:#94a3b8}
-.sc-dot.locked{background:#f1f5f9;color:#cbd5e1}
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .meta-icon { font-size: 14px; }
 
-.step-ft{padding:10px 14px;border-top:1px solid rgba(0,0,0,.06)}
-.step-launch-btn{width:100%;padding:8px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .1s}
-.step-1 .step-launch-btn{background:var(--step1);color:#fff}.step-1 .step-launch-btn:hover{background:#6d28d9}
-.step-2 .step-launch-btn{background:var(--step2);color:#fff}.step-2 .step-launch-btn:hover{background:#075985}
-.step-3 .step-launch-btn{background:var(--step3);color:#fff}.step-3 .step-launch-btn:hover{background:#92400e}
-.done .step-launch-btn{background:var(--done);color:#fff}
-.locked .step-launch-btn{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+  /* mini progress in card */
+  .card-progress {
+    margin-bottom: 18px;
+  }
+  .card-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .card-track {
+    height: 5px;
+    background: var(--cream-dark);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .card-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+  .u1 .card-fill { background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }
+  .u2 .card-fill { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .u3 .card-fill { background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .u4 .card-fill { background: linear-gradient(90deg, #9333ea, #c084fc); }
 
-/* ── OVERVIEW GRID ── */
-.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.ov-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s}
-.ov-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
-.ov-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.ov-num{width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ov-card.word-card .ov-num{background:var(--word-lt);color:var(--word)}
-.ov-card.excel-card .ov-num{background:var(--excel-lt);color:var(--excel)}
-.ov-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
-.ov-pct{font-size:12px;font-weight:700}
-.ov-desc{padding:6px 15px 16px;font-size:11px solid var(--border)}
-.ov-steps{display:flex;gap:3px;padding:10px 14px;align-items:center}
-.ov-step{flex:1;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;gap:3px}
-.ov-step.todo{background:#f1f5f9;color:#94a3b8}
-.ov-step.done{background:var(--done-lt);color:var(--done)}
-.ov-step.next{background:var(--step2-lt);color:var(--step2)}
-.ov-step-arr{color:#d1d5db;font-size:11px}
+  .card-cta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
+  .u2 .btn-primary { background: #1d4ed8; }
+  .u2 .btn-primary:hover { background: #1e40af; }
+  .u3 .btn-primary { background: #15803d; }
+  .u3 .btn-primary:hover { background: #166534; }
+  .u4 .btn-primary { background: #7e22ce; }
 
-/* ── HOW IT WORKS + WELCOME + APP CARDS ── */
-.welcome{max-width:100%;margin:0 auto;text-align:center;padding:0}
-.csn-welcome-logo{background:var(--csn);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:4px;display:inline-block;margin-bottom:14px;letter-spacing:.8px;text-transform:uppercase}
-.welcome h1{font-size:32px;font-weight:800;color:var(--text);margin-bottom:6px}
-.welcome .w-course{font-size:14px;font-weight:500;color:var(--muted);margin-bottom:10px}
-.welcome p{font-size:14px;color:var(--muted);line-height:1.7;max-width:680px;margin:0 auto 28px}
-.hiw-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:16px}
-.hiw-row{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;align-items:start;gap:0;margin-bottom:0}
-.hiw-arrow{display:flex;align-items:center;justify-content:center;padding-top:52px;font-size:18px;color:#cbd5e1}
-.mon-wrap{display:flex;flex-direction:column;align-items:center}
-.mon-outer{width:100%;background:#1e293b;border-radius:10px 10px 0 0;padding:8px 8px 5px;border:3px solid #334155}
-.mon-screen{border-radius:5px;overflow:hidden;min-height:110px;display:flex;flex-direction:column}
-.mon-bar{height:20px;display:flex;align-items:center;gap:5px;padding:0 8px;flex-shrink:0}
-.mon-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.mon-dot.r{background:#f87171}
-.mon-dot.y{background:#fbbf24}
-.mon-dot.g{background:#4ade80}
-.mon-body{flex:1;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;gap:4px}
-.mon-num{font-size:11px;font-weight:800;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase}
-.mon-ico{font-size:26px;line-height:1}
-.mon-lbl{font-size:13px;font-weight:700;color:#fff;text-align:center}
-.mon-dsc{font-size:10px;color:rgba(255,255,255,.6);text-align:center;line-height:1.4}
-.mon-neck{width:12px;height:10px;background:#334155;margin:0 auto}
-.mon-base{width:50px;height:6px;background:#334155;border-radius:0 0 4px 4px;margin:0 auto}
-.mon-tag{margin-top:6px;text-align:center;padding:0 4px}
-.mon-tag-title{font-size:12px;font-weight:700;margin-bottom:2px}
-.mon-tag-desc{font-size:10px;color:var(--muted);line-height:1.4}
-.mon-s1 .mon-bar{background:#3b0764}
-.mon-s1 .mon-tag-title{color:var(--step1)}
-.mon-s2 .mon-bar{background:#0c2340}
-.mon-s2 .mon-tag-title{color:var(--step2)}
-.mon-s3 .mon-bar{background:#2d1a00}
-.mon-s3 .mon-tag-title{color:var(--step3)}
-.unit-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:16px}
-.unit-app-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:100%;margin:0}
-.unit-app-card{cursor:pointer;transition:all .18s;border-radius:10px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.1)}
-.unit-app-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(0,0,0,.16)}
-.app-titlebar{display:flex;align-items:center;gap:8px;padding:8px 12px}
-.app-titlebar .app-ico{font-size:15px}
-.app-titlebar .app-name{font-size:13px;font-weight:600;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.app-titlebar .app-btns{display:flex;gap:4px;flex-shrink:0}
-.app-titlebar .ab{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3)}
-.word-card .app-titlebar{background:var(--word)}
-.excel-card .app-titlebar{background:var(--excel)}
-.app-ribbon{display:flex;gap:0;border-bottom:1px solid rgba(0,0,0,.1)}
-.app-ribbon-tab{font-size:9px;font-weight:600;padding:4px 9px;cursor:default;border-bottom:2px solid transparent}
-.word-card .app-ribbon{background:#edf2fb}
-.word-card .app-ribbon-tab{color:var(--word)}
-.word-card .app-ribbon-tab.on{background:var(--word);color:#fff;border-bottom-color:var(--word)}
-.excel-card .app-ribbon{background:#edf7f2}
-.excel-card .app-ribbon-tab{color:var(--excel)}
-.excel-card .app-ribbon-tab.on{background:var(--excel);color:#fff;border-bottom-color:var(--excel)}
-.word-doc{padding:8px 14px;background:#fff;min-height:80px}
-.wd-h1{height:10px;border-radius:2px;background:var(--word);width:65%;margin-bottom:10px}
-.wd-ln{height:6px;border-radius:2px;background:#e2e8f0;margin-bottom:5px}
-.wd-gap{height:8px}
-.xl-fbar{display:flex;align-items:center;gap:6px;padding:3px 8px;background:#fff;border-bottom:1px solid #c8e0d0;font-size:9px;color:#666}
-.xl-nbox{background:#edf7f2;border:1px solid #b8dcc8;border-radius:2px;padding:1px 6px;font-size:9px;font-weight:700;color:var(--excel)}
-.xl-grid{display:grid;grid-template-columns:24px repeat(4,1fr)}
-.xl-ch{background:#edf7f2;border-right:1px solid #c8e0d0;border-bottom:2px solid var(--excel);padding:2px;font-size:7px;font-weight:700;color:var(--excel);text-align:center}
-.xl-rh{background:#edf7f2;border-right:2px solid var(--excel);border-bottom:1px solid #c8e0d0;padding:3px;font-size:8px;font-weight:700;color:var(--excel);text-align:center}
-.xl-c{border-right:1px solid #d8eee4;border-bottom:1px solid #d8eee4;padding:2px 4px;font-size:7px;color:#1e293b;background:#fff}
-.xl-c.hd{background:#edf7f2;font-weight:700;color:var(--excel)}
-.xl-c.n{text-align:right;color:#0369a1}
-.xl-c.f{background:#fffbeb;color:#92400e;text-align:right}
-.xl-c.sel{background:#d8f0e4;outline:2px solid var(--excel)}
-.xl-tabs{background:#d8f0e4;padding:3px 6px;display:flex;gap:3px}
-.xl-tab{font-size:8px;font-weight:600;padding:2px 7px;border-radius:3px 3px 0 0;background:#fff;color:var(--excel);border:1px solid #b8dcc8}
-.xl-tab.on{background:var(--excel);color:#fff;border-color:var(--excel)}
-.app-footer{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-top:1px solid rgba(0,0,0,.08)}
-.word-card .app-footer{background:#edf2fb}
-.excel-card .app-footer{background:#edf7f2}
-.app-footer-info{text-align:left}
-.app-footer-unit{font-size:13px;font-weight:700}
-.word-card .app-footer-unit{color:var(--word)}
-.excel-card .app-footer-unit{color:var(--excel)}
-.app-footer-sub{font-size:11px;color:var(--muted)}
-.app-footer-btn{font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;color:#fff;border:none;cursor:pointer}
-.word-card .app-footer-btn{background:var(--word)}
-.excel-card .app-footer-btn{background:var(--excel)}
+  .btn-secondary {
+    background: none;
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--cream); border-color: var(--text-muted); }
 
-/* ── MODAL ── */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center}
-.modal-backdrop.open{display:flex}
-.modal{background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:93vw;max-width:1100px;height:88vh;display:flex;flex-direction:column;overflow:hidden}
-.modal-hd{background:#1e293b;padding:11px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.modal-hd .mh-crumb{font-size:11px;color:#94a3b8}
-.modal-hd .mh-title{font-size:13px;font-weight:600;color:#fff;flex:1}
-.modal-hd .mh-done{background:#15803d;border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;padding:6px 14px;font-family:inherit}
-.modal-hd .mh-done:hover{background:#166534}
-.modal-hd .mh-done.already{background:#64748b}
-.modal-hd .mh-close{background:rgba(255,255,255,.12);border:none;color:#fff;cursor:pointer;border-radius:6px;width:28px;height:28px;font-size:16px;display:flex;align-items:center;justify-content:center}
-.modal-hd .mh-close:hover{background:rgba(255,255,255,.22)}
-.modal-body{flex:1;overflow:hidden}
-.modal-body iframe{width:100%;height:100%;border:none}
+  .locked-overlay {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
 
-/* ── NAV ROW ── */
-.topic-nav-row{display:flex;justify-content:space-between;margin-top:18px}
-.nav-btn{background:#fff;border:1px solid var(--border);padding:10px 20px 16px;border-radius:6px;font-size:13px .1s}
-.nav-btn:hover{background:#f8fafc}
+  /* ── UNIT OVERVIEW VIEW ── */
+  .view-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 2rem 60px;
+  }
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:22px;right:22px;background:#1e293b;color:#fff;padding:11px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 4px 16px rgba(0,0,0,.3);max-width:340px;line-height:1.4}
-.toast.show{transform:translateY(0);opacity:1}
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .breadcrumb a:hover { color: var(--gold); }
+  .breadcrumb .sep { color: var(--border); font-size: 16px; }
+  .breadcrumb .current { color: var(--text-dark); font-weight: 500; }
 
-/* ═══════════════════════════════════════════════════════
-   SPLASH SCREEN — Digital Classroom Theme
-   ═══════════════════════════════════════════════════════ */
+  .unit-overview-header {
+    margin-bottom: 32px;
+  }
+  .unit-overview-header .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .unit-overview-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  .unit-overview-header p {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    max-width: 560px;
+  }
 
-/* Main background when splash is active */
-#main.splash-active {
-  background: #071220;
-  overflow-y: auto;
-  padding: 0;
-}
+  /* unit overview progress */
+  .overview-progress-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .overview-progress-block .progress-stat {
+    text-align: center;
+    min-width: 70px;
+  }
+  .progress-stat .big-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--text-dark);
+    line-height: 1;
+  }
+  .progress-stat .small-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+  .overview-progress-block .divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+  .overview-progress-track-wrap {
+    flex: 1;
+  }
+  .overview-progress-track-wrap .label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .overview-big-track {
+    height: 10px;
+    background: var(--cream-dark);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .overview-big-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 5px;
+    transition: width 0.8s ease;
+  }
 
-/* Photo background with dark overlay — computer classroom, barely visible */
-.splash-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* Layer 1: dark overlay  Layer 2: classroom photo */
-  background:
-    linear-gradient(rgba(5,14,26,.75), rgba(5,14,26,.75)),
-    url('https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=1920&q=70') center/cover no-repeat;
-  /* Circuit grid on top of photo */
-  background-image:
-    linear-gradient(rgba(5,14,26,.75), rgba(5,14,26,.75)),
-    url('https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=1920&q=70');
-  background-size: cover;
-  background-position: center;
-}
+  /* jump to projects */
+  .jump-projects-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 28px;
+  }
+  .jump-projects-btn:hover { background: var(--gold); color: var(--navy); }
 
-/* Animated circuit-grid overlay on top of the photo */
-.splash-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0,180,255,.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,180,255,.055) 1px, transparent 1px),
-    linear-gradient(rgba(0,180,255,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,180,255,.025) 1px, transparent 1px);
-  background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
-  animation: gridDrift 18s linear infinite;
-}
-@keyframes gridDrift {
-  0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
-  100% { background-position: 80px 80px, 80px 80px, 20px 20px, 20px 20px; }
-}
+  /* skill groups */
+  .skill-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
-/* Glowing scan line sweep */
-.splash-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(0,180,255,.04) 40%,
-    rgba(0,180,255,.09) 50%,
-    rgba(0,180,255,.04) 60%,
-    transparent 100%
-  );
-  background-size: 100% 400%;
-  animation: scanLine 6s ease-in-out infinite;
-}
-@keyframes scanLine {
-  0%   { background-position: 0 -100%; }
-  100% { background-position: 0 200%; }
-}
+  .skill-group-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+  }
+  .skill-group-card:hover { box-shadow: var(--shadow-md); }
 
-/* Floating data nodes */
-.splash-nodes {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-.sn {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(0,180,255,.5);
-  box-shadow: 0 0 8px rgba(0,180,255,.8);
-  animation: floatNode linear infinite;
-}
-@keyframes floatNode {
-  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
-  10%  { opacity: 1; transform: translateY(90vh) scale(1); }
-  90%  { opacity: .7; }
-  100% { transform: translateY(-10vh) scale(.5); opacity: 0; }
-}
+  .skill-group-header {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .group-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--cream);
+  }
+  .group-info { flex: 1; }
+  .group-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+  .group-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .group-progress-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+  }
+  .mini-track {
+    width: 80px;
+    height: 4px;
+    background: var(--cream-dark);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .mini-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 28px;
+    text-align: right;
+  }
+  .chevron {
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.25s;
+  }
+  .skill-group-card.open .chevron { transform: rotate(180deg); }
 
-/* Glowing border frame with corner accents */
-.splash-frame {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  border-radius: 0;
-  border: none;
-  border-top: 2px solid rgba(0,180,255,.35);
-  border-bottom: 2px solid rgba(0,180,255,.35);
-  border-radius: 10px;
-  box-shadow:
-    0 0 0 1px rgba(0,180,255,.08),
-    0 0 30px rgba(0,180,255,.15),
-    inset 0 0 40px rgba(0,180,255,.06);
-  animation: framePulse 4s ease-in-out infinite;
-}
-@keyframes framePulse {
-  0%,100% { border-color: rgba(0,180,255,.35); box-shadow: 0 0 30px rgba(0,180,255,.15), inset 0 0 40px rgba(0,180,255,.06); }
-  50%     { border-color: rgba(0,180,255,.60); box-shadow: 0 0 50px rgba(0,180,255,.28), inset 0 0 60px rgba(0,180,255,.10); }
-}
-/* Corner accents */
-.splash-frame::before,
-.splash-frame::after {
-  content: '';
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-color: #00b4ff;
-  border-style: solid;
-}
-.splash-frame::before {
-  top: -3px; left: -3px;
-  border-width: 3px 0 0 3px;
-  border-radius: 8px 0 0 0;
-}
-.splash-frame::after {
-  bottom: -3px; right: -3px;
-  border-width: 0 3px 3px 0;
-  border-radius: 0 0 8px 0;
-}
-/* Extra corners via extra divs */
-.splash-corner-tr {
-  position: fixed;
-  top: 0; right: 0;
-  width: 28px; height: 28px;
-  border-top: 3px solid #00b4ff;
-  border-right: 3px solid #00b4ff;
-  border-radius: 0 8px 0 0;
-  z-index: 1;
-  pointer-events: none;
-  animation: framePulse 4s ease-in-out infinite;
-}
-.splash-corner-bl {
-  position: fixed;
-  bottom: 0; left: 0;
-  width: 28px; height: 28px;
-  border-bottom: 3px solid #00b4ff;
-  border-left: 3px solid #00b4ff;
-  border-radius: 0 0 0 8px;
-  z-index: 1;
-  pointer-events: none;
-  animation: framePulse 4s ease-in-out infinite;
-}
+  .skill-group-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .skill-group-card.open .skill-group-body { display: block; }
 
-/* Welcome content panel — frosted glass card */
-.splash-panel {
-  position: relative;
-  z-index: 2;
-  background: rgba(255,255,255,.97);
-  border-radius: 14px;
-  box-shadow:
-    0 4px 6px rgba(0,0,0,.3),
-    0 20px 60px rgba(0,0,0,.5),
-    0 0 0 1px rgba(0,180,255,.2),
-    0 0 40px rgba(0,180,255,.1);
-  margin: 6px;
-  width: calc(100% - 12px);
-  max-width: none;
-  padding: 18px 24px 22px;
-  animation: panelRise .6s cubic-bezier(.16,1,.3,1) both;
-  /* Fit entire panel in viewport */
-  box-sizing: border-box;
-}
-@keyframes panelRise {
-  from { opacity: 0; transform: translateY(24px) scale(.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
+  .skill-rows {
+    padding: 8px 0;
+  }
+  .skill-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    transition: background 0.15s;
+  }
+  .skill-row:hover { background: rgba(0,0,0,0.03); }
+  .skill-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: transparent;
+    background: var(--white);
+    transition: all 0.2s;
+  }
+  .skill-check.done {
+    background: var(--success);
+    border-color: var(--success);
+    color: var(--white);
+  }
+  .skill-check.partial {
+    background: var(--warn-bg);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .skill-name-col { flex: 1; }
+  .skill-name {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  .skill-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
 
-/* Header inside panel */
-.splash-panel .csn-welcome-logo {
-  background: linear-gradient(135deg, var(--csn), #1a5fb4);
-  letter-spacing: 1px;
-  font-size: 11px;
-  padding: 5px 16px;
-}
-.splash-panel h1 {
-  font-size: 28px;
-  background: linear-gradient(135deg, #071220 30%, #003876 70%, #0a6ebd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 3px;
-}
-.splash-panel .w-course {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-.splash-panel p {
-  font-size: 13px;
-}
+  .skill-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-prove {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-prove:hover { background: var(--navy-light); }
+  .btn-practice {
+    background: var(--cream-dark);
+    color: var(--text-mid);
+    border: none;
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-practice:hover { background: #ddd6c5; }
 
-/* Section dividers inside panel */
-.splash-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 12px 0 10px;
-}
-.splash-divider-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,180,255,.3), transparent);
-}
-.splash-divider-lbl {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #0a6ebd;
-  white-space: nowrap;
-}
+  /* skill group footer */
+  .group-footer {
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-go-project {
+    background: none;
+    border: 1.5px solid var(--navy);
+    color: var(--navy);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-go-project:hover { background: var(--navy); color: var(--white); }
 
-/* Override mon colors for dark panel context */
-.splash-panel .mon-outer { box-shadow: 0 4px 16px rgba(0,0,0,.2); }
-.splash-panel .unit-app-card { box-shadow: 0 4px 20px rgba(0,0,0,.15); }
-.splash-panel .unit-app-card:hover { box-shadow: 0 12px 36px rgba(0,0,0,.25); }
+  /* Topic-style skill group (Unit 1) */
+  .topic-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 14px;
+  }
+  .topic-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: var(--white);
+  }
+  .topic-num {
+    width: 36px;
+    height: 36px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  .topic-info { flex: 1; }
+  .topic-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 2px;
+  }
+  .topic-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+  }
+  .topic-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .topic-badge.done-badge { background: var(--success-bg); color: var(--success); }
+  .topic-badge.inprog-badge { background: rgba(201,148,58,0.2); color: var(--gold-pale); }
+  .topic-badge.todo-badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
 
-/* ── AI UNIT PLACEHOLDER CARD ── */
-.ai-card{background:#fff;border:2px dashed #a855f7;opacity:.88}
-.ai-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(168,85,247,.25);opacity:1}
-.ai-card .app-titlebar{background:linear-gradient(135deg,#6d28d9,#a855f7)}
-.ai-card .app-ribbon{background:#faf5ff;border-bottom:1px solid #e9d5ff}
-.ai-card .app-ribbon-tab{color:#7c3aed}
-.ai-card .app-ribbon-tab.on{background:#7c3aed;color:#fff}
-.ai-card .app-footer{background:#faf5ff}
-.ai-card .app-footer-unit{color:#6d28d9}
-.ai-card .app-footer-btn{background:linear-gradient(135deg,#6d28d9,#a855f7)}
-.ai-coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px;padding:10px;gap:6px;background:#faf5ff}
-.ai-coming-icon{font-size:28px;line-height:1;animation:aiPulse 2.5s ease-in-out infinite}
-@keyframes aiPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0px rgba(168,85,247,0))}50%{transform:scale(1.08);filter:drop-shadow(0 0 10px rgba(168,85,247,.6))}}
-.ai-coming-badge{background:linear-gradient(135deg,#6d28d9,#a855f7);color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 12px;border-radius:20px}
-.ai-coming-desc{font-size:11px;color:#7c3aed;text-align:center;line-height:1.5;max-width:180px}
+  .topic-steps {
+    padding: 0;
+  }
+  .topic-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .topic-step:last-child { border-bottom: none; }
+  .topic-step:hover { background: var(--cream); }
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    background: var(--cream);
+  }
+  .step-icon.done-icon { background: var(--success-bg); }
+  .step-info { flex: 1; }
+  .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .step-cta button {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .step-cta button:hover { background: var(--navy-light); }
+  .step-cta button.completed-btn {
+    background: var(--success-bg);
+    color: var(--success);
+    cursor: default;
+  }
+  .step-cta button.completed-btn:hover { background: var(--success-bg); }
 
-/* ── POWERPOINT UNIT PLACEHOLDER CARD ── */
-.ppt-card{background:#fff;border:2px dashed #d97706;opacity:.88}
-.ppt-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(217,119,6,.25);opacity:1}
-.ppt-card .app-titlebar{background:linear-gradient(135deg,#b45309,#d97706)}
-.ppt-card .app-ribbon{background:#fffbeb;border-bottom:1px solid #fde68a}
-.ppt-card .app-ribbon-tab{color:#b45309}
-.ppt-card .app-ribbon-tab.on{background:#b45309;color:#fff}
-.ppt-card .app-footer{background:#fffbeb}
-.ppt-card .app-footer-unit{color:#b45309}
-.ppt-card .app-footer-btn{background:linear-gradient(135deg,#b45309,#d97706)}
-.ppt-coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px;padding:10px;gap:6px;background:#fffbeb}
-.ppt-coming-icon{font-size:28px;line-height:1;animation:pptPulse 2.8s ease-in-out infinite}
-@keyframes pptPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0px rgba(217,119,6,0))}50%{transform:scale(1.08);filter:drop-shadow(0 0 10px rgba(217,119,6,.6))}}
-.ppt-coming-badge{background:linear-gradient(135deg,#b45309,#d97706);color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 12px;border-radius:20px}
-.ppt-coming-desc{font-size:11px;color:#b45309;text-align:center;line-height:1.5;max-width:180px}
+  /* ── MODAL ── */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,27,46,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: var(--radius);
+    max-width: 480px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .modal-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .modal-header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { color: var(--white); }
+  .modal-body {
+    padding: 28px 24px;
+  }
+  .modal-body p {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+  .modal-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    background: var(--white);
+    text-align: left;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .choice-btn:hover {
+    border-color: var(--navy);
+    background: var(--cream);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .choice-btn.prove-choice:hover { border-color: var(--gold); }
+  .choice-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .choice-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 3px;
+  }
+  .choice-text span {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
 
-/* ── UNIT OVERVIEW INTRO BANNER ── */
-.unit-intro-banner{border-radius:12px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
-.uib-hero{padding:20px 24px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-.word-hero .uib-hero{background:linear-gradient(135deg,#1e3a8a,#2b579a,#3b6cc4)}
-.excel-hero .uib-hero{background:linear-gradient(135deg,#14532d,#217346,#2e9e5e)}
-.uib-left{flex:1}
-.uib-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.7);margin-bottom:6px}
-.uib-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:-.3px}
-.uib-subtitle{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5}
-.uib-right{text-align:right;flex-shrink:0}
-.uib-pct{font-size:36px;font-weight:800;color:#fff;line-height:1}
-.uib-pct-lbl{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
-.uib-steps{display:grid;grid-template-columns:repeat(3,1fr);background:#fff}
-.uib-step{padding:16px 18px;display:flex;align-items:flex-start;gap:12px;border-right:1px solid var(--border)}
-.uib-step:last-child{border-right:none}
-.uib-step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;margin-top:2px}
-.uib-s1 .uib-step-num{background:var(--step1)}
-.uib-s2 .uib-step-num{background:var(--step2)}
-.uib-s3 .uib-step-num{background:var(--step3)}
-.uib-step-body{}
-.uib-step-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
-.uib-step-desc{font-size:12px;color:var(--muted);line-height:1.55}
-.uib-step-badge{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
-.uib-s3 .uib-step-badge{background:#fef3c7;color:#92400e}
-.uib-topics-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.uib-topics-hd-text{font-size:15px;font-weight:700;color:var(--text)}
-.uib-topics-hd-sub{font-size:12px;color:var(--muted)}
-.uib-topics-hd-line{flex:1;height:1px;background:var(--border)}
+  /* ── LOGIN GATE ── */
+  .login-gate {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--navy);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .login-gate.show { display: flex; }
+  .login-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+  .login-crest {
+    width: 64px;
+    height: 64px;
+    background: var(--navy);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--gold);
+    margin: 0 auto 20px;
+  }
+  .login-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  .login-card p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .login-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.12em;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .login-input:focus { border-color: var(--gold); }
+  .login-input::placeholder { letter-spacing: normal; font-size: 14px; font-weight: 400; }
+  .login-submit {
+    width: 100%;
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 13px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 12px;
+  }
+  .login-submit:hover { background: var(--navy-light); }
+  .login-error {
+    font-size: 13px;
+    color: #dc2626;
+    min-height: 20px;
+  }
+  .login-note {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── NOTIFICATION TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--navy);
+    color: var(--white);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    z-index: 400;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--success); }
+  .toast.warning { background: var(--warn); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .units-grid { grid-template-columns: 1fr; padding: 20px 1rem 40px; }
+    .view-inner { padding: 24px 1rem 40px; }
+    .home-hero { padding: 36px 1rem 32px; }
+    .overall-progress { padding: 10px 1rem; }
+    .site-header { padding: 0 1rem; }
+    .modal-body .modal-choices { gap: 8px; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .unit-card {
+    animation: fadeInUp 0.4s ease both;
+  }
+  .unit-card:nth-child(1) { animation-delay: 0.05s; }
+  .unit-card:nth-child(2) { animation-delay: 0.12s; }
+  .unit-card:nth-child(3) { animation-delay: 0.19s; }
+  .unit-card:nth-child(4) { animation-delay: 0.26s; }
 </style>
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════
+     LOGIN GATE
+══════════════════════════════════════════════ -->
+<div class="login-gate show" id="loginGate">
+  <div class="login-card">
+    <div class="login-crest">C</div>
+    <h2>Welcome to IS101</h2>
+    <p>Enter your 10-digit NSHE ID to access the courseware.<br>No password required.</p>
+    <input type="text" class="login-input" id="nsheInput" placeholder="0000000000" maxlength="10" inputmode="numeric" autocomplete="off">
+    <button class="login-submit" onclick="handleLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+    <p class="login-note">🔒 Your NSHE ID is only used to save your progress.<br>No personal information is collected or displayed to other students.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SITE HEADER
+══════════════════════════════════════════════ -->
+<header class="site-header" id="siteHeader" style="display:none">
+  <div class="brand">
+    <div class="header-crest">C</div>
+    <div class="header-title">
+      <span class="course-id">IS101</span>
+      <span class="course-name">Introduction to Computing</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="student-badge">
+      <span class="dot"></span>
+      <span id="studentLabel">Student</span>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</header>
+
+<!-- ── OVERALL PROGRESS BAR ── -->
+<div class="overall-progress" id="overallProgressBar" style="display:none">
+  <span class="label">Course Progress</span>
+  <div class="progress-track">
+    <div class="progress-fill" id="overallFill" style="width:0%"></div>
+  </div>
+  <span class="pct" id="overallPct">0%</span>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     VIEW: HOME
+══════════════════════════════════════════════ -->
+<div class="view active" id="viewHome">
+  <div class="home-hero">
+    <div class="eyebrow">College of Southern Nevada · Dr. Mark Taormino</div>
+    <h1>Introduction to<br><em>Computing</em></h1>
+    <p class="subtitle">Learn at your own pace. Complete each unit to earn full credit. Start anywhere you're ready.</p>
+  </div>
+
+  <div class="units-grid">
+
+    <!-- UNIT 1 -->
+    <div class="unit-card u1" onclick="openUnit(1)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 1</div>
+            <div class="unit-title">Artificial Intelligence:<br>It is Real!</div>
+          </div>
+          <span class="unit-status-badge badge-active" id="u1Badge">Active</span>
+        </div>
+        <p class="unit-desc">Understand how AI actually works, why it can make things up, and how to use source-grounded AI tools like Google NotebookLM for academic work.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> 2 Topics</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~3 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📋</span> 1 Exam</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span id="u1ProgressLabel">0 of 4 steps complete</span>
+            <span id="u1Pct">0%</span>
+          </div>
+          <div class="card-track">
+            <div class="card-fill" id="u1Fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="card-cta">
+          <button class="btn-primary" id="u1CTA" onclick="openUnit(1)">Start Unit 1</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIT 2 -->
+    <div class="unit-card u2" onclick="openUnit(2)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 2</div>
+            <div class="unit-title">Word Processing:<br>Microsoft Word 365</div>
+          </div>
+          <span class="unit-status-badge badge-active" id="u2Badge">Active</span>
+        </div>
+        <p class="unit-desc">Master professional document creation — margins, styles, tables, and table of contents — then apply every skill in a real business project.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> 12 Skills</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~4 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📁</span> 4 Projects</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span id="u2ProgressLabel">0 of 12 skills complete</span>
+            <span id="u2Pct">0%</span>
+          </div>
+          <div class="card-track">
+            <div class="card-fill" id="u2Fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="card-cta">
+          <button class="btn-primary" id="u2CTA" onclick="openUnit(2)">Start Unit 2</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIT 3 -->
+    <div class="unit-card u3" onclick="openUnit(3)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 3</div>
+            <div class="unit-title">Spreadsheets:<br>Microsoft Excel 365</div>
+          </div>
+          <span class="unit-status-badge badge-active" id="u3Badge">Active</span>
+        </div>
+        <p class="unit-desc">Build real formulas with SUM, IF, VLOOKUP and more — then use them together in a business dashboard that requires every formula to work.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> 10 Skills</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~4 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📁</span> 4 Projects</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span id="u3ProgressLabel">0 of 10 skills complete</span>
+            <span id="u3Pct">0%</span>
+          </div>
+          <div class="card-track">
+            <div class="card-fill" id="u3Fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="card-cta">
+          <button class="btn-primary" id="u3CTA" onclick="openUnit(3)">Start Unit 3</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIT 4 -->
+    <div class="unit-card u4 locked" id="unit4Card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 4</div>
+            <div class="unit-title">Presentations:<br>PowerPoint 365</div>
+          </div>
+          <span class="unit-status-badge badge-coming">Coming Soon</span>
+        </div>
+        <p class="unit-desc">Design professional slide decks with layouts, themes, animations, and speaker notes. Complete a real presentation project for a Nevada business.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> Skills</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~3 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📁</span> Projects</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span>Not yet available</span>
+          </div>
+          <div class="card-track"><div class="card-fill" style="width:0%"></div></div>
+        </div>
+        <div class="card-cta">
+          <div class="locked-overlay">🔒 Available soon</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /units-grid -->
+</div><!-- /viewHome -->
+
+<!-- ══════════════════════════════════════════════
+     VIEW: UNIT OVERVIEW
+══════════════════════════════════════════════ -->
+<div class="view" id="viewUnit">
+  <div class="view-inner">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a onclick="showView('home')">🏠 Home</a>
+      <span class="sep">›</span>
+      <span class="current" id="unitBreadcrumb">Unit 1</span>
+    </div>
+
+    <!-- Unit Header -->
+    <div class="unit-overview-header">
+      <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
+      <h2 id="unitHeading">It is Real!</h2>
+      <p id="unitDesc">Understand how AI works, where it fails, and how to use it responsibly for academic work at CSN.</p>
+    </div>
+
+    <!-- Progress Block -->
+    <div class="overview-progress-block">
+      <div class="progress-stat">
+        <div class="big-num" id="overviewStepsDone">0</div>
+        <div class="small-label">Complete</div>
+      </div>
+      <div class="divider"></div>
+      <div class="progress-stat">
+        <div class="big-num" id="overviewStepsTotal">4</div>
+        <div class="small-label">Total Steps</div>
+      </div>
+      <div class="divider"></div>
+      <div class="overview-progress-track-wrap">
+        <div class="label-row">
+          <span>Unit Progress</span>
+          <span id="overviewPct">0%</span>
+        </div>
+        <div class="overview-big-track">
+          <div class="overview-big-fill" id="overviewFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jump to Projects -->
+    <button class="jump-projects-btn" id="jumpProjectsBtn" onclick="jumpToProjects()">
+      ⚡ Jump to Projects — skip practice, go straight to submission
+    </button>
+
+    <!-- Skill Groups / Topics -->
+    <div class="skill-groups" id="skillGroupsContainer">
+      <!-- filled dynamically -->
+    </div>
+
+  </div>
+</div><!-- /viewUnit -->
+
+<!-- ══════════════════════════════════════════════
+     TWO-PATH MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="twoPathModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalSkillName">Margins & Page Setup</h3>
+        <p id="modalSkillGroup">Unit 2 · Page &amp; Document Setup</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>How would you like to approach this skill?</p>
+      <div class="modal-choices">
+        <button class="choice-btn prove-choice" onclick="goProveit()">
+          <span class="choice-icon">⚡</span>
+          <div class="choice-text">
+            <strong>I already know this — Prove It</strong>
+            <span>Go straight to the project. Demonstrate the skill and earn full credit.</span>
+          </div>
+        </button>
+        <button class="choice-btn" onclick="goPractice()">
+          <span class="choice-icon">📚</span>
+          <div class="choice-text">
+            <strong>I need to learn this — Practice with Help</strong>
+            <span>Work through a guided simulator with hints, AI prompts, and video resources.</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TOAST NOTIFICATION
+══════════════════════════════════════════════ -->
 <div class="toast" id="toast"></div>
 
-<!-- MODAL -->
-<div class="modal-backdrop" id="modal-backdrop">
-  <div class="modal">
-    <div class="modal-hd">
-      <span class="mh-crumb" id="modal-crumb"></span>
-      <span class="mh-title" id="modal-title">Loading…</span>
-      <button class="mh-done" id="modal-done-btn" onclick="markStepDone()">✓ Mark Complete</button>
-      <button class="mh-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body"><iframe id="modal-iframe" src="" title="Course activity"></iframe></div>
-  </div>
-</div>
-
-<!-- HEADER -->
-<div id="header">
-  <div class="header-top">
-    <div class="header-brand">
-      <div class="header-csn-badge">CSN</div>
-      <div class="header-course">
-        <div class="header-course-code">College of Southern Nevada</div>
-        <div class="header-course-name">IS101 — Introduction to Computing</div>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="student-pill">
-        <div class="sp-avatar" id="avatar">?</div>
-        <input id="student-name" type="text" placeholder="Your name…" oninput="updateName(this.value)">
-      </div>
-    </div>
-  </div>
-  <div class="unit-nav" id="unit-nav"></div>
-</div>
-
-<div id="body">
-  <div id="sidebar"></div>
-  <div id="main"></div>
-</div>
-
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script src="api-client.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
-// IS101 COURSE STRUCTURE
-// Unit 2: Microsoft Word  (6 topics)
-// Unit 3: Microsoft Excel (5 topics)
-//
-// Each topic: Step 1 Watch → Step 2 Practice → Step 3 Project
-// ═══════════════════════════════════════════════════════════
-const UNITS = [
-  {
-    id: 'ai',
-    number: 'Unit 1',
-    name: 'Introduction to Artificial Intelligence: It is Real!',
-    shortName: 'AI',
-    icon: '🧠',
-    color: 'ai',
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let currentStudent = null;
+let currentUnit = null;
+let progress = {};
+let selectedSkill = null;
+
+// ─────────────────────────────────────────────
+//  UNIT DATA
+// ─────────────────────────────────────────────
+const UNITS = {
+  1: {
+    title: "It is Real!",
+    eyebrow: "Unit 1 — Artificial Intelligence",
+    desc: "Understand how AI works, where it fails, and how to use it responsibly for academic work at CSN.",
+    type: "topics",
+    totalSteps: 4,
     topics: [
-      { id:'ai-t1', num:1, name:'Understanding AI',
-        desc:'What AI is, how it learns from data, why hallucinations happen, and why source-grounded AI is safer for academic work.',
-        steps:[
-          {type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Understanding AI',
-            desc:'Learn what AI is, how machine learning works, what hallucinations are, and why source-grounded AI like NotebookLM is safer than open-ended AI like ChatGPT.',
-            checklist:['What AI is and how it differs from regular software','How machine learning learns from training data','What AI hallucinations are and why they happen','Why source-grounded AI is safer for academic work'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'ai-t1'},
-          {type:'labs', label:'Knowledge Check', icon:'✓',
-            title:'AI Concepts Quick Check',
-            desc:'A quick 5-question multiple choice check to confirm you understand the key concepts before moving into the hands-on NotebookLM topic.',
-            checklist:['Define what makes AI different from traditional software','Explain how training data shapes AI behavior','Recognize an AI hallucination','Explain why source-grounded AI is more reliable for academic tasks'],
-            file:'IS101_AI_Exam_05272026_0928.html', anchor:'ai-t1'}
+      {
+        id: "ai-t1",
+        num: 1,
+        title: "Understanding AI",
+        meta: "~30–40 min",
+        steps: [
+          {
+            id: "ai-t1-watch",
+            icon: "🎬",
+            title: "Watch Lesson — Understanding AI",
+            desc: "Define AI, learn how machine learning works, understand hallucinations, and why grounded AI is safer for academic use.",
+            cta: "Watch Now",
+            href: "IS101_Video_Lessons_05272026_0928.html#ai-t1"
+          },
+          {
+            id: "ai-t1-exam",
+            icon: "✅",
+            title: "Knowledge Check — AI Basics",
+            desc: "10 multiple-choice questions. Score 100% to complete. Unlimited retakes.",
+            cta: "Take Quiz",
+            href: "IS101_AI_Exam_05272026_0928.html#ai-t1"
+          }
         ]
       },
-      { id:'ai-t2', num:2, name:'Google NotebookLM: A Deep Dive',
-        desc:'Master Google NotebookLM — upload sources, generate study guides, use Audio Overview, and apply it to real coursework.',
-        steps:[
-          {type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Google NotebookLM: A Deep Dive',
-            desc:'A full hands-on guide to NotebookLM — from creating your first notebook to Audio Overview, study guides, and using it for a real class assignment.',
-            checklist:['Create a notebook and upload sources (PDF, URL, Google Doc)','Ask effective questions grounded in your sources','Generate summaries, study guides, and outlines','Use the Audio Overview feature','Compare NotebookLM vs. ChatGPT on the same task'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'ai-t2'},
-          {type:'labs', label:'NotebookLM Walkthrough', icon:'⌨',
-            title:'Hands-On: NotebookLM Step by Step',
-            desc:'Follow each step inside your own Google NotebookLM account and check it off as you complete it.',
-            checklist:['Create a new notebook','Upload a PDF or paste a URL as a source','Ask NotebookLM to summarize the source','Generate 5 study questions from the source','Create an outline from the source','Use the Audio Overview feature','Compare the same question in ChatGPT vs. NotebookLM'],
-            file:'IS101_NotebookLM_Checklist_05272026_0928.html', anchor:'top'}
+      {
+        id: "ai-t2",
+        num: 2,
+        title: "Google NotebookLM: A Deep Dive",
+        meta: "~2–3 hrs",
+        steps: [
+          {
+            id: "ai-t2-watch",
+            icon: "🎬",
+            title: "Watch Lesson — NotebookLM",
+            desc: "Create notebooks, upload sources, generate summaries and study guides, use Audio Overview, and compare NotebookLM vs ChatGPT.",
+            cta: "Watch Now",
+            href: "IS101_Video_Lessons_05272026_0928.html#ai-t2"
+          },
+          {
+            id: "ai-t2-checklist",
+            icon: "📋",
+            title: "NotebookLM Walkthrough",
+            desc: "6 sections, 19 hands-on steps. Work through the tool yourself using the interactive checklist. Self-graded.",
+            cta: "Open Checklist",
+            href: "IS101_NotebookLM_Checklist_05272026_0928.html"
+          }
         ]
       }
     ]
   },
-  {
-    id: 'word',
-    number: 'Unit 2',
-    name: 'Microsoft Word',
-    shortName: 'Word',
-    icon: '📝',
-    color: 'word',
-    software: 'Microsoft Word 365',
-    topics: [
+  2: {
+    title: "Word Processing: Microsoft Word 365",
+    eyebrow: "Unit 2 — Microsoft Word 365",
+    desc: "Master professional document creation. Practice each skill, then apply them all together in a real business project.",
+    type: "skills",
+    totalSteps: 12,
+    jumpTarget: "IS101_Project_Grader_06082026_1116.html#word",
+    groups: [
       {
-        id: 'wd-t1', num: 1, name: 'Creating & Managing Documents',
-        desc: 'Creating, opening, saving, and navigating Word documents. Configuring page layout including margins, orientation, and page size.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Document Creation & Page Setup',
-            desc:'This video introduces the Word interface and covers how to create documents, set page margins, change orientation, and use Find & Replace.',
-            checklist:['Creating and saving Word documents','Setting page margins and orientation','Using Find & Replace','Headers, footers, and page numbers'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'wd-d1',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'3 Interactive Labs',
-            desc:'Practice directly in the simulated Word ribbon. Each lab requires you to click the correct tab and command — not multiple choice.',
-            checklist:['Lab 1: Change page margins to Narrow','Lab 2: Change orientation to Landscape','Lab 3: Find & Replace text throughout a document'],
-            file:'IS101_Word_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Complete both projects in real Word 365 on your own computer. Upload your .docx file here for automatic grading and download your score sheet.',
-            checklist:['Project 1: Document Setup & Navigation','Project 2: Page Layout & Print Configuration'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'wd-d1-p1',
-          },
+        id: "w-g1",
+        icon: "📐",
+        name: "Page & Document Setup",
+        skills: [
+          { id: "w-margins", name: "Margins & Page Size", hint: "Set custom margins, change orientation" },
+          { id: "w-orientation", name: "Page Orientation", hint: "Portrait vs. Landscape" },
+          { id: "w-findreplace", name: "Find & Replace", hint: "Replace text and formatting throughout a document" }
         ]
       },
       {
-        id: 'wd-t2', num: 2, name: 'Formatting Text & Paragraphs',
-        desc: 'Applying character formatting such as bold, italic, and underline. Using paragraph alignment, line spacing, and built-in styles.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Text Formatting & Paragraph Styles',
-            desc:'Learn to apply font formatting, paragraph alignment, line spacing, and Word\'s built-in style gallery to create well-structured documents.',
-            checklist:['Bold, italic, underline, and font color','Paragraph alignment: left, center, right, justify','Line spacing: single, 1.5, and double','Title, Heading 1, and Heading 2 styles'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'wd-d2',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'4 Interactive Labs',
-            desc:'Apply styles and character formatting inside the Word simulator. Every action must match the correct command.',
-            checklist:['Lab 4: Apply the Title style','Lab 5: Apply Heading 1 to section headings','Lab 6: Apply Bold and Italic together','Lab 7: Set double line spacing'],
-            file:'IS101_Word_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Format a professional business report and create a memo using correct alignment and spacing in real Word.',
-            checklist:['Project 1: Professional Report Formatting','Project 2: Memo Layout & Alignment'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'wd-d2-p1',
-          },
+        id: "w-g2",
+        icon: "🎨",
+        name: "Styles & Formatting",
+        skills: [
+          { id: "w-title", name: "Title Style", hint: "Apply and modify the Title style" },
+          { id: "w-headings", name: "Heading 1, 2, & 3", hint: "Structure documents with heading hierarchy" },
+          { id: "w-bold-italic", name: "Bold & Italic Emphasis", hint: "Apply emphasis consistently" },
+          { id: "w-spacing", name: "Line & Paragraph Spacing", hint: "Set spacing before/after paragraphs" }
         ]
       },
       {
-        id: 'wd-t3', num: 3, name: 'Tables & Lists',
-        desc: 'Creating and formatting tables, converting text to tables, merging cells, and building numbered and bulleted lists.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Tables, Lists & Organized Data',
-            desc:'Insert and format tables, convert comma-separated text into a table, merge header cells, and create both ordered and unordered lists.',
-            checklist:['Insert a table using the grid selector','Apply a table style from the Table Design tab','Merge cells to create spanning headers','Numbered lists vs. bulleted lists'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'wd-d3',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'4 Interactive Labs',
-            desc:'Build real tables and lists inside the Word simulator — every step requires the correct ribbon action.',
-            checklist:['Lab 8: Insert a 3-column × 4-row table','Lab 9: Convert comma-separated text to a table','Lab 10: Create a numbered list','Lab 11: Merge table cells into a header'],
-            file:'IS101_Word_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Build a project schedule table and an onboarding checklist with numbered and bulleted lists in real Word.',
-            checklist:['Project 1: Project Schedule Table','Project 2: Onboarding Checklist & Lists'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'wd-d3-p1',
-          },
+        id: "w-g3",
+        icon: "📊",
+        name: "Tables & Lists",
+        skills: [
+          { id: "w-table", name: "Insert & Format Table", hint: "Create tables, add rows/columns, apply borders" },
+          { id: "w-merge", name: "Merge Cells", hint: "Merge header cells across columns" },
+          { id: "w-numberedlist", name: "Numbered & Bulleted Lists", hint: "Format multi-level lists" }
         ]
       },
       {
-        id: 'wd-t4', num: 4, name: 'References & Citations',
-        desc: 'Inserting a Table of Contents from heading styles, adding footnotes and endnotes, and creating cross-references.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Table of Contents, Footnotes & Endnotes',
-            desc:'Learn how heading styles automatically build a Table of Contents, how to insert footnotes that appear at the page bottom, and endnotes that collect at the document end.',
-            checklist:['Inserting an automatic Table of Contents','Updating the TOC after editing headings','Inserting footnotes using the References tab','Inserting endnotes and the difference from footnotes'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'wd-d4',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'3 Interactive Labs',
-            desc:'Use the References ribbon tab to insert a TOC, a footnote, and an endnote in the Word simulator.',
-            checklist:['Lab 12: Insert an Automatic Table of Contents','Lab 13: Insert a Footnote at page bottom','Lab 14: Insert an Endnote at document end'],
-            file:'IS101_Word_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Create an academic-style report with a TOC and footnote citations, and a research document with endnotes.',
-            checklist:['Project 1: Academic Report with TOC & Footnotes','Project 2: Research Document with Endnotes'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'wd-d4-p1',
-          },
+        id: "w-g4",
+        icon: "⚙️",
+        name: "Advanced Features",
+        skills: [
+          { id: "w-toc", name: "Table of Contents", hint: "Auto-generate TOC from Heading styles" },
+          { id: "w-comments", name: "Comments & Track Changes", hint: "Add comments, accept/reject changes" }
         ]
-      },
-      {
-        id: 'wd-t5', num: 5, name: 'Graphics & Visual Elements',
-        desc: 'Inserting and positioning images, controlling text wrapping, creating SmartArt diagrams, and adding shapes.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Pictures, SmartArt & Shapes',
-            desc:'Insert pictures and control how text wraps around them. Create a SmartArt hierarchy diagram for an org chart. Add shapes with text inside.',
-            checklist:['Insert a picture from your device','Text wrapping: Square, Tight, and Behind Text','SmartArt Hierarchy — creating an org chart','Insert shapes and add text inside them'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'wd-d5',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'2 Interactive Labs',
-            desc:'Set text wrap on an image and insert a SmartArt org chart using the correct Picture Format and Insert ribbon tabs.',
-            checklist:['Lab 15: Set image text wrap to Square','Lab 16: Insert a SmartArt Hierarchy org chart'],
-            file:'IS101_Word_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Design a newsletter layout with an embedded image and text wrap, and build an org chart using SmartArt.',
-            checklist:['Project 1: Newsletter Layout with Images','Project 2: Org Chart with SmartArt'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'wd-d5-p1',
-          },
-        ]
-      },
-      {
-        id: 'wd-t6', num: 6, name: 'Collaboration Tools',
-        desc: 'Adding and resolving comments, recording changes with Track Changes, accepting or rejecting edits, and protecting documents.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Comments, Track Changes & Document Protection',
-            desc:'Use the Review tab to insert comments, enable Track Changes so every edit is recorded, and then accept or reject those changes to finalize the document.',
-            checklist:['Inserting comments using the Review tab','Enabling Track Changes to record edits','Accepting and rejecting tracked changes','Restrict Editing to protect a final document'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'wd-d6',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'2 Interactive Labs',
-            desc:'Insert a comment and then accept all tracked changes using the Review tab in the Word simulator.',
-            checklist:['Lab 17: Insert a Comment','Lab 18: Accept All Tracked Changes'],
-            file:'IS101_Word_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Simulate a document review workflow with comments and tracking, then finalize and protect the document.',
-            checklist:['Project 1: Comment & Review Workflow','Project 2: Accept Changes & Restrict Editing'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'wd-d6-p1',
-          },
-        ]
-      },
+      }
     ]
   },
-  {
-    id: 'excel',
-    number: 'Unit 3',
-    name: 'Microsoft Excel',
-    shortName: 'Excel',
-    icon: '📊',
-    color: 'excel',
-    software: 'Microsoft Excel 365',
-    topics: [
+  3: {
+    title: "Spreadsheets: Microsoft Excel 365",
+    eyebrow: "Unit 3 — Microsoft Excel 365",
+    desc: "Build working formulas and use them together in a real business dashboard. Every formula must work correctly.",
+    type: "skills",
+    totalSteps: 10,
+    jumpTarget: "IS101_Project_Grader_06082026_1116.html#excel",
+    groups: [
       {
-        id: 'xl-t1', num: 1, name: 'Worksheets & Workbooks',
-        desc: 'Creating and organizing multi-sheet workbooks, renaming tabs, freezing rows, and configuring page layout for printing.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Worksheets, Freeze Panes & Print Setup',
-            desc:'Learn how to manage multiple worksheets in one workbook, freeze the top row so column headers stay visible while scrolling, and set up the page for printing.',
-            checklist:['Insert and rename worksheet tabs','Move and copy sheets within a workbook','Freeze the top row or first column','Set print orientation, margins, and print area'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'xl-d1',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'Excel Formula Practice',
-            desc:'Use the Excel training simulator to enter data, navigate worksheets, and practice foundational spreadsheet skills.',
-            checklist:['Hands-on formula labs in the Excel simulator','Enter values and see instant feedback','All 10 formula labs available to practice'],
-            file:'IS101_Excel_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Build a multi-sheet regional sales workbook and configure a spreadsheet for professional print output in real Excel.',
-            checklist:['Project 1: Regional Sales Workbook (3 sheets, freeze panes)','Project 2: Print Configuration (orientation, margins, header)'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'xl-d1-p1',
-          },
+        id: "e-g1",
+        icon: "➕",
+        name: "Basic Calculations",
+        skills: [
+          { id: "e-sum", name: "SUM", hint: "Add ranges of numbers across rows and columns" },
+          { id: "e-average", name: "AVERAGE", hint: "Calculate mean values for data sets" },
+          { id: "e-minmax", name: "MIN & MAX", hint: "Find highest and lowest values in a range" }
         ]
       },
       {
-        id: 'xl-t2', num: 2, name: 'Formatting Cells & Ranges',
-        desc: 'Applying number formats, cell styles, named ranges, data validation dropdown lists, and conditional formatting.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Cell Formatting, Validation & Conditional Formatting',
-            desc:'Format cells with currency, percentages, and dates. Define named ranges for use in formulas. Restrict cell input with dropdown validation, and highlight cells automatically based on their values.',
-            checklist:['Apply currency, date, and percentage number formats','Bold, font color, fill color, and borders','Create named ranges using the Name Box','Data validation — dropdown lists to control input','Conditional formatting to highlight high/low values'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'xl-d2',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'Excel Formula Practice',
-            desc:'Practice formatting and range skills in the Excel training simulator with real-time grading.',
-            checklist:['Enter and format data','Apply number formats and styles','Work through all 10 graded formula labs'],
-            file:'IS101_Excel_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Format an employee database and apply data validation and conditional formatting rules in real Excel.',
-            checklist:['Project 1: Employee Data Formatting','Project 2: Data Validation & Conditional Formatting'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'xl-d2-p1',
-          },
+        id: "e-g2",
+        icon: "🔢",
+        name: "Working With Data",
+        skills: [
+          { id: "e-count", name: "COUNT & COUNTA", hint: "Count cells with numbers or any value" },
+          { id: "e-countif", name: "COUNTIF", hint: "Count cells matching a condition" },
+          { id: "e-sumif", name: "SUMIF", hint: "Sum cells that meet specific criteria" }
         ]
       },
       {
-        id: 'xl-t3', num: 3, name: 'Excel Tables',
-        desc: 'Converting data ranges into formatted Excel Tables with sorting, filtering, totals, and structured references.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Creating and Managing Excel Tables',
-            desc:'Learn how Excel Tables differ from plain data ranges — they auto-expand, have built-in sort and filter, a Total Row, and use structured references in formulas.',
-            checklist:['Convert a data range to an Excel Table','Apply a table style from the Table Design tab','Enable the Total Row and choose a calculation','Sort and filter a table using dropdown arrows','Remove duplicate rows from a table'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'xl-d3',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'Excel Formula Practice',
-            desc:'Use the Excel formula labs to practice working with structured data before applying table skills in your project.',
-            checklist:['10 graded formula labs covering core functions','Enter formulas and press Enter to check','SUM, AVERAGE, MAX, MIN, COUNT and more'],
-            file:'IS101_Excel_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Build a formatted product sales table and practice sort, filter, and duplicate removal on an employee dataset.',
-            checklist:['Project 1: Product Sales Table with Total Row','Project 2: Table Sort, Filter & Remove Duplicates'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'xl-d3-p1',
-          },
+        id: "e-g3",
+        icon: "🔀",
+        name: "Decision Making",
+        skills: [
+          { id: "e-if", name: "IF (with nesting)", hint: "Return different results based on conditions" },
+          { id: "e-round", name: "ROUND", hint: "Round numbers to specified decimal places" }
         ]
       },
       {
-        id: 'xl-t4', num: 4, name: 'Formulas & Functions',
-        desc: 'Writing formulas using SUM, AVERAGE, MIN, MAX, COUNT, IF, ROUND, COUNTIF, SUMIF, and VLOOKUP.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Essential Excel Formulas & Functions',
-            desc:'This topic is the heart of Unit 3. Learn how formulas work, understand cell references, and master the functions you will use in every Excel project going forward.',
-            checklist:['How formulas work: the = sign and cell references','SUM, AVERAGE, MIN, MAX, COUNT','IF — making decisions with formulas','ROUND to control decimal places','COUNTIF and SUMIF — conditional analysis','VLOOKUP — looking up data in a table'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'xl-d4',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'10 Formula Labs — Core Skill',
-            desc:'The formula labs are the main hands-on practice for this topic. Work through all 10 labs in the Excel simulator. Type the formula, press Enter, and get graded instantly.',
-            checklist:['Lab 1: SUM — add a range of values','Lab 2: AVERAGE — compute the mean','Lab 3: MAX — find the highest value','Lab 4: COUNT — count numeric cells only','Lab 5: IF — Pass/Fail based on a condition','Labs 6–10: MIN · ROUND · COUNTIF · SUMIF · VLOOKUP'],
-            file:'IS101_Excel_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Build a monthly sales report using SUM, AVERAGE, and IF, then create a lookup and conditional analysis workbook.',
-            checklist:['Project 1: Monthly Sales Report Formulas','Project 2: Lookup & Conditional Functions'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'xl-d4-p1',
-          },
+        id: "e-g4",
+        icon: "🔍",
+        name: "Lookup & Analysis",
+        skills: [
+          { id: "e-vlookup", name: "VLOOKUP", hint: "Look up values across separate data tables" },
+          { id: "e-iferror", name: "IFERROR", hint: "Handle lookup errors gracefully" }
         ]
-      },
-      {
-        id: 'xl-t5', num: 5, name: 'Charts & Data Visualization',
-        desc: 'Creating and formatting column, bar, line, and pie charts to visualize spreadsheet data clearly.',
-        steps: [
-          {
-            type:'video', label:'Watch Lesson', icon:'▶',
-            title:'Creating Charts in Excel',
-            desc:'Select the right chart type for your data, insert and format charts with titles and axis labels, add data labels to pie slices, and move a chart to its own sheet.',
-            checklist:['Choose the right chart: column, bar, line, or pie','Insert a chart from selected data','Add chart title and axis labels','Add percentage data labels to a pie chart','Move a chart to a dedicated chart sheet'],
-            file:'IS101_Video_Lessons_05272026_0928.html', anchor:'xl-d5',
-          },
-          {
-            type:'labs', label:'Practice Labs', icon:'⌨',
-            title:'Excel Formula Practice',
-            desc:'Complete the formula labs to build and analyze the data you will visualize in your chart projects.',
-            checklist:['Practice formulas that generate chart data','All 10 formula labs available','Prepare your analytical skills for charting'],
-            file:'IS101_Excel_Labs_05272026_0928.html', anchor:null,
-          },
-          {
-            type:'project', label:'Graded Project', icon:'📁',
-            title:'2 Projects — Upload for Grading',
-            desc:'Create a formatted sales column chart and a pie chart with data labels moved to its own chart sheet.',
-            checklist:['Project 1: Sales Performance Column Chart','Project 2: Regional Market Share Pie Chart'],
-            file:'IS101_Project_Grader_05272026_0928.html', anchor:'xl-d5-p1',
-          },
-        ]
-      },
+      }
     ]
   }
-];
-
-// ═══════════════════════════════════════════════════════════
-// STATE & PERSISTENCE
-// ═══════════════════════════════════════════════════════════
-let S = { unit: null, topic: null };
-
-const key = (topicId, stepIdx) => `is101-${topicId}-step${stepIdx}`;
-const isDone = (topicId, stepIdx) => !!localStorage.getItem(key(topicId, stepIdx));
-const markDoneLS = (topicId, stepIdx) => localStorage.setItem(key(topicId, stepIdx), '1');
-const isUnlocked = (topic, stepIdx) => stepIdx === 0 || isDone(topic.id, stepIdx - 1);
-
-function topicProgress(topic){ return topic.steps.filter((_,i) => isDone(topic.id, i)).length; }
-function unitProgress(unit){
-  const total = unit.topics.length * 3;
-  const done = unit.topics.reduce((s,t) => s + topicProgress(t), 0);
-  return { done, total, pct: Math.round(done / total * 100) };
-}
-function overallProgress(){
-  const all = UNITS.flatMap(u => u.topics);
-  const done = all.reduce((s,t) => s + topicProgress(t), 0);
-  return { done, total: all.length * 3 };
-}
-
-// ═══════════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════════
-function render(){
-  renderUnitNav();
-  if (!S.unit){ renderWelcome(); document.getElementById('sidebar').innerHTML = ''; return; }
-  renderSidebar();
-  if (!S.topic || S.topic === 'overview') renderOverview();
-  else renderTopic();
-}
-
-function renderUnitNav(){
-  document.getElementById('unit-nav').innerHTML =
-    `<button class="unit-nav-tab${!S.unit?' active':''}" onclick="selectUnit(null)"><span class="unt-icon">🏠</span>Home</button>` +
-    UNITS.map(u =>
-      `<button class="unit-nav-tab${S.unit===u.id?' active':''}" onclick="selectUnit('${u.id}')">
-        <span class="unt-icon">${u.icon}</span>${u.number}: ${u.name}
-      </button>`
-    ).join('');
-}
-
-function renderSidebar(){
-  const unit = UNITS.find(u => u.id === S.unit);
-  if (!unit){ document.getElementById('sidebar').innerHTML = ''; return; }
-  const up = unitProgress(unit);
-  let html = `<div class="sb-unit-label"><span class="sul-icon">${unit.icon}</span>${unit.number} — ${unit.name}</div>`;
-  html += `<button class="sb-topic-btn${S.topic==='overview'?' active':''}" onclick="selectTopic('overview')">
-    <div class="stb-num" style="background:${S.unit==='word'?'var(--word-lt)':'var(--excel-lt)'};color:${S.unit==='word'?'var(--word)':'var(--excel)'}">≡</div>
-    <div class="stb-name">All Topics</div>
-    <div class="stb-status" style="color:var(--muted);font-size:11px">${up.pct}%</div>
-  </button>`;
-  html += `<div class="sb-divider"></div>`;
-  unit.topics.forEach(t => {
-    const dp = topicProgress(t);
-    const status = dp===3?'✅':dp>0?'⏳':'○';
-    const active = S.topic === t.id;
-    html += `<button class="sb-topic-btn ${unit.id}-topic${active?' active':''}" onclick="selectTopic('${t.id}')">
-      <div class="stb-num">${t.num}</div>
-      <div class="stb-name">${t.name}</div>
-      <div class="stb-status">${status}</div>
-    </button>`;
-  });
-  html += `<div class="sb-progress">
-    <div class="sb-prog-lbl"><span>${unit.number} Progress</span><span>${up.done}/${up.total} steps</span></div>
-    <div class="sb-prog-bar"><div class="sb-prog-fill" style="width:${up.pct}%;background:${S.unit==='word'?'var(--word)':'var(--excel)'}"></div></div>
-  </div>`;
-  document.getElementById('sidebar').innerHTML = html;
-}
-
-function renderWelcome(){
-  const op = overallProgress();
-  const wu = UNITS.find(u=>u.id==='word');
-  const eu = UNITS.find(u=>u.id==='excel');
-  document.getElementById('main').classList.add('splash-active');
-  document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('main').innerHTML = `
-  <div class="splash-bg"></div>
-  <div class="splash-nodes"><div class="sn" style="width:4px;height:4px;left:12%;animation-duration:14s;animation-delay:-3s"></div><div class="sn" style="width:3px;height:3px;left:28%;animation-duration:18s;animation-delay:-7s"></div><div class="sn" style="width:5px;height:5px;left:44%;animation-duration:12s;animation-delay:-1s"></div><div class="sn" style="width:3px;height:3px;left:58%;animation-duration:20s;animation-delay:-9s"></div><div class="sn" style="width:4px;height:4px;left:72%;animation-duration:15s;animation-delay:-4s"></div><div class="sn" style="width:6px;height:6px;left:85%;animation-duration:11s;animation-delay:-6s"></div><div class="sn" style="width:3px;height:3px;left:35%;animation-duration:17s;animation-delay:-2s"></div><div class="sn" style="width:4px;height:4px;left:65%;animation-duration:13s;animation-delay:-8s"></div></div>
-  <div class="splash-frame"></div>
-  <div class="splash-corner-tr"></div>
-  <div class="splash-corner-bl"></div>
-
-  <div class="splash-panel welcome" style="display:flex;flex-direction:column;height:calc(100vh - 28px)">
-
-    <!-- ── TOP HEADER ── -->
-    <div style="text-align:center;padding-bottom:8px;border-bottom:1px solid #e2e8f0;flex-shrink:0">
-      <div class="csn-welcome-logo">&#127979; College of Southern Nevada</div>
-      <h1 style="margin-top:6px">IS101 &mdash; Introduction to Computing</h1>
-      <div class="w-course">&copy; Dr. Mark Taormino &middot; All Rights Reserved</div>
-      <p style="font-size:13px;color:var(--muted);margin:4px auto 0;max-width:660px">Master Microsoft Word, Excel, PowerPoint &amp; AI through a structured three-step approach. Every topic: watch first, practice in the simulator, then prove it with a real project.</p>
-      ${op.done>0?'<div style="font-size:12px;font-weight:700;color:#003876;margin-top:6px">&#9989; '+op.done+' of '+op.total+' steps complete</div>':''}
-    </div>
-
-    <!-- ── TWO-COLUMN BODY ── -->
-    <div style="display:flex;gap:12px;flex:1;min-height:0;padding-top:8px">
-
-      <!-- LEFT: How it works -->
-      <div style="width:38%;min-width:420px;flex-shrink:0;display:flex;flex-direction:column;gap:0">
-        <div style="background:linear-gradient(135deg,#003876,#0a6ebd);border-radius:10px;padding:10px 12px;flex:1;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 18px rgba(0,56,118,.25)">
-          <div style="display:flex;align-items:center;gap:8px;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.2);flex-shrink:0">
-            <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">&#9654;</div>
-            <div>
-              <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:.3px">How It Works</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:1px">Three steps to master every topic</div>
-            </div>
-          </div>
-        <div class="hiw-row" style="margin-bottom:0;grid-template-columns:1fr 20px 1fr 20px 1fr;flex:1">
-
-          <div class="mon-wrap mon-s1">
-            <div class="mon-outer"><div class="mon-screen">
-              <div class="mon-bar"><span class="mon-dot r"></span><span class="mon-dot y"></span><span class="mon-dot g"></span></div>
-              <div class="mon-body">
-                <div class="mon-num">Step 1</div>
-                <div class="mon-ico">&#128065;</div>
-                <div class="mon-lbl">Watch &amp; Learn</div>
-                <div class="mon-dsc">AI, LinkedIn Learning, YouTube &amp; Microsoft Support</div>
-              </div>
-            </div></div>
-            <div class="mon-neck"></div><div class="mon-base"></div>
-            <div class="mon-tag">
-              <div class="mon-tag-title" style="color:#93c5fd">Learn First</div>
-              <div class="mon-tag-desc" style="color:rgba(255,255,255,.75)">Explore every skill resource before the simulator</div>
-            </div>
-          </div>
-
-          <div class="hiw-arrow" style="padding-top:42px;font-size:14px">&#8594;</div>
-
-          <div class="mon-wrap mon-s2">
-            <div class="mon-outer"><div class="mon-screen">
-              <div class="mon-bar"><span class="mon-dot r"></span><span class="mon-dot y"></span><span class="mon-dot g"></span></div>
-              <div class="mon-body">
-                <div class="mon-num">Step 2</div>
-                <div class="mon-ico">&#9000;&#65039;</div>
-                <div class="mon-lbl">Practice Labs</div>
-                <div class="mon-dsc">Click ribbon commands or type formulas &mdash; graded instantly</div>
-              </div>
-            </div></div>
-            <div class="mon-neck"></div><div class="mon-base"></div>
-            <div class="mon-tag">
-              <div class="mon-tag-title" style="color:#93c5fd">Practice It</div>
-              <div class="mon-tag-desc" style="color:rgba(255,255,255,.75)">Real simulators. Not multiple choice</div>
-            </div>
-          </div>
-
-          <div class="hiw-arrow" style="padding-top:42px;font-size:14px">&#8594;</div>
-
-          <div class="mon-wrap mon-s3">
-            <div class="mon-outer"><div class="mon-screen">
-              <div class="mon-bar"><span class="mon-dot r"></span><span class="mon-dot y"></span><span class="mon-dot g"></span></div>
-              <div class="mon-body">
-                <div class="mon-num">Step 3</div>
-                <div class="mon-ico">&#128193;</div>
-                <div class="mon-lbl">Submit Project</div>
-                <div class="mon-dsc">Upload real files for auto-grading &amp; Canvas score sheet</div>
-              </div>
-            </div></div>
-            <div class="mon-neck"></div><div class="mon-base"></div>
-            <div class="mon-tag">
-              <div class="mon-tag-title" style="color:#93c5fd">Prove It</div>
-              <div class="mon-tag-desc" style="color:rgba(255,255,255,.75)">Real projects in Microsoft 365 on your own computer</div>
-            </div>
-          </div>
-
-        </div>
-        </div><!-- end blue box -->
-      </div>
-
-      <!-- DIVIDER LINE -->
-      <div style="width:1px;background:linear-gradient(to bottom,transparent,rgba(0,180,255,.25),transparent);flex-shrink:0"></div>
-
-      <!-- RIGHT: Unit cards -->
-      <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-shrink:0">
-          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#003876,#0a6ebd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#9654;</div>
-          <div>
-            <div style="font-size:15px;font-weight:800;color:#003876;letter-spacing:.2px">Choose a Unit to Begin</div>
-            <div style="font-size:11px;color:var(--muted)">Click any active unit card to start learning</div>
-          </div>
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,rgba(0,56,118,.3),transparent);border-radius:2px"></div>
-        </div>
-        <div class="unit-app-grid" style="flex:1;grid-template-rows:1fr 1fr;height:100%">
-
-          <div class="unit-app-card ai-card" onclick="selectUnit('ai')">
-            <div class="app-titlebar">
-              <span class="app-ico">&#129504;</span>
-              <span class="app-name">UNIT 1 &mdash; Artificial Intelligence</span>
-              <div class="app-btns"><div class="ab"></div><div class="ab"></div><div class="ab"></div></div>
-            </div>
-            <div class="app-ribbon">
-              <div class="app-ribbon-tab on">Overview</div><div class="app-ribbon-tab">Concepts</div>
-              <div class="app-ribbon-tab">Tools</div><div class="app-ribbon-tab">Ethics</div><div class="app-ribbon-tab">Future</div>
-            </div>
-            <div style="padding:10px 14px;background:#faf5ff;flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#7c3aed;margin-bottom:6px">2 Topics</div><div style="display:flex;flex-direction:column;gap:5px"><div style="font-size:11px;color:#374151">&#10132; Topic 1: Understanding AI</div><div style="font-size:11px;color:#374151">&#10132; Topic 2: Google NotebookLM: A Deep Dive</div></div></div>
-            <div class="app-footer">
-              <div class="app-footer-info">
-                <div class="app-footer-unit">Unit 1: Introduction to Artificial Intelligence: It is Real!</div>
-                <div class="app-footer-sub">2 topics &middot; 4 steps</div>
-              </div>
-              <button class="app-footer-btn" style="background:linear-gradient(135deg,#6d28d9,#a855f7)">Open Unit →</button>
-            </div>
-          </div>
-
-          <div class="unit-app-card word-card" onclick="selectUnit('word')">
-            <div class="app-titlebar">
-              <span class="app-ico">&#128196;</span>
-              <span class="app-name">UNIT 2 &mdash; Word Processing</span>
-              <div class="app-btns"><div class="ab"></div><div class="ab"></div><div class="ab"></div></div>
-            </div>
-            <div class="app-ribbon">
-              <div class="app-ribbon-tab on">Home</div><div class="app-ribbon-tab">Insert</div>
-              <div class="app-ribbon-tab">Layout</div><div class="app-ribbon-tab">References</div><div class="app-ribbon-tab">Review</div>
-            </div>
-            <div class="word-doc">
-              <div class="wd-h1"></div>
-              <div class="wd-ln" style="width:100%"></div><div class="wd-ln" style="width:82%"></div>
-              <div class="wd-ln" style="width:95%"></div><div class="wd-ln" style="width:60%"></div>
-            </div>
-            <div class="app-footer">
-              <div class="app-footer-info">
-                <div class="app-footer-unit">${wu.number}: ${wu.name}</div>
-                <div class="app-footer-sub">${wu.topics.length} topics &middot; ${wu.topics.length*3} steps</div>
-              </div>
-              <button class="app-footer-btn" style="box-shadow:0 2px 8px rgba(43,87,154,.4)">Open Unit &#8594;</button>
-            </div>
-          </div>
-
-          <div class="unit-app-card excel-card" onclick="selectUnit('excel')">
-            <div class="app-titlebar">
-              <span class="app-ico">&#128202;</span>
-              <span class="app-name">UNIT 3 &mdash; Spreadsheets</span>
-              <div class="app-btns"><div class="ab"></div><div class="ab"></div><div class="ab"></div></div>
-            </div>
-            <div class="app-ribbon">
-              <div class="app-ribbon-tab on">Home</div><div class="app-ribbon-tab">Insert</div>
-              <div class="app-ribbon-tab">Formulas</div><div class="app-ribbon-tab">Data</div><div class="app-ribbon-tab">View</div>
-            </div>
-            <div class="xl-fbar">
-              <span class="xl-nbox">B5</span>
-              <span style="color:#999;font-size:10px">fx</span>
-              <span style="color:var(--excel);font-weight:600;font-size:10px">=SUM(B2:B4)</span>
-            </div>
-            <div class="xl-grid">
-              <div class="xl-ch"></div><div class="xl-ch">A</div><div class="xl-ch">B</div><div class="xl-ch">C</div><div class="xl-ch">D</div>
-              <div class="xl-rh">1</div><div class="xl-c hd">Category</div><div class="xl-c hd">Sales</div><div class="xl-c hd">Target</div><div class="xl-c hd">Status</div>
-              <div class="xl-rh">2</div><div class="xl-c">Word</div><div class="xl-c n">$4,200</div><div class="xl-c n">$4,000</div><div class="xl-c" style="color:#15803d;font-weight:700">Pass</div>
-              <div class="xl-rh">3</div><div class="xl-c">Excel</div><div class="xl-c n sel">$3,850</div><div class="xl-c n">$4,000</div><div class="xl-c" style="color:#dc2626;font-weight:700">Fail</div>
-            </div>
-            <div class="xl-tabs"><div class="xl-tab on">Sheet1</div><div class="xl-tab">Sheet2</div><div class="xl-tab">Sheet3</div></div>
-            <div class="app-footer">
-              <div class="app-footer-info">
-                <div class="app-footer-unit">${eu.number}: ${eu.name}</div>
-                <div class="app-footer-sub">${eu.topics.length} topics &middot; ${eu.topics.length*3} steps</div>
-              </div>
-              <button class="app-footer-btn" style="box-shadow:0 2px 8px rgba(33,115,70,.4)">Open Unit &#8594;</button>
-            </div>
-          </div>
-
-          <div class="unit-app-card ppt-card" style="cursor:default">
-            <div class="app-titlebar">
-              <span class="app-ico">&#127912;</span>
-              <span class="app-name">UNIT 4 &mdash; Presentations</span>
-              <div class="app-btns"><div class="ab"></div><div class="ab"></div><div class="ab"></div></div>
-            </div>
-            <div class="app-ribbon">
-              <div class="app-ribbon-tab on">Home</div><div class="app-ribbon-tab">Insert</div>
-              <div class="app-ribbon-tab">Design</div><div class="app-ribbon-tab">Transitions</div><div class="app-ribbon-tab">Animations</div>
-            </div>
-            <div class="ppt-coming-soon">
-              <div class="ppt-coming-icon">&#127912;</div>
-              <div class="ppt-coming-badge">&#9733; Coming Soon &#9733;</div>
-              <div class="ppt-coming-desc">Slides, transitions &amp; professional presentations</div>
-            </div>
-            <div class="app-footer">
-              <div class="app-footer-info">
-                <div class="app-footer-unit">Unit 4: Presentation Software</div>
-                <div class="app-footer-sub">2 topics &middot; 4 steps</div>
-              </div>
-              <button class="app-footer-btn" disabled style="background:#fcd34d;color:#92400e;cursor:not-allowed">Coming Soon</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </div>`;
-}
-
-function renderOverview(){
-  const unit = UNITS.find(u => u.id === S.unit);
-  const up = unitProgress(unit);
-  const pctColor = up.pct===100?'#4ade80':up.pct>0?'#fbbf24':'rgba(255,255,255,.5)';
-  const appName = unit.id==='word'?'Microsoft Word 365':'Microsoft Excel 365';
-  const labType = unit.id==='word'?'simulated Word ribbon labs':'simulated Excel formula labs';
-
-  let html = `
-  <!-- ── UNIT INTRO BANNER ── -->
-  <div class="unit-intro-banner ${unit.id}-hero">
-
-    <div class="uib-hero">
-      <div class="uib-left">
-        <div class="uib-tag">${unit.number} &mdash; ${unit.topics.length} Topics</div>
-        <div class="uib-title">${unit.icon} ${unit.name}</div>
-        <div class="uib-subtitle">
-          This unit has <strong style="color:#fff">${unit.topics.length} topics</strong> — work through them in order.
-          Each topic follows the same three-step path: learn first, then practice, then prove it with a real project.
-          Click any topic below to begin.
-        </div>
-      </div>
-      <div class="uib-right">
-        <div class="uib-pct" style="color:${pctColor}">${up.pct}%</div>
-        <div class="uib-pct-lbl">${up.done} of ${up.total} steps done</div>
-      </div>
-    </div>
-
-    <div class="uib-steps">
-      <div class="uib-step uib-s1">
-        <div class="uib-step-num">1</div>
-        <div class="uib-step-body">
-          <div class="uib-step-title">&#128065; Learn — Watch Videos &amp; Read</div>
-          <div class="uib-step-desc">
-            Before touching the keyboard, explore each skill using AI prompts, LinkedIn Learning videos,
-            YouTube tutorials, and official Microsoft Support articles.
-            You choose how you learn best.
-          </div>
-        </div>
-      </div>
-      <div class="uib-step uib-s2">
-        <div class="uib-step-num">2</div>
-        <div class="uib-step-body">
-          <div class="uib-step-title">&#9000;&#65039; Practice — Complete the Simulated Labs</div>
-          <div class="uib-step-desc">
-            Work through ${labType} that let you practice every skill hands-on.
-            The simulator gives you instant feedback so you know immediately whether
-            you performed each action correctly. This is not multiple choice.
-          </div>
-        </div>
-      </div>
-      <div class="uib-step uib-s3">
-        <div class="uib-step-num">3</div>
-        <div class="uib-step-body">
-          <div class="uib-step-title">&#128193; Prove It — Live Project in ${appName}</div>
-          <div class="uib-step-desc">
-            Complete a real project on your own computer inside ${appName}, then upload your file for automatic grading.
-            This is the real deal &mdash; it shows you have truly mastered the concepts.
-          </div>
-          <div class="uib-step-badge">&#127381; Must score 100% &mdash; unlimited attempts. Good luck!</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── TOPIC GRID ── -->
-  <div class="uib-topics-hd">
-    <div class="uib-topics-hd-text">Select a topic to begin</div>
-    <div class="uib-topics-hd-sub">${unit.topics.length} topics &mdash; complete in order</div>
-    <div class="uib-topics-hd-line"></div>
-  </div>
-  <div class="overview-grid">`;
-
-  unit.topics.forEach(t => {
-    const dp = topicProgress(t);
-    const pct = Math.round(dp/3*100);
-    const pctColor = dp===3?'var(--done)':dp>0?'var(--step2)':'var(--muted)';
-    html += `<div class="ov-card ${unit.id}-card" onclick="selectTopic('${t.id}')">
-      <div class="ov-hd">
-        <div class="ov-num">${t.num}</div>
-        <div class="ov-name">${t.name}</div>
-        <div class="ov-pct" style="color:${pctColor}">${pct}%</div>
-      </div>
-      <div class="ov-desc">${t.desc}</div>
-      <div class="ov-steps">
-        ${t.steps.map((step,i)=>{
-          const done=isDone(t.id,i);
-          const unlocked=isUnlocked(t,i);
-          const icons=['&#128065;','&#9000;&#65039;','&#128193;'];
-          const cls=done?'done':unlocked?'next':'todo';
-          return '<div class="ov-step '+cls+'">'+( done?'&#9989;':icons[i])+' '+step.label+'</div>'+(i<2?'<div class="ov-step-arr">&#8250;</div>':'');
-        }).join('')}
-      </div>
-    </div>`;
-  });
-
-  html += `</div>`;
-  document.getElementById('main').innerHTML = html;
-}
-
-function renderTopic(){
-  const unit = UNITS.find(u => u.id === S.unit);
-  const topic = unit.topics.find(t => t.id === S.topic);
-  if (!topic){ renderOverview(); return; }
-  const dp = topicProgress(topic);
-  const pct = Math.round(dp/3*100);
-
-  let html = `
-  <div class="topic-hero ${unit.id}-hero">
-    <div>
-      <div class="th-unit-tag">${unit.number} · Topic ${topic.num}</div>
-      <div class="th-title">${topic.name}</div>
-      <div class="th-desc">${topic.desc}</div>
-    </div>
-    <div class="th-right">
-      <div class="th-pct" style="color:${dp===3?'#4ade80':dp>0?'#fbbf24':'rgba(255,255,255,.5)'}">${pct}%</div>
-      <div class="th-pct-lbl">${dp}/3 steps done</div>
-    </div>
-  </div>
-  <div class="path-heading">Complete these 3 steps in order</div>
-  <div class="learning-path">`;
-
-  const stepColors = ['step-1','step-2','step-3'];
-  const stepIcons = ['👁','⌨','📁'];
-
-  topic.steps.forEach((step, i) => {
-    const done = isDone(topic.id, i);
-    const unlocked = isUnlocked(topic, i);
-    const cardCls = done ? `step-card done ${stepColors[i]}` : unlocked ? `step-card ${stepColors[i]}` : `step-card locked`;
-
-    if (i > 0) html += `<div class="path-arrow">${done?'✅':'›'}</div>`;
-
-    html += `<div class="${cardCls}" onclick="${unlocked?`openStep('${topic.id}',${i})`:'lockedToast()'}">
-      <div class="step-hd">
-        <div class="step-hd-row">
-          <div class="step-badge">${done?'✓':i+1}</div>
-          <div class="step-type-lbl">${step.label}</div>
-        </div>
-        <div class="step-title">${stepIcons[i]} ${step.title}</div>
-      </div>
-      <div class="step-body">
-        <div class="step-desc">${step.desc}</div>
-        <div class="step-checklist">
-          ${step.checklist.map(item=>`<div class="sc-item">
-            <div class="sc-dot ${done?'done':unlocked?'open':'locked'}">${done?'✓':'·'}</div>
-            ${item}
-          </div>`).join('')}
-        </div>
-      </div>
-      <div class="step-ft">
-        <button class="step-launch-btn" ${!unlocked?'disabled':''} onclick="event.stopPropagation();${unlocked?`openStep('${topic.id}',${i})`:'lockedToast()'}">
-          ${done?`✅ Completed — Open Again`:`${stepIcons[i]} ${['Open Video Lessons','Open Practice Labs','Open Project Grader'][i]}`}
-        </button>
-      </div>
-    </div>`;
-  });
-
-  html += `</div>`;
-
-  const topics = unit.topics;
-  const idx = topics.findIndex(t => t.id === topic.id);
-  const prev = topics[idx-1];
-  const next = topics[idx+1];
-
-  html += `<div class="topic-nav-row">
-    <button class="nav-btn" onclick="${prev?`selectTopic('${prev.id}')`:`selectTopic('overview')`}">
-      ← ${prev?`Topic ${prev.num}: ${prev.name}`:'Back to All Topics'}
-    </button>
-    <button class="nav-btn" onclick="${next?`selectTopic('${next.id}')`:`selectTopic('overview')`}">
-      ${next?`Topic ${next.num}: ${next.name} →`:'Back to All Topics'}
-    </button>
-  </div>`;
-
-  document.getElementById('main').innerHTML = html;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ACTIONS
-// ═══════════════════════════════════════════════════════════
-window.selectUnit = function(id){
-  S.unit = id; S.topic = id ? 'overview' : null;
-  document.getElementById('main').classList.remove('splash-active');
-  document.getElementById('sidebar').style.display = '';
-  render();
-};
-window.selectTopic = function(id){ S.topic = id; render(); document.getElementById('main').scrollTo(0,0); };
-
-window.openStep = function(topicId, stepIdx){
-  const unit = UNITS.find(u => u.topics.some(t => t.id === topicId));
-  const topic = unit.topics.find(t => t.id === topicId);
-  const step = topic.steps[stepIdx];
-  if (!step) return;
-
-  const done = isDone(topicId, stepIdx);
-  const stepLabels = ['Video Lesson','Practice Labs','Graded Project'];
-
-  document.getElementById('modal-crumb').textContent = `${unit.number} · Topic ${topic.num}`;
-  document.getElementById('modal-title').textContent = `${stepLabels[stepIdx]}: ${step.title}`;
-
-  const doneBtn = document.getElementById('modal-done-btn');
-  doneBtn.textContent = done ? '✅ Completed' : '✓ Mark Complete';
-  doneBtn.className = `mh-done${done?' already':''}`;
-
-  // Store context for markStepDone
-  window._modalCtx = { topicId, stepIdx };
-
-  let url = step.file;
-  if (step.anchor) url += `#${step.anchor}`;
-  document.getElementById('modal-iframe').src = url;
-  document.getElementById('modal-backdrop').classList.add('open');
 };
 
-window.markStepDone = function(){
-  const ctx = window._modalCtx;
-  if (!ctx) return;
-  markDoneLS(ctx.topicId, ctx.stepIdx);
-  const btn = document.getElementById('modal-done-btn');
-  btn.textContent = '✅ Completed';
-  btn.className = 'mh-done already';
-  toast('✅ Step marked complete! The next step is now unlocked.');
-  render();
-};
+// ─────────────────────────────────────────────
+//  LOGIN
+// ─────────────────────────────────────────────
+async function handleLogin() {
+  const input = document.getElementById('nsheInput');
+  const errorEl = document.getElementById('loginError');
+  const nshe = input.value.trim();
 
-window.closeModal = function(){
-  document.getElementById('modal-backdrop').classList.remove('open');
-  document.getElementById('modal-iframe').src = '';
-  window._modalCtx = null;
-  render();
-};
+  if (!/^\d{10}$/.test(nshe)) {
+    errorEl.textContent = 'Please enter your full 10-digit NSHE ID.';
+    input.focus();
+    return;
+  }
+  errorEl.textContent = '';
 
-window.lockedToast = function(){
-  toast('🔒 Finish the previous step first — then this step will unlock.');
-};
+  // Try server login
+  try {
+    if (typeof ApiClient !== 'undefined') {
+      const result = await ApiClient.login(nshe);
+      if (result.success) {
+        currentStudent = nshe;
+        afterLogin();
+        return;
+      } else {
+        errorEl.textContent = result.message || 'Login failed. Please try again.';
+        return;
+      }
+    }
+  } catch (e) {
+    // Fall through to local mode
+  }
 
-function toast(msg){
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 3800);
+  // Offline/local mode fallback
+  currentStudent = nshe;
+  afterLogin();
 }
 
-window.updateName = function(val){
-  const initials = val.trim().split(/\s+/).map(w=>w[0]?.toUpperCase()||'').join('').slice(0,2) || '?';
-  document.getElementById('avatar').textContent = initials;
-  localStorage.setItem('is101-student-name', val);
-};
+function afterLogin() {
+  document.getElementById('loginGate').classList.remove('show');
+  document.getElementById('siteHeader').style.display = 'flex';
+  document.getElementById('overallProgressBar').style.display = 'flex';
+  document.getElementById('studentLabel').textContent = 'NSHE: ' + currentStudent;
+  loadProgress();
+}
 
-// ═══════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════
-const savedName = localStorage.getItem('is101-student-name') || '';
-if (savedName){ document.getElementById('student-name').value = savedName; window.updateName(savedName); }
-render();
+function handleLogout() {
+  try { if (typeof ApiClient !== 'undefined') ApiClient.logout(); } catch(e){}
+  currentStudent = null;
+  progress = {};
+  document.getElementById('loginGate').classList.add('show');
+  document.getElementById('siteHeader').style.display = 'none';
+  document.getElementById('overallProgressBar').style.display = 'none';
+  document.getElementById('nsheInput').value = '';
+  showView('home');
+}
+
+// Allow Enter key on NSHE input
+document.getElementById('nsheInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ─────────────────────────────────────────────
+//  PROGRESS
+// ─────────────────────────────────────────────
+async function loadProgress() {
+  try {
+    if (typeof ApiClient !== 'undefined') {
+      const data = await ApiClient.getProgress();
+      if (data) {
+        progress = data.stepCompletions || {};
+      }
+    } else {
+      // localStorage fallback for local dev
+      const stored = localStorage.getItem('is101_progress_' + currentStudent);
+      progress = stored ? JSON.parse(stored) : {};
+    }
+  } catch(e) {
+    progress = {};
+  }
+  renderAllProgress();
+}
+
+function saveStepProgress(stepId) {
+  progress[stepId] = true;
+  try {
+    if (typeof ApiClient !== 'undefined') {
+      ApiClient.saveStepProgress(stepId);
+    } else {
+      localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
+    }
+  } catch(e) {}
+  renderAllProgress();
+}
+
+function renderAllProgress() {
+  // Unit 1
+  const u1Steps = ['ai-t1-watch','ai-t1-exam','ai-t2-watch','ai-t2-checklist'];
+  const u1Done = u1Steps.filter(s => progress[s]).length;
+  const u1Pct = Math.round(u1Done / u1Steps.length * 100);
+  document.getElementById('u1Fill').style.width = u1Pct + '%';
+  document.getElementById('u1Pct').textContent = u1Pct + '%';
+  document.getElementById('u1ProgressLabel').textContent = u1Done + ' of ' + u1Steps.length + ' steps complete';
+  document.getElementById('u1CTA').textContent = u1Done > 0 ? 'Continue Unit 1' : 'Start Unit 1';
+
+  // Unit 2
+  const u2Skills = UNITS[2].groups.flatMap(g => g.skills.map(s => s.id));
+  const u2Done = u2Skills.filter(s => progress[s]).length;
+  const u2Pct = Math.round(u2Done / u2Skills.length * 100);
+  document.getElementById('u2Fill').style.width = u2Pct + '%';
+  document.getElementById('u2Pct').textContent = u2Pct + '%';
+  document.getElementById('u2ProgressLabel').textContent = u2Done + ' of ' + u2Skills.length + ' skills complete';
+  document.getElementById('u2CTA').textContent = u2Done > 0 ? 'Continue Unit 2' : 'Start Unit 2';
+
+  // Unit 3
+  const u3Skills = UNITS[3].groups.flatMap(g => g.skills.map(s => s.id));
+  const u3Done = u3Skills.filter(s => progress[s]).length;
+  const u3Pct = Math.round(u3Done / u3Skills.length * 100);
+  document.getElementById('u3Fill').style.width = u3Pct + '%';
+  document.getElementById('u3Pct').textContent = u3Pct + '%';
+  document.getElementById('u3ProgressLabel').textContent = u3Done + ' of ' + u3Skills.length + ' skills complete';
+  document.getElementById('u3CTA').textContent = u3Done > 0 ? 'Continue Unit 3' : 'Start Unit 3';
+
+  // Overall
+  const allSteps = [...u1Steps, ...u2Skills, ...u3Skills];
+  const allDone = allSteps.filter(s => progress[s]).length;
+  const allPct = Math.round(allDone / allSteps.length * 100);
+  document.getElementById('overallFill').style.width = allPct + '%';
+  document.getElementById('overallPct').textContent = allPct + '%';
+
+  // Badges
+  if (u1Pct === 100) document.getElementById('u1Badge').textContent = '✓ Complete';
+  if (u2Pct === 100) document.getElementById('u2Badge').textContent = '✓ Complete';
+  if (u3Pct === 100) document.getElementById('u3Badge').textContent = '✓ Complete';
+}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  window.scrollTo(0, 0);
+  currentUnit = null;
+}
+
+function openUnit(unitNum) {
+  const unit = UNITS[unitNum];
+  if (!unit) return;
+  currentUnit = unitNum;
+
+  document.getElementById('unitBreadcrumb').textContent = 'Unit ' + unitNum;
+  document.getElementById('unitEyebrow').textContent = unit.eyebrow;
+  document.getElementById('unitHeading').textContent = unit.title;
+  document.getElementById('unitDesc').textContent = unit.desc;
+  document.getElementById('overviewStepsTotal').textContent = unit.totalSteps;
+
+  // Show/hide jump button
+  const jumpBtn = document.getElementById('jumpProjectsBtn');
+  jumpBtn.style.display = unit.jumpTarget ? 'inline-flex' : 'none';
+
+  renderUnitContent(unitNum);
+  updateUnitOverviewProgress(unitNum);
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('viewUnit').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderUnitContent(unitNum) {
+  const unit = UNITS[unitNum];
+  const container = document.getElementById('skillGroupsContainer');
+  container.innerHTML = '';
+
+  if (unit.type === 'topics') {
+    // Unit 1 — topic/step style
+    unit.topics.forEach(topic => {
+      const doneCount = topic.steps.filter(s => progress[s.id]).length;
+      const totalCount = topic.steps.length;
+      let badgeClass = 'todo-badge', badgeText = 'Not started';
+      if (doneCount === totalCount) { badgeClass = 'done-badge'; badgeText = '✓ Complete'; }
+      else if (doneCount > 0) { badgeClass = 'inprog-badge'; badgeText = 'In Progress'; }
+
+      const stepsHtml = topic.steps.map(step => {
+        const done = !!progress[step.id];
+        return `
+          <div class="topic-step">
+            <div class="step-icon ${done ? 'done-icon' : ''}">${done ? '✅' : step.icon}</div>
+            <div class="step-info">
+              <div class="step-title">${step.title}</div>
+              <div class="step-desc">${step.desc}</div>
+            </div>
+            <div class="step-cta">
+              ${done
+                ? `<button class="completed-btn">✓ Done</button>`
+                : `<button onclick="goToStep('${step.id}', '${step.href}')">${step.cta}</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML += `
+        <div class="topic-card">
+          <div class="topic-header">
+            <div class="topic-num">${topic.num}</div>
+            <div class="topic-info">
+              <div class="topic-title">${topic.title}</div>
+              <div class="topic-meta">⏱ ${topic.meta} &nbsp;·&nbsp; ${totalCount} steps</div>
+            </div>
+            <span class="topic-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="topic-steps">${stepsHtml}</div>
+        </div>
+      `;
+    });
+
+  } else {
+    // Units 2 & 3 — skill group style
+    unit.groups.forEach((group, gi) => {
+      const doneCount = group.skills.filter(s => progress[s.id]).length;
+      const totalCount = group.skills.length;
+      const pct = Math.round(doneCount / totalCount * 100);
+
+      const skillsHtml = group.skills.map(skill => {
+        const done = !!progress[skill.id];
+        return `
+          <div class="skill-row">
+            <div class="skill-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
+            <div class="skill-name-col">
+              <div class="skill-name">${skill.name}</div>
+              <div class="skill-hint">${skill.hint}</div>
+            </div>
+            <div class="skill-actions">
+              ${done
+                ? `<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Complete</span>`
+                : `
+                  <button class="btn-prove" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Prove It</button>
+                  <button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>
+                `
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML += `
+        <div class="skill-group-card ${gi === 0 ? 'open' : ''}" id="group-${group.id}">
+          <div class="skill-group-header" onclick="toggleGroup('group-${group.id}')">
+            <div class="group-icon">${group.icon}</div>
+            <div class="group-info">
+              <div class="group-name">${group.name}</div>
+              <div class="group-sub">${totalCount} skills</div>
+            </div>
+            <div class="group-progress-mini">
+              <div class="mini-track"><div class="mini-fill" style="width:${pct}%"></div></div>
+              <span class="mini-pct">${pct}%</span>
+            </div>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="skill-group-body">
+            <div class="skill-rows">${skillsHtml}</div>
+            <div class="group-footer">
+              <button class="btn-go-project" onclick="jumpToProjects()">Go to Project →</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+}
+
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function updateUnitOverviewProgress(unitNum) {
+  const unit = UNITS[unitNum];
+  let allStepIds = [];
+  if (unit.type === 'topics') {
+    unit.topics.forEach(t => t.steps.forEach(s => allStepIds.push(s.id)));
+  } else {
+    unit.groups.forEach(g => g.skills.forEach(s => allStepIds.push(s.id)));
+  }
+  const done = allStepIds.filter(s => progress[s]).length;
+  const total = allStepIds.length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('overviewStepsDone').textContent = done;
+  document.getElementById('overviewStepsTotal').textContent = total;
+  document.getElementById('overviewPct').textContent = pct + '%';
+  document.getElementById('overviewFill').style.width = pct + '%';
+}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION — STEPS / SKILLS
+// ─────────────────────────────────────────────
+function goToStep(stepId, href) {
+  // For demo: mark complete and navigate
+  // In production: navigate and let the target page call back progress
+  if (href && href !== '#') {
+    window.location.href = href;
+  } else {
+    // Demo fallback — mark as done
+    saveStepProgress(stepId);
+    renderUnitContent(currentUnit);
+    updateUnitOverviewProgress(currentUnit);
+    showToast('Step marked complete!', 'success');
+  }
+}
+
+function openTwoPath(skillId, skillName, groupName) {
+  selectedSkill = skillId;
+  document.getElementById('modalSkillName').textContent = skillName;
+  document.getElementById('modalSkillGroup').textContent = 'Unit ' + currentUnit + ' · ' + groupName;
+  document.getElementById('twoPathModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('twoPathModal').classList.remove('open');
+  selectedSkill = null;
+}
+
+function goProveit() {
+  closeModal();
+  // In production: navigate to project grader for this skill
+  const unit = UNITS[currentUnit];
+  if (unit && unit.jumpTarget) {
+    window.location.href = unit.jumpTarget + '&skill=' + selectedSkill;
+  } else {
+    showToast('Project grader coming soon!', 'warning');
+  }
+}
+
+function goPractice() {
+  closeModal();
+  // In production: navigate to word or excel labs for this skill
+  if (currentUnit === 2) {
+    window.location.href = 'IS101_Word_Labs_06082026_2112.html#' + selectedSkill;
+  } else if (currentUnit === 3) {
+    window.location.href = 'IS101_Excel_Labs_06082026_1116.html#' + selectedSkill;
+  } else {
+    showToast('Practice labs coming soon!', 'warning');
+  }
+}
+
+function jumpToProjects() {
+  const unit = UNITS[currentUnit];
+  if (unit && unit.jumpTarget) {
+    window.location.href = unit.jumpTarget;
+  } else {
+    showToast('Project grader coming soon!', 'warning');
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('twoPathModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : type === 'warning' ? '⚠ ' : '') + msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3200);
+}
+
+// ─────────────────────────────────────────────
+//  CHECK SESSION ON LOAD
+// ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  // Check if already logged in via server session
+  try {
+    if (typeof ApiClient !== 'undefined') {
+      const session = await ApiClient.getSession();
+      if (session && session.nsheId) {
+        currentStudent = session.nsheId;
+        afterLogin();
+        return;
+      }
+    }
+  } catch(e) {}
+  // Show login gate
+  document.getElementById('loginGate').classList.add('show');
+});
 </script>
+
 </body>
 </html>
