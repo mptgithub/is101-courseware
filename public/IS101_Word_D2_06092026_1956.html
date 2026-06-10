@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Word 365 — Domain 2: Insert & Format Text | IS101</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#808080;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#1f1f1f}
+#title-bar{height:32px;background:#2b579a;display:flex;align-items:center;padding:0 6px 0 8px;flex-shrink:0}
+#title-bar .qat{display:flex;gap:2px;margin-right:8px}
+#title-bar .qat button{width:24px;height:24px;background:transparent;border:none;color:rgba(255,255,255,.88);font-size:12px;cursor:pointer;border-radius:2px}
+#title-bar .docname{flex:1;text-align:center;color:#fff;font-size:12px}
+#title-bar .winbtns{display:flex}
+#title-bar .winbtns button{width:44px;height:32px;background:transparent;border:none;color:rgba(255,255,255,.88);font-size:10px;cursor:pointer}
+#title-bar .winbtns button:hover{background:rgba(255,255,255,.18)}
+#title-bar .winbtns .cls:hover{background:#c42b1c}
+#ribbon{background:#fff;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+#tab-strip{background:#2b579a;display:flex;align-items:flex-end;padding:0 2px;height:30px}
+.tab{height:26px;padding:0 12px;font-size:12px;font-family:inherit;color:rgba(255,255,255,.82);background:transparent;border:none;cursor:pointer;white-space:nowrap;border-radius:2px 2px 0 0;position:relative;bottom:-1px}
+.tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+.tab.active{background:#fff;color:#000;border-left:1px solid #c8c8c8;border-right:1px solid #c8c8c8;border-top:2px solid #2b579a;border-bottom:none;height:30px;bottom:-1px;z-index:2}
+#ribbon-body{background:#fff;border-top:1px solid #c8c8c8;display:flex;align-items:stretch;height:88px;overflow-x:auto;overflow-y:hidden;padding:0 2px}
+.grp{display:flex;flex-direction:column;border-right:1px solid #e0e0e0;padding:0 2px;flex-shrink:0}
+.grp:last-child{border-right:none}
+.grp-btns{display:flex;align-items:flex-start;gap:1px;flex:1;padding:3px 2px 2px}
+.grp-lbl{font-size:9px;color:#666;text-align:center;padding:1px 4px 2px;white-space:nowrap;display:flex;align-items:center;justify-content:center;min-height:13px}
+.lb{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:68px;min-width:42px;padding:4px 4px 2px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;flex-shrink:0;font-family:inherit}
+.lb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.lb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.lb .li{display:flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:21px;flex-shrink:0;margin-bottom:1px}
+.lb .ll{font-size:9px;color:#333;text-align:center;line-height:1.25;word-break:break-word;max-width:52px}
+.dd-wrap{position:relative;display:inline-flex;vertical-align:top}
+.sb{display:flex;align-items:center;gap:4px;height:20px;padding:0 6px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:11px;font-family:inherit;color:#1f1f1f;white-space:nowrap;min-width:72px}
+.sb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.sb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.sb .si{font-size:13px;width:14px;text-align:center;flex-shrink:0}
+.sb-stack{display:flex;flex-direction:column;gap:1px;justify-content:center;height:68px}
+.font-combo{height:20px;border:1px solid #ababab;border-radius:2px;background:#fff;font-size:11px;padding:0 3px;display:flex;align-items:center;gap:2px}
+.font-sq{width:22px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:12px;flex-shrink:0}
+.font-sq:hover{background:#e8f0fb;border-color:#c5d9f7}
+.font-sq.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.font-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0}
+.font-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.font-row{display:flex;align-items:center;gap:1px}
+.styles-gallery{display:flex;align-items:stretch;gap:1px;padding:2px 0}
+.style-btn{width:52px;height:64px;border:1px solid transparent;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:transparent;font-family:inherit;padding:4px 2px;gap:3px}
+.style-btn:hover{border-color:#c5d9f7;background:#e8f0fb}
+.style-btn.hl{border-color:#f59e0b;background:#fff3cd;animation:hlpulse 1.4s infinite}
+.style-preview{font-size:15px;color:#000;line-height:1}
+.style-name{font-size:8px;color:#555;text-align:center;line-height:1.2}
+.ico-btn{width:24px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;flex-shrink:0}
+.ico-btn:hover{background:#e8f0fb;border-color:#c5d9f7}
+.ico-btn.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.ico-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0;align-self:center}
+.para-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.para-row{display:flex;align-items:center;gap:1px}
+.dd-menu{position:fixed;background:#fff;border:1px solid #ababab;box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:9999;min-width:180px;padding:2px 0;display:none}
+.dd-menu.open{display:block}
+.dd-item{display:block;width:100%;background:transparent;border:none;text-align:left;padding:7px 16px;font-size:12px;cursor:pointer;color:#1f1f1f;font-family:inherit}
+.dd-item:hover{background:#e8f0fb}
+.spinner-wrap{display:flex;flex-direction:column;gap:2px;padding:4px 4px 0}
+.spinner-section{font-size:9px;color:#555}
+.spinner-row{display:flex;align-items:center;gap:3px;margin-bottom:2px}
+.spinner-lbl{font-size:10px;color:#444;min-width:32px;text-align:right;flex-shrink:0}
+.spinner{width:44px;height:18px;border:1px solid #ababab;border-radius:2px;background:#fff;display:flex;align-items:center;flex-shrink:0}
+.spinner-val{font-size:10px;flex:1;padding-left:3px}
+.spinner-arrows{display:flex;flex-direction:column;border-left:1px solid #e0e0e0;width:12px}
+.spinner-arrows button{flex:1;border:none;background:transparent;cursor:pointer;font-size:5px;color:#666;display:flex;align-items:center;justify-content:center}
+#body-wrap{display:flex;flex:1;overflow:hidden}
+#sidebar{width:200px;background:#1e293b;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-hd{padding:12px 14px 8px;border-bottom:1px solid #334155}
+.sb-exam{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:2px}
+.sb-title{font-size:12px;font-weight:700;color:#f1f5f9;line-height:1.3}
+.sb-score-box{padding:8px 14px;border-bottom:1px solid #334155}
+.sb-lbl{font-size:9px;color:#64748b;margin-bottom:2px}
+.sb-val{font-size:18px;font-weight:700;color:#60a5fa}
+.sb-bar{height:3px;background:#334155;border-radius:2px;margin-top:4px}
+.sb-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width .4s}
+.lab-btn{display:flex;align-items:center;gap:7px;width:100%;background:transparent;border:none;border-left:3px solid transparent;cursor:pointer;padding:6px 12px;text-align:left;color:#94a3b8;font-family:inherit}
+.lab-btn:hover{background:#273244;color:#e2e8f0}
+.lab-btn.active{background:#1e3a5f;border-left-color:#3b82f6;color:#fff}
+.lab-btn.done{color:#34d399;border-left-color:#10b981}
+.lab-dot{width:18px;height:18px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;color:#94a3b8}
+.lab-dot.active{background:#3b82f6;color:#fff}
+.lab-dot.done{background:#10b981;color:#fff}
+.lab-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#main-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#ruler-wrap{height:17px;background:#f0f0f0;border-bottom:1px solid #c8c8c8;display:flex;flex-shrink:0}
+#ruler-corner{width:30px;height:17px;background:#f0f0f0;border-right:1px solid #c8c8c8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888}
+#ruler{flex:1;height:17px;position:relative;overflow:hidden;display:flex;background:#fff}
+.ruler-margin{background:#f0f0f0;flex-shrink:0}
+.ruler-tick{position:absolute;top:0}
+.rtline{width:1px;height:8px;background:#999;margin-top:5px}
+.rtline.major{height:12px;margin-top:3px}
+.rtnum{position:absolute;font-size:7px;color:#777;top:0;transform:translateX(-50%)}
+#prog-bar{height:3px;background:#e5e7eb;flex-shrink:0}
+#prog-fill{height:100%;background:#2b579a;transition:width .4s}
+#canvas{flex:1;overflow-y:auto;background:#808080;display:flex;justify-content:center;align-items:flex-start;padding:20px}
+#doc-page{width:680px;min-height:460px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.4);font-family:"Calibri",serif;padding:72px 96px;position:relative}
+#doc-page.landscape{padding:60px 96px;width:880px}
+#status-bar{height:22px;background:#2b579a;display:flex;align-items:center;padding:0 12px;color:rgba(255,255,255,.85);font-size:11px;flex-shrink:0;gap:16px}
+#task-panel{background:#fff;border-top:2px solid #2b579a;padding:10px 16px;flex-shrink:0}
+.task-row{display:flex;align-items:flex-start;gap:10px}
+.task-badge{background:#1d4ed8;color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:3px 8px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.task-text{font-size:13px;color:#1e3a8a;font-weight:500;line-height:1.4;flex:1}
+.task-acts{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.btn{padding:5px 14px;border-radius:2px;font-size:12px;cursor:pointer;font-family:inherit;border:1px solid transparent}
+.btn-blue{background:#2b579a;color:#fff}.btn-blue:hover{background:#1e3a8a}
+.btn-ghost{background:#fff;border-color:#ababab;color:#374151}.btn-ghost:hover{background:#f5f5f5}
+.btn-gold{background:#f59e0b;color:#fff;border:none}.btn-gold:hover{background:#d97706}
+.hint-area{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.hint-row{padding:7px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#78350f;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.hint-num{font-size:10px;font-weight:800;text-transform:uppercase;padding:1px 7px;border-radius:10px;background:rgba(0,0,0,.08);flex-shrink:0;margin-top:1px}
+.answer-tag{background:#15803d;color:#fff}
+.hint-answer{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.fb{margin-top:7px;padding:9px 14px;font-size:12px;line-height:1.5}
+.fb-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.fb-err{background:#fff1f1;border:1px solid #fca5a5;color:#991b1b}
+.fb-next{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}
+.dt{font-size:24px;font-weight:800;color:#000;letter-spacing:-.5px;margin-bottom:6px}
+.dh1{font-size:17px;font-weight:700;color:#2e74b5;margin:14px 0 8px;border-bottom:1px solid #2e74b5;padding-bottom:3px}
+.dh2{font-size:14px;font-weight:600;color:#2e74b5;margin:10px 0 6px}
+.dp{font-size:13px;color:#1a1a1a;line-height:1.65;margin-bottom:8px;font-family:"Calibri",serif}
+.dsel{background:#b4d5fe;border-radius:1px}
+.dtbl{width:100%;border-collapse:collapse;margin:10px 0}
+.dtbl th{background:#2b579a;color:#fff;padding:6px 10px;font-size:12px;font-weight:600;text-align:left;border:1px solid #1e3a8a}
+.dtbl td{border:1px solid #d1d5db;padding:6px 10px;font-size:12px}
+.dtbl tr:nth-child(even) td{background:#f0f4ff}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;display:none}
+.w-dlg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #ababab;box-shadow:0 8px 28px rgba(0,0,0,.25);z-index:300;width:400px;display:none;font-family:"Segoe UI",sans-serif}
+.dlg-hd{background:#2b579a;color:#fff;padding:8px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.dlg-close{background:transparent;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0 4px}
+.dlg-body{padding:16px;max-height:60vh;overflow-y:auto}
+.dlg-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dlg-row label{font-size:12px;color:#374151;min-width:100px;flex-shrink:0}
+.dlg-row input[type=text],.dlg-row select{flex:1;padding:5px 8px;border:1px solid #ababab;font-size:12px;font-family:inherit;border-radius:2px}
+.dlg-section{font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding-bottom:3px;border-bottom:1px solid #e5e7eb}
+.dlg-ft{padding:10px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px;background:#f9f9f9}
+.res-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none}
+.res-overlay.open{display:block}
+.res-panel{position:fixed;right:-420px;top:0;width:400px;height:100vh;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.2);z-index:401;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.res-panel.open{right:0}
+.res-hd{background:#1e293b;color:#fff;padding:16px 18px;flex-shrink:0;position:relative}
+.res-hd h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.res-hd p{font-size:11px;color:rgba(255,255,255,.55)}
+.res-close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer}
+.res-close:hover{color:#fff}
+.res-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.res-card{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.res-card-hd{background:#f8fafc;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e5e7eb}
+.res-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ri-ai{background:#ede9fe}.ri-li{background:#dbeafe}.ri-yt{background:#fee2e2}.ri-ms{background:#dcfce7}
+.res-card-title{font-size:12px;font-weight:700}
+.res-card-sub{font-size:10px;color:#6b7280}
+.res-card-body{padding:10px 14px}
+.prompt-box{background:#1e1e2e;border-radius:6px;padding:10px 12px;font-family:"Courier New",monospace;font-size:11px;color:#cdd6f4;line-height:1.6;margin-bottom:8px;white-space:pre-wrap}
+.copy-btn{background:#313244;border:none;color:#cdd6f4;padding:4px 10px;border-radius:4px;font-size:11px;font-family:inherit;cursor:pointer}
+.copy-btn:hover{background:#45475a}
+.copy-btn.copied{background:#1e3a2e;color:#a6e3a1}
+.res-link{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f8fafc;border-radius:6px;text-decoration:none;color:#1f1f1f;font-size:12px;font-weight:500;border:1px solid #e5e7eb;margin-bottom:6px}
+.res-link:hover{background:#eff6ff;border-color:#bfdbfe}
+.res-note{font-size:10px;color:#6b7280;line-height:1.5;margin-top:4px}
+@keyframes hlpulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}60%{box-shadow:0 0 0 4px rgba(245,158,11,.08)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="backdrop" id="backdrop" onclick="closeDlg()"></div>
+
+<div class="w-dlg" id="dlg-fr"><div class="dlg-hd">Find and Replace <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-row"><label>Find what:</label><input type="text" value="Desert Sun Partners"></div><div class="dlg-row"><label>Replace with:</label><input type="text" value="Desert Sun Consulting"></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-ghost" onclick="closeDlg()">Replace</button><button class="btn btn-blue" onclick="dlgGrade()">Replace All</button></div></div>
+
+<div class="w-dlg" id="dlg-symbol" style="width:480px"><div class="dlg-hd">Symbol <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-row"><label>Font:</label><select><option>(normal text)</option><option>Wingdings</option><option>Symbol</option></select></div><div style="display:grid;grid-template-columns:repeat(16,1fr);gap:2px;margin:8px 0"><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="!">!</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=""">"</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="#">#</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="$">$</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="%">%</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="&">&</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="'">'</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="(">(</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=")">)</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="*">*</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="+">+</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=",">,</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="-">-</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=".">.</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="/">/</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=":">:</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=";">;</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="<"><</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="=">=</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title=">">></button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="?">?</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="@">@</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="[">[</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="\">\</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="]">]</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="^">^</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="_">_</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="`">`</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="{">{</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="|">|</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="}">}</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="~">~</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="©">©</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="®">®</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="™">™</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="°">°</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="½">½</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="¼">¼</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="¾">¾</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="±">±</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="×">×</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="÷">÷</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="µ">µ</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="§">§</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="¶">¶</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="†">†</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="‡">‡</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="…">…</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="—">—</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="–">–</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="•">•</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="→">→</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="←">←</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="↑">↑</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="↓">↓</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="↔">↔</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="≈">≈</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="≠">≠</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="≤">≤</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="≥">≥</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="∞">∞</button><button style="width:26px;height:26px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;border-radius:2px" onclick="closeDlg()" title="√">√</button></div><div class="dlg-section">Special Characters</div><div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #e5e7eb"><span>Em Dash &mdash;</span><span style="color:#888">Alt+Ctrl+Num -</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #e5e7eb"><span>Copyright &copy;</span><span style="color:#888">(c)</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0"><span>Registered &reg;</span><span style="color:#888">(r)</span></div></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Close</button><button class="btn btn-blue" onclick="dlgGrade()">Insert</button></div></div>
+
+<div class="w-dlg" id="dlg-indent"><div class="dlg-hd">Paragraph <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Indentation</div><div class="dlg-row"><label>Left:</label><input type="text" value='0"'></div><div class="dlg-row"><label>Right:</label><input type="text" value='0"'></div><div class="dlg-row"><label>Special:</label><select id="indent-special"><option>(none)</option><option selected>First line</option><option>Hanging</option></select></div><div class="dlg-row"><label>By:</label><input type="text" value='0.5"'></div><div class="dlg-section">Spacing</div><div class="dlg-row"><label>Before:</label><input type="text" value="0 pt"></div><div class="dlg-row"><label>After:</label><input type="text" value="8 pt"></div><div class="dlg-row"><label>Line spacing:</label><select><option>Multiple</option><option>Single</option><option>Double</option></select></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-sectionsetup"><div class="dlg-hd">Page Setup <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Orientation</div><div style="display:flex;gap:16px;margin-bottom:12px"><div style="border:1px solid #e5e7eb;padding:8px 16px;border-radius:4px;font-size:12px;cursor:pointer">&#x25AD; Portrait</div><div style="border:2px solid #2b579a;padding:8px 16px;border-radius:4px;font-size:12px;cursor:pointer;background:#eff6ff">&#x25AD; Landscape &#10003;</div></div><div class="dlg-section">Margins</div><div class="dlg-row"><label>Top:</label><input type="text" value='1"'></div><div class="dlg-row"><label>Bottom:</label><input type="text" value='1"'></div><div class="dlg-section">Apply to</div><div class="dlg-row"><label>Apply to:</label><select><option>This section</option><option>Whole document</option><option>This point forward</option></select></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+
+<div id="title-bar">
+  <div class="qat">
+    <button>&#128190;</button><button style="font-size:11px">&#8617;</button><button style="font-size:11px">&#8618;</button>
+  </div>
+  <div class="docname" id="doc-title">DesertSunReport.docx &#8212; Word</div>
+  <div class="winbtns"><button>&#8212;</button><button>&#10063;</button><button class="cls">&#10005;</button></div>
+</div>
+
+<div id="ribbon"><div id="tab-strip"></div><div id="ribbon-body"></div></div>
+<div id="ruler-wrap"><div id="ruler-corner">&#8862;</div><div id="ruler"></div></div>
+<div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+
+<div id="body-wrap">
+  <div id="sidebar">
+    <div class="sb-hd">
+      <div class="sb-exam">IS101 &middot; Word 365</div>
+      <div class="sb-title">Domain 2: Insert &amp; Format Text</div>
+    </div>
+    <div class="sb-score-box">
+      <div class="sb-lbl">COMPLETED</div>
+      <div class="sb-val" id="sb-score">0 / 15</div>
+      <div class="sb-bar"><div class="sb-fill" id="sb-fill" style="width:0%"></div></div>
+    </div>
+    <div id="sb-nav"></div>
+  </div>
+  <div id="main-pane">
+    <div id="canvas"><div id="doc-page"></div></div>
+    <div id="status-bar">
+      <span>Page 1 of 3</span><span>Words: 248</span><span>English (United States)</span>
+      <span style="margin-left:auto">&#9632; &#128214; &#128269;</span>
+    </div>
+    <div id="task-panel"></div>
+  </div>
+</div>
+
+<div class="res-overlay" id="res-overlay" onclick="closeResources()"></div>
+<div class="res-panel" id="res-panel">
+  <div class="res-hd">
+    <h3>&#128161; Resources</h3>
+    <p id="res-skill-name"></p>
+    <button class="res-close" onclick="closeResources()">&#x2715;</button>
+  </div>
+  <div class="res-body" id="res-body"></div>
+</div>
+
+<script>
+const LABS = [{"id": 0, "name": "Find and Replace", "tab": "home", "action": "find-replace", "docTitle": "DesertSunReport.docx — Word", "task": "The company name changed. Use <strong>Find & Replace</strong> to replace every instance of <strong>\"Desert Sun Partners\"</strong> with <strong>\"Desert Sun Consulting\"</strong> throughout the document.", "hints": ["Find & Replace is on the Home tab — look in the Editing group on the far right.", "In the Editing group, click Replace (or press Ctrl+H) to open the Find and Replace dialog.", "Type the old text in 'Find what' and the new text in 'Replace with', then click Replace All."], "answer": "Home tab → Editing group → Replace (Ctrl+H) → type old and new text → Replace All.", "exp": "Find & Replace (Ctrl+H): finds every instance of a word or phrase and replaces it with something else in one click. Use Replace All to change every occurrence at once.", "dlg": "dlg-fr", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Desert Sun Partners</p><p class=\"dp\">Welcome to the <span class=\"dsel\">Desert Sun Partners</span> fiscal year 2026 annual report. <span class=\"dsel\">Desert Sun Partners</span> serves clients across Nevada and the greater Southwest region.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← The company name changed. Use Find & Replace to update all three instances at once.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Desert Sun Consulting</p><p class=\"dp\">Welcome to the Desert Sun Consulting fiscal year 2026 annual report. Desert Sun Consulting serves clients across Nevada and the greater Southwest region.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Replace All complete — 3 instances of \"Desert Sun Partners\" replaced with \"Desert Sun Consulting\".</p>", "prompt": "I am learning Word 365. How do I use Find & Replace (Ctrl+H) to change every instance of a word in my document at once? What is the difference between Replace and Replace All?", "youtube": "https://www.youtube.com/results?search_query=word+365+find+and+replace+text", "ms": "https://support.microsoft.com/en-us/office/find-and-replace-text-c6728c16-469e-43cd-afe4-7708c6c779b7"}, {"id": 1, "name": "Insert Symbol / Special Character", "tab": "insert", "action": "insert-symbol", "docTitle": "OasisEvents_Proposal.docx — Word", "task": "The proposal needs a registered trademark symbol <strong>®</strong> after \"Oasis Events\" in the heading. Insert a <strong>special character</strong> using the Symbol command.", "hints": ["Symbols and special characters are inserted from the Insert tab.", "On the Insert tab, look at the far right for the Text group or Symbols group.", "Click Symbol → More Symbols to open the Symbol dialog. Find ® (Registered Sign) or use the Special Characters tab."], "answer": "Insert tab → Symbols group → Symbol → More Symbols → find ® → Insert. (Or type (R) and let AutoCorrect convert it.)", "exp": "Symbol (Insert → Symbol): inserts special characters not on the keyboard: © ® ™ ° ½ — and hundreds more. The Special Characters tab has the most common ones.", "dlg": "dlg-symbol", "before_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Oasis Events<span class=\"dsel\"> </span>Las Vegas</p><p class=\"dp\">Oasis Events Las Vegas is the premier full-service event planning company in the Clark County area. We specialize in corporate events, galas, and destination weddings.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Insert the ® symbol after \"Oasis Events\" in the heading above.</p>", "after_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Oasis Events® Las Vegas</p><p class=\"dp\">Oasis Events® Las Vegas is the premier full-service event planning company in the Clark County area. We specialize in corporate events, galas, and destination weddings.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Registered trademark symbol ® inserted successfully.</p>", "prompt": "I am learning Word 365. How do I insert special characters like ®, ©, ™, or — into a document? Walk me through Insert → Symbol → More Symbols.", "youtube": "https://www.youtube.com/results?search_query=word+365+insert+symbol+special+character", "ms": "https://support.microsoft.com/en-us/office/insert-a-symbol-0af3aa4e-9eb7-4d0c-bef8-50c38f52b399"}, {"id": 2, "name": "Apply Text Effects", "tab": "home", "action": "text-effects", "docTitle": "DesertSunReport.docx — Word", "task": "Apply a <strong>text effect</strong> to the document title to give it a gradient fill that makes it stand out on the cover page.", "hints": ["Text effects are a font formatting option — look for the Home tab.", "On the Home tab, in the Font group, look for a button that looks like a glowing letter A.", "Click the Text Effects button (A with a glow) and choose one of the gradient or shadow effects from the gallery."], "answer": "Home tab → Font group → Text Effects (glowing A button) → choose an effect from the gallery.", "exp": "Text Effects (Home → Font group → A˚): applies visual effects to text including gradient fills, shadows, reflections, and glow. Different from font color — these are decorative effects.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Desert Sun Consulting</p><p class=\"dp\">This is the cover page of the annual business report. The title above needs a visual text effect to make it stand out. Select the title text and apply a text effect.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the title and apply a text effect using the Home tab → Font group.</p>", "after_html": "<p style=\"font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;background:linear-gradient(135deg,#2b579a,#0078d4,#00b4d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text\">Annual Business Report</p><p class=\"dh1\">Desert Sun Consulting</p><p class=\"dp\">The gradient text effect has been applied to the document title, giving it a professional, polished appearance for the cover page.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Text effect applied — gradient fill on document title.</p>", "prompt": "I am learning Word 365. How do I apply text effects in Word such as gradient fills, shadows, or glow effects? Where is the Text Effects button on the ribbon?", "youtube": "https://www.youtube.com/results?search_query=word+365+text+effects+gradient+shadow", "ms": "https://support.microsoft.com/en-us/office/add-or-remove-a-text-effect-a20a0caf-2c42-4b6e-b371-a409b5b75b00"}, {"id": 3, "name": "Use Format Painter", "tab": "home", "action": "format-painter", "docTitle": "DesertSunReport.docx — Word", "task": "The section heading on page 2 needs to match the formatting of the heading on page 1. Use <strong>Format Painter</strong> to copy the formatting from one heading to the other.", "hints": ["Format Painter is on the Home tab — look in the Clipboard group on the far left.", "In the Clipboard group, click the paintbrush icon labeled Format Painter.", "Click Format Painter once, then click the destination text to apply the formatting. Double-click to apply to multiple locations."], "answer": "Home tab → Clipboard group → Format Painter (paintbrush icon) → click source text → click destination text.", "exp": "Format Painter (Home → Clipboard group): copies all formatting (font, size, color, spacing) from one text selection and pastes it onto another. Double-click to use on multiple locations.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">The executive summary heading above uses Heading 1 style with the correct blue color and border. The heading below needs to match it exactly.</p><p style=\"font-size:17px;font-weight:400;color:#666;margin:14px 0 8px\" class=\"dsel\">Financial Highlights</p><p class=\"dp\">This heading needs to be reformatted to match the Executive Summary heading above. Use Format Painter to copy the formatting.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click Executive Summary, then use Format Painter to apply its formatting to Financial Highlights.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">The executive summary heading above uses Heading 1 style with the correct blue color and border.</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">The Financial Highlights heading now matches the Executive Summary heading — same font, color, weight, and border styling applied via Format Painter.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Format Painter applied — heading formatting copied successfully.</p>", "prompt": "I am learning Word 365. How do I use Format Painter to copy formatting from one piece of text to another? What is the difference between single-clicking and double-clicking Format Painter?", "youtube": "https://www.youtube.com/results?search_query=word+365+format+painter", "ms": "https://support.microsoft.com/en-us/office/use-the-format-painter-4bb415a9-d4e4-42b7-b579-170adc594e40"}, {"id": 4, "name": "Set Line Spacing", "tab": "home", "action": "spacing-double", "docTitle": "CSN_SociologyPaper.docx — Word", "task": "CSN requires all submitted papers to use <strong>double spacing</strong>. Change the line spacing of the body paragraphs to 2.0.", "hints": ["Line spacing is a paragraph formatting option — look for the Home tab.", "On the Home tab, find the Paragraph group. Look for the line spacing button (two lines with an up-down arrow).", "Click the Line Spacing button and select 2.0 from the dropdown. Or use the Line Spacing Options dialog for exact control."], "answer": "Home tab → Paragraph group → Line Spacing button → 2.0.", "exp": "Line Spacing (Home → Paragraph group): controls the space between lines within a paragraph. Common options: 1.0 (single), 1.15 (default), 1.5, 2.0 (double). APA/MLA papers require 2.0.", "before_html": "<p class=\"dt\">Social Stratification in Urban Nevada</p><p class=\"dh1\">Introduction</p><p class=\"dp\" style=\"line-height:1.2\">Social stratification refers to the way in which society categorizes groups of people based on socioeconomic factors such as wealth, income, education, and power. In urban Nevada, particularly in the Las Vegas metropolitan area, these divisions are both visible and measurable.</p><p class=\"dp\" style=\"line-height:1.2\">The concentration of wealth in Las Vegas creates sharp contrasts between the affluent communities of Henderson and Summerlin and lower-income neighborhoods in North Las Vegas.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← The paragraphs above are single-spaced. Change to double spacing (2.0) as required by CSN.</p>", "after_html": "<p class=\"dt\">Social Stratification in Urban Nevada</p><p class=\"dh1\">Introduction</p><p class=\"dp\" style=\"line-height:2.2\">Social stratification refers to the way in which society categorizes groups of people based on socioeconomic factors such as wealth, income, education, and power. In urban Nevada, particularly in the Las Vegas metropolitan area, these divisions are both visible and measurable.</p><p class=\"dp\" style=\"line-height:2.2\">The concentration of wealth in Las Vegas creates sharp contrasts between the affluent communities of Henderson and Summerlin and lower-income neighborhoods in North Las Vegas.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Line spacing changed to 2.0 (double spacing).</p>", "prompt": "I am learning Word 365. How do I change the line spacing of a paragraph to double spacing (2.0)? How do I apply it to the entire document at once?", "youtube": "https://www.youtube.com/results?search_query=word+365+change+line+spacing+double", "ms": "https://support.microsoft.com/en-us/office/change-the-line-spacing-in-word-d37f13b0-4f7f-4fe3-b429-b5ecbbf1b8df"}, {"id": 5, "name": "Set Paragraph Spacing", "tab": "layout", "action": "para-spacing", "docTitle": "DesertSunReport.docx — Word", "task": "Add <strong>12 points of space after</strong> each paragraph to improve readability in this business report. Use paragraph spacing, not blank lines.", "hints": ["Paragraph spacing is in the Layout tab — look for the Paragraph group with Before/After spinners.", "On the Layout tab, find the Paragraph group. You will see 'Before' and 'After' spacing fields.", "Set the 'After' value to 12 pt. This adds consistent space after each paragraph without inserting a blank line."], "answer": "Layout tab → Paragraph group → After: 12 pt. (Or Home → Paragraph group → Line Spacing → Add Space After Paragraph.)", "exp": "Paragraph Spacing (Layout → Paragraph → After): adds consistent space between paragraphs. Always use this instead of pressing Enter twice — it gives you precise control and cleaner formatting.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\" style=\"margin-bottom:0\">Total revenue for fiscal year 2026 reached $4.2 million, a 23% increase over the prior year. Advisory services accounted for the majority of revenue growth.</p><p class=\"dp\" style=\"margin-bottom:0\">Our Nevada operations continued to expand, with the addition of three new client accounts in the Las Vegas metropolitan area. The Summerlin office reported its strongest quarter on record.</p><p class=\"dp\" style=\"margin-bottom:0\">Looking ahead to fiscal year 2027, management projects continued growth driven by the healthcare and hospitality sectors.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← The paragraphs above have no spacing between them. Add 12pt space after each paragraph.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\" style=\"margin-bottom:12px\">Total revenue for fiscal year 2026 reached $4.2 million, a 23% increase over the prior year. Advisory services accounted for the majority of revenue growth.</p><p class=\"dp\" style=\"margin-bottom:12px\">Our Nevada operations continued to expand, with the addition of three new client accounts in the Las Vegas metropolitan area. The Summerlin office reported its strongest quarter on record.</p><p class=\"dp\" style=\"margin-bottom:12px\">Looking ahead to fiscal year 2027, management projects continued growth driven by the healthcare and hospitality sectors.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Paragraph spacing set to 12pt after — consistent spacing applied.</p>", "prompt": "I am learning Word 365. How do I add space between paragraphs using paragraph spacing (not by pressing Enter)? What is the difference between 'Space Before' and 'Space After'?", "youtube": "https://www.youtube.com/results?search_query=word+365+paragraph+spacing+before+after", "ms": "https://support.microsoft.com/en-us/office/change-the-spacing-between-paragraphs-5e0e1e0c-4428-4069-8564-e0e5e672e20c"}, {"id": 6, "name": "Set Indentation", "tab": "layout", "action": "set-indent", "docTitle": "CSN_SociologyPaper.docx — Word", "task": "Set a <strong>0.5 inch first-line indent</strong> for all body paragraphs in this research paper, as required by MLA format.", "hints": ["Indentation is controlled in the Layout tab or via the Paragraph dialog.", "On the Layout tab, find the Paragraph group. You can set left/right indentation there. For first-line indent, use the Paragraph dialog (click the small arrow in the bottom-right of the Paragraph group).", "In the Paragraph dialog, under Indentation, change the Special dropdown to 'First line' and set the value to 0.5\"."], "answer": "Layout tab → Paragraph group → dialog launcher → Indentation → Special: First line → 0.5\" → OK. (Or drag the top indent marker on the ruler.)", "exp": "First-line indent (Paragraph dialog → Special → First line): indents only the first line of each paragraph. Used in MLA, APA, and Chicago formatting. Set to 0.5\" for most academic papers.", "dlg": "dlg-indent", "before_html": "<p class=\"dt\">Social Stratification in Urban Nevada</p><p class=\"dh1\">Literature Review</p><p class=\"dp\">Previous research on urban stratification in Nevada has focused primarily on economic mobility in casino-dependent economies. Smith and Jones (2021) found that service-sector employment creates limited pathways for upward mobility.</p><p class=\"dp\">The relationship between housing costs and income inequality in Clark County has been documented extensively. Rising property values in Henderson and Summerlin have displaced lower-income residents to North Las Vegas.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← These paragraphs need a 0.5\" first-line indent as required by MLA format.</p>", "after_html": "<p class=\"dt\">Social Stratification in Urban Nevada</p><p class=\"dh1\">Literature Review</p><p class=\"dp\" style=\"text-indent:36px\">Previous research on urban stratification in Nevada has focused primarily on economic mobility in casino-dependent economies. Smith and Jones (2021) found that service-sector employment creates limited pathways for upward mobility.</p><p class=\"dp\" style=\"text-indent:36px\">The relationship between housing costs and income inequality in Clark County has been documented extensively. Rising property values in Henderson and Summerlin have displaced lower-income residents to North Las Vegas.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ First-line indent set to 0.5\" — MLA format applied.</p>", "prompt": "I am learning Word 365. How do I set a first-line indent of 0.5 inches for paragraphs? How is that different from a left indent? Where do I find the Paragraph dialog?", "youtube": "https://www.youtube.com/results?search_query=word+365+first+line+indent+paragraph", "ms": "https://support.microsoft.com/en-us/office/indent-the-first-line-of-a-paragraph-b54e53c7-0a36-4fec-a91e-5e6e6cfe0a7a"}, {"id": 7, "name": "Apply Built-in Character Style", "tab": "home", "action": "style-emphasis", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "Apply the <strong>Emphasis</strong> character style to the selected warning text to make it stand out from the surrounding body text.", "hints": ["Character styles are applied from the Home tab — look at the Styles gallery or the Styles pane.", "On the Home tab, look at the Styles gallery. You may need to click 'More' to see all styles including Emphasis.", "Select the text first, then click the Emphasis style in the Styles gallery. Character styles apply only to selected text, not the whole paragraph."], "answer": "Select text → Home tab → Styles gallery → Emphasis (or open Styles pane and click Emphasis).", "exp": "Character Styles (like Emphasis, Strong, Intense Emphasis): apply formatting to selected text only, not the whole paragraph. Emphasis typically applies italic formatting. These stay consistent if the style is updated.", "before_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Safety Procedures</p><p class=\"dp\">All employees must complete annual safety training before January 31st. <span class=\"dsel\">Failure to complete training by the deadline will result in restricted system access until the requirement is fulfilled.</span> Contact HR for scheduling accommodations.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Apply the Emphasis character style to the selected (highlighted) warning text.</p>", "after_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Safety Procedures</p><p class=\"dp\">All employees must complete annual safety training before January 31st. <em style=\"color:#4472c4\">Failure to complete training by the deadline will result in restricted system access until the requirement is fulfilled.</em> Contact HR for scheduling accommodations.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Emphasis character style applied — text is now italicized in the accent color.</p>", "prompt": "I am learning Word 365. What are character styles in Word? How is Emphasis different from just clicking the Italic button? How do I apply a character style to selected text?", "youtube": "https://www.youtube.com/results?search_query=word+365+character+styles+emphasis", "ms": "https://support.microsoft.com/en-us/office/apply-styles-in-word-a95f3e11-2a8c-4a1c-bb72-0e5770e3b63d"}, {"id": 8, "name": "Apply Built-in Paragraph Style", "tab": "home", "action": "style-heading1", "docTitle": "DesertSunReport.docx — Word", "task": "The section title \"Financial Highlights\" is plain text. Apply the <strong>Heading 1</strong> paragraph style to format it correctly.", "hints": ["Paragraph styles are applied from the Styles gallery on the Home tab.", "On the Home tab, look at the Styles gallery in the middle of the ribbon. You can see Normal, Heading 1, Heading 2, Title, etc.", "Click anywhere in the paragraph you want to format (you don't need to select all the text), then click Heading 1 in the Styles gallery."], "answer": "Click in the paragraph → Home tab → Styles gallery → Heading 1.", "exp": "Paragraph Styles (like Heading 1, Heading 2, Normal, Title): apply formatting to the entire paragraph. Heading 1 also adds the paragraph to the Table of Contents and Navigation Pane automatically.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million.</p><p style=\"font-size:17px;font-weight:400;color:#1a1a1a;margin:14px 0 8px\" class=\"dsel\">Financial Highlights</p><p class=\"dp\">This section contains the full quarterly breakdown and year-over-year comparisons for all revenue streams. The text above is plain text — it needs to be formatted as Heading 1.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Apply Heading 1 style to the \"Financial Highlights\" text above.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million.</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">This section contains the full quarterly breakdown and year-over-year comparisons for all revenue streams. The heading is now formatted as Heading 1 and will appear in the Table of Contents.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Heading 1 style applied — text formatted and added to Navigation Pane.</p>", "prompt": "I am learning Word 365. How do I apply a Heading 1 paragraph style in Word? Why is it better to use styles than manually formatting text? Does applying Heading 1 add it to the Table of Contents?", "youtube": "https://www.youtube.com/results?search_query=word+365+apply+heading+1+paragraph+style", "ms": "https://support.microsoft.com/en-us/office/apply-styles-in-word-a95f3e11-2a8c-4a1c-bb72-0e5770e3b63d"}, {"id": 9, "name": "Clear Formatting", "tab": "home", "action": "clear-formatting", "docTitle": "DesertSunReport.docx — Word", "task": "A pasted paragraph has incorrect mixed formatting. Use <strong>Clear Formatting</strong> to strip all formatting and return the text to the Normal paragraph style.", "hints": ["Clear Formatting is on the Home tab — look in the Font group.", "In the Font group on the Home tab, look for a button that shows an eraser or the letter A with an eraser. It is usually in the top row of the Font group.", "Select the text first, then click Clear All Formatting (the A with eraser icon). This removes all direct formatting and resets to Normal style."], "answer": "Select text → Home tab → Font group → Clear All Formatting (eraser icon, or Ctrl+Space for character formatting).", "exp": "Clear All Formatting (Home → Font group): removes all direct character and paragraph formatting from selected text, resetting it to the Normal paragraph style. Useful for cleaning up pasted text.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million.</p><p style=\"font-size:18px;font-weight:700;color:#c00;font-family:Impact;background:#fffde7;border:2px dashed #f59e0b;padding:8px;margin:10px 0\" class=\"dsel\">This paragraph was pasted from another source and has incorrect mixed formatting that does not match the rest of the document.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the oddly formatted paragraph above and use Clear Formatting to reset it to Normal style.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million.</p><p class=\"dp\">This paragraph was pasted from another source and has incorrect mixed formatting that does not match the rest of the document.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ All formatting cleared — paragraph reset to Normal style.</p>", "prompt": "I am learning Word 365. How do I clear all formatting from text in Word? What does Clear All Formatting do exactly — does it remove the style too? How is it different from just removing bold or italic?", "youtube": "https://www.youtube.com/results?search_query=word+365+clear+formatting", "ms": "https://support.microsoft.com/en-us/office/clear-formatting-in-word-1b6b7d95-bb6c-4eb9-b6d9-37a8dd013ff7"}, {"id": 10, "name": "Format Text in Multiple Columns", "tab": "layout", "action": "columns-two", "docTitle": "OasisEvents_Proposal.docx — Word", "task": "The services section of this proposal should be formatted in <strong>two columns</strong> to fit more content on the page and create a brochure-style layout.", "hints": ["Columns are a page layout feature — look for the Layout tab.", "On the Layout tab, find the Page Setup group. Click the Columns button.", "Select the text you want in two columns first, then click Columns → Two. Or click Two to apply to the whole section."], "answer": "Select text → Layout tab → Page Setup group → Columns → Two.", "exp": "Columns (Layout → Columns): flows text into side-by-side columns like a newspaper or brochure. Apply to selected text (Word adds section breaks) or the entire document.", "before_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Our Services</p><p class=\"dp\">Corporate Events: Full-service planning for conferences, product launches, and team-building events throughout Las Vegas.</p><p class=\"dp\">Gala Events: Black-tie fundraisers and award ceremonies with custom theming and luxury vendor partnerships.</p><p class=\"dp\">Destination Weddings: Intimate ceremonies and large receptions at premier Clark County venues.</p><p class=\"dp\">Trade Shows: Booth design, staffing, and full event logistics for major convention center events.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Format the services list above into two columns.</p>", "after_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Our Services</p><div style=\"column-count:2;column-gap:24px;column-rule:1px solid #e5e7eb\"><p class=\"dp\">Corporate Events: Full-service planning for conferences, product launches, and team-building events throughout Las Vegas.</p><p class=\"dp\">Gala Events: Black-tie fundraisers and award ceremonies with custom theming and luxury vendor partnerships.</p><p class=\"dp\">Destination Weddings: Intimate ceremonies and large receptions at premier Clark County venues.</p><p class=\"dp\">Trade Shows: Booth design, staffing, and full event logistics for major convention center events.</p></div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Text formatted in two columns — brochure-style layout applied.</p>", "prompt": "I am learning Word 365. How do I format text into two or three columns in Word? How do I apply columns to only part of a document? How do I add a line between columns?", "youtube": "https://www.youtube.com/results?search_query=word+365+format+text+columns", "ms": "https://support.microsoft.com/en-us/office/add-columns-to-a-word-document-b50373c0-7148-4ea4-b82b-7a1a3c2e0f5d"}, {"id": 11, "name": "Insert a Page Break", "tab": "insert", "action": "insert-pagebreak", "docTitle": "DesertSunReport.docx — Word", "task": "The Financial Highlights section should start on its own page. Insert a <strong>manual page break</strong> before the heading to push it to the next page.", "hints": ["You can insert a page break from the Insert tab or the Layout tab.", "On the Insert tab, look in the Pages group at the far left. Click 'Page Break'. Or use the Layout tab → Breaks → Page.", "The keyboard shortcut is Ctrl+Enter. Click just before the heading text and press Ctrl+Enter."], "answer": "Click before the heading → Insert tab → Pages group → Page Break. (Or Ctrl+Enter.)", "exp": "Page Break (Ctrl+Enter): forces the following text to start at the top of the next page. Better than pressing Enter multiple times — page breaks are stable if you edit the content above.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million, representing a 23% increase over fiscal year 2025.</p><p class=\"dp\">Advisory services accounted for 58% of total revenue, with technology consulting representing the fastest-growing segment.</p><div style=\"border-top:1px dashed #d1d5db;margin:8px 0;padding-top:6px\"><p class=\"dh1\" style=\"margin-top:0\" class=\"dsel\">Financial Highlights</p><p class=\"dp\">This section should begin on a new page. Insert a page break just before this heading.</p></div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Insert a page break before \"Financial Highlights\" so it starts on a new page.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million, representing a 23% increase over fiscal year 2025.</p><p class=\"dp\">Advisory services accounted for 58% of total revenue, with technology consulting representing the fastest-growing segment.</p><div style=\"background:#f0f4ff;border:1px solid #c5d9f7;border-radius:4px;padding:8px 12px;margin:8px 0;font-size:11px;color:#2b579a\">&#8213; Page Break &#8213;</div><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">This section now begins on a new page. The page break ensures the heading always starts at the top regardless of edits made above.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Page break inserted — \"Financial Highlights\" now starts on a new page.</p>", "prompt": "I am learning Word 365. How do I insert a manual page break in Word? Why is it better to use a page break than pressing Enter multiple times? How do I see and delete page breaks?", "youtube": "https://www.youtube.com/results?search_query=word+365+insert+page+break", "ms": "https://support.microsoft.com/en-us/office/insert-a-page-break-eb36b32e-a4e9-4bc9-ac81-c2ea69f56384"}, {"id": 12, "name": "Insert a Section Break", "tab": "layout", "action": "insert-sectionbreak", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "The appendix of this manual needs different page margins than the main body. Insert a <strong>Next Page section break</strong> to allow independent formatting of the appendix section.", "hints": ["Section breaks are on the Layout tab — look for the Breaks button.", "On the Layout tab, in the Page Setup group, click Breaks to open the breaks dropdown.", "Under Section Breaks, choose 'Next Page' to start a new section on the next page. This allows the new section to have different margins, orientation, or headers."], "answer": "Layout tab → Page Setup group → Breaks → Section Breaks → Next Page.", "exp": "Section Breaks (Layout → Breaks): divide a document into sections that can each have different page formatting (margins, orientation, headers, columns). 'Next Page' starts the new section on the next page.", "before_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Chapter 7: Emergency Procedures</p><p class=\"dp\">In the event of a medical emergency, all staff should immediately call 911 and notify the charge nurse. Emergency equipment is located at each nursing station.</p><p class=\"dp\">The following appendix contains legal and compliance documents that require different page formatting (landscape orientation with different margins).</p><div style=\"border:1px dashed #d1d5db;border-radius:4px;padding:8px 12px;margin:8px 0;font-size:13px;color:#6b7280\">← Insert a Next Page section break here before the Appendix starts.</div><p class=\"dh1\" style=\"margin-top:8px\">Appendix A: Compliance Documents</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Layout tab → Breaks → Next Page to insert a section break before the Appendix.</p>", "after_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Chapter 7: Emergency Procedures</p><p class=\"dp\">In the event of a medical emergency, all staff should immediately call 911 and notify the charge nurse.</p><div style=\"background:#f0f4ff;border:1px solid #c5d9f7;border-radius:4px;padding:8px 12px;margin:8px 0;font-size:11px;color:#2b579a\">&#8213; Section Break (Next Page) &#8213;</div><p class=\"dh1\">Appendix A: Compliance Documents</p><p class=\"dp\">The appendix is now in a separate section. Its margins, orientation, and headers can be formatted independently from the rest of the manual.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Next Page section break inserted — appendix is now an independent section.</p>", "prompt": "I am learning Word 365. What is a section break and how is it different from a page break? When would I use a Next Page section break vs. a Continuous section break?", "youtube": "https://www.youtube.com/results?search_query=word+365+section+break+next+page", "ms": "https://support.microsoft.com/en-us/office/insert-a-section-break-eef20fd8-e38c-4ba6-a027-e503bdf8375c"}, {"id": 13, "name": "Insert a Column Break", "tab": "layout", "action": "insert-columnbreak", "docTitle": "OasisEvents_Proposal.docx — Word", "task": "The two-column layout is unbalanced. Insert a <strong>column break</strong> to force \"Gala Events\" to start at the top of the second column.", "hints": ["Column breaks are on the Layout tab — same Breaks button as section breaks.", "On the Layout tab, click Breaks. Look under 'Page Breaks' for the Column break option.", "Click just before 'Gala Events' and then insert the column break. The text will jump to the top of the next column."], "answer": "Click before 'Gala Events' → Layout tab → Breaks → Column (under Page Breaks).", "exp": "Column Break (Layout → Breaks → Column): forces text to start at the top of the next column, just like a page break but for columns. Only works when text is already in a multi-column layout.", "before_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Our Services</p><div style=\"column-count:2;column-gap:24px;column-rule:1px solid #e5e7eb\"><p class=\"dp\"><strong>Corporate Events</strong><br>Full-service planning for conferences, product launches, and team-building events throughout Las Vegas and the Clark County area.</p><p class=\"dp\"><strong>Destination Weddings</strong><br>Intimate ceremonies and large receptions at premier Clark County venues including Red Rock Canyon and Lake Las Vegas.</p><p class=\"dp\" class=\"dsel\"><strong>Gala Events</strong><br>Black-tie fundraisers and award ceremonies. This item should appear at the top of the second column, not buried partway through it.</p></div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Insert a column break before \"Gala Events\" to move it to the top of column 2.</p>", "after_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Our Services</p><div style=\"column-count:2;column-gap:24px;column-rule:1px solid #e5e7eb\"><p class=\"dp\"><strong>Corporate Events</strong><br>Full-service planning for conferences, product launches, and team-building events throughout Las Vegas and the Clark County area.</p><p class=\"dp\"><strong>Destination Weddings</strong><br>Intimate ceremonies and large receptions at premier Clark County venues including Red Rock Canyon and Lake Las Vegas.</p><div style=\"break-before:column\"><p class=\"dp\"><strong>Gala Events</strong><br>Black-tie fundraisers and award ceremonies now correctly positioned at the top of the second column.</p></div></div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Column break inserted — \"Gala Events\" moved to the top of column 2.</p>", "prompt": "I am learning Word 365. How do I insert a column break to force text to start at the top of the next column? How is it different from a page break?", "youtube": "https://www.youtube.com/results?search_query=word+365+column+break", "ms": "https://support.microsoft.com/en-us/office/insert-a-section-break-eef20fd8-e38c-4ba6-a027-e503bdf8375c"}, {"id": 14, "name": "Change Page Setup for Section", "tab": "layout", "action": "section-landscape", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "The appendix section of this manual needs to be <strong>Landscape orientation</strong> while the rest of the document stays Portrait. Change only the current section's orientation.", "hints": ["Page setup for a section is in the Layout tab.", "On the Layout tab, click Orientation and choose Landscape. Because this is a separate section, only this section will change.", "Alternatively, open the Page Setup dialog (click the small arrow in the Page Setup group), choose Landscape, and make sure 'Apply to: This section' is selected."], "answer": "In the appendix section → Layout tab → Orientation → Landscape (applies to current section only because it's a separate section).", "exp": "Section-level page setup: when a document has sections, orientation and margin changes can apply to 'This section' only. Use the Page Setup dialog launcher and choose 'Apply to: This section' for precise control.", "pageClass": "landscape", "dlg": "dlg-sectionsetup", "before_html": "<p class=\"dt\">Appendix A: Compliance Documents</p><p class=\"dh1\">Nevada Valley Healthcare</p><p class=\"dp\">This appendix contains wide compliance tables and regulatory charts that require Landscape orientation to fit all columns without wrapping. The main document body remains in Portrait orientation.</p><table class=\"dtbl\"><thead><tr><th>Regulation</th><th>Requirement</th><th>Compliance Date</th><th>Responsible Dept</th><th>Status</th></tr></thead><tbody><tr><td>HIPAA Privacy</td><td>Annual training</td><td>Jan 31, 2026</td><td>HR / Compliance</td><td>&#10003; Complete</td></tr><tr><td>OSHA Safety</td><td>Quarterly audit</td><td>Mar 31, 2026</td><td>Facilities</td><td>&#9888; Pending</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Change this section's orientation to Landscape so the table fits correctly.</p>", "after_html": "<p class=\"dt\">Appendix A: Compliance Documents</p><p class=\"dh1\">Nevada Valley Healthcare</p><p class=\"dp\">This appendix section is now in Landscape orientation. The main document body remains in Portrait. The compliance table now fits all columns without wrapping.</p><table class=\"dtbl\"><thead><tr><th>Regulation</th><th>Requirement</th><th>Compliance Date</th><th>Responsible Dept</th><th>Status</th></tr></thead><tbody><tr><td>HIPAA Privacy</td><td>Annual training required for all staff</td><td>Jan 31, 2026</td><td>HR / Compliance</td><td>&#10003; Complete</td></tr><tr><td>OSHA Safety</td><td>Quarterly facility audit</td><td>Mar 31, 2026</td><td>Facilities</td><td>&#9888; Pending</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Section orientation changed to Landscape — rest of document remains Portrait.</p>", "prompt": "I am learning Word 365. How do I change the page orientation for only one section of a document while keeping the rest in Portrait? Do I need section breaks first?", "youtube": "https://www.youtube.com/results?search_query=word+365+landscape+one+section+only", "ms": "https://support.microsoft.com/en-us/office/change-the-page-orientation-in-word-d8a8a04b-67c5-4db1-b1b0-f1d6a24feada"}];
+
+const DLG_MAP = {"find-replace": "dlg-fr", "insert-symbol": "dlg-symbol", "set-indent": "dlg-indent", "section-landscape": "dlg-sectionsetup"};
+
+const S={lab:0,tab:'home',res:{},wrongCount:0,hintCount:0,dd:null};
+const score=()=>Object.keys(S.res).filter(k=>S.res[k]).length;
+
+function LB(icon,label,action,ddItems){
+  const lab=LABS[S.lab],isHL=action===lab.action;
+  const cls='lb'+(isHL?' hl':'');
+  const inner=`<span class="li">${icon}</span><span class="ll">${label}</span>`;
+  if(ddItems){
+    const open=S.dd===action;
+    return`<div class="dd-wrap"><button class="${cls}" data-action="${action}" data-dd="${action}">${inner}</button><div class="dd-menu${open?' open':''}">${ddItems.map(d=>`<button class="dd-item" data-dditem="${d[1]}">${d[0]}</button>`).join('')}</div></div>`;
+  }
+  return`<button class="${cls}" data-action="${action}">${inner}</button>`;
+}
+function SB(icon,label,action){
+  const isHL=LABS[S.lab].action===action;
+  return`<button class="sb${isHL?' hl':''}" data-action="${action}"><span class="si">${icon}</span><span class="sl">${label}</span></button>`;
+}
+function STACK(...b){return`<div class="sb-stack">${b.join('')}</div>`;}
+function GRP(label,html){return`<div class="grp"><div class="grp-btns">${html}</div><div class="grp-lbl">${label}</div></div>`;}
+
+function buildRibbon(){
+  const lab=LABS[S.lab];
+  const tabs=[['home','Home'],['insert','Insert'],['design','Design'],['layout','Layout'],['references','References'],['review','Review']];
+  document.getElementById('tab-strip').innerHTML=tabs.map(([id,lbl])=>`<button class="tab${S.tab===id?' active':''}" data-settab="${id}">${lbl}</button>`).join('');
+  let body='';
+  const t=S.tab;
+
+  if(t==='home'){
+    body+=GRP('Clipboard',
+      LB('&#128203;','Paste','paste',[['Paste','paste'],['Paste Special','paste-special']])+
+      STACK(SB('&#9986;','Cut','cut'),SB('&#128196;','Copy','copy'),SB('&#127774;','Format Painter','format-painter')));
+    const isHL=(a)=>lab.action===a?' hl':'';
+    const fontGrp=`<div class="font-rows"><div class="font-row">
+      <div class="font-combo" style="width:120px"><span style="font-size:11px">Calibri (Body)</span><span style="font-size:7px;color:#777">&#9660;</span></div>
+      <div class="font-combo" style="width:34px"><span style="font-size:11px">11</span><span style="font-size:7px;color:#777">&#9660;</span></div>
+      <button class="font-sq"><b style="font-size:12px">A</b></button><button class="font-sq"><span style="font-size:10px">A</span></button>
+      <span class="font-sep"></span><button class="font-sq${isHL('clear-formatting')}" data-action="clear-formatting" title="Clear All Formatting"><span style="font-size:11px">A</span><span style="font-size:8px">&#8861;</span></button>
+    </div><div class="font-row">
+      <button class="font-sq" data-action="bold"><b style="font-family:Georgia;font-size:14px">B</b></button>
+      <button class="font-sq" data-action="italic"><i style="font-family:Georgia;font-size:14px">I</i></button>
+      <button class="font-sq" data-action="underline"><u style="font-size:13px">U</u></button>
+      <span class="font-sep"></span>
+      <button class="font-sq${isHL('text-effects')}" data-action="text-effects" title="Text Effects"><b style="font-size:13px;background:linear-gradient(135deg,#2b579a,#00b4d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">A</b></button>
+      <button class="font-sq" data-action="highlight" title="Highlight"><span style="background:#ff0;font-size:11px;padding:0 1px">A</span></button>
+      <button class="font-sq" data-action="font-color" title="Font Color"><span style="border-bottom:2.5px solid #c00;font-size:12px">A</span></button>
+    </div></div>`;
+    body+=GRP('Font',fontGrp);
+    const paraGrp=`<div class="para-rows"><div class="para-row">
+      <button class="ico-btn" data-action="bullets">&#8226;&#8801;</button>
+      <button class="ico-btn" data-action="numbering">1&#8801;</button>
+      <span class="ico-sep"></span>
+      <button class="ico-btn" data-action="align-left">&#8943;</button>
+      <button class="ico-btn" data-action="align-center">&#8943;</button>
+      <button class="ico-btn" data-action="align-right">&#8943;</button>
+      <button class="ico-btn" data-action="justify">&#8943;</button>
+    </div><div class="para-row">
+      <button class="ico-btn" data-action="indent-less">&#8676;</button>
+      <button class="ico-btn" data-action="indent-more">&#8677;</button>
+      <span class="ico-sep"></span>
+      <button class="ico-btn${isHL('spacing-double')}" data-action="spacing-double" title="Line Spacing">&#8597;</button>
+      <button class="ico-btn" data-action="shading">&#9639;</button>
+      <button class="ico-btn" data-action="borders">&#9645;</button>
+    </div></div>`;
+    body+=GRP('Paragraph',paraGrp);
+    body+=GRP('Styles',`<div class="styles-gallery">
+      <button class="style-btn" data-action="style-normal"><span class="style-preview" style="font-size:12px">AaBb</span><span class="style-name">Normal</span></button>
+      <button class="style-btn${isHL('style-heading1')}" data-action="style-heading1"><span class="style-preview" style="font-size:14px;font-weight:700;color:#2e74b5">Aa</span><span class="style-name">Heading 1</span></button>
+      <button class="style-btn${isHL('style-emphasis')}" data-action="style-emphasis"><span class="style-preview" style="font-size:13px;font-style:italic;color:#4472c4">Aa</span><span class="style-name">Emphasis</span></button>
+      <button class="style-btn" data-action="style-title"><span class="style-preview" style="font-size:16px;font-weight:800">Aa</span><span class="style-name">Title</span></button>
+      <button class="style-btn" data-action="styles-more" style="min-width:22px;width:22px"><span style="font-size:9px;color:#666">&#9660;</span><span class="style-name">More</span></button>
+    </div>`);
+    body+=GRP('Editing',
+      LB('&#128269;','Find','find',[['Find  Ctrl+F','find'],['Go To…','goto']])+
+      STACK(SB('&#8596;','Replace','find-replace'),SB('&#8594;','Select','select-all')));
+  }
+  else if(t==='insert'){
+    body+=GRP('Pages',STACK(SB('&#128196;','Cover Page','cover'),SB('&#9633;','Blank Page','blank'),SB('&#8212;','Page Break','insert-pagebreak')));
+    body+=GRP('Tables',LB('&#8862;','Table','insert-table',[['Insert Table…','insert-table']]));
+    body+=GRP('Illustrations',LB('&#128444;','Pictures','insert-pic')+LB('&#10021;','SmartArt','insert-smartart')+LB('&#9672;','Shapes','insert-shapes'));
+    body+=GRP('Links',LB('&#128279;','Hyperlink','insert-hyperlink')+STACK(SB('&#128278;','Bookmark','insert-bookmark')));
+    body+=GRP('Header & Footer',
+      LB('&#8868;','Header','insert-header',[['Blank','insert-header']])+
+      LB('&#8869;','Footer','insert-footer',[['Blank','insert-footer']])+
+      LB('#','Page&#10;Number','insert-pagenum',[['Top of Page &#9658;','insert-pagenum']]));
+    body+=GRP('Text',STACK(SB('A','Text Box','insert-textbox'),SB('&#937;','Symbol','insert-symbol')));
+  }
+  else if(t==='design'){
+    const sets=['Default','Basic','Casual','Centered','Facet','Formal'];
+    body+=GRP('Document Formatting',`<div style="display:flex;gap:2px;align-items:center;padding:2px 0">`+
+      sets.map(s=>`<button class="style-btn" data-action="apply-styleset" style="width:44px"><span style="font-size:10px">Aa</span><span class="style-name">${s}</span></button>`).join('')+`</div>`);
+    body+=GRP('Page Background',
+      LB('&#128203;','Watermark','insert-watermark',[['DRAFT 1','insert-watermark']])+
+      LB('&#127912;','Page&#10;Color','page-color-apply',[['No Color','page-color-none']])+
+      LB('&#8863;','Page&#10;Borders','page-borders'));
+  }
+  else if(t==='layout'){
+    body+=GRP('Page Setup',
+      LB('&#9633;','Margins','custom-margins',[['Normal','margin-normal'],['Custom…','custom-margins']])+
+      LB('&#8861;','Orientation','orientation-landscape',[['Portrait','orientation-portrait'],['Landscape','section-landscape']])+
+      LB('&#128196;','Size','page-size',[['Letter','letter'],['Legal','page-size']])+
+      LB('&#8953;','Columns','columns-two',[['One','col1'],['Two','columns-two'],['Three','col3']])+
+      STACK(SB('&#8212;','Breaks','insert-sectionbreak',[]),SB('#','Line Nums','linenums')));
+    const isHL=(a)=>lab.action===a?' hl':'';
+    body+=GRP('Paragraph',`<div class="spinner-wrap">
+      <div class="spinner-section">Indent</div>
+      <div class="spinner-row"><span class="spinner-lbl">Left:</span><div class="spinner"><span class="spinner-val">0"</span><div class="spinner-arrows"><button>&#9650;</button><button>&#9660;</button></div></div></div>
+      <div class="spinner-section">Spacing</div>
+      <div class="spinner-row"><span class="spinner-lbl">Before:</span><div class="spinner${isHL('para-spacing')}" data-action="para-spacing" style="cursor:pointer" title="Paragraph spacing"><span class="spinner-val">0 pt</span><div class="spinner-arrows"><button data-action="para-spacing">&#9650;</button><button data-action="para-spacing">&#9660;</button></div></div></div>
+      <div class="spinner-row"><span class="spinner-lbl">After:</span><div class="spinner${isHL('para-spacing')}" data-action="para-spacing" style="cursor:pointer" title="Paragraph spacing after"><span class="spinner-val">8 pt</span><div class="spinner-arrows"><button data-action="para-spacing">&#9650;</button><button data-action="para-spacing">&#9660;</button></div></div></div>
+    </div>`);
+    body+=GRP('Arrange',
+      LB('&#8862;','Position','position',[['In Line','pos-inline']])+
+      LB('&#8644;','Wrap&#10;Text','wrap-text',[['Square','wrap-sq']])+
+      STACK(SB('&#8593;','Bring Fwd','bring-fwd'),SB('&#8595;','Send Back','send-back')));
+  }
+  else if(t==='references'){
+    body+=GRP('Table of Contents',
+      LB('&#8801;','Table of&#10;Contents','insert-toc',[['Automatic Table 1','insert-toc']])+
+      STACK(SB('+','Add Text','add-text'),SB('&#8635;','Update Table','update-toc')));
+    body+=GRP('Footnotes',LB('AB&#185;','Insert&#10;Footnote','insert-footnote')+LB('AB&#8305;','Insert&#10;Endnote','insert-endnote'));
+    body+=GRP('Citations',LB('&#128218;','Insert&#10;Citation','citation')+STACK(SB('&#8801;','Bibliography','bibliography')));
+  }
+  else if(t==='review'){
+    body+=GRP('Proofing',LB('&#10003;','Spelling &&#10;Grammar','spelling')+LB('&#128218;','Thesaurus','thesaurus')+STACK(SB('#','Word Count','word-count')));
+    body+=GRP('Comments',LB('&#128172;','New&#10;Comment','new-comment')+STACK(SB('&#9664;','Previous','prev-cmt'),SB('&#9654;','Next','next-cmt')));
+    body+=GRP('Tracking',LB('&#9999;','Track&#10;Changes','track-changes',[['Track Changes','track-changes']]));
+    body+=GRP('Changes',
+      LB('<span style="color:#15803d">&#10004;</span>','Accept','track-accept',[['Accept All','track-accept']])+
+      LB('<span style="color:#dc2626">&#10006;</span>','Reject','reject',[['Reject All','reject-all']]));
+  }
+
+  document.getElementById('ribbon-body').innerHTML=body;
+  bindRibbon();
+}
+
+function bindRibbon(){
+  document.querySelectorAll('[data-settab]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();S.tab=b.dataset.settab;S.dd=null;buildRibbon();
+  }));
+  document.querySelectorAll('[data-dd]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();S.dd=S.dd===b.dataset.dd?null:b.dataset.dd;buildRibbon();
+    if(S.dd){const menu=b.parentElement.querySelector('.dd-menu');if(menu){const r=b.getBoundingClientRect();menu.style.top=(r.bottom+2)+'px';menu.style.left=r.left+'px';}}
+  }));
+  document.querySelectorAll('[data-dditem]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.dd=null;doAction(b.dataset.dditem);}));
+  document.querySelectorAll('[data-action]:not([data-dd])').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();doAction(b.dataset.action);}));
+}
+document.addEventListener('click',()=>{if(S.dd){S.dd=null;buildRibbon();}}); 
+
+function doAction(a){
+  S.dd=null;
+  const lab=LABS[S.lab];
+  if(a===lab.action){
+    const dlgId=DLG_MAP[lab.action];
+    if(dlgId)openDlg(dlgId);else grade();
+    buildRibbon();return;
+  }
+  // Special: Breaks dropdown items that match
+  if(lab.action==='insert-sectionbreak'&&a==='insert-sectionbreak'){grade();buildRibbon();return;}
+  if(lab.action==='insert-columnbreak'&&a==='insert-columnbreak'){grade();buildRibbon();return;}
+  if(lab.action==='insert-pagebreak'&&a==='insert-pagebreak'){grade();buildRibbon();return;}
+  if(lab.action==='columns-two'&&a==='columns-two'){grade();buildRibbon();return;}
+  wrong();buildRibbon();
+}
+
+function openDlg(id){document.getElementById('backdrop').style.display='block';document.getElementById(id).style.display='block';}
+function closeDlg(){document.getElementById('backdrop').style.display='none';document.querySelectorAll('.w-dlg').forEach(d=>d.style.display='none');}
+window.dlgGrade=function(){closeDlg();grade();};
+
+function grade(){S.res[LABS[S.lab].id]=true;S.wrongCount=0;S.hintCount=0;renderAll();}
+function wrong(){if(!S.res[LABS[S.lab].id]){S.wrongCount++;renderTask();renderSidebar();}}
+
+function renderDoc(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  const pg=document.getElementById('doc-page');
+  pg.className=done&&lab.pageClass?lab.pageClass:'';
+  pg.innerHTML=done?lab.after_html:lab.before_html;
+  if(lab.docTitle)document.getElementById('doc-title').textContent=lab.docTitle;
+}
+
+function renderTask(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  let fb='';
+  if(S.wrongCount>0&&!done){
+    fb=S.wrongCount>=3
+      ?`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Here is the answer:</strong> ${lab.answer}</div>`
+      :`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Not quite.</strong> Look for the highlighted button. (Attempt ${S.wrongCount} of 3)</div>`;
+  }
+  if(done){
+    fb=`<div class="fb fb-ok" style="animation:fadeIn .25s"><strong>&#10003; Correct!</strong> ${lab.exp}</div>
+    <div class="fb-next">
+      ${S.lab===LABS.length-1
+        ?`<button class="btn btn-blue" onclick="showFinal()">View results &#8594;</button>`
+        :`<button class="btn btn-ghost" onclick="goLab(${S.lab})">Replay</button><button class="btn btn-blue" onclick="goLab(${S.lab+1})">Next &#8594;</button>`}
+    </div>`;
+  }
+  let hintsHtml='';
+  if(S.hintCount>0){
+    hintsHtml='<div class="hint-area">'+(lab.hints||[]).slice(0,S.hintCount).map((h,i)=>`<div class="hint-row"><span class="hint-num">Hint ${i+1}</span> ${h}</div>`).join('');
+    if(S.wrongCount>=3&&lab.answer)hintsHtml+=`<div class="hint-row hint-answer"><span class="hint-num answer-tag">Answer</span> ${lab.answer}</div>`;
+    hintsHtml+='</div>';
+  }
+  const hintDis=S.hintCount>=(lab.hints||[]).length||done;
+  document.getElementById('task-panel').innerHTML=`
+    <div class="task-row">
+      <span class="task-badge">D2 &middot; Lab ${S.lab+1}</span>
+      <div class="task-text">${lab.task}</div>
+      <div class="task-acts">
+        <button class="btn btn-gold" onclick="openResources(${S.lab})">&#128161; Resources</button>
+        ${!done?`<button class="btn btn-ghost" onclick="showHint()" ${hintDis?'disabled style="opacity:.5"':''}>
+          ${S.hintCount===0?'Hint':hintDis?'Hints Used':'Next Hint'}
+        </button><button class="btn btn-ghost" onclick="resetLab()">Reset</button>`:''}
+      </div>
+    </div>
+    ${hintsHtml}${fb}`;
+}
+
+window.showHint=function(){if(S.hintCount<(LABS[S.lab].hints||[]).length)S.hintCount++;renderTask();};
+window.resetLab=function(){delete S.res[LABS[S.lab].id];S.wrongCount=0;S.hintCount=0;renderAll();};
+
+function renderSidebar(){
+  const ts=score();
+  document.getElementById('sb-score').textContent=`${ts} / ${LABS.length}`;
+  document.getElementById('sb-fill').style.width=`${(ts/LABS.length*100).toFixed(0)}%`;
+  document.getElementById('prog-fill').style.width=`${(ts/LABS.length*100).toFixed(0)}%`;
+  document.getElementById('sb-nav').innerHTML=LABS.map((l,li)=>{
+    const done=!!S.res[l.id],act=li===S.lab;
+    return`<button class="lab-btn${act?' active':''}${done?' done':''}" onclick="goLab(${li})">
+      <span class="lab-dot${act?' active':''}${done?' done':''}">${done?'&#10003;':li+1}</span>
+      <div><div class="lab-name">${l.name}</div></div>
+    </button>`;
+  }).join('');
+}
+
+function openResources(i){
+  const lab=LABS[i];
+  document.getElementById('res-skill-name').textContent=lab.name;
+  document.getElementById('res-body').innerHTML=`
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-ai">&#129302;</div><div><div class="res-card-title">AI Prompt</div><div class="res-card-sub">Copy to ChatGPT, Copilot, or Perplexity</div></div></div>
+    <div class="res-card-body"><div class="prompt-box" id="prompt-text">${lab.prompt}</div><button class="copy-btn" id="copy-btn" onclick="copyPrompt()">&#128203; Copy Prompt</button></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-li">&#128188;</div><div><div class="res-card-title">LinkedIn Learning</div><div class="res-card-sub">Free with Clark County Library card &mdash; lvccld.org</div></div></div>
+    <div class="res-card-body"><div class="res-link" style="opacity:.5;cursor:default">&#127902; LinkedIn URL coming soon</div><p class="res-note">Get your free card at lvccld.org &mdash; any Nevada resident qualifies.</p></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-yt">&#9654;</div><div><div class="res-card-title">YouTube Tutorial</div><div class="res-card-sub">Pre-built search for this skill</div></div></div>
+    <div class="res-card-body"><a href="${lab.youtube}" target="_blank" class="res-link">&#128269; Search YouTube for "${lab.name}" <span>&#8599;</span></a><p class="res-note">Look for "Word 365" or "Microsoft 365" videos.</p></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-ms">&#128214;</div><div><div class="res-card-title">Microsoft Support</div><div class="res-card-sub">Official documentation</div></div></div>
+    <div class="res-card-body"><a href="${lab.ms}" target="_blank" class="res-link">&#128196; Open Microsoft Support Article <span>&#8599;</span></a></div></div>`;
+  document.getElementById('res-overlay').classList.add('open');
+  document.getElementById('res-panel').classList.add('open');
+}
+function closeResources(){document.getElementById('res-overlay').classList.remove('open');document.getElementById('res-panel').classList.remove('open');}
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(()=>{
+    const btn=document.getElementById('copy-btn');btn.textContent='&#10003; Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='&#128203; Copy Prompt';btn.classList.remove('copied');},2500);
+  });
+}
+
+window.showFinal=function(){
+  const ts=score(),pct=Math.round(ts/LABS.length*100);
+  document.getElementById('doc-page').className='';
+  document.getElementById('doc-page').innerHTML=`
+  <div style="text-align:center;padding:28px 0 16px">
+    <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">IS101 &middot; Word 365 &middot; Domain 2: Insert &amp; Format Text</div>
+    <div style="font-size:60px;font-weight:800;color:${pct===100?'#15803d':pct>=70?'#d97706':'#dc2626'};line-height:1">${ts}<span style="font-size:30px;font-weight:400;color:#9ca3af"> / ${LABS.length}</span></div>
+    <div style="font-size:14px;color:#6b7280;margin:8px 0 24px">${pct}% &mdash; ${pct===100?'Domain 2 complete!':pct>=70?'Good &mdash; review missed labs.':'Keep practicing.'}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;max-width:500px;margin:0 auto;text-align:left">
+      ${LABS.map(l=>{const ok=S.res[l.id];return`<div style="background:${ok?'#f0fdf4':'#fef2f2'};border:1px solid ${ok?'#86efac':'#fca5a5'};padding:7px 10px;border-radius:4px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${ok?'#15803d':'#dc2626'}">Lab ${l.id+1} ${ok?'&#10003;':'&#10007;'}</div><div style="font-size:11px;color:${ok?'#166534':'#991b1b'}">${l.name}</div></div>`;}).join('')}
+    </div>
+    <button class="btn btn-blue" style="margin-top:20px" onclick="goLab(0)">Restart Domain 2</button>
+  </div>`;
+  document.getElementById('task-panel').innerHTML='';
+};
+
+function renderRuler(){
+  const r=document.getElementById('ruler'),mLeft=96,textW=680-mLeft-96,inchPx=textW/4.5;
+  let html=`<div class="ruler-margin" style="width:${mLeft+30}px"></div><div style="flex:1;position:relative;height:100%;background:#fff">`;
+  for(let i=0;i<=5;i++){const x=(i*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${x}px"><div class="rtline major"></div>${i>0&&i<5?`<span class="rtnum" style="left:${x}px">${i}</span>`:''}</div>`;if(i<5){const hx=((i+.5)*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${hx}px"><div class="rtline"></div></div>`;}}
+  r.innerHTML=html+'</div><div class="ruler-margin" style="width:96px"></div>';
+}
+
+window.goLab=function(i){
+  S.lab=i;S.wrongCount=0;S.hintCount=0;S.dd=null;
+  const lab=LABS[i];
+  S.tab=['home','insert','design','layout','references','review'].includes(lab.tab)?lab.tab:'home';
+  renderAll();
+};
+function renderAll(){renderSidebar();buildRibbon();renderDoc();renderTask();}
+renderRuler();
+renderAll();
+</script>
+</body>
+</html>

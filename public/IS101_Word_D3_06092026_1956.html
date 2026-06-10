@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Word 365 — Domain 3: Tables &amp; Lists | IS101</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#808080;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#1f1f1f}
+#title-bar{height:32px;background:#2b579a;display:flex;align-items:center;padding:0 6px 0 8px;flex-shrink:0}
+#title-bar .qat{display:flex;gap:2px;margin-right:8px}
+#title-bar .qat button{width:24px;height:24px;background:transparent;border:none;color:rgba(255,255,255,.88);font-size:12px;cursor:pointer;border-radius:2px}
+#title-bar .docname{flex:1;text-align:center;color:#fff;font-size:12px}
+#title-bar .winbtns{display:flex}
+#title-bar .winbtns button{width:44px;height:32px;background:transparent;border:none;color:rgba(255,255,255,.88);font-size:10px;cursor:pointer}
+#title-bar .winbtns button:hover{background:rgba(255,255,255,.18)}
+#title-bar .winbtns .cls:hover{background:#c42b1c}
+#ribbon{background:#fff;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+#tab-strip{background:#2b579a;display:flex;align-items:flex-end;padding:0 2px;height:30px}
+.tab{height:26px;padding:0 12px;font-size:12px;font-family:inherit;color:rgba(255,255,255,.82);background:transparent;border:none;cursor:pointer;white-space:nowrap;border-radius:2px 2px 0 0;position:relative;bottom:-1px}
+.tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+.tab.active{background:#fff;color:#000;border-left:1px solid #c8c8c8;border-right:1px solid #c8c8c8;border-top:2px solid #2b579a;border-bottom:none;height:30px;z-index:2}
+.tab.tbl{background:#735000;color:rgba(255,255,255,.9)}
+.tab.tbl.active{background:#fff;color:#735000;border-top-color:#735000}
+#ribbon-body{background:#fff;border-top:1px solid #c8c8c8;display:flex;align-items:stretch;height:88px;overflow-x:auto;overflow-y:hidden;padding:0 2px}
+.grp{display:flex;flex-direction:column;border-right:1px solid #e0e0e0;padding:0 2px;flex-shrink:0}
+.grp:last-child{border-right:none}
+.grp-btns{display:flex;align-items:flex-start;gap:1px;flex:1;padding:3px 2px 2px}
+.grp-lbl{font-size:9px;color:#666;text-align:center;padding:1px 4px 2px;white-space:nowrap;display:flex;align-items:center;justify-content:center;min-height:13px}
+.lb{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:68px;min-width:42px;padding:4px 4px 2px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;flex-shrink:0;font-family:inherit}
+.lb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.lb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.lb .li{display:flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:21px;flex-shrink:0;margin-bottom:1px}
+.lb .ll{font-size:9px;color:#333;text-align:center;line-height:1.25;word-break:break-word;max-width:52px}
+.dd-wrap{position:relative;display:inline-flex;vertical-align:top}
+.sb{display:flex;align-items:center;gap:4px;height:20px;padding:0 6px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:11px;font-family:inherit;color:#1f1f1f;white-space:nowrap;min-width:72px}
+.sb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.sb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.sb .si{font-size:13px;width:14px;text-align:center;flex-shrink:0}
+.sb-stack{display:flex;flex-direction:column;gap:1px;justify-content:center;height:68px}
+.font-sq{width:22px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:12px;flex-shrink:0}
+.font-sq:hover{background:#e8f0fb;border-color:#c5d9f7}
+.font-combo{height:20px;border:1px solid #ababab;border-radius:2px;background:#fff;font-size:11px;padding:0 3px;display:flex;align-items:center;gap:2px}
+.font-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.font-row{display:flex;align-items:center;gap:1px}
+.font-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0}
+.styles-gallery{display:flex;align-items:stretch;gap:1px;padding:2px 0}
+.style-btn{width:52px;height:64px;border:1px solid transparent;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:transparent;font-family:inherit;padding:4px 2px;gap:3px}
+.style-btn:hover{border-color:#c5d9f7;background:#e8f0fb}
+.style-preview{font-size:15px;color:#000;line-height:1}
+.style-name{font-size:8px;color:#555;text-align:center;line-height:1.2}
+.ico-btn{width:24px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;flex-shrink:0}
+.ico-btn:hover{background:#e8f0fb;border-color:#c5d9f7}
+.ico-btn.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.ico-sep{width:1px;height:14px;background:#d0d0d0;margin:0 1px;flex-shrink:0;align-self:center}
+.para-rows{display:flex;flex-direction:column;gap:2px;padding-top:3px}
+.para-row{display:flex;align-items:center;gap:1px}
+.dd-menu{position:fixed;background:#fff;border:1px solid #ababab;box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:9999;min-width:180px;padding:2px 0;display:none}
+.dd-menu.open{display:block}
+.dd-item{display:block;width:100%;background:transparent;border:none;text-align:left;padding:7px 16px;font-size:12px;cursor:pointer;color:#1f1f1f;font-family:inherit}
+.dd-item:hover{background:#e8f0fb}
+.dd-sep{height:1px;background:#e5e7eb;margin:2px 0}
+#body-wrap{display:flex;flex:1;overflow:hidden}
+#sidebar{width:200px;background:#1e293b;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-hd{padding:12px 14px 8px;border-bottom:1px solid #334155}
+.sb-exam{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:2px}
+.sb-title{font-size:12px;font-weight:700;color:#f1f5f9;line-height:1.3}
+.sb-score-box{padding:8px 14px;border-bottom:1px solid #334155}
+.sb-lbl{font-size:9px;color:#64748b;margin-bottom:2px}
+.sb-val{font-size:18px;font-weight:700;color:#60a5fa}
+.sb-bar{height:3px;background:#334155;border-radius:2px;margin-top:4px}
+.sb-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width .4s}
+.lab-btn{display:flex;align-items:center;gap:7px;width:100%;background:transparent;border:none;border-left:3px solid transparent;cursor:pointer;padding:6px 12px;text-align:left;color:#94a3b8;font-family:inherit}
+.lab-btn:hover{background:#273244;color:#e2e8f0}
+.lab-btn.active{background:#1e3a5f;border-left-color:#3b82f6;color:#fff}
+.lab-btn.done{color:#34d399;border-left-color:#10b981}
+.lab-dot{width:18px;height:18px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;color:#94a3b8}
+.lab-dot.active{background:#3b82f6;color:#fff}
+.lab-dot.done{background:#10b981;color:#fff}
+.lab-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#main-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#ruler-wrap{height:17px;background:#f0f0f0;border-bottom:1px solid #c8c8c8;display:flex;flex-shrink:0}
+#ruler-corner{width:30px;height:17px;background:#f0f0f0;border-right:1px solid #c8c8c8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888}
+#ruler{flex:1;height:17px;position:relative;overflow:hidden;display:flex;background:#fff}
+.ruler-margin{background:#f0f0f0;flex-shrink:0}
+.ruler-tick{position:absolute;top:0}
+.rtline{width:1px;height:8px;background:#999;margin-top:5px}
+.rtline.major{height:12px;margin-top:3px}
+.rtnum{position:absolute;font-size:7px;color:#777;top:0;transform:translateX(-50%)}
+#prog-bar{height:3px;background:#e5e7eb;flex-shrink:0}
+#prog-fill{height:100%;background:#2b579a;transition:width .4s}
+#canvas{flex:1;overflow-y:auto;background:#808080;display:flex;justify-content:center;align-items:flex-start;padding:20px}
+#doc-page{width:680px;min-height:460px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.4);font-family:"Calibri",serif;padding:72px 96px;position:relative}
+#status-bar{height:22px;background:#2b579a;display:flex;align-items:center;padding:0 12px;color:rgba(255,255,255,.85);font-size:11px;flex-shrink:0;gap:16px}
+#task-panel{background:#fff;border-top:2px solid #2b579a;padding:10px 16px;flex-shrink:0}
+.task-row{display:flex;align-items:flex-start;gap:10px}
+.task-badge{background:#7c3aed;color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:3px 8px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.task-text{font-size:13px;color:#4c1d95;font-weight:500;line-height:1.4;flex:1}
+.task-acts{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.btn{padding:5px 14px;border-radius:2px;font-size:12px;cursor:pointer;font-family:inherit;border:1px solid transparent}
+.btn-blue{background:#2b579a;color:#fff}.btn-blue:hover{background:#1e3a8a}
+.btn-ghost{background:#fff;border-color:#ababab;color:#374151}.btn-ghost:hover{background:#f5f5f5}
+.btn-gold{background:#f59e0b;color:#fff;border:none}.btn-gold:hover{background:#d97706}
+.hint-area{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.hint-row{padding:7px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#78350f;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.hint-num{font-size:10px;font-weight:800;text-transform:uppercase;padding:1px 7px;border-radius:10px;background:rgba(0,0,0,.08);flex-shrink:0;margin-top:1px}
+.answer-tag{background:#15803d;color:#fff}
+.hint-answer{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.fb{margin-top:7px;padding:9px 14px;font-size:12px;line-height:1.5}
+.fb-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.fb-err{background:#fff1f1;border:1px solid #fca5a5;color:#991b1b}
+.fb-next{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}
+.dt{font-size:24px;font-weight:800;color:#000;letter-spacing:-.5px;margin-bottom:6px}
+.dh1{font-size:17px;font-weight:700;color:#2e74b5;margin:14px 0 8px;border-bottom:1px solid #2e74b5;padding-bottom:3px}
+.dh2{font-size:14px;font-weight:600;color:#2e74b5;margin:10px 0 6px}
+.dp{font-size:13px;color:#1a1a1a;line-height:1.65;margin-bottom:8px;font-family:"Calibri",serif}
+.dsel{background:#b4d5fe;border-radius:1px}
+.dtbl{width:100%;border-collapse:collapse;margin:10px 0}
+.dtbl th{background:#2b579a;color:#fff;padding:6px 10px;font-size:12px;font-weight:600;text-align:left;border:1px solid #1e3a8a}
+.dtbl td{border:1px solid #d1d5db;padding:6px 10px;font-size:12px}
+.dtbl tr:nth-child(even) td{background:#f0f4ff}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;display:none}
+.w-dlg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #ababab;box-shadow:0 8px 28px rgba(0,0,0,.25);z-index:300;width:400px;display:none;font-family:"Segoe UI",sans-serif}
+.dlg-hd{background:#2b579a;color:#fff;padding:8px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.dlg-close{background:transparent;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0 4px}
+.dlg-body{padding:16px;max-height:60vh;overflow-y:auto}
+.dlg-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dlg-row label{font-size:12px;color:#374151;min-width:120px;flex-shrink:0}
+.dlg-row input[type=text],.dlg-row select{flex:1;padding:5px 8px;border:1px solid #ababab;font-size:12px;font-family:inherit;border-radius:2px}
+.dlg-section{font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding-bottom:3px;border-bottom:1px solid #e5e7eb}
+.dlg-ft{padding:10px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px;background:#f9f9f9}
+.res-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none}
+.res-overlay.open{display:block}
+.res-panel{position:fixed;right:-420px;top:0;width:400px;height:100vh;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.2);z-index:401;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.res-panel.open{right:0}
+.res-hd{background:#1e293b;color:#fff;padding:16px 18px;flex-shrink:0;position:relative}
+.res-hd h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.res-hd p{font-size:11px;color:rgba(255,255,255,.55)}
+.res-close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer}
+.res-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.res-card{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.res-card-hd{background:#f8fafc;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e5e7eb}
+.res-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ri-ai{background:#ede9fe}.ri-li{background:#dbeafe}.ri-yt{background:#fee2e2}.ri-ms{background:#dcfce7}
+.res-card-title{font-size:12px;font-weight:700}
+.res-card-sub{font-size:10px;color:#6b7280}
+.res-card-body{padding:10px 14px}
+.prompt-box{background:#1e1e2e;border-radius:6px;padding:10px 12px;font-family:"Courier New",monospace;font-size:11px;color:#cdd6f4;line-height:1.6;margin-bottom:8px;white-space:pre-wrap}
+.copy-btn{background:#313244;border:none;color:#cdd6f4;padding:4px 10px;border-radius:4px;font-size:11px;font-family:inherit;cursor:pointer}
+.copy-btn:hover{background:#45475a}
+.copy-btn.copied{background:#1e3a2e;color:#a6e3a1}
+.res-link{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f8fafc;border-radius:6px;text-decoration:none;color:#1f1f1f;font-size:12px;font-weight:500;border:1px solid #e5e7eb;margin-bottom:6px}
+.res-link:hover{background:#eff6ff;border-color:#bfdbfe}
+.res-note{font-size:10px;color:#6b7280;line-height:1.5;margin-top:4px}
+@keyframes hlpulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}60%{box-shadow:0 0 0 4px rgba(245,158,11,.08)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="backdrop" id="backdrop" onclick="closeDlg()"></div>
+
+<div class="w-dlg" id="dlg-inserttable"><div class="dlg-hd">Insert Table <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Table Size</div><div class="dlg-row"><label>Number of columns:</label><input type="text" value="3"></div><div class="dlg-row"><label>Number of rows:</label><input type="text" value="4"></div><div class="dlg-section">AutoFit Behavior</div><div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151"><label><input type="radio" name="af" checked> Fixed column width: Auto</label><label><input type="radio" name="af"> AutoFit to contents</label><label><input type="radio" name="af"> AutoFit to window</label></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-converttable"><div class="dlg-hd">Convert Text to Table <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Table Size</div><div class="dlg-row"><label>Number of columns:</label><input type="text" value="3"></div><div class="dlg-row"><label>Number of rows:</label><input type="text" value="5"></div><div class="dlg-section">AutoFit Behavior</div><div style="font-size:12px;color:#374151;margin-bottom:8px"><label><input type="radio" name="af2" checked> Fixed column width: Auto</label></div><div class="dlg-section">Separate text at</div><div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151"><label><input type="radio" name="sep" checked> Commas</label><label><input type="radio" name="sep"> Tabs</label><label><input type="radio" name="sep"> Paragraphs</label></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-converttabletext"><div class="dlg-hd">Convert Table to Text <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Separate text with</div><div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#374151"><label><input type="radio" name="sep2" checked> Paragraph marks</label><label><input type="radio" name="sep2"> Tabs</label><label><input type="radio" name="sep2"> Commas</label><label><input type="radio" name="sep2"> Other: <input type="text" style="width:30px;padding:2px 4px;border:1px solid #ababab;border-radius:2px" value="-"></label></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-sort"><div class="dlg-hd">Sort <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Sort by</div><div class="dlg-row"><label>Column:</label><select><option selected>Column 1 (Client Name)</option><option>Column 2 (Industry)</option><option>Column 3 (Revenue)</option></select></div><div class="dlg-row"><label>Type:</label><select><option selected>Text</option><option>Number</option><option>Date</option></select></div><div class="dlg-row"><label>Order:</label><select><option selected>Ascending</option><option>Descending</option></select></div><div class="dlg-section">Then by</div><div class="dlg-row"><label>Column:</label><select><option selected>(none)</option></select></div><div style="font-size:12px;color:#374151;margin-top:8px"><label><input type="radio" name="hr" checked> Header row</label> &nbsp; <label><input type="radio" name="hr"> No header row</label></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-cellmargins"><div class="dlg-hd">Table Options <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Default Cell Margins</div><div class="dlg-row"><label>Top:</label><input type="text" value='0.1"'></div><div class="dlg-row"><label>Bottom:</label><input type="text" value='0.1"'></div><div class="dlg-row"><label>Left:</label><input type="text" value='0.1"'></div><div class="dlg-row"><label>Right:</label><input type="text" value='0.1"'></div><div class="dlg-section">Default Cell Spacing</div><div style="font-size:12px;color:#374151;margin-bottom:8px"><label><input type="checkbox"> Allow spacing between cells: <input type="text" style="width:40px;padding:2px 4px;border:1px solid #ababab;border-radius:2px" value='0"'></label></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-splitcells"><div class="dlg-hd">Split Cells <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-row"><label>Number of columns:</label><input type="text" value="2"></div><div class="dlg-row"><label>Number of rows:</label><input type="text" value="1"></div><div style="font-size:12px;color:#374151;margin-top:8px"><label><input type="checkbox" checked> Merge cells before split</label></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-colwidth"><div class="dlg-hd">Table Properties <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Column</div><div style="font-size:12px;color:#374151;margin-bottom:8px">&#9664; Column 1 of 3 &#9654;</div><div class="dlg-row"><label><input type="checkbox" checked> Preferred width:</label><input type="text" value='2"'></div><div class="dlg-row"><label>Measure in:</label><select><option selected>Inches</option><option>Percent</option></select></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-bulletformat" style="width:420px"><div class="dlg-hd">Define New Bullet <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div class="dlg-section">Bullet Character</div><div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn btn-ghost" style="font-size:18px">&#x2714;</button><button class="btn btn-ghost" style="font-size:18px">&#x25BA;</button><button class="btn btn-ghost" style="font-size:18px">&#x2605;</button><button class="btn btn-ghost" style="font-size:18px">&#x2013;</button><button class="btn btn-ghost" onclick="closeDlg()">Symbol&#8230;</button></div><div class="dlg-section">Preview</div><div style="background:#f9f9f9;border:1px solid #e5e7eb;padding:10px 14px;font-size:13px"><span style="margin-right:8px">&#x2714;</span>List item example</div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+<div class="w-dlg" id="dlg-setnumber"><div class="dlg-hd">Set Numbering Value <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div style="display:flex;flex-direction:column;gap:10px;font-size:12px;color:#374151"><label><input type="radio" name="nv" checked> Start new list</label><label><input type="radio" name="nv"> Continue from previous list</label></div><div class="dlg-row" style="margin-top:12px"><label>Set value to:</label><input type="text" value="1" style="width:60px;flex:none"></div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+
+
+<div id="title-bar">
+  <div class="qat"><button>&#128190;</button><button style="font-size:11px">&#8617;</button><button style="font-size:11px">&#8618;</button></div>
+  <div class="docname" id="doc-title">DesertSunReport.docx &#8212; Word</div>
+  <div class="winbtns"><button>&#8212;</button><button>&#10063;</button><button class="cls">&#10005;</button></div>
+</div>
+
+<div id="ribbon"><div id="tab-strip"></div><div id="ribbon-body"></div></div>
+<div id="ruler-wrap"><div id="ruler-corner">&#8862;</div><div id="ruler"></div></div>
+<div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+
+<div id="body-wrap">
+  <div id="sidebar">
+    <div class="sb-hd">
+      <div class="sb-exam">IS101 &middot; Word 365</div>
+      <div class="sb-title">Domain 3: Tables &amp; Lists</div>
+    </div>
+    <div class="sb-score-box">
+      <div class="sb-lbl">COMPLETED</div>
+      <div class="sb-val" id="sb-score">0 / 15</div>
+      <div class="sb-bar"><div class="sb-fill" id="sb-fill" style="width:0%"></div></div>
+    </div>
+    <div id="sb-nav"></div>
+  </div>
+  <div id="main-pane">
+    <div id="canvas"><div id="doc-page"></div></div>
+    <div id="status-bar">
+      <span>Page 1 of 3</span><span>Words: 248</span><span>English (United States)</span>
+      <span style="margin-left:auto">&#9632; &#128214; &#128269;</span>
+    </div>
+    <div id="task-panel"></div>
+  </div>
+</div>
+
+<div class="res-overlay" id="res-overlay" onclick="closeResources()"></div>
+<div class="res-panel" id="res-panel">
+  <div class="res-hd">
+    <h3>&#128161; Resources</h3>
+    <p id="res-skill-name"></p>
+    <button class="res-close" onclick="closeResources()">&#x2715;</button>
+  </div>
+  <div class="res-body" id="res-body"></div>
+</div>
+
+<script>
+const LABS = [{"id": 0, "name": "Create a Table", "tab": "insert", "action": "insert-table", "docTitle": "DesertSunReport.docx — Word", "task": "Insert a <strong>3-column, 4-row table</strong> to organize the quarterly revenue data in this report.", "hints": ["Tables are inserted from the Insert tab.", "On the Insert tab, find the Tables group. Click the Table button.", "In the Table grid, hover over the squares to select 3 columns and 4 rows, then click to insert."], "answer": "Insert tab → Tables group → Table → drag to select 3×4 grid → click.", "exp": "Insert Table (Insert → Table): drag the grid to choose columns and rows. Or use Insert Table… dialog for exact numbers. The table appears at the cursor position.", "dlg": "dlg-inserttable", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Quarterly Revenue Summary</p><p class=\"dp\">The table below needs to be created to organize the quarterly revenue data. Insert a 3-column, 4-row table at the location indicated.</p><div style=\"border:2px dashed #c5d9f7;border-radius:4px;padding:20px;text-align:center;color:#6b7280;font-size:13px;margin:12px 0\">← Insert a 3-column, 4-row table here</div>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Quarterly Revenue Summary</p><p class=\"dp\">The table has been inserted and is ready to fill in with quarterly revenue data.</p><table class=\"dtbl\"><thead><tr><th>Quarter</th><th>Revenue</th><th>Growth %</th></tr></thead><tbody><tr><td>Q1 2026</td><td>$1,020,000</td><td>+18%</td></tr><tr><td>Q2 2026</td><td>$1,140,000</td><td>+22%</td></tr><tr><td>Q3 2026</td><td>$1,080,000</td><td>+19%</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ 3×4 table inserted (1 header row + 3 data rows).</p>", "prompt": "I am learning Word 365. How do I insert a table in Word? How do I choose the number of rows and columns? How do I move between cells?", "youtube": "https://www.youtube.com/results?search_query=word+365+insert+table", "ms": "https://support.microsoft.com/en-us/office/insert-a-table-in-word-a138f745-73ef-4879-b99a-2f3d38be612a"}, {"id": 1, "name": "Convert Text to Table", "tab": "insert", "action": "convert-text-table", "docTitle": "DesertSunReport.docx — Word", "task": "The comma-separated data below is hard to read. <strong>Convert the text to a table</strong> using the Convert Text to Table command.", "hints": ["Convert Text to Table is in the Insert tab, inside the Table dropdown.", "On the Insert tab, click the Table button, then look at the bottom of the dropdown for 'Convert Text to Table…'", "Make sure the text is selected first, then click Insert → Table → Convert Text to Table. Word will detect the commas as column separators."], "answer": "Select text → Insert tab → Table → Convert Text to Table → set separator to comma → OK.", "exp": "Convert Text to Table (Insert → Table → Convert Text to Table): turns tab-separated, comma-separated, or paragraph-separated text into a table. Word detects the separator automatically.", "dlg": "dlg-converttable", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Client List</p><p class=\"dp\">The data below needs to be converted to a table. Each line is a row; commas separate the columns.</p><div style=\"background:#f8faff;border:1px solid #dbeafe;padding:12px 16px;font-family:monospace;font-size:12px;line-height:2;color:#1f1f1f;margin:10px 0\" class=\"dsel\">Client Name, Industry, Revenue<br>Sunrise Hotels, Hospitality, $480,000<br>Desert Medical Group, Healthcare, $310,000<br>NV Tech Solutions, Technology, $290,000<br>Clark County Schools, Education, $210,000</div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the data above, then use Insert → Table → Convert Text to Table.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Client List</p><table class=\"dtbl\"><thead><tr><th>Client Name</th><th>Industry</th><th>Revenue</th></tr></thead><tbody><tr><td>Sunrise Hotels</td><td>Hospitality</td><td>$480,000</td></tr><tr><td>Desert Medical Group</td><td>Healthcare</td><td>$310,000</td></tr><tr><td>NV Tech Solutions</td><td>Technology</td><td>$290,000</td></tr><tr><td>Clark County Schools</td><td>Education</td><td>$210,000</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Text converted to a 3-column, 5-row table.</p>", "prompt": "I am learning Word 365. How do I convert comma-separated or tab-separated text into a table? Walk me through Insert → Table → Convert Text to Table.", "youtube": "https://www.youtube.com/results?search_query=word+365+convert+text+to+table", "ms": "https://support.microsoft.com/en-us/office/convert-text-to-a-table-or-a-table-to-text-b5a0b435-f0c8-4d65-8813-835d4b062a37"}, {"id": 2, "name": "Convert Table to Text", "tab": "layout", "action": "convert-table-text", "docTitle": "DesertSunReport.docx — Word", "task": "This table needs to be converted back to plain text for export. Use <strong>Convert Table to Text</strong> with tabs as the separator.", "hints": ["Convert Table to Text is on the Table Layout tab, which only appears when the cursor is inside a table.", "Click inside the table first. A new 'Table Design' and 'Layout' tab will appear in the ribbon.", "On the Table Layout tab, look in the Data group on the far right. Click 'Convert to Text' and choose Tabs as the separator."], "answer": "Click in table → Table Layout tab → Data group → Convert to Text → Tabs → OK.", "exp": "Convert to Text (Table Layout → Data → Convert to Text): turns a table back into plain text, separating columns with tabs, commas, or paragraph marks. The Table Layout tab appears only when you click inside a table.", "dlg": "dlg-converttabletext", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Export Data</p><p class=\"dp\">This table needs to be converted to plain tab-separated text for export to the data team. Click inside the table, then use the Table Layout tab.</p><table class=\"dtbl\"><thead><tr><th>Quarter</th><th>Revenue</th><th>Growth %</th></tr></thead><tbody><tr><td>Q1 2026</td><td>$1,020,000</td><td>+18%</td></tr><tr><td>Q2 2026</td><td>$1,140,000</td><td>+22%</td></tr><tr><td>Q3 2026</td><td>$1,080,000</td><td>+19%</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click in the table, then use Table Layout tab → Data group → Convert to Text.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Export Data</p><p class=\"dp\">The table has been converted to tab-separated plain text. Each row is a paragraph; columns are separated by tab characters.</p><div style=\"background:#f8faff;border:1px solid #dbeafe;padding:12px 16px;font-family:monospace;font-size:12px;line-height:2;color:#1f1f1f;margin:10px 0\">Quarter\tRevenue\tGrowth %<br>Q1 2026\t$1,020,000\t+18%<br>Q2 2026\t$1,140,000\t+22%<br>Q3 2026\t$1,080,000\t+19%</div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Table converted to tab-separated text.</p>", "prompt": "I am learning Word 365. How do I convert a table back to plain text in Word? Where is the Convert to Text option? What tab appears when I click inside a table?", "youtube": "https://www.youtube.com/results?search_query=word+365+convert+table+to+text", "ms": "https://support.microsoft.com/en-us/office/convert-text-to-a-table-or-a-table-to-text-b5a0b435-f0c8-4d65-8813-835d4b062a37"}, {"id": 3, "name": "Sort Table Data", "tab": "layout", "action": "sort-table", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Sort the client table alphabetically</strong> by the Client Name column (A to Z).", "hints": ["Sort is on the Table Layout tab, which only appears when you are inside a table.", "Click anywhere inside the table first. Then look for the Table Layout tab in the ribbon.", "On the Table Layout tab, find the Data group. Click Sort. In the dialog, choose Column 1 (Client Name), Ascending, Text."], "answer": "Click in table → Table Layout tab → Data group → Sort → Column 1, Ascending → OK.", "exp": "Sort (Table Layout → Data → Sort): sorts table rows by any column, ascending or descending, as text or numbers. Check 'Header row' so the header stays at the top.", "dlg": "dlg-sort", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Client List</p><p class=\"dp\">This client table needs to be sorted alphabetically by client name so it is easier to find specific clients.</p><table class=\"dtbl\"><thead><tr><th>Client Name</th><th>Industry</th><th>Revenue</th></tr></thead><tbody><tr><td>Sunrise Hotels</td><td>Hospitality</td><td>$480,000</td></tr><tr><td>Desert Medical Group</td><td>Healthcare</td><td>$310,000</td></tr><tr><td>NV Tech Solutions</td><td>Technology</td><td>$290,000</td></tr><tr><td>Clark County Schools</td><td>Education</td><td>$210,000</td></tr><tr><td>Apex Consulting</td><td>Business Services</td><td>$175,000</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Sort this table A→Z by the Client Name column.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Client List</p><p class=\"dp\">The client table is now sorted alphabetically by client name.</p><table class=\"dtbl\"><thead><tr><th>Client Name</th><th>Industry</th><th>Revenue</th></tr></thead><tbody><tr><td>Apex Consulting</td><td>Business Services</td><td>$175,000</td></tr><tr><td>Clark County Schools</td><td>Education</td><td>$210,000</td></tr><tr><td>Desert Medical Group</td><td>Healthcare</td><td>$310,000</td></tr><tr><td>NV Tech Solutions</td><td>Technology</td><td>$290,000</td></tr><tr><td>Sunrise Hotels</td><td>Hospitality</td><td>$480,000</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Table sorted A→Z by Client Name.</p>", "prompt": "I am learning Word 365. How do I sort a table alphabetically or numerically in Word? Where is the Sort button and how do I make sure the header row stays at the top?", "youtube": "https://www.youtube.com/results?search_query=word+365+sort+table+data", "ms": "https://support.microsoft.com/en-us/office/sort-the-contents-of-a-table-in-word-f6e8e98b-abe6-4d48-9776-93c9ec1a21f6"}, {"id": 4, "name": "Configure Cell Margins/Spacing", "tab": "layout", "action": "cell-margins", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "The table cells feel cramped. Increase the <strong>cell margins to 0.1 inches</strong> on all sides to add breathing room inside each cell.", "hints": ["Cell margins are in the Table Layout tab, Properties section.", "Click inside the table, then find the Table Layout tab. Look in the Alignment group.", "Click Cell Margins in the Alignment group. Set Top, Bottom, Left, Right all to 0.1\" and click OK."], "answer": "Click in table → Table Layout tab → Alignment group → Cell Margins → set all to 0.1\" → OK.", "exp": "Cell Margins (Table Layout → Alignment → Cell Margins): control the space between cell content and cell borders. More margin = more padding inside each cell.", "dlg": "dlg-cellmargins", "before_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Benefits Summary</p><table class=\"dtbl\" style=\"font-size:12px\"><thead><tr><th style=\"padding:2px 4px\">Benefit</th><th style=\"padding:2px 4px\">Coverage</th><th style=\"padding:2px 4px\">Monthly Cost</th></tr></thead><tbody><tr><td style=\"padding:2px 4px\">Medical PPO</td><td style=\"padding:2px 4px\">Full Family</td><td style=\"padding:2px 4px\">$185</td></tr><tr><td style=\"padding:2px 4px\">Dental</td><td style=\"padding:2px 4px\">Basic + Ortho</td><td style=\"padding:2px 4px\">$42</td></tr><tr><td style=\"padding:2px 4px\">Vision</td><td style=\"padding:2px 4px\">In-Network</td><td style=\"padding:2px 4px\">$8</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← The cells above are cramped. Use Table Layout → Cell Margins to add 0.1\" padding on all sides.</p>", "after_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Benefits Summary</p><table class=\"dtbl\"><thead><tr><th>Benefit</th><th>Coverage</th><th>Monthly Cost</th></tr></thead><tbody><tr><td>Medical PPO</td><td>Full Family</td><td>$185</td></tr><tr><td>Dental</td><td>Basic + Ortho</td><td>$42</td></tr><tr><td>Vision</td><td>In-Network</td><td>$8</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Cell margins set to 0.1\" on all sides — cells have more breathing room.</p>", "prompt": "I am learning Word 365. How do I change the cell padding (margins) inside a table? How is cell margin different from cell spacing?", "youtube": "https://www.youtube.com/results?search_query=word+365+table+cell+margins+padding", "ms": "https://support.microsoft.com/en-us/office/add-or-change-the-space-inside-a-table-a0d1b4ca-2f37-4e20-9bc7-7d5ba0ebf599"}, {"id": 5, "name": "Merge Cells", "tab": "layout", "action": "merge-cells", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Merge the three cells in the top row</strong> of this table to create a single title cell that spans all columns.", "hints": ["Merge Cells is on the Table Layout tab.", "Select the cells you want to merge first by clicking and dragging across them. Then find the Table Layout tab.", "On the Table Layout tab, find the Merge group. Click Merge Cells to combine the selected cells into one."], "answer": "Select top row cells → Table Layout tab → Merge group → Merge Cells.", "exp": "Merge Cells (Table Layout → Merge → Merge Cells): combines multiple selected cells into one. Commonly used for header rows that span all columns or for creating table titles.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Revenue by Region</p><table class=\"dtbl\"><thead><tr><th class=\"dsel\">Q1 2026</th><th class=\"dsel\">Q2 2026</th><th class=\"dsel\">Q3 2026</th></tr></thead><tbody><tr><td>Las Vegas</td><td>$640,000</td><td>$710,000</td></tr><tr><td>Henderson</td><td>$210,000</td><td>$240,000</td></tr><tr><td>Reno</td><td>$170,000</td><td>$190,000</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the three highlighted header cells, then use Table Layout → Merge Cells.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Revenue by Region</p><table class=\"dtbl\"><thead><tr><th colspan=\"3\" style=\"text-align:center\">Desert Sun Consulting — Regional Revenue 2026</th></tr></thead><tbody><tr><td>Las Vegas</td><td>$640,000</td><td>$710,000</td></tr><tr><td>Henderson</td><td>$210,000</td><td>$240,000</td></tr><tr><td>Reno</td><td>$170,000</td><td>$190,000</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Top row cells merged into a single spanning header cell.</p>", "prompt": "I am learning Word 365. How do I merge cells in a table? How do I merge an entire row into one cell for a title? What happens to the content in merged cells?", "youtube": "https://www.youtube.com/results?search_query=word+365+merge+table+cells", "ms": "https://support.microsoft.com/en-us/office/merge-or-split-table-cells-in-word-b5f0b3e1-8a7a-4a25-b2b5-9c23fa63a3d6"}, {"id": 6, "name": "Split Cells", "tab": "layout", "action": "split-cells", "docTitle": "DesertSunReport.docx — Word", "task": "The merged \"Nevada Region\" cell needs to be <strong>split into 2 columns</strong> to add a sub-category column.", "hints": ["Split Cells is on the Table Layout tab, in the Merge group.", "Click inside the cell you want to split. Then find the Table Layout tab in the ribbon.", "On the Table Layout tab, in the Merge group, click Split Cells. Enter 2 for columns and 1 for rows, then click OK."], "answer": "Click in cell → Table Layout tab → Merge group → Split Cells → columns: 2, rows: 1 → OK.", "exp": "Split Cells (Table Layout → Merge → Split Cells): divides one cell into multiple rows or columns. Opposite of Merge Cells. Useful for adding sub-columns or sub-rows within existing tables.", "dlg": "dlg-splitcells", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Regional Summary</p><table class=\"dtbl\"><thead><tr><th class=\"dsel\" colspan=\"1\">Nevada Region</th><th>Q1 Revenue</th><th>Q2 Revenue</th></tr></thead><tbody><tr><td>Las Vegas Metro</td><td>$640,000</td><td>$710,000</td></tr><tr><td>Northern Nevada</td><td>$170,000</td><td>$190,000</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Split the \"Nevada Region\" cell into 2 columns: \"State\" and \"Sub-Region\".</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Regional Summary</p><table class=\"dtbl\"><thead><tr><th>State</th><th>Sub-Region</th><th>Q1 Revenue</th><th>Q2 Revenue</th></tr></thead><tbody><tr><td>Nevada</td><td>Las Vegas Metro</td><td>$640,000</td><td>$710,000</td></tr><tr><td>Nevada</td><td>Northern Nevada</td><td>$170,000</td><td>$190,000</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Cell split into 2 columns: State and Sub-Region.</p>", "prompt": "I am learning Word 365. How do I split a table cell into multiple columns or rows? Walk me through the Split Cells dialog.", "youtube": "https://www.youtube.com/results?search_query=word+365+split+table+cells", "ms": "https://support.microsoft.com/en-us/office/merge-or-split-table-cells-in-word-b5f0b3e1-8a7a-4a25-b2b5-9c23fa63a3d6"}, {"id": 7, "name": "Resize Table/Rows/Columns", "tab": "layout", "action": "resize-columns", "docTitle": "DesertSunReport.docx — Word", "task": "The first column is too wide compared to the others. Set the <strong>first column width to exactly 2 inches</strong> using the Column Width field.", "hints": ["Column width is set on the Table Layout tab.", "Click inside the first column, then find the Table Layout tab in the ribbon.", "On the Table Layout tab, find the Cell Size group. Change the Width field to 2\". Press Enter to apply."], "answer": "Click in column → Table Layout tab → Cell Size group → Width: 2\" → press Enter.", "exp": "Column Width (Table Layout → Cell Size): set exact column widths by typing a value in the Width field. You can also drag column borders or use AutoFit for automatic sizing.", "dlg": "dlg-colwidth", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Client Revenue Summary</p><table class=\"dtbl\"><thead><tr><th style=\"width:340px\">Client Name</th><th>Industry</th><th>Revenue</th></tr></thead><tbody><tr><td style=\"width:340px\">Desert Medical Group of Southern Nevada</td><td>Healthcare</td><td>$310,000</td></tr><tr><td style=\"width:340px\">NV Tech Solutions LLC</td><td>Technology</td><td>$290,000</td></tr><tr><td style=\"width:340px\">Clark County School District</td><td>Education</td><td>$210,000</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← The first column is too wide. Set it to exactly 2 inches wide using Table Layout → Cell Size → Width.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Client Revenue Summary</p><table class=\"dtbl\"><thead><tr><th style=\"width:144px\">Client Name</th><th>Industry</th><th>Revenue</th></tr></thead><tbody><tr><td style=\"width:144px\">Desert Medical Group</td><td>Healthcare</td><td>$310,000</td></tr><tr><td style=\"width:144px\">NV Tech Solutions</td><td>Technology</td><td>$290,000</td></tr><tr><td style=\"width:144px\">Clark County Schools</td><td>Education</td><td>$210,000</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ First column width set to 2 inches.</p>", "prompt": "I am learning Word 365. How do I set an exact column width in a Word table? How do I use AutoFit to automatically size columns to their content?", "youtube": "https://www.youtube.com/results?search_query=word+365+resize+table+column+width", "ms": "https://support.microsoft.com/en-us/office/resize-a-table-column-or-row-in-word-f44cd9e1-50bc-4f2f-ae10-3d8e0e7d8f2b"}, {"id": 8, "name": "Split a Table", "tab": "layout", "action": "split-table", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Split this table into two separate tables</strong> at the \"Reno\" row so each region can be labeled independently.", "hints": ["Split Table is on the Table Layout tab.", "Click in the row where you want the split to happen (the Reno row). Then find the Table Layout tab.", "On the Table Layout tab, in the Merge group, click Split Table. Word will split the table at that row."], "answer": "Click in the Reno row → Table Layout tab → Merge group → Split Table.", "exp": "Split Table (Table Layout → Merge → Split Table): divides one table into two at the selected row. A paragraph mark is inserted between the two resulting tables.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Revenue by Office</p><table class=\"dtbl\"><thead><tr><th>Office</th><th>Q1 2026</th><th>Q2 2026</th></tr></thead><tbody><tr><td>Las Vegas — Main</td><td>$640,000</td><td>$710,000</td></tr><tr><td>Henderson</td><td>$210,000</td><td>$240,000</td></tr><tr><td class=\"dsel\">Reno</td><td class=\"dsel\">$170,000</td><td class=\"dsel\">$190,000</td></tr><tr><td>Carson City</td><td>$95,000</td><td>$108,000</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click the Reno row, then use Table Layout → Split Table to split here.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Southern Nevada Offices</p><table class=\"dtbl\"><thead><tr><th>Office</th><th>Q1 2026</th><th>Q2 2026</th></tr></thead><tbody><tr><td>Las Vegas — Main</td><td>$640,000</td><td>$710,000</td></tr><tr><td>Henderson</td><td>$210,000</td><td>$240,000</td></tr></tbody></table><p class=\"dh2\" style=\"margin-top:14px\">Northern Nevada Offices</p><table class=\"dtbl\"><thead><tr><th>Office</th><th>Q1 2026</th><th>Q2 2026</th></tr></thead><tbody><tr><td>Reno</td><td>$170,000</td><td>$190,000</td></tr><tr><td>Carson City</td><td>$95,000</td><td>$108,000</td></tr></tbody></table><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Table split into two separate tables at the Reno row.</p>", "prompt": "I am learning Word 365. How do I split one table into two tables? Where is the Split Table button? Can I undo a split if I change my mind?", "youtube": "https://www.youtube.com/results?search_query=word+365+split+table", "ms": "https://support.microsoft.com/en-us/office/split-a-table-in-word-12be9caa-5f17-401f-a01e-81f5a5a8e6fa"}, {"id": 9, "name": "Configure Repeating Row Header", "tab": "layout", "action": "repeat-header", "docTitle": "DesertSunReport.docx — Word", "task": "This table spans multiple pages. Set the <strong>header row to repeat on every page</strong> so readers always know what each column contains.", "hints": ["Repeat Header Rows is on the Table Layout tab.", "Click inside the header row (the top row with column titles). Then find the Table Layout tab.", "On the Table Layout tab, in the Data group, click 'Repeat Header Rows'. The header will now repeat automatically when the table breaks across pages."], "answer": "Click in header row → Table Layout tab → Data group → Repeat Header Rows.", "exp": "Repeat Header Rows (Table Layout → Data): makes the top row(s) repeat at the top of every page when a table spans multiple pages. Essential for long data tables.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Complete Client List — All Regions</p><table class=\"dtbl\"><thead><tr><th class=\"dsel\">Client Name</th><th class=\"dsel\">Industry</th><th class=\"dsel\">Region</th><th class=\"dsel\">Revenue</th></tr></thead><tbody><tr><td>Sunrise Hotels</td><td>Hospitality</td><td>Las Vegas</td><td>$480,000</td></tr><tr><td>Desert Medical</td><td>Healthcare</td><td>Henderson</td><td>$310,000</td></tr><tr><td>NV Tech</td><td>Technology</td><td>Las Vegas</td><td>$290,000</td></tr><tr><td>Clark County Schools</td><td>Education</td><td>Clark Co.</td><td>$210,000</td></tr><tr><td colspan=\"4\" style=\"text-align:center;color:#6b7280;font-style:italic;font-size:11px\">↓ Table continues on next page…</td></tr></tbody></table><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click the header row (highlighted), then use Table Layout → Data → Repeat Header Rows.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Complete Client List — All Regions</p><table class=\"dtbl\"><thead><tr><th>Client Name</th><th>Industry</th><th>Region</th><th>Revenue</th></tr></thead><tbody><tr><td>Sunrise Hotels</td><td>Hospitality</td><td>Las Vegas</td><td>$480,000</td></tr><tr><td>Desert Medical</td><td>Healthcare</td><td>Henderson</td><td>$310,000</td></tr><tr><td colspan=\"4\" style=\"text-align:center;color:#6b7280;font-style:italic;font-size:11px\">↓ Table continues — header now repeats on each page</td></tr></tbody></table><div style=\"background:#f0fdf4;border:1px solid #86efac;border-radius:4px;padding:8px 12px;font-size:11px;color:#166534;margin:8px 0\">➡ Page 2: <table style=\"display:inline-table;border-collapse:collapse;font-size:11px\"><tr><th style=\"background:#2b579a;color:#fff;padding:3px 8px;border:1px solid #1e3a8a\">Client Name</th><th style=\"background:#2b579a;color:#fff;padding:3px 8px;border:1px solid #1e3a8a\">Industry</th><th style=\"background:#2b579a;color:#fff;padding:3px 8px;border:1px solid #1e3a8a\">Region</th><th style=\"background:#2b579a;color:#fff;padding:3px 8px;border:1px solid #1e3a8a\">Revenue</th></tr></table> (header repeats automatically)</div><p style=\"font-size:10px;color:#15803d;font-weight:700\">✓ Header row set to repeat on every page.</p>", "prompt": "I am learning Word 365. How do I make a table header row repeat on every page when the table spans multiple pages? Where is the Repeat Header Rows option?", "youtube": "https://www.youtube.com/results?search_query=word+365+repeat+header+row+table", "ms": "https://support.microsoft.com/en-us/office/repeat-table-header-row-on-subsequent-pages-2f1e56a9-3169-4267-8e4b-06e43f86e49a"}, {"id": 10, "name": "Create a Numbered List", "tab": "home", "action": "numbering", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "Format the emergency procedures below as a <strong>numbered list</strong> so staff can follow them in order.", "hints": ["Numbered lists are on the Home tab, in the Paragraph group.", "On the Home tab, look in the Paragraph group. The numbered list button shows lines with numbers (1. 2. 3.).", "Select the text first, then click the Numbering button. Or click Numbering first, then type each item."], "answer": "Select text → Home tab → Paragraph group → Numbering button (1. 2. 3.).", "exp": "Numbered List (Home → Paragraph → Numbering): formats items as an ordered list. Word automatically increments numbers. Press Enter for the next item; press Tab to create a sub-level.", "before_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Emergency Procedures</p><p class=\"dp\">In the event of a medical emergency, follow these steps in order:</p><p class=\"dp dsel\">Call 911 immediately</p><p class=\"dp dsel\">Notify the charge nurse on duty</p><p class=\"dp dsel\">Do not move the patient unless directed by emergency services</p><p class=\"dp dsel\">Clear the area of non-essential personnel</p><p class=\"dp dsel\">Meet emergency services at the main entrance</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the five steps above and apply a numbered list format.</p>", "after_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Emergency Procedures</p><p class=\"dp\">In the event of a medical emergency, follow these steps in order:</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Call 911 immediately</li><li>Notify the charge nurse on duty</li><li>Do not move the patient unless directed by emergency services</li><li>Clear the area of non-essential personnel</li><li>Meet emergency services at the main entrance</li></ol><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Numbered list applied — 5 items numbered 1–5.</p>", "prompt": "I am learning Word 365. How do I create a numbered list in Word? How do I change the number format (1. vs a. vs i.)? How do I continue numbering after a break?", "youtube": "https://www.youtube.com/results?search_query=word+365+numbered+list", "ms": "https://support.microsoft.com/en-us/office/create-a-bulleted-or-numbered-list-9ff81241-58a8-4d88-8d8c-acab3006a23e"}, {"id": 11, "name": "Create a Bulleted List", "tab": "home", "action": "bullets", "docTitle": "OasisEvents_Proposal.docx — Word", "task": "Format the list of included services as a <strong>bulleted list</strong> to make it easy to scan.", "hints": ["Bulleted lists are on the Home tab, in the Paragraph group.", "On the Home tab, look in the Paragraph group. The bullet list button shows lines with bullet points.", "Select the text first, then click the Bullets button. Or click Bullets first and type each item."], "answer": "Select text → Home tab → Paragraph group → Bullets button (•).", "exp": "Bulleted List (Home → Paragraph → Bullets): formats unordered items with bullet symbols. Use for items where order does not matter. Press Enter for next item, Tab for sub-level.", "before_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">What is Included</p><p class=\"dp\">Your Oasis Events package includes all of the following at no additional charge:</p><p class=\"dp dsel\">Venue selection and booking assistance</p><p class=\"dp dsel\">Custom floral and décor design</p><p class=\"dp dsel\">Full catering coordination</p><p class=\"dp dsel\">Audio, visual, and lighting setup</p><p class=\"dp dsel\">Day-of event management staff</p><p class=\"dp dsel\">Post-event cleanup and breakdown</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the six items above and apply a bulleted list format.</p>", "after_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">What is Included</p><p class=\"dp\">Your Oasis Events package includes all of the following at no additional charge:</p><ul style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Venue selection and booking assistance</li><li>Custom floral and décor design</li><li>Full catering coordination</li><li>Audio, visual, and lighting setup</li><li>Day-of event management staff</li><li>Post-event cleanup and breakdown</li></ul><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Bulleted list applied — 6 items with bullet points.</p>", "prompt": "I am learning Word 365. How do I create a bulleted list? How do I change the bullet symbol? How do I create a multi-level bulleted list?", "youtube": "https://www.youtube.com/results?search_query=word+365+bulleted+list", "ms": "https://support.microsoft.com/en-us/office/create-a-bulleted-or-numbered-list-9ff81241-58a8-4d88-8d8c-acab3006a23e"}, {"id": 12, "name": "Change Bullet/Number Formats", "tab": "home", "action": "change-list-format", "docTitle": "OasisEvents_Proposal.docx — Word", "task": "Change the bullet style from standard round bullets to <strong>checkmark (✔) bullets</strong> to give the list a completed-items look.", "hints": ["To change the bullet format, click the dropdown arrow next to the Bullets button on the Home tab.", "On the Home tab, in the Paragraph group, click the small dropdown arrow (▼) next to the Bullets button — not the button itself.", "In the Bullet Library that appears, click Define New Bullet to choose a symbol like ✔, or select one of the preset styles."], "answer": "Home tab → Paragraph group → Bullets dropdown (▾) → Define New Bullet → Symbol → choose ✔ → OK.", "exp": "Change Bullet Format (Bullets dropdown → Define New Bullet): lets you use any font symbol, picture, or custom character as a bullet. Common choices: ✔ • ► ★ –.", "dlg": "dlg-bulletformat", "before_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Services Completed</p><ul style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Venue selection and booking confirmation</li><li>Custom floral and décor design approved</li><li>Full catering menu finalized</li><li>Audio visual equipment reserved</li></ul><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Change the bullet style to checkmarks (✔) using the Bullets dropdown on the Home tab.</p>", "after_html": "<p class=\"dt\">Event Planning Proposal</p><p class=\"dh1\">Services Completed</p><ul style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px;list-style:none\"><li>✔ Venue selection and booking confirmation</li><li>✔ Custom floral and décor design approved</li><li>✔ Full catering menu finalized</li><li>✔ Audio visual equipment reserved</li></ul><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Bullet format changed to checkmarks (✔).</p>", "prompt": "I am learning Word 365. How do I change the bullet symbol to a checkmark, arrow, or custom character? Walk me through Define New Bullet → Symbol.", "youtube": "https://www.youtube.com/results?search_query=word+365+change+bullet+style+symbol", "ms": "https://support.microsoft.com/en-us/office/create-a-bulleted-or-numbered-list-9ff81241-58a8-4d88-8d8c-acab3006a23e"}, {"id": 13, "name": "Increase/Decrease List Level", "tab": "home", "action": "increase-list-level", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "The sub-steps below need to be <strong>indented one level</strong> to show they are sub-items under the main numbered steps. Use Increase List Level.", "hints": ["List level is changed with the Increase Indent and Decrease Indent buttons on the Home tab, or by pressing Tab inside a list.", "Select the items you want to indent, then look in the Paragraph group on the Home tab.", "Click the Increase List Level button (indent right arrow), or simply press Tab while the cursor is in a list item. This moves it in one level."], "answer": "Select list items → Home tab → Paragraph group → Increase List Level (or press Tab in the list item).", "exp": "List Level (Home → Paragraph → Increase/Decrease List Level): creates multi-level lists. Tab indents deeper; Shift+Tab moves back. Sub-levels get different number or bullet styles automatically.", "before_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Emergency Procedures</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Call 911 immediately</li><li style=\"color:#2b579a\" class=\"dsel\">State the nature of the emergency</li><li style=\"color:#2b579a\" class=\"dsel\">Provide the facility address: 4750 W Sahara Ave</li><li>Notify the charge nurse on duty</li><li style=\"color:#2b579a\" class=\"dsel\">Use the overhead PA system</li><li style=\"color:#2b579a\" class=\"dsel\">Text the emergency line: 702-555-0199</li><li>Clear the area of non-essential personnel</li></ol><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the blue items and increase their list level so they become sub-items.</p>", "after_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Emergency Procedures</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Call 911 immediately<ol style=\"padding-left:28px;list-style-type:lower-alpha\"><li>State the nature of the emergency</li><li>Provide the facility address: 4750 W Sahara Ave</li></ol></li><li>Notify the charge nurse on duty<ol style=\"padding-left:28px;list-style-type:lower-alpha\"><li>Use the overhead PA system</li><li>Text the emergency line: 702-555-0199</li></ol></li><li>Clear the area of non-essential personnel</li></ol><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Sub-items indented one level — multi-level list created.</p>", "prompt": "I am learning Word 365. How do I create a multi-level list in Word? How do I indent list items to make sub-levels? What is the difference between Increase List Level and Increase Indent?", "youtube": "https://www.youtube.com/results?search_query=word+365+multi-level+list+indent", "ms": "https://support.microsoft.com/en-us/office/create-a-multilevel-list-3c390f75-0bed-4c28-8c53-0e9c17e87dd3"}, {"id": 14, "name": "Start/Restart/Continue List Numbering", "tab": "home", "action": "restart-numbering", "docTitle": "NVHealthcare_Manual.docx — Word", "task": "The second numbered list below is continuing the numbering from the first list (starting at 6). <strong>Restart the numbering at 1</strong> for the second list.", "hints": ["To change list numbering, right-click on the list or use the Numbering dropdown.", "Right-click the first item of the second list. Look for 'Restart at 1' in the context menu.", "Or click the dropdown arrow (▾) next to the Numbering button on the Home tab and choose 'Set Numbering Value…' to set the starting number."], "answer": "Right-click the first item of the second list → Restart at 1. (Or Numbering dropdown → Set Numbering Value → 1.)", "exp": "Restart Numbering: right-click a numbered list item and choose 'Restart at 1' to start a new sequence. 'Continue Numbering' resumes from the previous list. 'Set Numbering Value' lets you start at any number.", "dlg": "dlg-setnumber", "before_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Section 1: Pre-Shift Procedures</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Sign in at the front desk kiosk</li><li>Review patient handoff notes</li><li>Check medication cart inventory</li><li>Confirm shift schedule with charge nurse</li><li>Attend 5-minute shift briefing</li></ol><p class=\"dh1\" style=\"margin-top:14px\">Section 2: Post-Shift Procedures</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\" start=\"6\"><li class=\"dsel\">Complete patient documentation</li><li class=\"dsel\">Return all equipment to storage</li><li class=\"dsel\">Sign out at the front desk kiosk</li></ol><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← The second list starts at 6. Restart its numbering at 1.</p>", "after_html": "<p class=\"dt\">Employee Training Manual</p><p class=\"dh1\">Section 1: Pre-Shift Procedures</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Sign in at the front desk kiosk</li><li>Review patient handoff notes</li><li>Check medication cart inventory</li><li>Confirm shift schedule with charge nurse</li><li>Attend 5-minute shift briefing</li></ol><p class=\"dh1\" style=\"margin-top:14px\">Section 2: Post-Shift Procedures</p><ol style=\"font-size:13px;color:#1a1a1a;line-height:1.8;padding-left:28px;margin:0 0 8px\"><li>Complete patient documentation</li><li>Return all equipment to storage</li><li>Sign out at the front desk kiosk</li></ol><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Second list numbering restarted at 1.</p>", "prompt": "I am learning Word 365. How do I restart a numbered list at 1? How do I continue numbering from a previous list? How do I start a numbered list at a specific number?", "youtube": "https://www.youtube.com/results?search_query=word+365+restart+list+numbering", "ms": "https://support.microsoft.com/en-us/office/change-the-numbering-in-a-numbered-list-in-word-2f8f1d74-38b4-4e37-8f63-5e69c783a2a3"}];
+const DLG_MAP = {"insert-table": "dlg-inserttable", "convert-text-table": "dlg-converttable", "convert-table-text": "dlg-converttabletext", "sort-table": "dlg-sort", "cell-margins": "dlg-cellmargins", "split-cells": "dlg-splitcells", "resize-columns": "dlg-colwidth", "change-list-format": "dlg-bulletformat", "restart-numbering": "dlg-setnumber"};
+const TOTAL = 15;
+
+// Table-context actions (appear on Table Layout tab)
+const TABLE_ACTIONS = new Set(['convert-table-text','sort-table','cell-margins','merge-cells','split-cells','resize-columns','split-table','repeat-header','convert-text-table']);
+
+const S={lab:0,tab:'home',res:{},wrongCount:0,hintCount:0,dd:null};
+const score=()=>Object.keys(S.res).filter(k=>S.res[k]).length;
+
+function LB(icon,label,action,ddItems){
+  const lab=LABS[S.lab],isHL=action===lab.action;
+  const cls='lb'+(isHL?' hl':'');
+  const inner=`<span class="li">${icon}</span><span class="ll">${label}</span>`;
+  if(ddItems){
+    const open=S.dd===action;
+    return`<div class="dd-wrap"><button class="${cls}" data-action="${action}" data-dd="${action}">${inner}</button><div class="dd-menu${open?' open':''}">${ddItems.map(d=>`<button class="dd-item" data-dditem="${d[1]}">${d[0]}</button>`).join('')}</div></div>`;
+  }
+  return`<button class="${cls}" data-action="${action}">${inner}</button>`;
+}
+function SB(icon,label,action){
+  const isHL=LABS[S.lab].action===action;
+  return`<button class="sb${isHL?' hl':''}" data-action="${action}"><span class="si">${icon}</span><span class="sl">${label}</span></button>`;
+}
+function STACK(...b){return`<div class="sb-stack">${b.join('')}</div>`;}
+function GRP(label,html){return`<div class="grp"><div class="grp-btns">${html}</div><div class="grp-lbl">${label}</div></div>`;}
+
+function buildRibbon(){
+  const lab=LABS[S.lab];
+  // Show Table Layout tab when current lab needs it
+  const showTblTab=TABLE_ACTIONS.has(lab.action);
+  const tabs=[['home','Home'],['insert','Insert'],['design','Design'],['layout','Layout'],['references','References'],['review','Review']];
+  if(showTblTab&&S.tab!=='tablelayout'){
+    // Auto-switch to table layout if lab needs it
+    if(!['home','insert','design','layout','references','review'].includes(S.tab))S.tab='tablelayout';
+  }
+  let tabHtml=tabs.map(([id,lbl])=>`<button class="tab${S.tab===id?' active':''}" data-settab="${id}">${lbl}</button>`).join('');
+  if(showTblTab)tabHtml+=`<span style="font-size:9px;color:rgba(255,255,255,.5);padding:0 6px;align-self:center">TABLE TOOLS</span><button class="tab tbl${S.tab==='tablelayout'?' active':''}" data-settab="tablelayout">Layout</button>`;
+  document.getElementById('tab-strip').innerHTML=tabHtml;
+
+  let body='';
+  const t=S.tab;
+  const isHL=(a)=>lab.action===a?' hl':'';
+
+  if(t==='home'){
+    body+=GRP('Clipboard',LB('&#128203;','Paste','paste',[['Paste','paste']])+STACK(SB('&#9986;','Cut','cut'),SB('&#128196;','Copy','copy'),SB('&#127774;','Format Painter','fmt-painter')));
+    const fontGrp=`<div class="font-rows"><div class="font-row">
+      <div class="font-combo" style="width:120px"><span style="font-size:11px">Calibri</span><span style="font-size:7px;color:#777">&#9660;</span></div>
+      <div class="font-combo" style="width:34px"><span style="font-size:11px">11</span></div>
+      <button class="font-sq"><b style="font-size:12px">A</b></button><button class="font-sq"><span style="font-size:10px">A</span></button>
+    </div><div class="font-row">
+      <button class="font-sq"><b style="font-family:Georgia;font-size:14px">B</b></button>
+      <button class="font-sq"><i style="font-family:Georgia;font-size:14px">I</i></button>
+      <button class="font-sq"><u>U</u></button>
+    </div></div>`;
+    body+=GRP('Font',fontGrp);
+    const paraGrp=`<div class="para-rows"><div class="para-row">
+      <button class="ico-btn${isHL('bullets')}" data-action="bullets">&#8226;&#8801;</button>
+      <button class="ico-btn${isHL('numbering')}" data-action="numbering">1&#8801;</button>
+      <span class="ico-sep"></span>
+      <button class="ico-btn${isHL('increase-list-level')}" data-action="increase-list-level" title="Increase List Level">&#8677;</button>
+      <button class="ico-btn" data-action="decrease-list-level" title="Decrease List Level">&#8676;</button>
+    </div><div class="para-row">
+      <button class="ico-btn" data-action="align-left">&#8943;</button>
+      <button class="ico-btn" data-action="align-center">&#8943;</button>
+      <button class="ico-btn" data-action="align-right">&#8943;</button>
+    </div></div>`;
+    body+=GRP('Paragraph',paraGrp);
+    body+=GRP('Styles',`<div class="styles-gallery">
+      <button class="style-btn" data-action="style-normal"><span class="style-preview" style="font-size:12px">AaBb</span><span class="style-name">Normal</span></button>
+      <button class="style-btn" data-action="style-h1"><span class="style-preview" style="font-size:14px;font-weight:700;color:#2e74b5">Aa</span><span class="style-name">Heading 1</span></button>
+    </div>`);
+    // Bullets/Numbering dropdowns for change-list-format and restart-numbering
+    body+=GRP('List Options',
+      LB('&#8226;','Bullets','bullets-dd',[
+        ['Library: &#8226;','bullets'],['Library: &#9642;','bullets'],['Library: &#9654;','bullets'],
+        ['&#8212;','dd-sep'],['Define New Bullet…','change-list-format']
+      ])+
+      LB('1.','Numbering','num-dd',[
+        ['1. 2. 3.','numbering'],['a. b. c.','numbering'],['i. ii. iii.','numbering'],
+        ['&#8212;','dd-sep'],['Set Numbering Value…','restart-numbering']
+      ]));
+    body+=GRP('Editing',LB('&#128269;','Find','find',[['Find','find'],['Replace','find-replace']])+STACK(SB('&#8596;','Replace','find-replace')));
+  }
+  else if(t==='insert'){
+    body+=GRP('Pages',STACK(SB('&#128196;','Cover Page','cover'),SB('&#9633;','Blank Page','blank'),SB('&#8212;','Page Break','pagebreak')));
+    body+=GRP('Tables',LB('&#8862;','Table','insert-table',[
+      ['Insert Table…','insert-table'],
+      ['&#8212;','dd-sep'],
+      ['Convert Text to Table…','convert-text-table'],
+    ]));
+    body+=GRP('Illustrations',LB('&#128444;','Pictures','insert-pic')+LB('&#9672;','Shapes','insert-shapes'));
+    body+=GRP('Links',LB('&#128279;','Hyperlink','insert-hyperlink')+STACK(SB('&#128278;','Bookmark','insert-bookmark')));
+    body+=GRP('Header & Footer',LB('&#8868;','Header','insert-header',[['Blank','insert-header']])+LB('&#8869;','Footer','insert-footer',[['Blank','insert-footer']]));
+    body+=GRP('Text',STACK(SB('A','Text Box','insert-textbox'),SB('&#937;','Symbol','insert-symbol')));
+  }
+  else if(t==='design'){
+    body+=GRP('Document Formatting',`<div style="display:flex;gap:2px;padding:2px 0">${['Default','Basic','Formal'].map(s=>`<button class="style-btn" style="width:44px"><span style="font-size:10px">Aa</span><span class="style-name">${s}</span></button>`).join('')}</div>`);
+    body+=GRP('Page Background',LB('&#128203;','Watermark','insert-watermark',[['DRAFT','insert-watermark']])+LB('&#9632;','Page&#10;Color','page-color',[['No Color','page-color']]));
+  }
+  else if(t==='layout'){
+    body+=GRP('Page Setup',
+      LB('&#9633;','Margins','custom-margins',[['Normal','margin-normal']])+
+      LB('&#8861;','Orientation','orientation',[['Portrait','portrait'],['Landscape','landscape']])+
+      LB('&#128196;','Size','page-size',[['Letter','letter'],['Legal','legal']])+
+      LB('&#8953;','Columns','columns',[['One','col1'],['Two','col2']])+
+      STACK(SB('&#8212;','Breaks','breaks'),SB('#','Line Nums','linenums')));
+    body+=GRP('Paragraph',`<div class="spinner-wrap" style="padding:8px 4px 0">
+      <div style="font-size:9px;color:#555;margin-bottom:4px">Indent &amp; Spacing</div>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#444">
+        <div>Left: 0"</div><div>Right: 0"</div><div>Before: 0pt</div><div>After: 8pt</div>
+      </div></div>`);
+  }
+  else if(t==='tablelayout'){
+    // Full Table Layout ribbon
+    body+=GRP('Table',STACK(SB('&#128200;','Select','tbl-select'),SB('&#9638;','View Grid','view-grid'),SB('&#128203;','Properties','tbl-properties')));
+    body+=GRP('Rows & Columns',
+      LB('&#8593;','Insert&#10;Above','insert-above')+
+      LB('&#8595;','Insert&#10;Below','insert-below')+
+      LB('&#8592;','Insert&#10;Left','insert-left')+
+      LB('&#8594;','Insert&#10;Right','insert-right')+
+      STACK(SB('&#128465;','Delete','tbl-delete')));
+    body+=GRP('Merge',
+      LB('&#9632;','Merge&#10;Cells','merge-cells')+
+      LB('&#9638;','Split&#10;Cells','split-cells')+
+      LB('&#8803;','Split&#10;Table','split-table'));
+    body+=GRP('Cell Size',`<div class="spinner-wrap">
+      <div class="spinner-section">Height</div>
+      <div style="display:flex;align-items:center;gap:3px;margin-bottom:4px">
+        <div style="width:50px;height:18px;border:1px solid ${lab.action==='resize-columns'?'#f59e0b':'#ababab'};border-radius:2px;background:#fff;display:flex;align-items:center;padding-left:4px;font-size:10px;cursor:pointer" data-action="resize-columns">0.22"</div>
+      </div>
+      <div class="spinner-section">Width</div>
+      <div style="display:flex;align-items:center;gap:3px">
+        <div style="width:50px;height:18px;border:1px solid ${lab.action==='resize-columns'?'#f59e0b':'#ababab'};border-radius:2px;background:#fff;display:flex;align-items:center;padding-left:4px;font-size:10px;cursor:pointer" data-action="resize-columns">2.17"</div>
+      </div>
+      <div style="margin-top:4px">${SB('&#8644;','AutoFit','autofit')}</div>
+    </div>`);
+    body+=GRP('Alignment',
+      LB('&#8868;&#8250;','Align&#10;Top Left','align-tl')+
+      LB('&#8250;','Align&#10;Center','align-mc')+
+      LB('&#10138;','Text&#10;Direction','text-dir')+
+      LB('&#9636;','Cell&#10;Margins','cell-margins'));
+    body+=GRP('Data',
+      LB('&#8691;','Sort','sort-table')+
+      LB('&#931;','Formula','tbl-formula')+
+      LB('&#8943;','Repeat&#10;Headers','repeat-header')+
+      LB('&#8699;','Convert&#10;to Text','convert-table-text'));
+  }
+  else if(t==='references'){
+    body+=GRP('Table of Contents',LB('&#8801;','Table of&#10;Contents','insert-toc',[['Auto','insert-toc']])+STACK(SB('+','Add Text','add-text')));
+    body+=GRP('Footnotes',LB('AB&#185;','Insert&#10;Footnote','insert-footnote'));
+  }
+  else if(t==='review'){
+    body+=GRP('Proofing',LB('&#10003;','Spelling','spelling')+LB('&#128218;','Thesaurus','thesaurus'));
+    body+=GRP('Comments',LB('&#128172;','New&#10;Comment','new-comment')+STACK(SB('&#9664;','Previous','prev-cmt'),SB('&#9654;','Next','next-cmt')));
+    body+=GRP('Tracking',LB('&#9999;','Track&#10;Changes','track-changes',[['Track Changes','track-changes']]));
+  }
+
+  document.getElementById('ribbon-body').innerHTML=body;
+  bindRibbon();
+}
+
+function bindRibbon(){
+  document.querySelectorAll('[data-settab]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();S.tab=b.dataset.settab;S.dd=null;buildRibbon();
+  }));
+  document.querySelectorAll('[data-dd]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();S.dd=S.dd===b.dataset.dd?null:b.dataset.dd;buildRibbon();
+    if(S.dd){const m=b.parentElement.querySelector('.dd-menu');if(m){const r=b.getBoundingClientRect();m.style.top=(r.bottom+2)+'px';m.style.left=r.left+'px';}}
+  }));
+  document.querySelectorAll('[data-dditem]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.dd=null;doAction(b.dataset.dditem);}));
+  document.querySelectorAll('[data-action]:not([data-dd])').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();doAction(b.dataset.action);}));
+}
+document.addEventListener('click',()=>{if(S.dd){S.dd=null;buildRibbon();}}); 
+
+function doAction(a){
+  S.dd=null;
+  const lab=LABS[S.lab];
+  if(a==='dd-sep')return;
+  if(a===lab.action){
+    const dlgId=DLG_MAP[lab.action];
+    if(dlgId)openDlg(dlgId);else grade();
+    buildRibbon();return;
+  }
+  wrong();buildRibbon();
+}
+
+function openDlg(id){document.getElementById('backdrop').style.display='block';document.getElementById(id).style.display='block';}
+function closeDlg(){document.getElementById('backdrop').style.display='none';document.querySelectorAll('.w-dlg').forEach(d=>d.style.display='none');}
+window.dlgGrade=function(){closeDlg();grade();};
+
+function grade(){S.res[LABS[S.lab].id]=true;S.wrongCount=0;S.hintCount=0;renderAll();}
+function wrong(){if(!S.res[LABS[S.lab].id]){S.wrongCount++;renderTask();renderSidebar();}}
+
+function renderDoc(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  document.getElementById('doc-page').className='';
+  document.getElementById('doc-page').innerHTML=done?lab.after_html:lab.before_html;
+  if(lab.docTitle)document.getElementById('doc-title').textContent=lab.docTitle;
+}
+
+function renderTask(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  const needsTbl=TABLE_ACTIONS.has(lab.action);
+  let fb='';
+  if(S.wrongCount>0&&!done){
+    fb=S.wrongCount>=3
+      ?`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Here is the answer:</strong> ${lab.answer}</div>`
+      :`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Not quite.</strong> ${needsTbl&&S.tab!=='tablelayout'?'<em>Tip: Click inside the table first — then look for the Table Layout tab in the ribbon.</em>':'Look for the highlighted button.'} (Attempt ${S.wrongCount} of 3)</div>`;
+  }
+  if(done){
+    fb=`<div class="fb fb-ok" style="animation:fadeIn .25s"><strong>&#10003; Correct!</strong> ${lab.exp}</div>
+    <div class="fb-next">
+      ${S.lab===LABS.length-1
+        ?`<button class="btn btn-blue" onclick="showFinal()">View results &#8594;</button>`
+        :`<button class="btn btn-ghost" onclick="goLab(${S.lab})">Replay</button><button class="btn btn-blue" onclick="goLab(${S.lab+1})">Next &#8594;</button>`}
+    </div>`;
+  }
+  let hintsHtml='';
+  if(S.hintCount>0){
+    hintsHtml='<div class="hint-area">'+(lab.hints||[]).slice(0,S.hintCount).map((h,i)=>`<div class="hint-row"><span class="hint-num">Hint ${i+1}</span> ${h}</div>`).join('');
+    if(S.wrongCount>=3&&lab.answer)hintsHtml+=`<div class="hint-row hint-answer"><span class="hint-num answer-tag">Answer</span> ${lab.answer}</div>`;
+    hintsHtml+='</div>';
+  }
+  const hintDis=S.hintCount>=(lab.hints||[]).length||done;
+  document.getElementById('task-panel').innerHTML=`
+    <div class="task-row">
+      <span class="task-badge">D3 &middot; Lab ${S.lab+1}</span>
+      <div class="task-text">${lab.task}</div>
+      <div class="task-acts">
+        <button class="btn btn-gold" onclick="openResources(${S.lab})">&#128161; Resources</button>
+        ${!done?`<button class="btn btn-ghost" onclick="showHint()" ${hintDis?'disabled style="opacity:.5"':''}>
+          ${S.hintCount===0?'Hint':hintDis?'Hints Used':'Next Hint'}
+        </button><button class="btn btn-ghost" onclick="resetLab()">Reset</button>`:''}
+      </div>
+    </div>
+    ${hintsHtml}${fb}`;
+}
+
+window.showHint=function(){if(S.hintCount<(LABS[S.lab].hints||[]).length)S.hintCount++;renderTask();};
+window.resetLab=function(){delete S.res[LABS[S.lab].id];S.wrongCount=0;S.hintCount=0;renderAll();};
+
+function renderSidebar(){
+  const ts=score();
+  document.getElementById('sb-score').textContent=`${ts} / ${TOTAL}`;
+  document.getElementById('sb-fill').style.width=`${(ts/TOTAL*100).toFixed(0)}%`;
+  document.getElementById('prog-fill').style.width=`${(ts/TOTAL*100).toFixed(0)}%`;
+  document.getElementById('sb-nav').innerHTML=LABS.map((l,li)=>{
+    const done=!!S.res[l.id],act=li===S.lab;
+    return`<button class="lab-btn${act?' active':''}${done?' done':''}" onclick="goLab(${li})">
+      <span class="lab-dot${act?' active':''}${done?' done':''}">${done?'&#10003;':li+1}</span>
+      <div><div class="lab-name">${l.name}</div></div>
+    </button>`;
+  }).join('');
+}
+
+function openResources(i){
+  const lab=LABS[i];
+  document.getElementById('res-skill-name').textContent=lab.name;
+  document.getElementById('res-body').innerHTML=`
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-ai">&#129302;</div><div><div class="res-card-title">AI Prompt</div><div class="res-card-sub">Copy to ChatGPT, Copilot, or Perplexity</div></div></div>
+    <div class="res-card-body"><div class="prompt-box" id="prompt-text">${lab.prompt}</div><button class="copy-btn" id="copy-btn" onclick="copyPrompt()">&#128203; Copy Prompt</button></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-li">&#128188;</div><div><div class="res-card-title">LinkedIn Learning</div><div class="res-card-sub">Free with Clark County Library card</div></div></div>
+    <div class="res-card-body"><div class="res-link" style="opacity:.5;cursor:default">&#127902; LinkedIn URL coming soon</div><p class="res-note">Get your free card at lvccld.org</p></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-yt">&#9654;</div><div><div class="res-card-title">YouTube</div><div class="res-card-sub">Pre-built search for this skill</div></div></div>
+    <div class="res-card-body"><a href="${lab.youtube}" target="_blank" class="res-link">&#128269; Search YouTube for "${lab.name}" <span>&#8599;</span></a></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-ms">&#128214;</div><div><div class="res-card-title">Microsoft Support</div><div class="res-card-sub">Official documentation</div></div></div>
+    <div class="res-card-body"><a href="${lab.ms}" target="_blank" class="res-link">&#128196; Open Microsoft Support Article <span>&#8599;</span></a></div></div>`;
+  document.getElementById('res-overlay').classList.add('open');
+  document.getElementById('res-panel').classList.add('open');
+}
+function closeResources(){document.getElementById('res-overlay').classList.remove('open');document.getElementById('res-panel').classList.remove('open');}
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(()=>{
+    const btn=document.getElementById('copy-btn');btn.textContent='&#10003; Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='&#128203; Copy Prompt';btn.classList.remove('copied');},2500);
+  });
+}
+
+window.showFinal=function(){
+  const ts=score(),pct=Math.round(ts/TOTAL*100);
+  document.getElementById('doc-page').className='';
+  document.getElementById('doc-page').innerHTML=`
+  <div style="text-align:center;padding:28px 0 16px">
+    <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">IS101 &middot; Word 365 &middot; Domain 3: Tables &amp; Lists</div>
+    <div style="font-size:60px;font-weight:800;color:${pct===100?'#15803d':pct>=70?'#d97706':'#dc2626'};line-height:1">${ts}<span style="font-size:30px;font-weight:400;color:#9ca3af"> / ${TOTAL}</span></div>
+    <div style="font-size:14px;color:#6b7280;margin:8px 0 24px">${pct}% &mdash; ${pct===100?'Domain 3 complete!':pct>=70?'Good &mdash; review missed labs.':'Keep practicing.'}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;max-width:520px;margin:0 auto;text-align:left">
+      ${LABS.map(l=>{const ok=S.res[l.id];return`<div style="background:${ok?'#f0fdf4':'#fef2f2'};border:1px solid ${ok?'#86efac':'#fca5a5'};padding:7px 10px;border-radius:4px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${ok?'#15803d':'#dc2626'}">Lab ${l.id+1} ${ok?'&#10003;':'&#10007;'}</div><div style="font-size:11px;color:${ok?'#166534':'#991b1b'}">${l.name}</div></div>`;}).join('')}
+    </div>
+    <button class="btn btn-blue" style="margin-top:20px" onclick="goLab(0)">Restart Domain 3</button>
+  </div>`;
+  document.getElementById('task-panel').innerHTML='';
+};
+
+function renderRuler(){
+  const r=document.getElementById('ruler'),mLeft=96,textW=680-mLeft-96,inchPx=textW/4.5;
+  let html=`<div class="ruler-margin" style="width:${mLeft+30}px"></div><div style="flex:1;position:relative;height:100%;background:#fff">`;
+  for(let i=0;i<=5;i++){const x=(i*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${x}px"><div class="rtline major"></div>${i>0&&i<5?`<span class="rtnum" style="left:${x}px">${i}</span>`:''}</div>`;if(i<5){const hx=((i+.5)*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${hx}px"><div class="rtline"></div></div>`;}}
+  r.innerHTML=html+'</div><div class="ruler-margin" style="width:96px"></div>';
+}
+
+window.goLab=function(i){
+  S.lab=i;S.wrongCount=0;S.hintCount=0;S.dd=null;
+  const lab=LABS[i];
+  // Table labs default to tablelayout tab
+  if(TABLE_ACTIONS.has(lab.action))S.tab='tablelayout';
+  else S.tab=['home','insert','design','layout','references','review'].includes(lab.tab)?lab.tab:'home';
+  renderAll();
+};
+function renderAll(){renderSidebar();buildRibbon();renderDoc();renderTask();}
+renderRuler();
+renderAll();
+</script>
+</body>
+</html>

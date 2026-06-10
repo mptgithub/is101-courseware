@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Word 365 — Domain 6: Document Collaboration | IS101</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#808080;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#1f1f1f}
+#title-bar{height:32px;background:#2b579a;display:flex;align-items:center;padding:0 6px 0 8px;flex-shrink:0}
+#title-bar .qat{display:flex;gap:2px;margin-right:8px}
+#title-bar .qat button{width:24px;height:24px;background:transparent;border:none;color:rgba(255,255,255,.88);font-size:12px;cursor:pointer}
+#title-bar .docname{flex:1;text-align:center;color:#fff;font-size:12px}
+#title-bar .winbtns{display:flex}
+#title-bar .winbtns button{width:44px;height:32px;background:transparent;border:none;color:rgba(255,255,255,.88);font-size:10px;cursor:pointer}
+#title-bar .winbtns button:hover{background:rgba(255,255,255,.18)}
+#title-bar .winbtns .cls:hover{background:#c42b1c}
+#ribbon{background:#fff;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+#tab-strip{background:#2b579a;display:flex;align-items:flex-end;padding:0 2px;height:30px;overflow-x:auto}
+.tab{height:26px;padding:0 10px;font-size:12px;font-family:inherit;color:rgba(255,255,255,.82);background:transparent;border:none;cursor:pointer;white-space:nowrap;border-radius:2px 2px 0 0;position:relative;bottom:-1px;flex-shrink:0}
+.tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+.tab.active{background:#fff;color:#000;border-left:1px solid #c8c8c8;border-right:1px solid #c8c8c8;border-top:2px solid #2b579a;border-bottom:none;height:30px;z-index:2}
+.tab.ctx{background:#383800;color:rgba(255,255,255,.9)}
+.tab.ctx.active{background:#fff;color:#383800;border-top-color:#383800}
+.tab.pf{background:#006400}
+.tab.pf.active{background:#fff;color:#006400;border-top-color:#006400}
+.tab.sa{background:#7c3aed}
+.tab.sa.active{background:#fff;color:#7c3aed;border-top-color:#7c3aed}
+#ribbon-body{background:#fff;border-top:1px solid #c8c8c8;display:flex;align-items:stretch;height:88px;overflow-x:auto;overflow-y:hidden;padding:0 2px}
+.grp{display:flex;flex-direction:column;border-right:1px solid #e0e0e0;padding:0 2px;flex-shrink:0}
+.grp:last-child{border-right:none}
+.grp-btns{display:flex;align-items:flex-start;gap:1px;flex:1;padding:3px 2px 2px}
+.grp-lbl{font-size:9px;color:#666;text-align:center;padding:1px 4px 2px;white-space:nowrap;display:flex;align-items:center;justify-content:center;min-height:13px}
+.lb{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:68px;min-width:42px;padding:4px 4px 2px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;flex-shrink:0;font-family:inherit}
+.lb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.lb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.lb .li{display:flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:21px;flex-shrink:0;margin-bottom:1px}
+.lb .ll{font-size:9px;color:#333;text-align:center;line-height:1.25;word-break:break-word;max-width:52px}
+.dd-wrap{position:relative;display:inline-flex;vertical-align:top}
+.sb{display:flex;align-items:center;gap:4px;height:20px;padding:0 6px;background:transparent;border:1px solid transparent;border-radius:2px;cursor:pointer;font-size:11px;font-family:inherit;color:#1f1f1f;white-space:nowrap;min-width:68px}
+.sb:hover{background:#e8f0fb;border-color:#c5d9f7}
+.sb.hl{background:#fff3cd;border-color:#f59e0b;animation:hlpulse 1.4s infinite}
+.sb .si{font-size:13px;width:14px;text-align:center;flex-shrink:0}
+.sb-stack{display:flex;flex-direction:column;gap:1px;justify-content:center;height:68px}
+.dd-menu{position:fixed;background:#fff;border:1px solid #ababab;box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:9999;min-width:180px;padding:2px 0;display:none}
+.dd-menu.open{display:block}
+.dd-item{display:block;width:100%;background:transparent;border:none;text-align:left;padding:7px 16px;font-size:12px;cursor:pointer;color:#1f1f1f;font-family:inherit}
+.dd-item:hover{background:#e8f0fb}
+#body-wrap{display:flex;flex:1;overflow:hidden}
+#sidebar{width:200px;background:#1e293b;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-hd{padding:12px 14px 8px;border-bottom:1px solid #334155}
+.sb-exam{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:2px}
+.sb-title{font-size:12px;font-weight:700;color:#f1f5f9;line-height:1.3}
+.sb-score-box{padding:8px 14px;border-bottom:1px solid #334155}
+.sb-lbl{font-size:9px;color:#64748b;margin-bottom:2px}
+.sb-val{font-size:18px;font-weight:700;color:#60a5fa}
+.sb-bar{height:3px;background:#334155;border-radius:2px;margin-top:4px}
+.sb-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width .4s}
+.lab-btn{display:flex;align-items:center;gap:7px;width:100%;background:transparent;border:none;border-left:3px solid transparent;cursor:pointer;padding:5px 12px;text-align:left;color:#94a3b8;font-family:inherit}
+.lab-btn:hover{background:#273244;color:#e2e8f0}
+.lab-btn.active{background:#1e3a5f;border-left-color:#3b82f6;color:#fff}
+.lab-btn.done{color:#34d399;border-left-color:#10b981}
+.lab-dot{width:18px;height:18px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;color:#94a3b8}
+.lab-dot.active{background:#3b82f6;color:#fff}
+.lab-dot.done{background:#10b981;color:#fff}
+.lab-name{font-size:10px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#main-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#ruler-wrap{height:17px;background:#f0f0f0;border-bottom:1px solid #c8c8c8;display:flex;flex-shrink:0}
+#ruler-corner{width:30px;height:17px;background:#f0f0f0;border-right:1px solid #c8c8c8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888}
+#ruler{flex:1;height:17px;position:relative;overflow:hidden;display:flex;background:#fff}
+.ruler-margin{background:#f0f0f0;flex-shrink:0}
+.ruler-tick{position:absolute;top:0}
+.rtline{width:1px;height:8px;background:#999;margin-top:5px}
+.rtline.major{height:12px;margin-top:3px}
+.rtnum{position:absolute;font-size:7px;color:#777;top:0;transform:translateX(-50%)}
+#prog-bar{height:3px;background:#e5e7eb;flex-shrink:0}
+#prog-fill{height:100%;background:#2b579a;transition:width .4s}
+#canvas{flex:1;overflow-y:auto;background:#808080;display:flex;justify-content:center;align-items:flex-start;padding:20px}
+#doc-page{width:680px;min-height:440px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.4);font-family:"Calibri",serif;padding:56px 80px;position:relative}
+#status-bar{height:22px;background:#2b579a;display:flex;align-items:center;padding:0 12px;color:rgba(255,255,255,.85);font-size:11px;flex-shrink:0;gap:16px}
+#task-panel{background:#fff;border-top:2px solid #2b579a;padding:10px 16px;flex-shrink:0}
+.task-row{display:flex;align-items:flex-start;gap:10px}
+.task-badge{background:#1d4ed8;color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:3px 8px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.task-text{font-size:13px;color:#1e3a8a;font-weight:500;line-height:1.4;flex:1}
+.task-acts{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.btn{padding:5px 14px;border-radius:2px;font-size:12px;cursor:pointer;font-family:inherit;border:1px solid transparent}
+.btn-blue{background:#2b579a;color:#fff}.btn-blue:hover{background:#1e3a8a}
+.btn-ghost{background:#fff;border-color:#ababab;color:#374151}.btn-ghost:hover{background:#f5f5f5}
+.btn-gold{background:#f59e0b;color:#fff;border:none}.btn-gold:hover{background:#d97706}
+.hint-area{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.hint-row{padding:7px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#78350f;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.hint-num{font-size:10px;font-weight:800;text-transform:uppercase;padding:1px 7px;border-radius:10px;background:rgba(0,0,0,.08);flex-shrink:0;margin-top:1px}
+.answer-tag{background:#15803d;color:#fff}
+.hint-answer{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.fb{margin-top:7px;padding:9px 14px;font-size:12px;line-height:1.5}
+.fb-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.fb-err{background:#fff1f1;border:1px solid #fca5a5;color:#991b1b}
+.fb-next{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}
+.dt{font-size:22px;font-weight:800;color:#000;letter-spacing:-.5px;margin-bottom:6px}
+.dh1{font-size:16px;font-weight:700;color:#2e74b5;margin:12px 0 7px;border-bottom:1px solid #2e74b5;padding-bottom:3px}
+.dh2{font-size:13px;font-weight:600;color:#2e74b5;margin:9px 0 5px}
+.dp{font-size:13px;color:#1a1a1a;line-height:1.65;margin-bottom:7px;font-family:"Calibri",serif}
+.dsel{background:#b4d5fe;border-radius:1px}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;display:none}
+.w-dlg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #ababab;box-shadow:0 8px 28px rgba(0,0,0,.25);z-index:300;width:420px;display:none;font-family:"Segoe UI",sans-serif}
+.dlg-hd{background:#2b579a;color:#fff;padding:8px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.dlg-close{background:transparent;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0 4px}
+.dlg-body{padding:16px;max-height:65vh;overflow-y:auto}
+.dlg-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dlg-row label{font-size:12px;color:#374151;min-width:100px;flex-shrink:0}
+.dlg-row input[type=text],.dlg-row select{flex:1;padding:5px 8px;border:1px solid #ababab;font-size:12px;border-radius:2px}
+.dlg-section{font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding-bottom:3px;border-bottom:1px solid #e5e7eb}
+.dlg-ft{padding:10px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px;background:#f9f9f9}
+.res-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none}
+.res-overlay.open{display:block}
+.res-panel{position:fixed;right:-420px;top:0;width:400px;height:100vh;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.2);z-index:401;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.res-panel.open{right:0}
+.res-hd{background:#1e293b;color:#fff;padding:16px 18px;flex-shrink:0;position:relative}
+.res-hd h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.res-hd p{font-size:11px;color:rgba(255,255,255,.55)}
+.res-close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer}
+.res-close:hover{color:#fff}
+.res-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.res-card{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.res-card-hd{background:#f8fafc;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e5e7eb}
+.res-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ri-ai{background:#ede9fe}.ri-yt{background:#fee2e2}.ri-ms{background:#dcfce7}
+.res-card-title{font-size:12px;font-weight:700}
+.res-card-sub{font-size:10px;color:#6b7280}
+.res-card-body{padding:10px 14px}
+.prompt-box{background:#1e1e2e;border-radius:6px;padding:10px 12px;font-family:"Courier New",monospace;font-size:11px;color:#cdd6f4;line-height:1.6;margin-bottom:8px;white-space:pre-wrap}
+.copy-btn{background:#313244;border:none;color:#cdd6f4;padding:4px 10px;border-radius:4px;font-size:11px;font-family:inherit;cursor:pointer}
+.copy-btn:hover{background:#45475a}
+.copy-btn.copied{background:#1e3a2e;color:#a6e3a1}
+.res-link{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f8fafc;border-radius:6px;text-decoration:none;color:#1f1f1f;font-size:12px;font-weight:500;border:1px solid #e5e7eb;margin-bottom:6px}
+.res-link:hover{background:#eff6ff;border-color:#bfdbfe}
+.res-note{font-size:10px;color:#6b7280;line-height:1.5;margin-top:4px}
+@keyframes hlpulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}60%{box-shadow:0 0 0 4px rgba(245,158,11,.08)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+</style>
+</head>
+<body>
+<div class="backdrop" id="backdrop" onclick="closeDlg()"></div>
+<div class="w-dlg" id="dlg-locktracking"><div class="dlg-hd">Lock Tracking <button class="dlg-close" onclick="closeDlg()">&#x2715;</button></div><div class="dlg-body"><div style="font-size:12px;color:#374151;margin-bottom:12px">Enter a password to prevent others from turning off Track Changes:</div><div class="dlg-row"><label>Password:</label><input type="password" placeholder="Enter password"></div><div class="dlg-row"><label>Confirm:</label><input type="password" placeholder="Confirm password"></div><div style="font-size:11px;color:#6b7280;background:#f8faff;border:1px solid #dbeafe;border-radius:4px;padding:8px;margin-top:8px">&#9432; If you forget the password, there is no way to recover it. Keep a copy in a safe place.</div></div><div class="dlg-ft"><button class="btn btn-ghost" onclick="closeDlg()">Cancel</button><button class="btn btn-blue" onclick="dlgGrade()">OK</button></div></div>
+<div id="title-bar"><div class="qat"><button>&#128190;</button><button style="font-size:11px">&#8617;</button><button style="font-size:11px">&#8618;</button></div><div class="docname" id="doc-title">DesertSunReport.docx &#8212; Word</div><div class="winbtns"><button>&#8212;</button><button>&#10063;</button><button class="cls">&#10005;</button></div></div>
+<div id="ribbon"><div id="tab-strip"></div><div id="ribbon-body"></div></div>
+<div id="ruler-wrap"><div id="ruler-corner">&#8862;</div><div id="ruler"></div></div>
+<div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+<div id="body-wrap">
+  <div id="sidebar">
+    <div class="sb-hd"><div class="sb-exam">IS101 &middot; Word 365</div><div class="sb-title">Domain 6: Document Collaboration</div></div>
+    <div class="sb-score-box"><div class="sb-lbl">COMPLETED</div><div class="sb-val" id="sb-score">0 / 9</div><div class="sb-bar"><div class="sb-fill" id="sb-fill" style="width:0%"></div></div></div>
+    <div id="sb-nav"></div>
+  </div>
+  <div id="main-pane">
+    <div id="canvas"><div id="doc-page"></div></div>
+    <div id="status-bar"><span>Page 1 of 3</span><span>Words: 312</span><span>English (United States)</span><span style="margin-left:auto">&#9632; &#128214; &#128269;</span></div>
+    <div id="task-panel"></div>
+  </div>
+</div>
+<div class="res-overlay" id="res-overlay" onclick="closeResources()"></div>
+<div class="res-panel" id="res-panel">
+  <div class="res-hd"><h3>&#128161; Resources</h3><p id="res-skill-name"></p><button class="res-close" onclick="closeResources()">&#x2715;</button></div>
+  <div class="res-body" id="res-body"></div>
+</div>
+<script>
+const LABS = [{"id": 0, "name": "Add a Comment", "tab": "review", "action": "new-comment", "docTitle": "DesertSunReport.docx — Word", "task": "Add a <strong>comment</strong> to the highlighted sentence asking the manager to verify the revenue figure.", "hints": ["Comments are on the Review tab.", "On the Review tab, find the Comments group. Click New Comment.", "Select the text first, then click New Comment. A comment balloon appears in the margin where you can type your note."], "answer": "Select text → Review tab → Comments group → New Comment → type your comment.", "exp": "New Comment (Review → Comments → New Comment): attaches a note to a specific piece of text. Comments appear in the margin or in the Reviewing Pane. Use for feedback, questions, and suggestions.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached <span class=\"dsel\">$4.2 million</span>, representing a 23% increase over fiscal year 2025. Advisory services accounted for 58% of total revenue.</p><p class=\"dp\">Regional growth was led by the Las Vegas metro market, which contributed 64% of total revenue increase.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Select the highlighted \"$4.2 million\" text, then use Review tab → New Comment to add a note asking for verification.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached <span style=\"background:#fef9c3;border-bottom:2px solid #f59e0b\">$4.2 million</span><sup style=\"color:#f59e0b;font-size:9px;font-weight:700\">[1]</sup>, representing a 23% increase over fiscal year 2025.</p><div class=\"dcmt\"><strong style=\"color:#92400e\">Comment [Dr. Taormino]:</strong> Please verify this revenue figure against the Q4 financial statements before the report is distributed to clients.</div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Comment added — attached to the \"$4.2 million\" text.</p>", "prompt": "I am learning Word 365. How do I add a comment to selected text in Word? How do I see all comments in a document? How do I show or hide the comment balloons?", "youtube": "https://www.youtube.com/results?search_query=word+365+add+comment", "ms": "https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4308-8d26-c59bc828d98d"}, {"id": 1, "name": "Review and Reply to a Comment", "tab": "review", "action": "reply-comment", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Reply to the existing comment</strong> to confirm that the revenue figure has been verified.", "hints": ["To reply to a comment, click on it first to select it, then look for a Reply button.", "Click on the comment balloon in the margin to select it. A Reply button or text field will appear inside the comment.", "Click Reply inside the comment balloon and type your response. Replies are threaded below the original comment."], "answer": "Click the comment → click Reply inside the comment balloon → type reply text.", "exp": "Reply to Comment: click any comment balloon to select it, then click Reply. Replies are threaded below the original and show the replier's name. Great for back-and-forth review conversations.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached <span style=\"background:#fef9c3;border-bottom:2px solid #f59e0b\">$4.2 million</span><sup style=\"color:#f59e0b;font-size:9px;font-weight:700\">[1]</sup>, representing a 23% increase over fiscal year 2025.</p><div class=\"dcmt\"><strong style=\"color:#92400e\">Comment [Dr. Taormino]:</strong> Please verify this revenue figure against the Q4 financial statements before distribution.<div style=\"margin-top:8px;padding-top:8px;border-top:1px solid #fde68a;color:#6b7280;font-size:11px;font-style:italic\">Click here to reply…</div></div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click on the comment above, then click Reply to add your response.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached <span style=\"background:#fef9c3;border-bottom:2px solid #f59e0b\">$4.2 million</span><sup style=\"color:#f59e0b;font-size:9px;font-weight:700\">[1]</sup>, representing a 23% increase over fiscal year 2025.</p><div class=\"dcmt\"><strong style=\"color:#92400e\">Comment [Dr. Taormino]:</strong> Please verify this revenue figure against the Q4 financial statements before distribution.<div style=\"margin-top:8px;padding-top:8px;border-top:1px solid #fde68a\"><strong style=\"color:#1e40af;font-size:11px\">Reply [M. Johnson, CFO]:</strong><span style=\"font-size:11px;color:#1e3a8a\"> Confirmed — verified against Q4 statements. Figure is correct.</span></div></div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Reply added to comment — threaded below the original.</p>", "prompt": "I am learning Word 365. How do I reply to a comment in Word? How do comment threads work? How do I see who made each comment?", "youtube": "https://www.youtube.com/results?search_query=word+365+reply+to+comment", "ms": "https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4308-8d26-c59bc828d98d"}, {"id": 2, "name": "Resolve a Comment", "tab": "review", "action": "resolve-comment", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Resolve the comment thread</strong> now that the issue has been addressed and verified.", "hints": ["To resolve a comment, right-click it or look for the Resolve button inside the comment.", "Click on the comment balloon to select it. Look for a ‘Resolve’ button or link inside the comment thread.", "Click Resolve. The comment turns gray to show it has been addressed but is still visible for reference. It is different from deleting."], "answer": "Click the comment → click Resolve inside the comment (or right-click → Resolve Comment).", "exp": "Resolve Comment: marks a comment as addressed without deleting it. The comment turns gray. Resolved comments can be re-opened or deleted later. Different from Delete — Resolve keeps a record.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached <span style=\"background:#fef9c3;border-bottom:2px solid #f59e0b\">$4.2 million</span><sup style=\"color:#f59e0b;font-size:9px;font-weight:700\">[1]</sup>, representing a 23% increase over fiscal year 2025.</p><div class=\"dcmt\"><strong style=\"color:#92400e\">Comment [Dr. Taormino]:</strong> Please verify this figure.<div style=\"margin-top:6px;padding-top:6px;border-top:1px solid #fde68a\"><strong style=\"color:#1e40af;font-size:11px\">Reply [M. Johnson]:</strong><span style=\"font-size:11px;color:#1e3a8a\"> Confirmed — figure is correct.</span></div><div style=\"margin-top:8px;display:flex;gap:6px\"><button class=\"btn btn-ghost\" style=\"font-size:10px;padding:3px 8px\" onclick=\"doAction('resolve-comment')\">Resolve</button><button class=\"btn btn-ghost\" style=\"font-size:10px;padding:3px 8px\">Delete</button></div></div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click the comment, then click Resolve to mark it as addressed.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million, representing a 23% increase over fiscal year 2025.</p><div style=\"background:#f3f4f6;border:1px solid #d1d5db;border-left:3px solid #9ca3af;padding:8px 12px;margin:8px 0;font-size:11px;color:#6b7280\"><strong>Comment [Dr. Taormino]:</strong> Please verify this figure. <em>(Resolved)</em><br><strong>Reply [M. Johnson]:</strong> Confirmed — figure is correct.</div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Comment resolved — thread grayed out and marked as addressed.</p>", "prompt": "I am learning Word 365. What is the difference between resolving and deleting a comment? How do I re-open a resolved comment? How do I see all resolved comments?", "youtube": "https://www.youtube.com/results?search_query=word+365+resolve+comment", "ms": "https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4308-8d26-c59bc828d98d"}, {"id": 3, "name": "Delete a Comment", "tab": "review", "action": "delete-comment", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Delete the comment</strong> permanently from the document now that the review is complete.", "hints": ["Delete Comment is on the Review tab, in the Comments group.", "On the Review tab, find the Comments group. Click the Delete button or its dropdown arrow.", "Click Delete to remove just the selected comment, or click the dropdown and choose 'Delete All Comments in Document' to remove all at once."], "answer": "Review tab → Comments group → Delete (to remove selected comment) or Delete dropdown → Delete All Comments.", "exp": "Delete Comment (Review → Comments → Delete): permanently removes a comment. Use the dropdown to delete all comments at once. Unlike Resolve, deleted comments cannot be recovered.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached <span style=\"background:#fef9c3;border-bottom:2px solid #f59e0b\">$4.2 million</span><sup style=\"color:#f59e0b;font-size:9px;font-weight:700\">[1]</sup>, representing a 23% increase over fiscal year 2025.</p><div class=\"dcmt\"><strong style=\"color:#92400e\">Comment [Dr. Taormino]:</strong> Please verify this figure.<div style=\"margin-top:6px;padding-top:6px;border-top:1px solid #fde68a\"><strong style=\"color:#1e40af;font-size:11px\">Reply [M. Johnson]:</strong><span style=\"font-size:11px\"> Confirmed.</span></div></div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Use Review tab → Comments group → Delete to permanently remove this comment.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Financial Highlights</p><p class=\"dp\">Total revenue for fiscal year 2026 reached $4.2 million, representing a 23% increase over fiscal year 2025. Advisory services accounted for 58% of total revenue.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Comment deleted — permanently removed from the document.</p>", "prompt": "I am learning Word 365. How do I delete a comment in Word? How do I delete all comments at once? What is the difference between deleting and resolving?", "youtube": "https://www.youtube.com/results?search_query=word+365+delete+comment", "ms": "https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4308-8d26-c59bc828d98d"}, {"id": 4, "name": "Turn On Track Changes", "tab": "review", "action": "track-changes", "docTitle": "DesertSunReport.docx — Word", "task": "Turn on <strong>Track Changes</strong> so that all edits made to this document will be recorded and visible to reviewers.", "hints": ["Track Changes is on the Review tab.", "On the Review tab, find the Tracking group. Click the Track Changes button.", "Click Track Changes once to turn it on (the button will appear highlighted/pressed). Now all insertions, deletions, and formatting changes will be marked."], "answer": "Review tab → Tracking group → Track Changes (toggle on).", "exp": "Track Changes (Review → Track Changes): records every edit — insertions appear underlined in color, deletions appear with strikethrough. Each reviewer's changes appear in a different color. Essential for collaborative document review.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">This document is about to be sent to three reviewers for editing. Track Changes needs to be enabled so all edits are visible and can be accepted or rejected individually.</p><p class=\"dp\">When Track Changes is active, all insertions will appear <span style=\"color:#c00;text-decoration:underline\">underlined in red</span> and all deletions will appear <span style=\"color:#c00;text-decoration:line-through\">with strikethrough</span>.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Review tab → Tracking group → Track Changes (toggle it on).</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">This document is about to be sent to three reviewers for editing. Track Changes <ins style=\"color:#c00;text-decoration:underline\">is now enabled</ins> <del style=\"color:#c00;text-decoration:line-through\">needs to be enabled</del> so all edits are visible and can be accepted or rejected individually.</p><div style=\"background:#fff8e1;border:1px solid #fde68a;border-radius:4px;padding:8px 12px;margin:10px 0;font-size:11px;color:#78350f\"><strong>Track Changes is ON</strong> — all insertions appear underlined, deletions appear with strikethrough. Each reviewer gets a different color.</div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Track Changes enabled — all edits will now be recorded.</p>", "prompt": "I am learning Word 365. How do I turn on Track Changes in Word? How do I see who made each change? How do I turn it off when I am done reviewing?", "youtube": "https://www.youtube.com/results?search_query=word+365+track+changes+turn+on", "ms": "https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a"}, {"id": 5, "name": "Review Tracked Changes", "tab": "review", "action": "show-markup", "docTitle": "DesertSunReport.docx — Word", "task": "Switch the document view to <strong>All Markup</strong> so you can see all tracked changes from all reviewers at once.", "hints": ["The markup display is controlled in the Review tab, Tracking group.", "On the Review tab, find the Tracking group. Look for a dropdown that currently says 'Simple Markup' or 'No Markup'.", "Click that dropdown and choose 'All Markup' to show all insertions, deletions, and comments from all reviewers."], "answer": "Review tab → Tracking group → Show Markup dropdown → All Markup.", "exp": "Show Markup (Review → Tracking): controls how tracked changes are displayed. Simple Markup shows a change indicator in the margin. All Markup shows all edits inline. No Markup hides all changes (but they still exist).", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">This document has tracked changes from two reviewers. Currently showing <strong>Simple Markup</strong> — only a vertical bar in the margin indicates where changes exist.</p><div style=\"border-left:3px solid #e5e7eb;margin:8px 0;padding-left:10px\"><p class=\"dp\" style=\"color:#6b7280\">| This report covers fiscal year 2026 performance.</p><p class=\"dp\" style=\"color:#6b7280\">| Advisory services drove 58% of revenue growth.</p></div><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Review tab → Tracking group → change the markup dropdown from \"Simple Markup\" to \"All Markup\".</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">This document has tracked changes from two reviewers. Now showing <strong>All Markup</strong> — all insertions and deletions are visible inline.</p><p class=\"dp\">This report covers <ins style=\"color:#c00;text-decoration:underline;background:#fff0f0\">fiscal year 2026</ins> <del style=\"color:#888;text-decoration:line-through\">FY26</del> performance. <ins style=\"color:#0070c0;text-decoration:underline;background:#f0f8ff\">All financial figures have been audited by external reviewers.</ins></p><p class=\"dp\"><del style=\"color:#c00;text-decoration:line-through;background:#fff0f0\">Advisory services drove 58% of revenue growth.</del> <ins style=\"color:#c00;text-decoration:underline;background:#fff0f0\">Advisory and consulting services combined drove 62% of total revenue growth in FY2026.</ins></p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ All Markup view enabled — all tracked changes visible from all reviewers.</p>", "prompt": "I am learning Word 365. What is the difference between Simple Markup, All Markup, and No Markup views? How do I see which reviewer made each change?", "youtube": "https://www.youtube.com/results?search_query=word+365+show+markup+tracked+changes", "ms": "https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a"}, {"id": 6, "name": "Accept a Tracked Change", "tab": "review", "action": "accept-change", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Accept the highlighted tracked change</strong> to permanently incorporate the reviewer's edit into the document.", "hints": ["Accept is on the Review tab, in the Changes group.", "On the Review tab, find the Changes group. Click Accept to accept the currently selected change.", "Make sure the cursor is inside a tracked change first, then click Accept. Or use the Accept dropdown to accept all changes at once."], "answer": "Click in a tracked change → Review tab → Changes group → Accept.", "exp": "Accept Change (Review → Changes → Accept): permanently incorporates the change and removes the tracking markup. The text becomes normal. Use Accept All to accept every change at once.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">Review this tracked change and accept it to incorporate the reviewer's correction:</p><p class=\"dp\">Advisory and consulting services combined drove <del style=\"color:#c00;text-decoration:line-through;background:#fff0f0\">58%</del> <ins style=\"color:#c00;text-decoration:underline;background:#fff0f0;font-weight:600\" class=\"dsel\">62%</ins> of total revenue growth in fiscal year 2026.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click on the tracked change (the \"62%\"), then use Review tab → Changes group → Accept.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">The tracked change has been accepted. The revision is now permanently part of the document:</p><p class=\"dp\">Advisory and consulting services combined drove <strong>62%</strong> of total revenue growth in fiscal year 2026.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Tracked change accepted — \"62%\" is now permanent text, markup removed.</p>", "prompt": "I am learning Word 365. How do I accept a tracked change in Word? How do I accept all changes at once? What is the difference between accepting and rejecting?", "youtube": "https://www.youtube.com/results?search_query=word+365+accept+tracked+change", "ms": "https://support.microsoft.com/en-us/office/accept-or-reject-tracked-changes-2a89ab2e-7b56-4f44-9d9c-e2e50da2d428"}, {"id": 7, "name": "Reject a Tracked Change", "tab": "review", "action": "reject-change", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Reject the tracked change</strong> below to discard the reviewer's edit and restore the original text.", "hints": ["Reject is on the Review tab, in the Changes group — right next to Accept.", "On the Review tab, find the Changes group. Click the Reject button to reject the selected change.", "Make sure your cursor is in the tracked change you want to reject, then click Reject. The edit is discarded and the original text is restored."], "answer": "Click in the tracked change → Review tab → Changes group → Reject.", "exp": "Reject Change (Review → Changes → Reject): discards the reviewer's edit and restores the original text. Reject All removes all tracked changes and restores the document to its pre-review state.", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">This tracked change is incorrect and should be rejected to restore the original text:</p><p class=\"dp\">Total revenue reached <del style=\"color:#c00;text-decoration:line-through;background:#fff0f0\">$4.2 million</del> <ins style=\"color:#c00;text-decoration:underline;background:#fff0f0\" class=\"dsel\">$3.8 million (revised estimate)</ins> in fiscal year 2026.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Click on the change (the \"revised estimate\" insertion), then use Review tab → Changes group → Reject.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Executive Summary</p><p class=\"dp\">The tracked change has been rejected. The original text is restored:</p><p class=\"dp\">Total revenue reached <strong>$4.2 million</strong> in fiscal year 2026.</p><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Tracked change rejected — original \"$4.2 million\" restored, reviewer's edit discarded.</p>", "prompt": "I am learning Word 365. How do I reject a tracked change in Word? How do I reject all changes at once? What happens to the text when I reject a deletion vs. an insertion?", "youtube": "https://www.youtube.com/results?search_query=word+365+reject+tracked+change", "ms": "https://support.microsoft.com/en-us/office/accept-or-reject-tracked-changes-2a89ab2e-7b56-4f44-9d9c-e2e50da2d428"}, {"id": 8, "name": "Lock/Unlock Track Changes", "tab": "review", "action": "lock-tracking", "docTitle": "DesertSunReport.docx — Word", "task": "<strong>Lock Track Changes</strong> with a password so reviewers cannot turn off change tracking without authorization.", "hints": ["Lock Track Changes is in the Track Changes dropdown on the Review tab.", "On the Review tab, click the dropdown arrow next to the Track Changes button (not the button itself).", "Choose 'Lock Tracking…' from the dropdown. Enter a password to prevent others from turning off Track Changes."], "answer": "Review tab → Tracking group → Track Changes dropdown (▾) → Lock Tracking → enter password → OK.", "exp": "Lock Tracking (Track Changes dropdown → Lock Tracking): requires a password to turn off Track Changes. Ensures all reviewers’ edits are captured and no one can hide their changes.", "dlg": "dlg-locktracking", "before_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Document Control</p><p class=\"dp\">This document will be distributed to external reviewers. To ensure all changes are tracked and no reviewer can hide their edits, Track Changes needs to be password-protected.</p><p class=\"dp\">Once locked, reviewers will not be able to turn off Track Changes without the password. This protects the document's review integrity.</p><p class=\"dp\" style=\"color:#6b7280;font-size:11px;font-style:italic\">← Review tab → Track Changes dropdown (▾) → Lock Tracking → enter a password.</p>", "after_html": "<p class=\"dt\">Annual Business Report</p><p class=\"dh1\">Document Control</p><p class=\"dp\">Track Changes is now locked with a password. Reviewers can make edits, but cannot turn off change tracking without the correct password.</p><div style=\"background:#f0fdf4;border:1px solid #86efac;border-radius:4px;padding:8px 12px;margin:10px 0;font-size:11px;color:#166534\"><strong>&#128274; Track Changes Locked</strong> — a password is required to disable tracking. All reviewer edits will be captured.</div><p style=\"margin-top:10px;font-size:10px;color:#15803d;font-weight:700\">✓ Track Changes locked with password — reviewers cannot disable tracking.</p>", "prompt": "I am learning Word 365. How do I lock Track Changes with a password? How do I unlock it? Why would I lock Track Changes before sending a document to reviewers?", "youtube": "https://www.youtube.com/results?search_query=word+365+lock+track+changes+password", "ms": "https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a"}];
+const DLG_MAP = {"lock-tracking": "dlg-locktracking"};
+const TOTAL = 9;
+const ACCEPT_DD = "<button class=\"dd-item\" data-dditem=\"accept-change\">Accept This Change</button><button class=\"dd-item\" data-dditem=\"accept-all-shown\">Accept All Changes Shown</button><button class=\"dd-item\" data-dditem=\"accept-all\">Accept All Changes</button><button class=\"dd-item\" data-dditem=\"accept-stop\">Accept All Changes and Stop Tracking</button>";
+const REJECT_DD = "<button class=\"dd-item\" data-dditem=\"reject-change\">Reject This Change</button><button class=\"dd-item\" data-dditem=\"reject-all-shown\">Reject All Changes Shown</button><button class=\"dd-item\" data-dditem=\"reject-all\">Reject All Changes</button>";
+const DELETE_DD = "<button class=\"dd-item\" data-dditem=\"delete-comment\">Delete Comment</button><button class=\"dd-item\" data-dditem=\"delete-all-shown\">Delete All Comments Shown</button><button class=\"dd-item\" data-dditem=\"delete-all\">Delete All Comments in Document</button>";
+const TC_DD = "<button class=\"dd-item\" data-dditem=\"track-changes\">Track Changes</button><button class=\"dd-item\" data-dditem=\"lock-tracking\">Lock Tracking\u2026</button><button class=\"dd-item\" data-dditem=\"tc-options\">Change Tracking Options\u2026</button><button class=\"dd-item\" data-dditem=\"tc-username\">Change User Name\u2026</button>";
+const MARKUP_DD = "<button class=\"dd-item\" data-dditem=\"show-markup\">All Markup</button><button class=\"dd-item\" data-dditem=\"simple-markup\">Simple Markup</button><button class=\"dd-item\" data-dditem=\"no-markup\">No Markup</button><button class=\"dd-item\" data-dditem=\"original-markup\">Original</button>";
+
+const S={lab:0,tab:'review',res:{},wrongCount:0,hintCount:0,dd:null};
+const score=()=>Object.keys(S.res).filter(k=>S.res[k]).length;
+
+function LB(icon,label,action,ddMenu){
+  const lab=LABS[S.lab],isHL=action===lab.action;
+  const cls='lb'+(isHL?' hl':'');
+  const inner=`<span class="li">${icon}</span><span class="ll">${label}</span>`;
+  if(ddMenu){
+    const open=S.dd===action;
+    return`<div class="dd-wrap"><button class="${cls}" data-action="${action}" data-dd="${action}">${inner}</button><div class="dd-menu${open?' open':''}">${ddMenu}</div></div>`;
+  }
+  return`<button class="${cls}" data-action="${action}">${inner}</button>`;
+}
+function SB(icon,label,action){
+  const isHL=LABS[S.lab].action===action;
+  return`<button class="sb${isHL?' hl':''}" data-action="${action}"><span class="si">${icon}</span><span class="sl">${label}</span></button>`;
+}
+function STACK(...b){return`<div class="sb-stack">${b.join('')}</div>`;}
+function GRP(label,html){return`<div class="grp"><div class="grp-btns">${html}</div><div class="grp-lbl">${label}</div></div>`;}
+
+function buildRibbon(){
+  const lab=LABS[S.lab];
+  const tabs=[['home','Home'],['insert','Insert'],['design','Design'],['layout','Layout'],['references','References'],['review','Review']];
+  document.getElementById('tab-strip').innerHTML=tabs.map(([id,lbl])=>`<button class="tab${S.tab===id?' active':''}" data-settab="${id}">${lbl}</button>`).join('');
+
+  let body='';
+  const t=S.tab;
+
+  if(t==='home'){
+    body+=GRP('Clipboard',LB('&#128203;','Paste','paste','')+STACK(SB('&#9986;','Cut','cut'),SB('&#128196;','Copy','copy')));
+    body+=GRP('Font','<div style="padding:6px 4px;font-size:11px;color:#888">Font, Size, Bold&hellip;</div>');
+    body+=GRP('Paragraph','<div style="padding:6px 4px;font-size:11px;color:#888">Lists, Alignment&hellip;</div>');
+    body+=GRP('Styles','<div style="padding:6px 4px;font-size:11px;color:#888">Normal, Heading 1&hellip;</div>');
+    body+=GRP('Editing',LB('&#128269;','Find','find','')+STACK(SB('&#8596;','Replace','replace')));
+  }
+  else if(t==='insert'){
+    body+=GRP('Pages',STACK(SB('&#128196;','Cover Page','cover'),SB('&#8212;','Page Break','pagebreak')));
+    body+=GRP('Tables',LB('&#8862;','Table','insert-table',''));
+    body+=GRP('Illustrations',LB('&#128444;','Pictures','insert-pic','')+LB('&#9672;','Shapes','insert-shapes',''));
+    body+=GRP('Links',LB('&#128279;','Hyperlink','insert-hyperlink',''));
+    body+=GRP('Header & Footer',LB('&#8868;','Header','insert-header','')+LB('&#8869;','Footer','insert-footer',''));
+  }
+  else if(t==='design'){
+    body+=GRP('Document Formatting','<div style="padding:6px 4px;font-size:11px;color:#888">Style Sets&hellip;</div>');
+    body+=GRP('Page Background',LB('&#128203;','Watermark','watermark','')+LB('&#9632;','Page Color','page-color',''));
+  }
+  else if(t==='layout'){
+    body+=GRP('Page Setup',LB('&#9633;','Margins','margins','')+LB('&#8861;','Orientation','orient',''));
+  }
+  else if(t==='references'){
+    body+=GRP('Table of Contents',LB('&#8801;','TOC','insert-toc',''));
+    body+=GRP('Footnotes',LB('AB&#185;','Footnote','insert-footnote'));
+  }
+  else if(t==='review'){
+    body+=GRP('Proofing',
+      LB('&#10003;','Spelling &amp;&#10;Grammar','spelling','')+
+      LB('&#128218;','Thesaurus','thesaurus','')+
+      STACK(SB('#','Word Count','word-count'),SB('!','Check&#10;Accessibility','check-access')));
+    body+=GRP('Speech',LB('&#128266;','Read Aloud','read-aloud',''));
+    body+=GRP('Language',STACK(SB('&#8644;','Translate','translate'),SB('Aa','Language','set-lang')));
+    body+=GRP('Comments',
+      LB('&#128172;','New&#10;Comment','new-comment','')+
+      LB('&#128465;','Delete','delete-comment',DELETE_DD)+
+      STACK(
+        SB('&#9664;','Previous','prev-cmt'),
+        SB('&#9654;','Next','next-cmt'),
+        SB('&#9654;','Reply','reply-comment'),
+        SB('&#10003;','Resolve','resolve-comment')
+      )+
+      STACK(SB('&#9776;','Show&#10;Comments','show-cmts')));
+    body+=GRP('Tracking',
+      LB('&#9999;','Track&#10;Changes','track-changes',TC_DD)+
+      LB('&#9776;','Show&#10;Markup','show-markup',MARKUP_DD)+
+      STACK(SB('&#9776;','Reviewing Pane','rev-pane')));
+    body+=GRP('Changes',
+      LB('<span style="color:#15803d">&#10004;</span>','Accept','accept-change',ACCEPT_DD)+
+      LB('<span style="color:#dc2626">&#10006;</span>','Reject','reject-change',REJECT_DD)+
+      STACK(SB('&#9664;','Previous','prev-chg'),SB('&#9654;','Next','next-chg')));
+    body+=GRP('Compare',LB('&#9638;','Compare','compare','')+STACK(SB('&#9638;','Combine','combine')));
+    body+=GRP('Protect',LB('&#128274;','Restrict&#10;Editing','restrict-edit',''));
+  }
+
+  document.getElementById('ribbon-body').innerHTML=body;
+  bindRibbon();
+}
+
+function bindRibbon(){
+  document.querySelectorAll('[data-settab]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.tab=b.dataset.settab;S.dd=null;buildRibbon();}));
+  document.querySelectorAll('[data-dd]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();S.dd=S.dd===b.dataset.dd?null:b.dataset.dd;buildRibbon();
+    if(S.dd){const m=b.parentElement.querySelector('.dd-menu');if(m){const r=b.getBoundingClientRect();m.style.top=(r.bottom+2)+'px';m.style.left=r.left+'px';}}
+  }));
+  document.querySelectorAll('[data-dditem]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();S.dd=null;doAction(b.dataset.dditem);}));
+  document.querySelectorAll('[data-action]:not([data-dd])').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();doAction(b.dataset.action);}));
+}
+document.addEventListener('click',()=>{if(S.dd){S.dd=null;buildRibbon();}});
+
+function doAction(a){
+  S.dd=null;
+  const lab=LABS[S.lab];
+  if(a===lab.action){
+    const dlgId=DLG_MAP[lab.action];
+    if(dlgId)openDlg(dlgId);else grade();
+    buildRibbon();return;
+  }
+  wrong();buildRibbon();
+}
+function openDlg(id){document.getElementById('backdrop').style.display='block';document.getElementById(id).style.display='block';}
+function closeDlg(){document.getElementById('backdrop').style.display='none';document.querySelectorAll('.w-dlg').forEach(d=>d.style.display='none');}
+window.dlgGrade=function(){closeDlg();grade();};
+
+function grade(){S.res[LABS[S.lab].id]=true;S.wrongCount=0;S.hintCount=0;renderAll();}
+function wrong(){
+  if(!S.res[LABS[S.lab].id]){
+    S.wrongCount++;
+    if(S.wrongCount===1&&S.tab!=='review'){S.tab='review';buildRibbon();}
+    renderTask();renderSidebar();
+  }
+}
+
+function renderDoc(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  document.getElementById('doc-page').innerHTML=done?lab.after_html:lab.before_html;
+  if(lab.docTitle)document.getElementById('doc-title').textContent=lab.docTitle;
+}
+
+function renderTask(){
+  const lab=LABS[S.lab],done=!!S.res[lab.id];
+  let fb='';
+  if(S.wrongCount>0&&!done){
+    fb=S.wrongCount>=3
+      ?`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Here is the answer:</strong> ${lab.answer}</div>`
+      :`<div class="fb fb-err" style="animation:fadeIn .25s"><strong>Not quite.</strong> All D6 skills are on the <em>Review</em> tab. Look for the highlighted button. (Attempt ${S.wrongCount} of 3)</div>`;
+  }
+  if(done){
+    fb=`<div class="fb fb-ok" style="animation:fadeIn .25s"><strong>&#10003; Correct!</strong> ${lab.exp}</div>
+    <div class="fb-next">
+      ${S.lab===LABS.length-1
+        ?`<button class="btn btn-blue" onclick="showFinal()">View results &#8594;</button>`
+        :`<button class="btn btn-ghost" onclick="goLab(${S.lab})">Replay</button><button class="btn btn-blue" onclick="goLab(${S.lab+1})">Next &#8594;</button>`}
+    </div>`;
+  }
+  let hintsHtml='';
+  if(S.hintCount>0){
+    hintsHtml='<div class="hint-area">'+(lab.hints||[]).slice(0,S.hintCount).map((h,i)=>`<div class="hint-row"><span class="hint-num">Hint ${i+1}</span> ${h}</div>`).join('');
+    if(S.wrongCount>=3&&lab.answer)hintsHtml+=`<div class="hint-row hint-answer"><span class="hint-num answer-tag">Answer</span> ${lab.answer}</div>`;
+    hintsHtml+='</div>';
+  }
+  const hintDis=S.hintCount>=(lab.hints||[]).length||done;
+  document.getElementById('task-panel').innerHTML=`
+    <div class="task-row">
+      <span class="task-badge">D6 &middot; Lab ${S.lab+1}</span>
+      <div class="task-text">${lab.task}</div>
+      <div class="task-acts">
+        <button class="btn btn-gold" onclick="openResources(${S.lab})">&#128161; Resources</button>
+        ${!done?`<button class="btn btn-ghost" onclick="showHint()" ${hintDis?'disabled style="opacity:.5"':''}>
+          ${S.hintCount===0?'Hint':hintDis?'Hints Used':'Next Hint'}
+        </button><button class="btn btn-ghost" onclick="resetLab()">Reset</button>`:''}
+      </div>
+    </div>
+    ${hintsHtml}${fb}`;
+}
+
+window.showHint=function(){if(S.hintCount<(LABS[S.lab].hints||[]).length)S.hintCount++;renderTask();};
+window.resetLab=function(){delete S.res[LABS[S.lab].id];S.wrongCount=0;S.hintCount=0;renderAll();};
+
+function renderSidebar(){
+  const ts=score();
+  document.getElementById('sb-score').textContent=`${ts} / ${TOTAL}`;
+  document.getElementById('sb-fill').style.width=`${(ts/TOTAL*100).toFixed(0)}%`;
+  document.getElementById('prog-fill').style.width=`${(ts/TOTAL*100).toFixed(0)}%`;
+  document.getElementById('sb-nav').innerHTML=LABS.map((l,li)=>{
+    const done=!!S.res[l.id],act=li===S.lab;
+    return`<button class="lab-btn${act?' active':''}${done?' done':''}" onclick="goLab(${li})">
+      <span class="lab-dot${act?' active':''}${done?' done':''}">${done?'&#10003;':li+1}</span>
+      <div><div class="lab-name">${l.name}</div></div>
+    </button>`;
+  }).join('');
+}
+
+function openResources(i){
+  const lab=LABS[i];
+  document.getElementById('res-skill-name').textContent=lab.name;
+  document.getElementById('res-body').innerHTML=`
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-ai">&#129302;</div><div><div class="res-card-title">AI Prompt</div><div class="res-card-sub">Copy to ChatGPT, Copilot, or Perplexity</div></div></div>
+    <div class="res-card-body"><div class="prompt-box" id="prompt-text">${lab.prompt}</div><button class="copy-btn" id="copy-btn" onclick="copyPrompt()">&#128203; Copy Prompt</button></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-yt">&#9654;</div><div><div class="res-card-title">YouTube</div><div class="res-card-sub">Pre-built search for this skill</div></div></div>
+    <div class="res-card-body"><a href="${lab.youtube}" target="_blank" class="res-link">&#128269; Search YouTube for "${lab.name}" <span>&#8599;</span></a></div></div>
+    <div class="res-card"><div class="res-card-hd"><div class="res-icon ri-ms">&#128214;</div><div><div class="res-card-title">Microsoft Support</div></div></div>
+    <div class="res-card-body"><a href="${lab.ms}" target="_blank" class="res-link">&#128196; Open Microsoft Support Article <span>&#8599;</span></a></div></div>`;
+  document.getElementById('res-overlay').classList.add('open');
+  document.getElementById('res-panel').classList.add('open');
+}
+function closeResources(){document.getElementById('res-overlay').classList.remove('open');document.getElementById('res-panel').classList.remove('open');}
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(()=>{
+    const btn=document.getElementById('copy-btn');btn.textContent='&#10003; Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='&#128203; Copy Prompt';btn.classList.remove('copied');},2500);
+  });
+}
+
+window.showFinal=function(){
+  const ts=score(),pct=Math.round(ts/TOTAL*100);
+  document.getElementById('doc-page').innerHTML=`
+  <div style="text-align:center;padding:24px 0 16px">
+    <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">IS101 &middot; Word 365 &middot; Domain 6: Document Collaboration</div>
+    <div style="font-size:60px;font-weight:800;color:${pct===100?'#15803d':pct>=70?'#d97706':'#dc2626'};line-height:1">${ts}<span style="font-size:30px;font-weight:400;color:#9ca3af"> / ${TOTAL}</span></div>
+    <div style="font-size:14px;color:#6b7280;margin:8px 0 20px">${pct}% &mdash; ${pct===100?'Domain 6 complete! All Word 365 domains done.':pct>=70?'Good &mdash; review missed labs.':'Keep practicing.'}</div>
+    ${pct===100?`<div style="background:#f0fdf4;border:2px solid #86efac;border-radius:8px;padding:16px;margin:0 auto 20px;max-width:380px">
+      <div style="font-size:18px;font-weight:800;color:#15803d;margin-bottom:4px">&#127881; All 6 Word Domains Complete!</div>
+      <div style="font-size:13px;color:#166534">D1 (21) + D2 (15) + D3 (15) + D4 (5) + D5 (19) + D6 (9) = <strong>84 labs</strong></div>
+    </div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;max-width:420px;margin:0 auto;text-align:left">
+      ${LABS.map(l=>{const ok=S.res[l.id];return`<div style="background:${ok?'#f0fdf4':'#fef2f2'};border:1px solid ${ok?'#86efac':'#fca5a5'};padding:7px 10px;border-radius:4px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${ok?'#15803d':'#dc2626'}">Lab ${l.id+1} ${ok?'&#10003;':'&#10007;'}</div><div style="font-size:11px;color:${ok?'#166534':'#991b1b'}">${l.name}</div></div>`;}).join('')}
+    </div>
+    <button class="btn btn-blue" style="margin-top:20px" onclick="goLab(0)">Restart Domain 6</button>
+  </div>`;
+  document.getElementById('task-panel').innerHTML='';
+};
+
+function renderRuler(){
+  const r=document.getElementById('ruler'),mLeft=80,textW=680-mLeft-80,inchPx=textW/4.5;
+  let html=`<div class="ruler-margin" style="width:${mLeft+30}px"></div><div style="flex:1;position:relative;height:100%;background:#fff">`;
+  for(let i=0;i<=5;i++){const x=(i*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${x}px"><div class="rtline major"></div>${i>0&&i<5?`<span class="rtnum" style="left:${x}px">${i}</span>`:''}</div>`;if(i<5){const hx=((i+.5)*inchPx).toFixed(1);html+=`<div class="ruler-tick" style="left:${hx}px"><div class="rtline"></div></div>`;}}
+  r.innerHTML=html+'</div><div class="ruler-margin" style="width:80px"></div>';
+}
+
+window.goLab=function(i){
+  S.lab=i;S.wrongCount=0;S.hintCount=0;S.dd=null;
+  S.tab='review';
+  renderAll();
+};
+function renderAll(){renderSidebar();buildRibbon();renderDoc();renderTask();}
+renderRuler();
+renderAll();
+</script>
+</body>
+</html>
