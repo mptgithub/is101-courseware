@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Excel E4: Formulas and Functions</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --xl-green: #217346; --xl-green-dark: #185a35; --xl-green-light: #e9f5ee;
+    --xl-border: #d0d0d0; --xl-cell-hl: #fff2cc; --xl-cell-hl-bd: #e6b800;
+    --xl-grid-bd: #d9d9d9; --text-dark: #1a1a1a; --text-mid: #444; --text-light: #767676;
+    --hint-bg: #fff8e1; --hint-bd: #f0c040;
+    --pass-bg: #e6f4ea; --pass-bd: #34a853;
+    --fail-bg: #fce8e6; --fail-bd: #d93025;
+    --panel-bg: #f8f9fa; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f0f0; color: var(--text-dark); min-height: 100vh; }
+  .topbar { background: var(--xl-green); color: #fff; padding: 0 20px; height: 44px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-title { font-size: 14px; font-weight: 600; }
+  .topbar-subtitle { font-size: 12px; opacity: .8; }
+  .btn-back { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .page-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  .domain-header { background: #fff; border-radius: var(--radius); padding: 18px 24px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .domain-badge { background: var(--xl-green); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: .5px; text-transform: uppercase; }
+  .domain-title { font-size: 20px; font-weight: 700; color: var(--xl-green-dark); margin: 4px 0; }
+  .domain-meta { font-size: 13px; color: var(--text-light); }
+  .domain-progress-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 160px; }
+  .progress-label { font-size: 12px; color: var(--text-light); }
+  .progress-track { width: 160px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--xl-green); border-radius: 4px; transition: width .4s ease; }
+  /* Skill groups */
+  .group-header { background: var(--xl-green-dark); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 4px; margin-bottom: 6px; margin-top: 12px; letter-spacing: .5px; text-transform: uppercase; }
+  .skill-nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin-bottom: 8px; }
+  .skill-nav-btn { background: #fff; border: 2px solid var(--xl-border); border-radius: var(--radius); padding: 9px 12px; cursor: pointer; text-align: left; transition: all .15s; display: flex; align-items: center; gap: 8px; }
+  .skill-nav-btn:hover { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .skill-nav-btn.active { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .skill-nav-btn.completed { border-color: var(--pass-bd); background: var(--pass-bg); }
+  .skill-num { width: 24px; height: 24px; background: var(--xl-green); color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .skill-nav-btn.completed .skill-num { background: var(--pass-bd); }
+  .skill-nav-label { font-size: 11px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+  .skill-check { margin-left: auto; color: var(--pass-bd); font-size: 13px; }
+  .skill-panel { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-top: 16px; }
+  .skill-header { background: var(--xl-green); color: #fff; padding: 16px 24px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .skill-header-left h2 { font-size: 17px; font-weight: 700; }
+  .skill-header-left p { font-size: 13px; opacity: .85; margin-top: 3px; }
+  .path-chooser { display: flex; gap: 8px; flex-wrap: wrap; }
+  .path-btn { background: rgba(255,255,255,.18); border: 1.5px solid rgba(255,255,255,.45); color: #fff; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .path-btn.path-selected { background: #fff; color: var(--xl-green); border-color: #fff; }
+  .prove-it-view { padding: 24px; }
+  .prove-it-view h3 { font-size: 16px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 6px; }
+  .prove-it-view p { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; line-height: 1.6; }
+  .prove-task-box { background: var(--xl-green-light); border: 1.5px solid var(--xl-green); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; }
+  .prove-task-box .task-label { font-size: 11px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .prove-task-box p { font-size: 15px; color: var(--text-dark); font-weight: 600; margin: 0; }
+  .prove-submit-area { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-prove { padding: 10px 22px; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; }
+  .btn-prove.primary { background: var(--xl-green); color: #fff; }
+  .task-bar { background: var(--panel-bg); border-bottom: 1px solid var(--xl-border); padding: 14px 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .task-description .task-label { font-size: 11px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .task-description p { font-size: 15px; font-weight: 600; color: var(--text-dark); line-height: 1.5; margin: 0; }
+  .task-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .btn-hint { background: var(--hint-bg); border: 1.5px solid var(--hint-bd); color: #7a5800; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-resources { background: var(--xl-green-light); border: 1.5px solid var(--xl-green); color: var(--xl-green-dark); padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .hint-box { background: var(--hint-bg); border-left: 4px solid var(--hint-bd); padding: 12px 16px; margin: 0 24px; border-radius: 0 4px 4px 0; font-size: 13px; color: #5a4000; display: none; }
+  .hint-box.visible { display: block; }
+  .practice-body { display: flex; position: relative; }
+  .sim-area { flex: 1; min-width: 0; }
+  .resources-panel { width: 0; overflow: hidden; transition: width .3s ease; border-left: 1px solid var(--xl-border); background: var(--panel-bg); flex-shrink: 0; }
+  .resources-panel.open { width: 260px; }
+  .resources-inner { width: 260px; padding: 16px; }
+  .resources-inner h4 { font-size: 13px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 12px; border-bottom: 2px solid var(--xl-green); padding-bottom: 6px; }
+  .resource-item { background: #fff; border: 1px solid var(--xl-border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; }
+  .resource-item .ri-type { font-size: 10px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .resource-item .ri-title { font-size: 12px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+  .resource-item .ri-desc { font-size: 11px; color: var(--text-light); line-height: 1.4; margin-bottom: 6px; }
+  .resource-item .ri-link { display: inline-flex; align-items: center; gap: 4px; background: var(--xl-green-light); border: 1px solid var(--xl-green); color: var(--xl-green-dark); font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 3px; text-decoration: none; cursor: pointer; }
+  .resource-item .ai-prompt { font-family: 'Consolas', monospace; font-size: 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 3px; padding: 6px 8px; color: var(--text-mid); line-height: 1.4; margin-bottom: 6px; white-space: pre-wrap; }
+  /* Excel sim */
+  .excel-sim { border: 1px solid var(--xl-border); overflow: hidden; user-select: none; position: relative; }
+  .xl-titlebar { background: var(--xl-green); color: #fff; font-size: 12px; padding: 4px 12px; display: flex; align-items: center; }
+  .xl-titlebar-app { opacity: .7; margin-left: auto; }
+  .xl-ribbon { background: #fff; border-bottom: 1px solid var(--xl-border); }
+  .xl-tabs { display: flex; background: var(--xl-green-dark); padding: 0 8px; gap: 2px; flex-wrap: wrap; }
+  .xl-tab { color: rgba(255,255,255,.75); font-size: 11px; padding: 6px 11px; cursor: pointer; border-radius: 3px 3px 0 0; font-weight: 500; }
+  .xl-tab.active { background: #fff; color: var(--xl-green-dark); font-weight: 700; }
+  .xl-ribbon-content { padding: 6px 12px 8px; display: flex; gap: 4px; flex-wrap: wrap; min-height: 52px; align-items: flex-end; }
+  .xl-group { display: flex; flex-direction: column; align-items: center; border-right: 1px solid #e8e8e8; padding-right: 8px; margin-right: 4px; }
+  .xl-group:last-child { border-right: none; }
+  .xl-group-btns { display: flex; gap: 2px; margin-bottom: 2px; }
+  .xl-group-label { font-size: 9px; color: #888; }
+  .xl-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3px 6px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; background: transparent; font-size: 10px; color: var(--text-dark); min-width: 34px; gap: 2px; transition: all .1s; }
+  .xl-btn:hover { background: #e5e5e5; border-color: #ccc; }
+  .xl-btn.btn-target { background: var(--xl-green-light); border-color: var(--xl-green); animation: pulse 1.5s infinite; }
+  .xl-btn.btn-clicked { background: var(--xl-green); color: #fff; border-color: var(--xl-green-dark); animation: none; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(33,115,70,.4)}50%{box-shadow:0 0 0 4px rgba(33,115,70,0)} }
+  .xl-btn-icon { font-size: 15px; line-height: 1; }
+  .xl-btn-label { font-size: 9px; white-space: nowrap; }
+  .xl-formulabar { background: #fff; border-bottom: 1px solid var(--xl-border); display: flex; align-items: center; padding: 3px 8px; gap: 6px; }
+  .xl-namebox { width: 70px; border: 1px solid var(--xl-border); border-radius: 3px; padding: 2px 6px; font-size: 12px; text-align: center; flex-shrink: 0; }
+  .xl-fx-label { font-style: italic; color: var(--text-light); font-size: 13px; }
+  .xl-formulainput { flex: 1; border: 1px solid var(--xl-border); border-radius: 3px; padding: 2px 6px; font-size: 12px; font-family: 'Consolas', monospace; background: #fff; }
+  .xl-grid-wrap { overflow-x: auto; }
+  .xl-grid { border-collapse: collapse; font-size: 12px; font-family: 'Segoe UI', sans-serif; min-width: 480px; }
+  .xl-col-hdr { background: #f2f2f2; border: 1px solid var(--xl-grid-bd); text-align: center; font-size: 11px; color: #666; padding: 2px 6px; font-weight: 400; min-width: 72px; height: 20px; }
+  .xl-col-hdr.sa { min-width: 32px; width: 32px; }
+  .xl-row-hdr { background: #f2f2f2; border: 1px solid var(--xl-grid-bd); text-align: right; font-size: 11px; color: #666; padding: 2px 5px; font-weight: 400; width: 32px; }
+  .xl-cell { border: 1px solid var(--xl-grid-bd); padding: 2px 6px; height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; font-size: 12px; }
+  .xl-cell.hl { background: var(--xl-cell-hl); border: 1.5px solid var(--xl-cell-hl-bd); }
+  .xl-cell.bold { font-weight: 700; }
+  .xl-cell.hdr { background: #dae3f3; font-weight: 700; }
+  .xl-cell.after { background: var(--pass-bg); border-color: var(--pass-bd); font-weight: 700; }
+  .xl-cell.right { text-align: right; }
+  .xl-cell.center { text-align: center; }
+  .xl-cell.mono { font-family: 'Consolas', monospace; font-size: 11px; }
+  .xl-cell.ref-hdr { background: #f0e6ff; font-weight: 700; border-color: #9b59b6; }
+  .xl-cell.ref-row { background: #faf5ff; border-color: #d7bde2; }
+  .xl-sheettabs { background: #f3f2f1; border-top: 1px solid var(--xl-border); display: flex; align-items: flex-end; padding: 0 8px; gap: 2px; min-height: 26px; }
+  .xl-sheettab { background: #e0e0e0; border: 1px solid #bbb; border-bottom: none; padding: 3px 12px; font-size: 11px; border-radius: 4px 4px 0 0; cursor: pointer; color: var(--text-mid); }
+  .xl-sheettab.active { background: #fff; border-color: var(--xl-border); color: var(--text-dark); font-weight: 600; }
+  .xl-new-tab { font-size: 14px; color: #888; padding: 2px 6px; cursor: pointer; }
+  .xl-statusbar { background: var(--xl-green); color: rgba(255,255,255,.85); font-size: 11px; padding: 3px 12px; display: flex; justify-content: space-between; }
+  /* Function picker dropdown */
+  .fn-dropdown { position: absolute; background: #fff; border: 1px solid #aaa; box-shadow: 0 4px 14px rgba(0,0,0,.2); border-radius: 3px; z-index: 60; min-width: 160px; font-size: 12px; }
+  .fn-item { padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .fn-item:hover { background: #e5f0ea; }
+  .fn-item.btn-target { background: var(--xl-cell-hl); animation: pulse 1.5s infinite; font-weight: 700; color: var(--xl-green-dark); }
+  .fn-item.btn-clicked { background: var(--pass-bg); color: var(--pass-bd); }
+  .fn-sep { height: 1px; background: #e0e0e0; margin: 2px 0; }
+  /* Formula bar hint */
+  .formula-hint { background: #e8f5e9; border: 1px solid var(--pass-bd); border-radius: 3px; padding: 5px 10px; font-size: 11px; font-family: 'Consolas', monospace; color: var(--xl-green-dark); margin: 4px 8px 0; }
+  /* Feedback */
+  .feedback-area { padding: 16px 24px 20px; }
+  .feedback-box { border-radius: var(--radius); padding: 14px 18px; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+  .feedback-box.correct { background: var(--pass-bg); border: 1.5px solid var(--pass-bd); }
+  .feedback-box.incorrect { background: var(--fail-bg); border: 1.5px solid var(--fail-bd); }
+  .feedback-icon { font-size: 20px; flex-shrink: 0; }
+  .feedback-text strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .feedback-text p { font-size: 13px; color: var(--text-mid); margin: 0; line-height: 1.5; }
+  /* syntax box */
+  .syntax-box { background: #1e1e2e; color: #cdd6f4; border-radius: 4px; padding: 8px 12px; font-family: 'Consolas', monospace; font-size: 12px; margin: 8px 12px; line-height: 1.5; }
+  .syntax-box .fn { color: #89dceb; } .syntax-box .arg { color: #a6e3a1; } .syntax-box .sep { color: #f38ba8; }
+  .skill-nav-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--xl-border); background: var(--panel-bg); flex-wrap: wrap; gap: 10px; }
+  .btn-nav { padding: 8px 20px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--xl-green); }
+  .btn-nav.primary { background: var(--xl-green); color: #fff; }
+  .btn-nav.primary:hover { background: var(--xl-green-dark); }
+  .btn-nav.secondary { background: #fff; color: var(--xl-green); }
+  .btn-nav.secondary:hover { background: var(--xl-green-light); }
+  .btn-nav:disabled { opacity: .4; cursor: not-allowed; }
+  .skill-status-text { font-size: 12px; color: var(--text-light); }
+  .completion-banner { background: var(--pass-bg); border: 2px solid var(--pass-bd); border-radius: var(--radius); padding: 20px 24px; text-align: center; margin: 20px 0; }
+  .completion-banner h3 { font-size: 18px; font-weight: 700; color: #1a5c2e; margin-bottom: 6px; }
+  .completion-banner p { font-size: 14px; color: #2e7d46; }
+  @media(max-width:700px){ .skill-nav{grid-template-columns:1fr 1fr;} .resources-panel.open{width:200px;} .resources-inner{width:200px;} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span style="font-size:22px">📊</span>
+    <div>
+      <div class="topbar-title">IS101 — Excel Labs</div>
+      <div class="topbar-subtitle">E4: Perform Operations by Using Formulas and Functions</div>
+    </div>
+  </div>
+  <div><a class="btn-back" href="IS101_START_HERE_05272026_0928.html">← Dashboard</a></div>
+</div>
+
+<div class="page-wrap">
+  <div class="domain-header">
+    <div>
+      <div class="domain-badge">Domain E4 · MO-210</div>
+      <div class="domain-title">Formulas and Functions</div>
+      <div class="domain-meta">Desert Bloom Florist · CSN Grade Book · Cactus Kitchen · 15 skills</div>
+    </div>
+    <div class="domain-progress-wrap">
+      <div class="progress-label" id="progressLabel">0 of 15 completed</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div id="skillNavWrap"></div>
+  <div class="skill-panel" id="skillPanel"></div>
+  <div class="completion-banner" id="completionBanner" style="display:none">
+    <div style="font-size:36px;margin-bottom:8px">🏆</div>
+    <h3>Domain E4 Complete!</h3>
+    <p>You've mastered all 15 formula and function skills. Return to the dashboard to continue.</p>
+    <div style="margin-top:16px"><a class="btn-back" href="IS101_START_HERE_05272026_0928.html" style="font-size:13px;padding:8px 18px">← Back to Dashboard</a></div>
+  </div>
+</div>
+
+<script>
+// ── SKILL DATA ──
+const GROUPS = [
+  { label: 'Basic Math & Statistics', color: '#217346' },
+  { label: 'Conditional Functions', color: '#1f5c91' },
+  { label: 'Text Functions', color: '#7b2c9c' },
+  { label: 'Date & Time', color: '#c55a11' },
+  { label: 'Lookup & Reference', color: '#185a35' },
+];
+
+const SKILLS = [
+  // ── Group 0: Basic Math & Stats ──
+  {
+    id:'sum', num:1, group:0,
+    title:'SUM',
+    syntax:'=SUM(number1, [number2], ...)',
+    scenario:'Desert Bloom Florist needs the total monthly revenue across all product lines.',
+    task:'Enter a SUM formula in cell B8 to total the revenue in B2:B7.',
+    proveTask:'In any Excel cell, type =SUM( then select a range of numbers and press Enter. SUM adds all values in the range. Example: =SUM(B2:B7) adds cells B2 through B7.',
+    hint1:'Click cell B8, which is highlighted in yellow.',
+    hint2:'In the Home tab, look in the "Editing" group for the AutoSum (Σ) button.',
+    hint3:'Click B8 → Home tab → Editing group → click the Σ AutoSum button → confirm the range → press Enter.',
+    fnTab:'Home', fnGroup:'Editing', fnName:'AutoSum', fnTarget:'autosum',
+    resources:{ai:'Show me how to use SUM in Excel 365. Explain the AutoSum button and how to write the formula manually.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+sum+function',youtube:'https://www.youtube.com/results?search_query=excel+365+SUM+function',ms:'https://support.microsoft.com/en-us/office/sum-function-043e1c7d-7726-4e80-8f32-07b23e057f89'}
+  },
+  {
+    id:'average', num:2, group:0,
+    title:'AVERAGE',
+    syntax:'=AVERAGE(number1, [number2], ...)',
+    scenario:'Desert Bloom Florist wants to know the average daily sales across the week.',
+    task:'Enter an AVERAGE formula in cell B9 to find the average of B2:B7.',
+    proveTask:'Type =AVERAGE( then select your range and press Enter. AVERAGE adds all values and divides by the count of values. Use AutoSum dropdown → Average for a quick option.',
+    hint1:'Click cell B9, which is highlighted in yellow.',
+    hint2:'In the Home tab, click the AutoSum dropdown arrow (▼ next to Σ) for more functions.',
+    hint3:'Click B9 → Home → AutoSum dropdown ▼ → Average → confirm range B2:B7 → Enter.',
+    fnTab:'Home', fnGroup:'Editing', fnName:'AutoSum ▼ → Average', fnTarget:'autosum-avg',
+    resources:{ai:'Show me how to use AVERAGE in Excel 365. What is the difference between AVERAGE and AVERAGEIF?',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+average+function',youtube:'https://www.youtube.com/results?search_query=excel+365+AVERAGE+function',ms:'https://support.microsoft.com/en-us/office/average-function-047bac88-d466-426c-a32b-8f33eb960cf6'}
+  },
+  {
+    id:'min-max', num:3, group:0,
+    title:'MIN and MAX',
+    syntax:'=MIN(range)  /  =MAX(range)',
+    scenario:'Desert Bloom Florist wants to identify the best and worst sales day of the week.',
+    task:'Enter =MIN(B2:B7) in cell B10 and =MAX(B2:B7) in cell B11.',
+    proveTask:'MIN returns the smallest value in a range. MAX returns the largest. Both work like SUM: =MIN(B2:B7) or =MAX(B2:B7). Also available in the AutoSum dropdown.',
+    hint1:'Click cell B10 for MIN. The cells are highlighted yellow.',
+    hint2:'You can use AutoSum dropdown → Min, or type =MIN( directly in the cell.',
+    hint3:'Click B10 → type =MIN(B2:B7) → Enter. Click B11 → type =MAX(B2:B7) → Enter.',
+    fnTab:'Home', fnGroup:'Editing', fnName:'AutoSum ▼ → Min/Max', fnTarget:'autosum-minmax',
+    resources:{ai:'How do I use MIN and MAX functions in Excel 365? Show me examples with a sales dataset.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+min+max+function',youtube:'https://www.youtube.com/results?search_query=excel+365+MIN+MAX+function',ms:'https://support.microsoft.com/en-us/office/min-function-61635d12-920f-4ce2-a70f-96f202dcc152'}
+  },
+  {
+    id:'count', num:4, group:0,
+    title:'COUNT and COUNTA',
+    syntax:'=COUNT(range)  /  =COUNTA(range)',
+    scenario:'Desert Bloom Florist needs to know how many days had recorded sales and how many employees submitted timesheets.',
+    task:'Enter =COUNT(B2:B7) in B12 to count numeric entries, and =COUNTA(A2:A7) in B13 to count all non-empty cells.',
+    proveTask:'COUNT counts only cells with numbers. COUNTA counts all non-empty cells (text, numbers, dates). Example: =COUNT(B2:B7) counts numeric sales entries. =COUNTA(A2:A7) counts filled name cells.',
+    hint1:'Click B12 for the COUNT formula. Yellow cells show where to type.',
+    hint2:'COUNT is in the AutoSum dropdown, or type =COUNT( directly.',
+    hint3:'Click B12 → type =COUNT(B2:B7) → Enter. Click B13 → type =COUNTA(A2:A7) → Enter.',
+    fnTab:'Formulas', fnGroup:'Function Library', fnName:'More Functions → Statistical → COUNT', fnTarget:'count-fn',
+    resources:{ai:'What is the difference between COUNT and COUNTA in Excel 365? When would I use each?',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+count+counta',youtube:'https://www.youtube.com/results?search_query=excel+365+COUNT+COUNTA+function',ms:'https://support.microsoft.com/en-us/office/count-function-a59cd7fc-b623-4d93-87a4-d23bf411294c'}
+  },
+  // ── Group 1: Conditional ──
+  {
+    id:'if-function', num:5, group:1,
+    title:'IF',
+    syntax:'=IF(logical_test, value_if_true, value_if_false)',
+    scenario:'CSN Grade Book: students who scored 70 or above pass; below 70 fail.',
+    task:'Enter an IF formula in C2 to display "Pass" if B2 >= 70, otherwise "Fail".',
+    proveTask:'The IF function tests a condition. =IF(B2>=70,"Pass","Fail") checks if B2 is 70 or more — if true, it returns "Pass"; if false, "Fail". Text values go in quotes; numbers do not.',
+    hint1:'Click cell C2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Logical group → IF.',
+    hint3:'Click C2 → type =IF(B2>=70,"Pass","Fail") → Enter. Then copy the formula down to C3:C7.',
+    fnTab:'Formulas', fnGroup:'Logical', fnName:'IF', fnTarget:'if-fn',
+    resources:{ai:'How do I use the IF function in Excel 365? Show me examples with text results and number comparisons.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+if+function',youtube:'https://www.youtube.com/results?search_query=excel+365+IF+function',ms:'https://support.microsoft.com/en-us/office/if-function-69aed7c9-4e8a-4755-a9bc-aa8bbff73be2'}
+  },
+  {
+    id:'nested-if', num:6, group:1,
+    title:'Nested IF',
+    syntax:'=IF(test1, val1, IF(test2, val2, val3))',
+    scenario:'CSN Grade Book: assign letter grades — A (90+), B (80+), C (70+), D (60+), F (below 60).',
+    task:'Enter a nested IF formula in D2 to assign the correct letter grade based on the score in B2.',
+    proveTask:'Nested IFs chain multiple conditions. =IF(B2>=90,"A",IF(B2>=80,"B",IF(B2>=70,"C",IF(B2>=60,"D","F")))) tests from highest to lowest. Excel checks each condition in order and returns the first TRUE result.',
+    hint1:'Click cell D2, which is highlighted yellow.',
+    hint2:'Start with =IF(B2>=90,"A", then add another IF for the next condition inside the first IF.',
+    hint3:'Type =IF(B2>=90,"A",IF(B2>=80,"B",IF(B2>=70,"C",IF(B2>=60,"D","F")))) in D2 → Enter.',
+    fnTab:'Formulas', fnGroup:'Logical', fnName:'IF (nested)', fnTarget:'nested-if-fn',
+    resources:{ai:'How do I write a nested IF formula in Excel 365 to assign letter grades? Show me step by step.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+nested+if',youtube:'https://www.youtube.com/results?search_query=excel+365+nested+IF+formula',ms:'https://support.microsoft.com/en-us/office/if-function-69aed7c9-4e8a-4755-a9bc-aa8bbff73be2'}
+  },
+  {
+    id:'countif', num:7, group:1,
+    title:'COUNTIF',
+    syntax:'=COUNTIF(range, criteria)',
+    scenario:'CSN Grade Book: count how many students received an "A" grade.',
+    task:'Enter a COUNTIF formula in G2 to count how many students have "A" in column D.',
+    proveTask:'COUNTIF counts cells that match a single condition. =COUNTIF(D2:D7,"A") counts cells in D2:D7 that equal "A". Criteria can be text in quotes, numbers, or comparison operators like ">90".',
+    hint1:'Click cell G2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → More Functions → Statistical → COUNTIF.',
+    hint3:'Click G2 → type =COUNTIF(D2:D7,"A") → Enter.',
+    fnTab:'Formulas', fnGroup:'Function Library', fnName:'More Functions → Statistical → COUNTIF', fnTarget:'countif-fn',
+    resources:{ai:'How do I use COUNTIF in Excel 365? Show me examples counting text values and numbers with conditions.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+countif',youtube:'https://www.youtube.com/results?search_query=excel+365+COUNTIF+function',ms:'https://support.microsoft.com/en-us/office/countif-function-e0de10c6-f885-4e71-abb4-1f464816df34'}
+  },
+  {
+    id:'sumif', num:8, group:1,
+    title:'SUMIF',
+    syntax:'=SUMIF(range, criteria, sum_range)',
+    scenario:'Cactus Kitchen needs total revenue from only the "Dinner" menu category.',
+    task:'Enter a SUMIF formula in E2 to sum column D (Revenue) only where column B equals "Dinner".',
+    proveTask:'SUMIF adds values in a sum_range when the corresponding cells in range match the criteria. =SUMIF(B2:B8,"Dinner",D2:D8) looks at column B for "Dinner" and adds the matching D values.',
+    hint1:'Click cell E2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Math & Trig → SUMIF.',
+    hint3:'Click E2 → type =SUMIF(B2:B8,"Dinner",D2:D8) → Enter.',
+    fnTab:'Formulas', fnGroup:'Math & Trig', fnName:'SUMIF', fnTarget:'sumif-fn',
+    resources:{ai:'How do I use SUMIF in Excel 365? Explain the three arguments and show a practical example.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+sumif',youtube:'https://www.youtube.com/results?search_query=excel+365+SUMIF+function',ms:'https://support.microsoft.com/en-us/office/sumif-function-169b8c99-c05c-4483-a712-1697a653039b'}
+  },
+  // ── Group 2: Text ──
+  {
+    id:'left-right-mid', num:9, group:2,
+    title:'LEFT, RIGHT, MID',
+    syntax:'=LEFT(text,n)  =RIGHT(text,n)  =MID(text,start,n)',
+    scenario:'Cactus Kitchen stores item codes like "CK-BURGER-LG". Extract the category code using LEFT.',
+    task:'Enter =LEFT(A2,2) in B2 to extract the first 2 characters of the item code.',
+    proveTask:'LEFT extracts characters from the start: =LEFT("CK-BURGER",2) returns "CK". RIGHT extracts from the end: =RIGHT("BURGER-LG",2) returns "LG". MID extracts from the middle: =MID("CK-BURGER-LG",4,6) returns "BURGER".',
+    hint1:'Click cell B2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → Text → LEFT.',
+    hint3:'Click B2 → type =LEFT(A2,2) → Enter. Try =RIGHT(A2,2) in C2 and =MID(A2,4,6) in D2.',
+    fnTab:'Formulas', fnGroup:'Text', fnName:'LEFT', fnTarget:'left-fn',
+    resources:{ai:'How do I use LEFT, RIGHT, and MID functions in Excel 365? Show examples extracting parts of text strings.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+left+right+mid+text',youtube:'https://www.youtube.com/results?search_query=excel+365+LEFT+RIGHT+MID+text+function',ms:'https://support.microsoft.com/en-us/office/left-leftb-functions-9203d2d2-7960-479b-84c6-1ea52b99640c'}
+  },
+  {
+    id:'concat', num:10, group:2,
+    title:'CONCAT / TEXTJOIN',
+    syntax:'=CONCAT(text1, text2, ...)  /  =TEXTJOIN(delim, ignore, range)',
+    scenario:'Cactus Kitchen needs to combine the first name and last name columns into one full name column.',
+    task:'Enter =CONCAT(A2," ",B2) in C2 to combine the first and last name with a space.',
+    proveTask:'CONCAT joins text together: =CONCAT(A2," ",B2) combines A2, a space, and B2. TEXTJOIN is more powerful: =TEXTJOIN(", ",TRUE,A2:A7) joins a range with a comma delimiter and skips empty cells.',
+    hint1:'Click cell C2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → Text → CONCAT.',
+    hint3:'Click C2 → type =CONCAT(A2," ",B2) → Enter. The space " " between the quotes adds a space between names.',
+    fnTab:'Formulas', fnGroup:'Text', fnName:'CONCAT', fnTarget:'concat-fn',
+    resources:{ai:'How do I use CONCAT and TEXTJOIN in Excel 365? What is the difference between them?',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+concat+textjoin',youtube:'https://www.youtube.com/results?search_query=excel+365+CONCAT+TEXTJOIN+function',ms:'https://support.microsoft.com/en-us/office/concat-function-9b1a9a3f-94ff-41af-9736-694cbd6b4ca2'}
+  },
+  // ── Group 3: Date & Time ──
+  {
+    id:'today-now', num:11, group:3,
+    title:'TODAY and NOW',
+    syntax:'=TODAY()  /  =NOW()',
+    scenario:'Desert Bloom Florist invoices need today\'s date inserted automatically.',
+    task:'Enter =TODAY() in cell B1 to display today\'s date, and =NOW() in B2 to show the current date and time.',
+    proveTask:'TODAY() returns the current date and updates every time the workbook opens. NOW() returns the current date AND time. Neither function takes arguments — just empty parentheses. Format the cells as Date or Date/Time to display correctly.',
+    hint1:'Click cell B1, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → Date & Time → TODAY.',
+    hint3:'Click B1 → type =TODAY() → Enter. Click B2 → type =NOW() → Enter.',
+    fnTab:'Formulas', fnGroup:'Date & Time', fnName:'TODAY / NOW', fnTarget:'today-fn',
+    resources:{ai:'How do I use TODAY and NOW functions in Excel 365? How do I format the result as a date?',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+today+now+date',youtube:'https://www.youtube.com/results?search_query=excel+365+TODAY+NOW+function',ms:'https://support.microsoft.com/en-us/office/today-function-5eb3078d-a82c-4736-8930-2f51a028fdd9'}
+  },
+  {
+    id:'year-month-day', num:12, group:3,
+    title:'YEAR, MONTH, DAY',
+    syntax:'=YEAR(date)  =MONTH(date)  =DAY(date)',
+    scenario:'Desert Bloom Florist needs to extract the year from hire dates to calculate years of service.',
+    task:'Enter =YEAR(B2) in C2 to extract just the year from the hire date in B2.',
+    proveTask:'YEAR, MONTH, and DAY extract parts of a date. =YEAR(B2) returns the 4-digit year. =MONTH(B2) returns the month number (1–12). =DAY(B2) returns the day number (1–31). Useful for grouping data by year or month.',
+    hint1:'Click cell C2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → Date & Time → YEAR.',
+    hint3:'Click C2 → type =YEAR(B2) → Enter. Try =MONTH(B2) in D2 and =DAY(B2) in E2.',
+    fnTab:'Formulas', fnGroup:'Date & Time', fnName:'YEAR', fnTarget:'year-fn',
+    resources:{ai:'How do I use YEAR, MONTH, and DAY functions in Excel 365? Show me how to calculate years of service.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+year+month+day+date',youtube:'https://www.youtube.com/results?search_query=excel+365+YEAR+MONTH+DAY+function',ms:'https://support.microsoft.com/en-us/office/year-function-c64f017a-1354-490d-981f-578e8ec8d3b9'}
+  },
+  // ── Group 4: Lookup ──
+  {
+    id:'vlookup', num:13, group:4,
+    title:'VLOOKUP',
+    syntax:'=VLOOKUP(lookup_value, table_array, col_index, FALSE)',
+    scenario:'Cactus Kitchen needs to look up the price of each menu item from a separate price table.',
+    task:'Enter a VLOOKUP in C2 to find the price of the item in A2 from the reference table in E:F.',
+    proveTask:'VLOOKUP looks up a value in the leftmost column of a table and returns a value from another column. =VLOOKUP(A2,$E$2:$F$6,2,FALSE) looks for A2 in column E and returns the value from column 2 (F). Always use FALSE for exact match.',
+    hint1:'Click cell C2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → Lookup & Reference → VLOOKUP.',
+    hint3:'Click C2 → type =VLOOKUP(A2,$E$2:$F$6,2,FALSE) → Enter. The $ locks the reference table so it doesn\'t shift when you copy the formula down.',
+    fnTab:'Formulas', fnGroup:'Lookup & Reference', fnName:'VLOOKUP', fnTarget:'vlookup-fn',
+    resources:{ai:'How do I use VLOOKUP in Excel 365? Explain each of the 4 arguments and when to use TRUE vs FALSE.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+vlookup',youtube:'https://www.youtube.com/results?search_query=excel+365+VLOOKUP+function+tutorial',ms:'https://support.microsoft.com/en-us/office/vlookup-function-0bbc8083-26fe-4963-8ab8-93a18ad188a1'}
+  },
+  {
+    id:'xlookup', num:14, group:4,
+    title:'XLOOKUP',
+    syntax:'=XLOOKUP(lookup_value, lookup_array, return_array)',
+    scenario:'Cactus Kitchen is modernizing its formulas. Replace the VLOOKUP with the newer XLOOKUP function.',
+    task:'Enter an XLOOKUP in D2 to find the price — search column E for A2, return from column F.',
+    proveTask:'XLOOKUP is the modern replacement for VLOOKUP. =XLOOKUP(A2,$E$2:$E$6,$F$2:$F$6) searches the lookup_array (E2:E6) for A2 and returns the matching value from return_array (F2:F6). It searches any direction and handles errors more gracefully.',
+    hint1:'Click cell D2, which is highlighted yellow.',
+    hint2:'Go to Formulas tab → Function Library → Lookup & Reference → XLOOKUP.',
+    hint3:'Click D2 → type =XLOOKUP(A2,$E$2:$E$6,$F$2:$F$6) → Enter.',
+    fnTab:'Formulas', fnGroup:'Lookup & Reference', fnName:'XLOOKUP', fnTarget:'xlookup-fn',
+    resources:{ai:'How do I use XLOOKUP in Excel 365? How is it better than VLOOKUP?',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+xlookup',youtube:'https://www.youtube.com/results?search_query=excel+365+XLOOKUP+function',ms:'https://support.microsoft.com/en-us/office/xlookup-function-b7fd680e-6d10-43e6-84f9-88eae8bf5929'}
+  },
+  {
+    id:'iferror', num:15, group:4,
+    title:'IFERROR',
+    syntax:'=IFERROR(value, value_if_error)',
+    scenario:'Cactus Kitchen\'s VLOOKUP returns #N/A for items not found in the price table. Wrap it with IFERROR.',
+    task:'Wrap the VLOOKUP in C2 with IFERROR so that if the lookup fails, it shows "Not Found" instead of #N/A.',
+    proveTask:'IFERROR catches formula errors and replaces them with a friendly message. =IFERROR(VLOOKUP(A2,$E$2:$F$6,2,FALSE),"Not Found") returns the VLOOKUP result if it works, or "Not Found" if it produces any error (#N/A, #REF!, etc.).',
+    hint1:'Click cell C2, which already has a VLOOKUP that sometimes shows #N/A.',
+    hint2:'Wrap the existing formula: type =IFERROR( at the start, then the existing formula, then ,"Not Found").',
+    hint3:'Click C2 → type =IFERROR(VLOOKUP(A2,$E$2:$F$6,2,FALSE),"Not Found") → Enter.',
+    fnTab:'Formulas', fnGroup:'Logical', fnName:'IFERROR', fnTarget:'iferror-fn',
+    resources:{ai:'How do I use IFERROR in Excel 365? Show me how to wrap it around VLOOKUP to handle #N/A errors.',linkedin:'https://www.linkedin.com/learning/search?keywords=excel+iferror',youtube:'https://www.youtube.com/results?search_query=excel+365+IFERROR+function',ms:'https://support.microsoft.com/en-us/office/iferror-function-c526fd07-caeb-47b8-8bb6-63f3e417f611'}
+  }
+];
+
+// ── State ──
+let state = { currentSkillIdx:0, completedSkills:new Set(), skillPaths:{}, hintLevel:{}, resourcesOpen:{} };
+try {
+  const s=sessionStorage.getItem('is101_e4_state');
+  if(s){const p=JSON.parse(s);state.completedSkills=new Set(p.completedSkills||[]);state.skillPaths=p.skillPaths||{};state.currentSkillIdx=p.currentSkillIdx||0;}
+} catch(e){}
+function saveState(){try{sessionStorage.setItem('is101_e4_state',JSON.stringify({completedSkills:[...state.completedSkills],skillPaths:state.skillPaths,currentSkillIdx:state.currentSkillIdx}));}catch(e){}}
+
+// ── Nav ──
+function renderNav(){
+  const wrap=document.getElementById('skillNavWrap');
+  let html='';
+  GROUPS.forEach((g,gi)=>{
+    const groupSkills=SKILLS.filter(s=>s.group===gi);
+    html+=`<div class="group-header" style="background:${g.color}">${g.label}</div>`;
+    html+=`<div class="skill-nav">`;
+    groupSkills.forEach(s=>{
+      const i=SKILLS.indexOf(s), done=state.completedSkills.has(s.id), active=i===state.currentSkillIdx;
+      html+=`<button class="skill-nav-btn ${active?'active':''} ${done?'completed':''}" onclick="goSkill(${i})">
+        <div class="skill-num">${done?'✓':s.num}</div>
+        <div class="skill-nav-label">${s.title}</div>
+        ${done?'<span class="skill-check">✓</span>':''}
+      </button>`;
+    });
+    html+=`</div>`;
+  });
+  wrap.innerHTML=html;
+  const done=state.completedSkills.size,total=SKILLS.length;
+  document.getElementById('progressLabel').textContent=`${done} of ${total} completed`;
+  document.getElementById('progressFill').style.width=`${(done/total)*100}%`;
+  if(done===total)document.getElementById('completionBanner').style.display='block';
+}
+
+function goSkill(idx){state.currentSkillIdx=idx;state.hintLevel[SKILLS[idx].id]=0;renderNav();renderSkillPanel();saveState();document.getElementById('skillPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+// ── Skill Panel ──
+function renderSkillPanel(){
+  const skill=SKILLS[state.currentSkillIdx],path=state.skillPaths[skill.id],panel=document.getElementById('skillPanel');
+  if(!path){panel.innerHTML=renderPathChooser(skill);return;}
+  if(path==='prove'){panel.innerHTML=renderProveIt(skill);return;}
+  panel.innerHTML=renderPractice(skill);
+}
+function renderPathChooser(skill){
+  return `<div class="skill-header"><div class="skill-header-left"><h2>Skill ${skill.num}: ${skill.title}</h2><p>${skill.scenario}</p></div></div>
+  <div class="syntax-box"><span class="fn">${skill.title}</span>  <span style="color:#cdd6f4;font-size:11px">${skill.syntax}</span></div>
+  <div style="padding:24px;text-align:center">
+    <p style="font-size:15px;color:var(--text-mid);margin-bottom:24px;max-width:520px;margin-left:auto;margin-right:auto">Choose your path for <strong>${skill.title}</strong>.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button onclick="choosePath('${skill.id}','prove')" style="background:#fff;border:2px solid var(--xl-green);color:var(--xl-green-dark);padding:16px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;min-width:200px">✋ I already know this<br><span style="font-size:12px;font-weight:400;opacity:.7">→ Go to challenge</span></button>
+      <button onclick="choosePath('${skill.id}','practice')" style="background:var(--xl-green);border:2px solid var(--xl-green);color:#fff;padding:16px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;min-width:200px">📖 I need to learn this<br><span style="font-size:12px;font-weight:400;opacity:.8">→ Practice with help</span></button>
+    </div>
+  </div>`;
+}
+function choosePath(skillId,path){state.skillPaths[skillId]=path;state.hintLevel[skillId]=0;saveState();renderSkillPanel();}
+function renderProveIt(skill){
+  const done=state.completedSkills.has(skill.id);
+  return `<div class="skill-header"><div class="skill-header-left"><h2>Skill ${skill.num}: ${skill.title}</h2><p>Prove It — Write this formula in your own Excel</p></div>
+  <div class="path-chooser"><button class="path-btn path-selected">✋ Prove It</button><button class="path-btn" onclick="choosePath('${skill.id}','practice')">📖 Practice Instead</button></div></div>
+  <div class="syntax-box"><span class="fn">${skill.title}</span>  <span style="color:#cdd6f4;font-size:11px">${skill.syntax}</span></div>
+  <div class="prove-it-view">
+    <h3>Your Challenge</h3><p>Open Excel 365 and write this formula from memory.</p>
+    <div class="prove-task-box"><div class="task-label">Task</div><p>${skill.proveTask}</p></div>
+    <div style="background:#f8f9fa;border:1px solid var(--xl-border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">💡 Resources</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <a href="${skill.resources.ms}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">📄 Microsoft Support</a>
+        <a href="${skill.resources.youtube}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">▶️ YouTube</a>
+        <a href="${skill.resources.linkedin}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">🎓 LinkedIn Learning</a>
+      </div>
+    </div>
+    ${done?`<div class="feedback-box correct" style="margin-bottom:16px"><div class="feedback-icon">✅</div><div class="feedback-text"><strong>Skill Complete!</strong><p>Already done.</p></div></div>`:''}
+    <div class="prove-submit-area">
+      <button class="btn-prove primary" onclick="markProveItDone('${skill.id}')">${done?'✓ Already Complete':'✅ Mark Complete'}</button>
+      <button class="btn-prove" style="background:#f2f2f2;border:1px solid var(--xl-border);color:var(--text-mid)" onclick="choosePath('${skill.id}','practice')">Switch to Practice Mode</button>
+    </div>
+  </div>${renderNavRow()}`;
+}
+function markProveItDone(skillId){state.completedSkills.add(skillId);saveState();renderNav();renderSkillPanel();const idx=SKILLS.findIndex(s=>s.id===skillId);if(idx<SKILLS.length-1)setTimeout(()=>goSkill(idx+1),800);}
+
+function renderPractice(skill){
+  const done=state.completedSkills.has(skill.id),hl=state.hintLevel[skill.id]||0,resOpen=state.resourcesOpen[skill.id];
+  return `<div class="skill-header"><div class="skill-header-left"><h2>Skill ${skill.num}: ${skill.title}</h2><p>${skill.scenario}</p></div>
+  <div class="path-chooser"><button class="path-btn" onclick="choosePath('${skill.id}','prove')">✋ Prove It Instead</button><button class="path-btn path-selected">📖 Practice</button></div></div>
+  <div class="syntax-box"><span class="fn">${skill.title.split(' ')[0]}</span>  <span style="color:#89dceb;font-size:11px">${skill.syntax}</span></div>
+  <div class="task-bar"><div class="task-description"><div class="task-label">Your Task</div><p>${skill.task}</p></div>
+  <div class="task-actions"><button class="btn-hint" onclick="showHint('${skill.id}')">💡 Hint (${hl}/3)</button><button class="btn-resources" onclick="toggleResources('${skill.id}')">📚 Resources</button></div></div>
+  <div class="hint-box ${hl>0?'visible':''}" id="hintBox_${skill.id}">${hl>0?`<strong>Hint ${hl}:</strong> ${hl===1?skill.hint1:hl===2?skill.hint2:skill.hint3}`:''}</div>
+  <div class="practice-body">
+    <div class="sim-area">${renderSim(skill)}${done?`<div class="feedback-area"><div class="feedback-box correct"><div class="feedback-icon">✅</div><div class="feedback-text"><strong>Correct! Skill Complete.</strong><p>${getFeedback(skill.id)}</p></div></div></div>`:`<div class="feedback-area" id="feedbackArea_${skill.id}"></div>`}</div>
+    <div class="resources-panel ${resOpen?'open':''}" id="resPanel_${skill.id}">
+      <div class="resources-inner"><h4>📚 Resources</h4>
+        <div class="resource-item"><div class="ri-type">🤖 AI Prompt</div><div class="ri-title">Ask ChatGPT / Copilot</div><div class="ai-prompt">${skill.resources.ai}</div><span class="ri-link" onclick="copyPrompt('${skill.id}')">📋 Copy prompt</span></div>
+        <div class="resource-item"><div class="ri-type">🎓 LinkedIn Learning</div><div class="ri-title">Video Tutorial</div><div class="ri-desc">Free with Clark County Library card — lvccld.org</div><a href="${skill.resources.linkedin}" target="_blank" class="ri-link">Open LinkedIn Learning ↗</a></div>
+        <div class="resource-item"><div class="ri-type">▶️ YouTube</div><a href="${skill.resources.youtube}" target="_blank" class="ri-link">Search YouTube ↗</a></div>
+        <div class="resource-item"><div class="ri-type">📄 Microsoft</div><a href="${skill.resources.ms}" target="_blank" class="ri-link">Open Microsoft Support ↗</a></div>
+      </div>
+    </div>
+  </div>${renderNavRow()}`;
+}
+
+const feedbackMap={
+  'sum':'AutoSum detects the range automatically — always verify it selected the right cells before pressing Enter.',
+  'average':'AVERAGE ignores empty cells but includes cells with 0. Use AVERAGEIF to average only cells meeting a condition.',
+  'min-max':'MIN and MAX work on both ranges and individual values: =MAX(A1,B1,C1) compares three specific cells.',
+  'count':'COUNT only counts numbers. COUNTA counts everything non-empty. COUNTBLANK counts empty cells.',
+  'if-function':'IF can return text, numbers, or even another formula. Always test your condition with a sample value first.',
+  'nested-if':'IFS function (Excel 365) is a cleaner alternative: =IFS(B2>=90,"A",B2>=80,"B",B2>=70,"C",TRUE,"F").',
+  'countif':'COUNTIFS (plural) counts with multiple conditions: =COUNTIFS(D2:D7,"A",B2:B7,"Female").',
+  'sumif':'SUMIFS (plural) sums with multiple conditions. The sum_range always comes first in SUMIFS.',
+  'left-right-mid':'FIND and LEN functions help when the extraction point varies: =LEFT(A2,FIND("-",A2)-1).',
+  'concat':'The & operator also concatenates: =A2&" "&B2 works the same as =CONCAT(A2," ",B2).',
+  'today-now':'TODAY and NOW are volatile — they recalculate every time the workbook recalculates.',
+  'year-month-day':'Subtract dates to get days between them: =TODAY()-B2 shows days since the hire date.',
+  'vlookup':'Always use FALSE (exact match) for data lookups. TRUE (approximate match) is only for sorted ranges.',
+  'xlookup':'XLOOKUP can search right-to-left and return entire rows/columns, unlike VLOOKUP.',
+  'iferror':'IFERROR catches ALL errors. Use IFNA to catch only #N/A errors from lookups.'
+};
+function getFeedback(id){return feedbackMap[id]||'';}
+
+// ── Sim Grid Builder ──
+function mkCell(txt,cls=''){return `<td class="xl-cell ${cls}">${txt}</td>`;}
+function mkHdr(txt){return `<td class="xl-cell hdr bold">${txt}</td>`;}
+function mkHL(txt){return `<td class="xl-cell hl">${txt}</td>`;}
+function mkAfter(txt){return `<td class="xl-cell after">${txt}</td>`;}
+function row(rn,cells){return `<tr><td class="xl-row-hdr">${rn}</td>${cells}</tr>`;}
+function colHdrs(...cols){return `<tr><th class="xl-col-hdr sa"></th>${cols.map(c=>`<th class="xl-col-hdr">${c}</th>`).join('')}</tr>`;}
+
+// ── Sims ──
+function renderSim(skill){
+  const sims={
+    'sum':simSUM,'average':simAVERAGE,'min-max':simMINMAX,'count':simCOUNT,
+    'if-function':simIF,'nested-if':simNestedIF,'countif':simCOUNTIF,'sumif':simSUMIF,
+    'left-right-mid':simLEFT,'concat':simCONCAT,
+    'today-now':simTODAY,'year-month-day':simYEAR,
+    'vlookup':simVLOOKUP,'xlookup':simXLOOKUP,'iferror':simIFERROR
+  };
+  return (sims[skill.id]||simSUM)(skill);
+}
+
+function wrongBtn(id){const fb=document.getElementById(`feedbackArea_${id}`);if(fb)fb.innerHTML=`<div class="feedback-box incorrect"><div class="feedback-icon">❌</div><div class="feedback-text"><strong>Not quite.</strong><p>That's not the right function. Check the task or use a hint.</p></div></div>`;}
+
+function ribbonShell(skillId,activeTab,groups,formulaCell,formulaVal,gridHtml,overlay='',sheets=['Sheet1']){
+  const TABS=['File','Home','Insert','Page Layout','Formulas','Data','Review','View'];
+  const tabHtml=TABS.map(t=>`<div class="xl-tab ${t===activeTab?'active':''}">${t}</div>`).join('');
+  const sheetHtml=sheets.map((s,i)=>`<div class="xl-sheettab ${i===0?'active':''}">${s}</div>`).join('')+`<span class="xl-new-tab">⊕</span>`;
+  const groupHtml=groups.map(g=>`<div class="xl-group"><div class="xl-group-btns">${g.btns}</div><div class="xl-group-label">${g.label}</div></div>`).join('');
+  return `<div class="excel-sim" id="sim_${skillId}">
+  <div class="xl-titlebar"><span style="font-weight:600">${sheets[0]}</span><span class="xl-titlebar-app">Microsoft Excel</span></div>
+  <div class="xl-ribbon"><div class="xl-tabs">${tabHtml}</div><div class="xl-ribbon-content">${groupHtml}</div></div>
+  <div class="xl-formulabar"><input class="xl-namebox" value="${formulaCell}" readonly><span class="xl-fx-label">fx</span><input class="xl-formulainput" value="${formulaVal}" readonly id="fbar_${skillId}"></div>
+  ${gridHtml}
+  <div class="xl-sheettabs">${sheetHtml}</div>
+  <div class="xl-statusbar"><span>Ready</span><span>100%</span></div>
+  ${overlay}
+</div>`;
+}
+
+function fnPickerOverlay(skillId,functions,targetFn){
+  return `<div id="fnPicker_${skillId}" class="fn-dropdown" style="display:none;position:absolute;top:90px;left:80px">
+    ${functions.map(f=>`<div class="fn-item ${f===targetFn?'btn-target':''}" onclick="${f===targetFn?`markComplete('${skillId}')`:`wrongBtn('${skillId}')`}">${f}</div>`).join('')}
+  </div>`;
+}
+
+// ── 1. SUM ──
+function simSUM(skill){
+  const done=state.completedSkills.has(skill.id);
+  const data=[['Rose Bouquet','$1,250'],['Tropical Arrangement','$980'],['Wedding Package','$3,400'],['Succulent Gift Box','$620'],['Corporate Weekly','$2,100'],['Holiday Special','$1,800']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B')}</thead><tbody>`;
+  g+=row(1,mkHdr('Product')+mkHdr('Revenue'));
+  data.forEach((d,i)=>g+=row(i+2,mkCell(d[0])+mkCell(d[1],'right')));
+  g+=row(8,mkCell('TOTAL','bold')+(done?mkAfter('$10,150'):mkHL('')));
+  g+=`</tbody></table></div>`;
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="markComplete('sum')"><span class="xl-btn-icon">Σ</span><span class="xl-btn-label">AutoSum</span></button>`;
+  return ribbonShell(skill.id,'Home',[{btns:btn,label:'Editing'}],'B8',done?'=SUM(B2:B7)':'',g,'',['DesertBloom_Revenue.xlsx']);
+}
+
+// ── 2. AVERAGE ──
+function simAVERAGE(skill){
+  const done=state.completedSkills.has(skill.id);
+  const sales=['$1,250','$980','$3,400','$620','$2,100','$1,800'];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B')}</thead><tbody>`;
+  g+=row(1,mkHdr('Day')+mkHdr('Sales'));
+  ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].forEach((d,i)=>g+=row(i+2,mkCell(d)+mkCell(sales[i],'right')));
+  g+=row(8,mkCell('Total','bold')+mkCell('$10,150','right bold'));
+  g+=row(9,mkCell('Average','bold')+(done?mkAfter('$1,692'):mkHL('')));
+  g+=`</tbody></table></div>`;
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="markComplete('average')"><span class="xl-btn-icon">Σ▼</span><span class="xl-btn-label">AutoSum▼</span></button>`;
+  return ribbonShell(skill.id,'Home',[{btns:btn,label:'Editing'}],'B9',done?'=AVERAGE(B2:B7)':'',g,'',['DesertBloom_Sales.xlsx']);
+}
+
+// ── 3. MIN MAX ──
+function simMINMAX(skill){
+  const done=state.completedSkills.has(skill.id);
+  const sales=['$1,250','$980','$3,400','$620','$2,100','$1,800'];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B')}</thead><tbody>`;
+  g+=row(1,mkHdr('Day')+mkHdr('Sales'));
+  ['Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d,i)=>g+=row(i+2,mkCell(d)+mkCell(sales[i],'right')));
+  g+=row(8,mkCell('Total','bold')+mkCell('$10,150','right bold'));
+  g+=row(9,mkCell('Average','bold')+mkCell('$1,692','right bold'));
+  g+=row(10,mkCell('Lowest Day','bold')+(done?mkAfter('$620'):mkHL('')));
+  g+=row(11,mkCell('Best Day','bold')+(done?mkAfter('$3,400'):mkHL('')));
+  g+=`</tbody></table></div>`;
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="markComplete('min-max')"><span class="xl-btn-icon">Σ▼</span><span class="xl-btn-label">Min/Max</span></button>`;
+  return ribbonShell(skill.id,'Home',[{btns:btn,label:'Editing'}],'B10:B11',done?'=MIN(B2:B7)':'',g,'',['DesertBloom_Sales.xlsx']);
+}
+
+// ── 4. COUNT ──
+function simCOUNT(skill){
+  const done=state.completedSkills.has(skill.id);
+  const data=[['Maria Santos','$1,250'],['James Okafor','$980'],['',''],['Carlos Reyes','$3,400'],['Emily Chen','$620'],['Linda Park','$2,100']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B')}</thead><tbody>`;
+  g+=row(1,mkHdr('Employee')+mkHdr('Sales'));
+  data.forEach((d,i)=>g+=row(i+2,mkCell(d[0])+mkCell(d[1],'right')));
+  g+=row(8,'');
+  g+=row(9,mkCell('Days with sales (COUNT B)','bold')+(done?mkAfter('5'):mkHL('')));
+  g+=row(10,mkCell('Employees listed (COUNTA A)','bold')+(done?mkAfter('5'):mkHL('')));
+  g+=`</tbody></table></div>`;
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="markComplete('count')"><span class="xl-btn-icon">Σ▼</span><span class="xl-btn-label">Count</span></button>`;
+  return ribbonShell(skill.id,'Home',[{btns:btn,label:'Editing'}],'B9',done?'=COUNT(B2:B7)':'',g,'',['DesertBloom_Staff.xlsx']);
+}
+
+// ── 5. IF ──
+function simIF(skill){
+  const done=state.completedSkills.has(skill.id);
+  const scores=[['Alex Rivera',85],['Priya Patel',62],['Marcus Johnson',91],['Sofia Nguyen',74],['Tyler Brooks',58],['Aisha Okafor',88]];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C')}</thead><tbody>`;
+  g+=row(1,mkHdr('Student')+mkHdr('Score')+mkHdr('Result'));
+  scores.forEach((s,i)=>g+=row(i+2,mkCell(s[0])+mkCell(s[1].toString(),'center')+(done?mkAfter(s[1]>=70?'Pass':'Fail'):mkHL(''))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['AND','FALSE','IF','IFS','IFERROR','NOT','OR','TRUE'],'IF');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('if-function')"><span class="xl-btn-icon">⚡</span><span class="xl-btn-label">Logical</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Logical'}],'C2',done?'=IF(B2>=70,"Pass","Fail")':'',g,picker,['CSN_GradeBook.xlsx']);
+}
+function showFnPicker(id){const p=document.getElementById(`fnPicker_${id}`);if(p)p.style.display=p.style.display==='none'?'block':'none';}
+
+// ── 6. Nested IF ──
+function simNestedIF(skill){
+  const done=state.completedSkills.has(skill.id);
+  const scores=[['Alex Rivera',85],['Priya Patel',62],['Marcus Johnson',91],['Sofia Nguyen',74],['Tyler Brooks',58],['Aisha Okafor',88]];
+  function grade(n){return n>=90?'A':n>=80?'B':n>=70?'C':n>=60?'D':'F';}
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','D')}</thead><tbody>`;
+  g+=row(1,mkHdr('Student')+mkHdr('Score')+mkHdr('Pass/Fail')+mkHdr('Grade'));
+  scores.forEach((s,i)=>g+=row(i+2,mkCell(s[0])+mkCell(s[1].toString(),'center')+mkCell(s[1]>=70?'Pass':'Fail','center')+(done?mkAfter(grade(s[1])):mkHL(''))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['AND','FALSE','IF','IFS','NOT','OR'],'IF');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('nested-if')"><span class="xl-btn-icon">⚡</span><span class="xl-btn-label">Logical</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Logical'}],'D2',done?'=IF(B2>=90,"A",IF(B2>=80,"B",IF(B2>=70,"C",IF(B2>=60,"D","F"))))':'',g,picker,['CSN_GradeBook.xlsx']);
+}
+
+// ── 7. COUNTIF ──
+function simCOUNTIF(skill){
+  const done=state.completedSkills.has(skill.id);
+  const data=[['Alex Rivera',85,'B'],['Priya Patel',62,'D'],['Marcus Johnson',91,'A'],['Sofia Nguyen',74,'C'],['Tyler Brooks',58,'F'],['Aisha Okafor',88,'B']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','D','E','F','G')}</thead><tbody>`;
+  g+=row(1,mkHdr('Student')+mkHdr('Score')+mkHdr('Grade')+mkCell('')+mkHdr('Grade')+mkHdr('Count')+mkHdr('COUNTIF Result'));
+  data.forEach((s,i)=>g+=row(i+2,mkCell(s[0])+mkCell(s[1].toString(),'center')+mkCell(s[2],'center')+mkCell('')+mkCell(['A','B','C','D','F'][i]||'','center')+mkCell(['1','2','1','1','1'][i]||'','center right')+(done&&i===0?mkAfter('1'):(i===0?mkHL(''):mkCell('')))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['AVERAGE','COUNT','COUNTA','COUNTBLANK','COUNTIF','COUNTIFS','MAX','MIN'],'COUNTIF');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('countif')"><span class="xl-btn-icon">📊</span><span class="xl-btn-label">More Fns</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Function Library'}],'G2',done?'=COUNTIF(C2:C7,"A")':'',g,picker,['CSN_GradeBook.xlsx']);
+}
+
+// ── 8. SUMIF ──
+function simSUMIF(skill){
+  const done=state.completedSkills.has(skill.id);
+  const data=[['Breakfast','Huevos Rancheros','$9.99','$2,450'],['Lunch','Green Chile Burger','$14.99','$3,800'],['Dinner','Carne Asada Plate','$22.99','$6,200'],['Dinner','Mole Chicken','$19.99','$4,100'],['Breakfast','Chilaquiles','$11.99','$1,900'],['Lunch','Fish Tacos','$13.99','$2,900'],['Dinner','Tamale Platter','$18.99','$5,500']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','D','E')}</thead><tbody>`;
+  g+=row(1,mkHdr('Category')+mkHdr('Item')+mkHdr('Price')+mkHdr('Revenue')+mkHdr('Dinner Total'));
+  data.forEach((d,i)=>g+=row(i+2,mkCell(d[0])+mkCell(d[1])+mkCell(d[2],'right')+mkCell(d[3],'right')+(i===0?(done?mkAfter('$15,800'):mkHL('')):mkCell(''))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['SUM','SUMIF','SUMIFS','SUMPRODUCT'],'SUMIF');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('sumif')"><span class="xl-btn-icon">∑±</span><span class="xl-btn-label">Math & Trig</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Math & Trig'}],'E2',done?'=SUMIF(A2:A8,"Dinner",D2:D8)':'',g,picker,['CactusKitchen_Sales.xlsx']);
+}
+
+// ── 9. LEFT RIGHT MID ──
+function simLEFT(skill){
+  const done=state.completedSkills.has(skill.id);
+  const items=['CK-BURGER-LG','CK-TACOS-SM','CK-STEAK-XL','CK-SALAD-MD','CK-PIZZA-LG'];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','D')}</thead><tbody>`;
+  g+=row(1,mkHdr('Item Code')+mkHdr('LEFT(2)')+mkHdr('RIGHT(2)')+mkHdr('MID(4,6)'));
+  items.forEach((item,i)=>g+=row(i+2,mkCell(item,'mono')+(done?mkAfter('CK'):mkHL(''))+(done?mkAfter(item.slice(-2)):mkCell(''))+(done?mkAfter(item.substring(3,9)):mkCell(''))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['CONCAT','FIND','LEFT','LEN','LOWER','MID','RIGHT','TEXT','TRIM','UPPER'],'LEFT');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('left-right-mid')"><span class="xl-btn-icon">🔤</span><span class="xl-btn-label">Text</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Text'}],'B2',done?'=LEFT(A2,2)':'',g,picker,['CactusKitchen_Items.xlsx']);
+}
+
+// ── 10. CONCAT ──
+function simCONCAT(skill){
+  const done=state.completedSkills.has(skill.id);
+  const names=[['Maria','Santos'],['James','Okafor'],['Linda','Park'],['Carlos','Reyes'],['Emily','Chen']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C')}</thead><tbody>`;
+  g+=row(1,mkHdr('First Name')+mkHdr('Last Name')+mkHdr('Full Name'));
+  names.forEach((n,i)=>g+=row(i+2,mkCell(n[0])+mkCell(n[1])+(done?mkAfter(n[0]+' '+n[1]):mkHL(''))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['CONCAT','FIND','LEFT','LEN','LOWER','MID','RIGHT','TEXTJOIN','TRIM','UPPER'],'CONCAT');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('concat')"><span class="xl-btn-icon">🔤</span><span class="xl-btn-label">Text</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Text'}],'C2',done?'=CONCAT(A2," ",B2)':'',g,picker,['CactusKitchen_Staff.xlsx']);
+}
+
+// ── 11. TODAY NOW ──
+function simTODAY(skill){
+  const done=state.completedSkills.has(skill.id);
+  const today=new Date();
+  const todayStr=`${today.getMonth()+1}/${today.getDate()}/${today.getFullYear()}`;
+  const nowStr=todayStr+' '+today.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B')}</thead><tbody>`;
+  g+=row(1,mkHdr('Description')+mkHdr('Value'));
+  g+=row(2,mkCell('Invoice Date'    )+(done?mkAfter(todayStr)     :mkHL('')));
+  g+=row(3,mkCell('Printed At'      )+(done?mkAfter(nowStr)       :mkHL('')));
+  g+=row(4,mkCell('Order #'         )+mkCell('DBF-2026-447'       ));
+  g+=row(5,mkCell('Customer'        )+mkCell('Las Vegas Wedding Co.'));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['DATE','DAY','MONTH','NOW','TIME','TODAY','WEEKDAY','YEAR'],'TODAY');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('today-now')"><span class="xl-btn-icon">📅</span><span class="xl-btn-label">Date & Time</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Date & Time'}],'B2',done?'=TODAY()':'',g,picker,['DesertBloom_Invoice.xlsx']);
+}
+
+// ── 12. YEAR MONTH DAY ──
+function simYEAR(skill){
+  const done=state.completedSkills.has(skill.id);
+  const data=[['Maria Santos','3/15/2019',2019,3,15],['James Okafor','7/22/2020',2020,7,22],['Linda Park','1/10/2021',2021,1,10],['Carlos Reyes','9/5/2018',2018,9,5],['Emily Chen','5/30/2022',2022,5,30]];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','D','E')}</thead><tbody>`;
+  g+=row(1,mkHdr('Employee')+mkHdr('Hire Date')+mkHdr('YEAR')+mkHdr('MONTH')+mkHdr('DAY'));
+  data.forEach((d,i)=>g+=row(i+2,mkCell(d[0])+mkCell(d[1])+(done?mkAfter(d[2].toString()):mkHL(''))+(done?mkAfter(d[3].toString()):mkCell(''))+(done?mkAfter(d[4].toString()):mkCell(''))));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['DATE','DAY','MONTH','NOW','TODAY','WEEKDAY','YEAR'],'YEAR');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('year-month-day')"><span class="xl-btn-icon">📅</span><span class="xl-btn-label">Date & Time</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Date & Time'}],'C2',done?'=YEAR(B2)':'',g,picker,['DesertBloom_Staff.xlsx']);
+}
+
+// ── 13. VLOOKUP ──
+function simVLOOKUP(skill){
+  const done=state.completedSkills.has(skill.id);
+  const orders=[['Burger','',''],['Tacos','',''],['Steak','',''],['Salad','',''],['Pasta','','']];
+  const ref=[['Burger','$14.99'],['Tacos','$12.99'],['Steak','$28.99'],['Salad','$10.99'],['Pasta','$16.99']];
+  const prices=['$14.99','$12.99','$28.99','$10.99','#N/A'];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','','E','F')}</thead><tbody>`;
+  g+=row(1,mkHdr('Item')+mkHdr('Qty')+mkHdr('Price')+mkCell('')+mkHdr('Price Table')+mkHdr('Price'));
+  orders.forEach((o,i)=>g+=row(i+2,mkCell(o[0])+mkCell(['3','5','2','4','1'][i],'center')+(done?mkAfter(prices[i]):mkHL(''))+mkCell('')+mkCell(ref[i][0],'ref-hdr')+mkCell(ref[i][1],'ref-row right')));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['CHOOSE','HLOOKUP','INDEX','MATCH','VLOOKUP','XLOOKUP'],'VLOOKUP');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('vlookup')"><span class="xl-btn-icon">🔍</span><span class="xl-btn-label">Lookup & Ref</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Lookup & Reference'}],'C2',done?'=VLOOKUP(A2,$E$2:$F$6,2,FALSE)':'',g,picker,['CactusKitchen_Orders.xlsx']);
+}
+
+// ── 14. XLOOKUP ──
+function simXLOOKUP(skill){
+  const done=state.completedSkills.has(skill.id);
+  const prices=['$14.99','$12.99','$28.99','$10.99','Not Found'];
+  const orders=[['Burger'],['Tacos'],['Steak'],['Salad'],['Pasta']];
+  const ref=[['Burger','$14.99'],['Tacos','$12.99'],['Steak','$28.99'],['Salad','$10.99'],['Risotto','$21.99']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','D','','F','G')}</thead><tbody>`;
+  g+=row(1,mkHdr('Item')+mkHdr('Qty')+mkHdr('VLOOKUP')+mkHdr('XLOOKUP')+mkCell('')+mkHdr('Menu')+mkHdr('Price'));
+  orders.forEach((o,i)=>g+=row(i+2,mkCell(o[0])+mkCell(['3','5','2','4','1'][i],'center')+mkCell(prices[i],'right')+(done?mkAfter(prices[i]):mkHL(''))+mkCell('')+mkCell(ref[i][0],'ref-hdr')+mkCell(ref[i][1],'ref-row right')));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['CHOOSE','HLOOKUP','INDEX','MATCH','VLOOKUP','XLOOKUP'],'XLOOKUP');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('xlookup')"><span class="xl-btn-icon">🔍</span><span class="xl-btn-label">Lookup & Ref</span></button>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Lookup & Reference'}],'D2',done?'=XLOOKUP(A2,$F$2:$F$6,$G$2:$G$6)':'',g,picker,['CactusKitchen_Orders.xlsx']);
+}
+
+// ── 15. IFERROR ──
+function simIFERROR(skill){
+  const done=state.completedSkills.has(skill.id);
+  const orders=[['Burger'],['Tacos'],['Steak'],['Salad'],['Pasta']];
+  const rawResult=['$14.99','$12.99','$28.99','$10.99','#N/A'];
+  const cleanResult=['$14.99','$12.99','$28.99','$10.99','Not Found'];
+  const ref=[['Burger','$14.99'],['Tacos','$12.99'],['Steak','$28.99'],['Salad','$10.99'],['Risotto','$21.99']];
+  let g=`<div class="xl-grid-wrap"><table class="xl-grid"><thead>${colHdrs('A','B','C','','E','F')}</thead><tbody>`;
+  g+=row(1,mkHdr('Item')+mkHdr('Qty')+mkHdr('Price (with IFERROR)')+mkCell('')+mkHdr('Menu')+mkHdr('Price'));
+  orders.forEach((o,i)=>g+=row(i+2,mkCell(o[0])+mkCell(['3','5','2','4','1'][i],'center')+(done?mkAfter(cleanResult[i]):i===4?mkCell('#N/A','mono' +(i===4?' cf-red':'')):mkCell(rawResult[i],'right'))+mkCell('')+mkCell(ref[i][0],'ref-hdr')+mkCell(ref[i][1],'ref-row right')));
+  g+=`</tbody></table></div>`;
+  const picker=fnPickerOverlay(skill.id,['AND','FALSE','IF','IFERROR','IFNA','IFS','NOT','OR'],'IFERROR');
+  const btn=`<button class="xl-btn ${!done?'btn-target':'btn-clicked'}" onclick="showFnPicker('iferror')"><span class="xl-btn-icon">⚡</span><span class="xl-btn-label">Logical</span></button>`;
+  const hint2=`<div style="padding:6px 12px;background:#fff3e0;border-top:1px solid #ffcc80;font-size:11px;color:#7a4000">⚠️ Row 6 shows #N/A — "Pasta" is not in the price table. IFERROR will replace that with "Not Found".</div>`;
+  return ribbonShell(skill.id,'Formulas',[{btns:btn,label:'Logical'}],'C2',done?'=IFERROR(VLOOKUP(A2,$E$2:$F$6,2,FALSE),"Not Found")':'',g,picker+(!done?hint2:''),['CactusKitchen_Orders.xlsx']);
+}
+
+// ── cf-red style needed ──
+const st=document.createElement('style');
+st.textContent='.cf-red{background:#ffcccc;border-color:#d93025;}';
+document.head.appendChild(st);
+
+// ── Core ──
+function markComplete(skillId){
+  state.completedSkills.add(skillId);saveState();renderNav();renderSkillPanel();
+  if(window.api&&window.api.saveLabAnswer)window.api.saveLabAnswer('e4_'+skillId,'completed',true).catch(()=>{});
+  const idx=SKILLS.findIndex(s=>s.id===skillId);
+  if(idx<SKILLS.length-1)setTimeout(()=>goSkill(idx+1),1200);
+}
+function showHint(skillId){
+  const skill=SKILLS.find(s=>s.id===skillId);if(!skill)return;
+  const hl=state.hintLevel[skillId]||0;if(hl>=3)return;
+  state.hintLevel[skillId]=hl+1;const newHl=state.hintLevel[skillId];
+  const box=document.getElementById(`hintBox_${skillId}`);
+  if(box){box.innerHTML=`<strong>Hint ${newHl}:</strong> ${newHl===1?skill.hint1:newHl===2?skill.hint2:skill.hint3}`;box.classList.add('visible');}
+  document.querySelectorAll('.btn-hint').forEach(b=>{if(b.closest('#skillPanel'))b.textContent=`💡 Hint (${newHl}/3)`;});
+}
+function toggleResources(skillId){
+  state.resourcesOpen[skillId]=!state.resourcesOpen[skillId];
+  const p=document.getElementById(`resPanel_${skillId}`);
+  if(p)p.classList.toggle('open',state.resourcesOpen[skillId]);
+}
+function copyPrompt(skillId){
+  const skill=SKILLS.find(s=>s.id===skillId);if(!skill)return;
+  navigator.clipboard.writeText(skill.resources.ai).then(()=>alert('Prompt copied!')).catch(()=>prompt('Copy:',skill.resources.ai));
+}
+function renderNavRow(){
+  const idx=state.currentSkillIdx,skill=SKILLS[idx],done=state.completedSkills.has(skill.id);
+  return `<div class="skill-nav-row">
+    <button class="btn-nav secondary" onclick="goSkill(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+    <span class="skill-status-text">${done?'✅ Complete':'Skill '+skill.num+' of '+SKILLS.length}</span>
+    <button class="btn-nav primary" onclick="goSkill(${idx+1})" ${idx===SKILLS.length-1?'disabled':''}>Next →</button>
+  </div>`;
+}
+
+renderNav();
+renderSkillPanel();
+</script>
+</body>
+</html>

@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Excel E2: Manage Data Cells and Ranges</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --xl-green: #217346; --xl-green-dark: #185a35; --xl-green-light: #e9f5ee;
+    --xl-border: #d0d0d0; --xl-cell-hl: #fff2cc; --xl-cell-hl-bd: #e6b800;
+    --xl-row-hdr: #f2f2f2; --xl-col-hdr: #f2f2f2; --xl-grid-bd: #d9d9d9;
+    --text-dark: #1a1a1a; --text-mid: #444; --text-light: #767676;
+    --hint-bg: #fff8e1; --hint-bd: #f0c040;
+    --pass-bg: #e6f4ea; --pass-bd: #34a853;
+    --fail-bg: #fce8e6; --fail-bd: #d93025;
+    --panel-bg: #f8f9fa; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f0f0; color: var(--text-dark); min-height: 100vh; }
+
+  .topbar { background: var(--xl-green); color: #fff; padding: 0 20px; height: 44px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-title { font-size: 14px; font-weight: 600; }
+  .topbar-subtitle { font-size: 12px; opacity: .8; }
+  .btn-back { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .btn-back:hover { background: rgba(255,255,255,.28); }
+
+  .page-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  .domain-header { background: #fff; border-radius: var(--radius); padding: 18px 24px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .domain-badge { background: var(--xl-green); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: .5px; text-transform: uppercase; }
+  .domain-title { font-size: 20px; font-weight: 700; color: var(--xl-green-dark); margin: 4px 0; }
+  .domain-meta { font-size: 13px; color: var(--text-light); }
+  .domain-progress-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 160px; }
+  .progress-label { font-size: 12px; color: var(--text-light); }
+  .progress-track { width: 160px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--xl-green); border-radius: 4px; transition: width .4s ease; }
+
+  .skill-nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .skill-nav-btn { background: #fff; border: 2px solid var(--xl-border); border-radius: var(--radius); padding: 10px 14px; cursor: pointer; text-align: left; transition: all .15s; display: flex; align-items: center; gap: 10px; }
+  .skill-nav-btn:hover { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .skill-nav-btn.active { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .skill-nav-btn.completed { border-color: var(--pass-bd); background: var(--pass-bg); }
+  .skill-num { width: 26px; height: 26px; background: var(--xl-green); color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .skill-nav-btn.completed .skill-num { background: var(--pass-bd); }
+  .skill-nav-label { font-size: 12px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+  .skill-check { margin-left: auto; color: var(--pass-bd); font-size: 14px; }
+
+  .skill-panel { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+
+  .skill-header { background: var(--xl-green); color: #fff; padding: 16px 24px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .skill-header-left h2 { font-size: 17px; font-weight: 700; }
+  .skill-header-left p { font-size: 13px; opacity: .85; margin-top: 3px; }
+  .path-chooser { display: flex; gap: 8px; flex-wrap: wrap; }
+  .path-btn { background: rgba(255,255,255,.18); border: 1.5px solid rgba(255,255,255,.45); color: #fff; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .path-btn:hover { background: rgba(255,255,255,.3); }
+  .path-btn.path-selected { background: #fff; color: var(--xl-green); border-color: #fff; }
+
+  .prove-it-view { padding: 24px; }
+  .prove-it-view h3 { font-size: 16px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 6px; }
+  .prove-it-view p { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; line-height: 1.6; }
+  .prove-task-box { background: var(--xl-green-light); border: 1.5px solid var(--xl-green); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; }
+  .prove-task-box .task-label { font-size: 11px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .prove-task-box p { font-size: 15px; color: var(--text-dark); font-weight: 600; margin: 0; }
+  .prove-submit-area { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-prove { padding: 10px 22px; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; }
+  .btn-prove.primary { background: var(--xl-green); color: #fff; }
+  .btn-prove.primary:hover { background: var(--xl-green-dark); }
+
+  .task-bar { background: var(--panel-bg); border-bottom: 1px solid var(--xl-border); padding: 14px 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .task-description .task-label { font-size: 11px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .task-description p { font-size: 15px; font-weight: 600; color: var(--text-dark); line-height: 1.5; margin: 0; }
+  .task-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .btn-hint { background: var(--hint-bg); border: 1.5px solid var(--hint-bd); color: #7a5800; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-resources { background: var(--xl-green-light); border: 1.5px solid var(--xl-green); color: var(--xl-green-dark); padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  .hint-box { background: var(--hint-bg); border-left: 4px solid var(--hint-bd); padding: 12px 16px; margin: 0 24px; border-radius: 0 4px 4px 0; font-size: 13px; color: #5a4000; display: none; }
+  .hint-box.visible { display: block; }
+
+  .practice-body { display: flex; position: relative; }
+  .sim-area { flex: 1; min-width: 0; position: relative; }
+  .resources-panel { width: 0; overflow: hidden; transition: width .3s ease; border-left: 1px solid var(--xl-border); background: var(--panel-bg); flex-shrink: 0; }
+  .resources-panel.open { width: 260px; }
+  .resources-inner { width: 260px; padding: 16px; }
+  .resources-inner h4 { font-size: 13px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 12px; border-bottom: 2px solid var(--xl-green); padding-bottom: 6px; }
+  .resource-item { background: #fff; border: 1px solid var(--xl-border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; }
+  .resource-item .ri-type { font-size: 10px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .resource-item .ri-title { font-size: 12px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+  .resource-item .ri-desc { font-size: 11px; color: var(--text-light); line-height: 1.4; margin-bottom: 6px; }
+  .resource-item .ri-link { display: inline-flex; align-items: center; gap: 4px; background: var(--xl-green-light); border: 1px solid var(--xl-green); color: var(--xl-green-dark); font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 3px; text-decoration: none; cursor: pointer; }
+  .resource-item .ri-link:hover { background: #d0e8d8; }
+  .resource-item .ai-prompt { font-family: 'Consolas', monospace; font-size: 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 3px; padding: 6px 8px; color: var(--text-mid); line-height: 1.4; margin-bottom: 6px; white-space: pre-wrap; }
+
+  /* Excel Simulator */
+  .excel-sim { border: 1px solid var(--xl-border); overflow: hidden; user-select: none; }
+  .xl-titlebar { background: var(--xl-green); color: #fff; font-size: 12px; padding: 4px 12px; display: flex; align-items: center; gap: 8px; }
+  .xl-titlebar-app { opacity: .7; margin-left: auto; }
+  .xl-ribbon { background: #fff; border-bottom: 1px solid var(--xl-border); }
+  .xl-tabs { display: flex; background: var(--xl-green-dark); padding: 0 8px; gap: 2px; }
+  .xl-tab { color: rgba(255,255,255,.75); font-size: 11px; padding: 6px 12px; cursor: pointer; border-radius: 3px 3px 0 0; font-weight: 500; }
+  .xl-tab:hover { color: #fff; background: rgba(255,255,255,.12); }
+  .xl-tab.active { background: #fff; color: var(--xl-green-dark); font-weight: 700; }
+  .xl-ribbon-content { padding: 6px 12px 8px; display: flex; gap: 4px; flex-wrap: wrap; min-height: 52px; align-items: flex-end; }
+  .xl-group { display: flex; flex-direction: column; align-items: center; border-right: 1px solid #e8e8e8; padding-right: 8px; margin-right: 4px; }
+  .xl-group:last-child { border-right: none; }
+  .xl-group-btns { display: flex; gap: 2px; margin-bottom: 2px; }
+  .xl-group-label { font-size: 9px; color: #888; text-align: center; }
+  .xl-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3px 6px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; background: transparent; font-size: 10px; color: var(--text-dark); min-width: 36px; gap: 2px; transition: all .1s; }
+  .xl-btn:hover { background: #e5e5e5; border-color: #ccc; }
+  .xl-btn.btn-target { background: var(--xl-green-light); border-color: var(--xl-green); animation: pulse-btn 1.5s infinite; }
+  .xl-btn.btn-clicked { background: var(--xl-green); color: #fff; border-color: var(--xl-green-dark); animation: none; }
+  @keyframes pulse-btn { 0%,100%{box-shadow:0 0 0 0 rgba(33,115,70,.4)}50%{box-shadow:0 0 0 4px rgba(33,115,70,0)} }
+  .xl-btn-icon { font-size: 16px; line-height: 1; }
+  .xl-btn-label { font-size: 9px; white-space: nowrap; }
+  .xl-formulabar { background: #fff; border-bottom: 1px solid var(--xl-border); display: flex; align-items: center; padding: 3px 8px; gap: 6px; font-size: 12px; }
+  .xl-namebox { width: 80px; border: 1px solid var(--xl-border); border-radius: 3px; padding: 2px 6px; font-size: 12px; text-align: center; flex-shrink: 0; }
+  .xl-fx-label { font-style: italic; color: var(--text-light); font-size: 13px; }
+  .xl-formulainput { flex: 1; border: 1px solid var(--xl-border); border-radius: 3px; padding: 2px 6px; font-size: 12px; font-family: 'Consolas', monospace; }
+  .xl-grid-wrap { overflow-x: auto; background: #fff; }
+  .xl-grid { border-collapse: collapse; font-size: 12px; font-family: 'Segoe UI', sans-serif; min-width: 540px; }
+  .xl-col-hdr { background: var(--xl-col-hdr); border: 1px solid var(--xl-grid-bd); text-align: center; font-size: 11px; color: #666; padding: 2px 8px; font-weight: 400; min-width: 80px; height: 20px; }
+  .xl-col-hdr.select-all { min-width: 36px; width: 36px; }
+  .xl-col-hdr.col-selected { background: var(--xl-green-light); border-color: var(--xl-green); color: var(--xl-green-dark); font-weight: 700; }
+  .xl-row-hdr { background: var(--xl-row-hdr); border: 1px solid var(--xl-grid-bd); text-align: right; font-size: 11px; color: #666; padding: 2px 6px; font-weight: 400; width: 36px; }
+  .xl-row-hdr.row-selected { background: var(--xl-green-light); border-color: var(--xl-green); color: var(--xl-green-dark); font-weight: 700; }
+  .xl-cell { border: 1px solid var(--xl-grid-bd); padding: 2px 6px; height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+  .xl-cell.hl { background: var(--xl-cell-hl); border: 1.5px solid var(--xl-cell-hl-bd); }
+  .xl-cell.bold { font-weight: 700; }
+  .xl-cell.center { text-align: center; }
+  .xl-cell.right { text-align: right; }
+  .xl-cell.hdr { background: #dae3f3; font-weight: 700; }
+  .xl-cell.after { background: var(--pass-bg); border-color: var(--pass-bd); }
+  .xl-cell.merged { background: #f0f8ff; border: 1.5px solid #4a90d9; font-weight: 700; text-align: center; }
+  .xl-cell.cf-red { background: #ffcccc; }
+  .xl-cell.cf-yellow { background: #fff2cc; }
+  .xl-cell.cf-green { background: #ccffcc; }
+  .xl-cell.currency { text-align: right; font-family: 'Consolas', monospace; font-size: 11px; }
+  .xl-cell.indent { padding-left: 18px; }
+  .xl-cell.wrapped { white-space: normal; height: auto; min-height: 20px; line-height: 1.3; }
+  .xl-sheettabs { background: #f3f2f1; border-top: 1px solid var(--xl-border); display: flex; align-items: flex-end; padding: 0 8px; gap: 2px; min-height: 28px; }
+  .xl-sheettab { background: #e0e0e0; border: 1px solid #bbb; border-bottom: none; padding: 4px 14px; font-size: 11px; border-radius: 4px 4px 0 0; cursor: pointer; color: var(--text-mid); }
+  .xl-sheettab.active { background: #fff; border-color: var(--xl-border); color: var(--text-dark); font-weight: 600; }
+  .xl-new-tab { font-size: 14px; color: #888; padding: 2px 6px; cursor: pointer; }
+  .xl-statusbar { background: var(--xl-green); color: rgba(255,255,255,.85); font-size: 11px; padding: 3px 12px; display: flex; justify-content: space-between; }
+
+  /* Context menu */
+  .ctx-menu { position: absolute; background: #fff; border: 1px solid #aaa; box-shadow: 0 4px 12px rgba(0,0,0,.2); border-radius: 3px; min-width: 180px; z-index: 60; font-size: 12px; }
+  .ctx-item { padding: 6px 16px; cursor: pointer; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+  .ctx-item:hover { background: #e5f0ea; color: var(--xl-green-dark); }
+  .ctx-item.btn-target { background: var(--xl-cell-hl); animation: pulse-btn 1.5s infinite; }
+  .ctx-sep { height: 1px; background: #e0e0e0; margin: 3px 0; }
+
+  /* Format Cells dialog */
+  .xl-dialog-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; z-index: 70; }
+  .xl-dialog { background: #fff; border: 1px solid #aaa; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,.25); min-width: 320px; max-width: 400px; width: 92%; }
+  .xl-dialog-title { background: var(--xl-green-dark); color: #fff; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 3px 3px 0 0; }
+  .xl-dialog-body { padding: 14px; font-size: 12px; }
+  .xl-dialog-body label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 11px; color: var(--text-mid); }
+  .xl-dialog-footer { padding: 8px 14px; display: flex; justify-content: flex-end; gap: 6px; border-top: 1px solid var(--xl-border); }
+  .xl-dlg-btn { padding: 5px 14px; border-radius: 3px; font-size: 12px; cursor: pointer; border: 1px solid var(--xl-border); background: #f2f2f2; color: var(--text-dark); }
+  .xl-dlg-btn.primary { background: var(--xl-green); color: #fff; border-color: var(--xl-green-dark); }
+  .xl-dlg-btn.primary:hover { background: var(--xl-green-dark); }
+
+  /* Format number buttons */
+  .fmt-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .fmt-btn { padding: 5px 10px; border: 1.5px solid var(--xl-border); border-radius: 3px; font-size: 11px; cursor: pointer; background: #fafafa; transition: all .12s; }
+  .fmt-btn:hover { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .fmt-btn.btn-target { border-color: var(--xl-green); background: var(--xl-green-light); animation: pulse-btn 1.5s infinite; }
+  .fmt-btn.selected { border-color: var(--pass-bd); background: var(--pass-bg); }
+
+  /* CF rules */
+  .cf-rule { display: flex; align-items: center; gap: 8px; background: #fafafa; border: 1px solid var(--xl-border); border-radius: 3px; padding: 6px 10px; margin-bottom: 6px; font-size: 11px; }
+  .cf-rule select { font-size: 11px; padding: 2px 4px; border: 1px solid var(--xl-border); border-radius: 2px; }
+  .cf-rule input { width: 60px; font-size: 11px; padding: 2px 4px; border: 1px solid var(--xl-border); border-radius: 2px; }
+  .cf-swatch { width: 20px; height: 20px; border-radius: 3px; border: 1px solid #ccc; flex-shrink: 0; }
+
+  /* Feedback */
+  .feedback-area { padding: 16px 24px 20px; }
+  .feedback-box { border-radius: var(--radius); padding: 14px 18px; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+  .feedback-box.correct { background: var(--pass-bg); border: 1.5px solid var(--pass-bd); }
+  .feedback-box.incorrect { background: var(--fail-bg); border: 1.5px solid var(--fail-bd); }
+  .feedback-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+  .feedback-text strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .feedback-text p { font-size: 13px; color: var(--text-mid); margin: 0; line-height: 1.5; }
+
+  .skill-nav-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--xl-border); background: var(--panel-bg); flex-wrap: wrap; gap: 10px; }
+  .btn-nav { padding: 8px 20px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--xl-green); transition: all .15s; }
+  .btn-nav.primary { background: var(--xl-green); color: #fff; }
+  .btn-nav.primary:hover { background: var(--xl-green-dark); }
+  .btn-nav.secondary { background: #fff; color: var(--xl-green); }
+  .btn-nav.secondary:hover { background: var(--xl-green-light); }
+  .btn-nav:disabled { opacity: .4; cursor: not-allowed; }
+  .skill-status-text { font-size: 12px; color: var(--text-light); }
+
+  .completion-banner { background: var(--pass-bg); border: 2px solid var(--pass-bd); border-radius: var(--radius); padding: 20px 24px; text-align: center; margin: 20px 0; }
+  .completion-banner .cb-icon { font-size: 36px; margin-bottom: 8px; }
+  .completion-banner h3 { font-size: 18px; font-weight: 700; color: #1a5c2e; margin-bottom: 6px; }
+  .completion-banner p { font-size: 14px; color: #2e7d46; }
+
+  /* Format Painter cursor hint */
+  .fp-cursor { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ctext y='15' font-size='14'%3E🖌️%3C/text%3E%3C/svg%3E") 0 15, crosshair; }
+
+  @media(max-width:700px){ .skill-nav{grid-template-columns:1fr 1fr} .resources-panel.open{width:200px} .resources-inner{width:200px} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span style="font-size:22px">📊</span>
+    <div>
+      <div class="topbar-title">IS101 — Excel Labs</div>
+      <div class="topbar-subtitle">E2: Manage Data Cells and Ranges</div>
+    </div>
+  </div>
+  <div>
+    <a class="btn-back" href="IS101_START_HERE_05272026_0928.html">← Dashboard</a>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <div class="domain-header">
+    <div>
+      <div class="domain-badge">Domain E2 · MO-210</div>
+      <div class="domain-title">Manage Data Cells and Ranges</div>
+      <div class="domain-meta">Nevada Valley Healthcare · 10 skills · Microsoft Excel 365</div>
+    </div>
+    <div class="domain-progress-wrap">
+      <div class="progress-label" id="progressLabel">0 of 10 completed</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="skill-nav" id="skillNav"></div>
+  <div class="skill-panel" id="skillPanel"></div>
+  <div class="completion-banner" id="completionBanner" style="display:none">
+    <div class="cb-icon">🏆</div>
+    <h3>Domain E2 Complete!</h3>
+    <p>You've mastered all 10 data cells and ranges skills. Return to the dashboard to continue.</p>
+    <div style="margin-top:16px"><a class="btn-back" href="IS101_START_HERE_05272026_0928.html" style="font-size:13px;padding:8px 18px">← Back to Dashboard</a></div>
+  </div>
+</div>
+
+<script>
+const SKILLS = [
+  {
+    id:'autofill', num:1,
+    title:'Fill Cells Using AutoFill',
+    scenario:'Nevada Valley Healthcare needs to extend a series of months across a scheduling worksheet.',
+    task:'Use AutoFill to extend the month series January through June across row 1.',
+    proveTask:'Type a starting value (e.g. "January") in a cell, then type the next in the series in the next cell. Select both cells, then drag the fill handle (small square at bottom-right of selection) to extend the series. AutoFill also works for numbers, dates, and custom lists.',
+    hint1:'Look for the small green square at the bottom-right corner of the selected cell — that\'s the fill handle.',
+    hint2:'Select cells A1 and B1 (which already have January and February), then drag the fill handle to the right.',
+    hint3:'Select A1:B1 → hover bottom-right corner until cursor changes to + → drag right to H1 to fill through August.',
+    targetBtn:'autofill-handle',
+    simType:'autofill',
+    resources:{
+      ai:'Show me how to use AutoFill in Excel 365 to extend a series of months, numbers, and dates.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+autofill',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+autofill+series',
+      ms:'https://support.microsoft.com/en-us/office/fill-data-automatically-in-worksheet-cells-74e31bdd-d993-45da-aa82-35a236c5b5db'
+    }
+  },
+  {
+    id:'insert-delete-cols-rows', num:2,
+    title:'Insert and Delete Multiple Columns or Rows',
+    scenario:'The healthcare HR team needs to add two new columns for employee certifications and remove a duplicate row.',
+    task:'Select columns C and D together, then right-click to insert two new columns at once.',
+    proveTask:'To insert multiple columns: click the first column header, Shift+click the last column header to select multiple, then right-click → Insert. The same number of columns as selected will be inserted. Same process works for rows.',
+    hint1:'To select multiple columns, click the first column letter header, then Shift+click the last column letter.',
+    hint2:'After selecting columns C and D by clicking their headers, right-click on the selected headers.',
+    hint3:'Click column C header → Shift+click column D header → right-click the selection → Insert.',
+    targetBtn:'insert-cols',
+    simType:'multi-col-insert',
+    resources:{
+      ai:'How do I insert and delete multiple columns or rows at once in Excel 365?',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+insert+delete+rows+columns',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+insert+multiple+columns+rows',
+      ms:'https://support.microsoft.com/en-us/office/insert-or-delete-rows-and-columns-6f40e6e4-85af-45e0-b39d-65dd504a3246'
+    }
+  },
+  {
+    id:'format-cells', num:3,
+    title:'Format Cells',
+    scenario:'The Nevada Valley Healthcare payroll sheet needs salary values formatted as currency with two decimal places.',
+    task:'Apply Currency format to the salary cells in column C using the Home tab.',
+    proveTask:'Select the cells you want to format, then go to Home tab → Number group. Click the $ dropdown for Currency format, or click the dialog launcher (small arrow) to open Format Cells for more options like decimal places and symbol choice.',
+    hint1:'Look in the Home tab, in the "Number" group — the format dropdown shows the current cell format.',
+    hint2:'Select the salary cells first, then look for the $ button or the Number format dropdown in the Home ribbon.',
+    hint3:'Select C2:C6 → Home tab → Number group → click the $ (Accounting/Currency) button.',
+    targetBtn:'currency-btn',
+    simType:'format-cells',
+    resources:{
+      ai:'How do I format cells as currency, percentage, and date in Excel 365? Show me the Number group and Format Cells dialog.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+format+cells+number',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+format+cells+currency+number',
+      ms:'https://support.microsoft.com/en-us/office/format-numbers-as-currency-0a03bb38-1a07-458d-9e30-2b54366bc7a4'
+    }
+  },
+  {
+    id:'merge-cells', num:4,
+    title:'Merge and Unmerge Cells',
+    scenario:'The healthcare department report needs a title row that spans across all columns.',
+    task:'Merge cells A1 through E1 to create a centered title for the "Nevada Valley Healthcare — Staff Report".',
+    proveTask:'Select the cells you want to merge (e.g. A1:E1), then go to Home tab → Alignment group → Merge & Center dropdown. Choose "Merge & Center" to merge and center the content, or "Merge Across" to merge each row separately. To unmerge, select the merged cell and click Merge & Center again.',
+    hint1:'Look in the Home tab, in the "Alignment" group.',
+    hint2:'Select A1:E1 first by clicking A1 and dragging to E1, then find the Merge & Center button.',
+    hint3:'Select A1:E1 → Home → Alignment group → click the Merge & Center dropdown → Merge & Center.',
+    targetBtn:'merge-center',
+    simType:'merge-cells',
+    resources:{
+      ai:'How do I merge and unmerge cells in Excel 365? Explain Merge & Center, Merge Across, and when to use each.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+merge+cells',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+merge+unmerge+cells',
+      ms:'https://support.microsoft.com/en-us/office/merge-and-unmerge-cells-5cbd15d5-9375-4540-907f-c673a93fcedf'
+    }
+  },
+  {
+    id:'cell-alignment', num:5,
+    title:'Modify Cell Alignment and Indentation',
+    scenario:'The healthcare staff directory needs department names indented and totals right-aligned for readability.',
+    task:'Center the header row and apply right alignment to the numeric columns using the Alignment group.',
+    proveTask:'Select cells and use the alignment buttons in Home → Alignment group: Left, Center, Right for horizontal; Top, Middle, Bottom for vertical. Use the Increase Indent button to add indentation. The Orientation button rotates text diagonally.',
+    hint1:'The alignment buttons are in the Home tab, in the "Alignment" group.',
+    hint2:'Select the header row first (row 1), then click the Center button (the middle of the three alignment buttons).',
+    hint3:'Select A1:E1 → Home → Alignment group → Center button (☰ middle icon). Then select C2:E6 → Right align.',
+    targetBtn:'align-center',
+    simType:'alignment',
+    resources:{
+      ai:'How do I change cell alignment and add indentation in Excel 365? Explain horizontal, vertical, and text rotation options.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+cell+alignment',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+cell+alignment+indentation',
+      ms:'https://support.microsoft.com/en-us/office/align-or-rotate-text-in-a-cell-b2489a1f-1b1b-4b53-8c46-80d4042ed0f1'
+    }
+  },
+  {
+    id:'format-painter', num:6,
+    title:'Format Cells Using Format Painter',
+    scenario:'The healthcare schedule has one perfectly formatted header row. Copy its formatting to the other section headers.',
+    task:'Use Format Painter to copy the formatting from row 1 and apply it to row 5.',
+    proveTask:'Click the cell with the formatting you want to copy, then click the Format Painter brush button in Home → Clipboard group. Your cursor becomes a paintbrush. Click (or drag across) the destination cells to apply the formatting. Double-click Format Painter to apply to multiple locations — press Escape when done.',
+    hint1:'Format Painter is in the Home tab, in the "Clipboard" group — it looks like a small paintbrush 🖌️.',
+    hint2:'First click on the source cell (A1), then click the Format Painter button, then click the destination (A5).',
+    hint3:'Click A1 → Home → Clipboard → Format Painter (🖌️) → click A5 to apply the formatting.',
+    targetBtn:'format-painter',
+    simType:'format-painter',
+    resources:{
+      ai:'How do I use Format Painter in Excel 365 to copy cell formatting? Show me single-use and multi-use (double-click) methods.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+format+painter',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+format+painter',
+      ms:'https://support.microsoft.com/en-us/office/use-the-format-painter-4612f696-e3e6-4d6c-9f1f-b5c6e36f4e82'
+    }
+  },
+  {
+    id:'wrap-text', num:7,
+    title:'Wrap Text Within Cells',
+    scenario:'The healthcare job descriptions in column B are cut off. Enable text wrapping so the full text is visible.',
+    task:'Apply text wrapping to column B so the job description text displays on multiple lines within each cell.',
+    proveTask:'Select the cells you want to wrap, then go to Home tab → Alignment group → Wrap Text button. The row height will automatically expand to show all the text. You can also access this in Format Cells → Alignment tab → check "Wrap text".',
+    hint1:'The Wrap Text button is in the Home tab, in the "Alignment" group.',
+    hint2:'Select the cells in column B first (B2:B6), then click the Wrap Text button.',
+    hint3:'Select B2:B6 → Home → Alignment group → Wrap Text button (the button shows text on two lines).',
+    targetBtn:'wrap-text',
+    simType:'wrap-text',
+    resources:{
+      ai:'How do I wrap text within cells in Excel 365? How does it affect row height?',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+wrap+text',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+wrap+text+cells',
+      ms:'https://support.microsoft.com/en-us/office/wrap-text-in-a-cell-2a18cff5-ccc1-4bce-95e4-f0d4f3ff4e84'
+    }
+  },
+  {
+    id:'conditional-formatting', num:8,
+    title:'Apply Conditional Formatting',
+    scenario:'The healthcare HR team wants to highlight employees whose sick days exceed 5 — automatically in red.',
+    task:'Apply a conditional formatting rule to highlight cells in column D greater than 5 with a red fill.',
+    proveTask:'Select the cells, then go to Home → Conditional Formatting → Highlight Cells Rules → Greater Than. Enter the value and choose a formatting style. For more complex rules use "New Rule". Manage existing rules via Conditional Formatting → Manage Rules.',
+    hint1:'Conditional Formatting is in the Home tab, in the "Styles" group.',
+    hint2:'Select D2:D6 first, then Home → Conditional Formatting → Highlight Cells Rules.',
+    hint3:'Select D2:D6 → Home → Conditional Formatting → Highlight Cells Rules → Greater Than → type 5 → choose Red Fill → OK.',
+    targetBtn:'cond-fmt',
+    simType:'conditional-fmt',
+    resources:{
+      ai:'How do I apply conditional formatting in Excel 365? Show me highlight rules, data bars, and color scales.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+conditional+formatting',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+conditional+formatting+rules',
+      ms:'https://support.microsoft.com/en-us/office/use-conditional-formatting-to-highlight-information-fed60dfa-1d3f-4e13-9ecb-f1951ff89d7f'
+    }
+  },
+  {
+    id:'name-ranges', num:9,
+    title:'Name Cell Ranges',
+    scenario:'The healthcare payroll workbook uses the same salary range in multiple formulas. Name it so formulas are easier to read.',
+    task:'Define the name "Salaries" for the range C2:C6 using the Name Box.',
+    proveTask:'Select the range you want to name (C2:C6), click directly in the Name Box (top-left of formula bar showing the cell address), type the name (e.g. "Salaries"), and press Enter. You can also use Formulas → Define Name for more options including scope and comments.',
+    hint1:'The Name Box is the cell address box at the TOP LEFT of the screen, just to the left of the formula bar.',
+    hint2:'First select the cells C2:C6, then click on the Name Box and type the name.',
+    hint3:'Select C2:C6 → click the Name Box (shows "C2") → type "Salaries" → press Enter.',
+    targetBtn:'name-box-define',
+    simType:'name-range',
+    resources:{
+      ai:'How do I create and use named ranges in Excel 365? Show me the Name Box method and the Define Name dialog.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+named+ranges+define',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+named+ranges+define+name',
+      ms:'https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64'
+    }
+  },
+  {
+    id:'insert-delete-cells', num:10,
+    title:'Insert and Delete Cells',
+    scenario:'A data entry error added a blank cell in the middle of the patient intake list, pushing all data down by one row.',
+    task:'Delete the blank cell in B4, shifting the remaining cells up to fix the alignment.',
+    proveTask:'Right-click the cell you want to delete, choose Delete, then select how to shift the remaining cells: "Shift cells left" or "Shift cells up". This is different from deleting a whole row — it only affects the selected cells and shifts the neighboring cells to fill the gap.',
+    hint1:'Right-click directly on the blank cell B4.',
+    hint2:'After right-clicking, look for "Delete…" in the context menu (not the Delete key, which only clears content).',
+    hint3:'Right-click cell B4 → Delete → select "Shift cells up" → OK.',
+    targetBtn:'delete-cell',
+    simType:'delete-cell',
+    resources:{
+      ai:'How do I insert and delete individual cells in Excel 365? Explain the difference between deleting cells vs deleting rows, and the shift options.',
+      linkedin:'https://www.linkedin.com/learning/search?keywords=excel+insert+delete+cells',
+      youtube:'https://www.youtube.com/results?search_query=excel+365+insert+delete+cells+shift',
+      ms:'https://support.microsoft.com/en-us/office/insert-or-delete-cells-rows-and-columns-6f40e6e4-85af-45e0-b39d-65dd504a3246'
+    }
+  }
+];
+
+// ── State ──
+let state = { currentSkillIdx:0, completedSkills:new Set(), skillPaths:{}, hintLevel:{}, resourcesOpen:{}, skillAttempted:{} };
+try {
+  const s = sessionStorage.getItem('is101_e2_state');
+  if (s) { const p=JSON.parse(s); state.completedSkills=new Set(p.completedSkills||[]); state.skillPaths=p.skillPaths||{}; state.currentSkillIdx=p.currentSkillIdx||0; }
+} catch(e){}
+
+function saveState() {
+  try { sessionStorage.setItem('is101_e2_state', JSON.stringify({completedSkills:[...state.completedSkills],skillPaths:state.skillPaths,currentSkillIdx:state.currentSkillIdx})); } catch(e){}
+}
+
+// ── Nav ──
+function renderNav() {
+  document.getElementById('skillNav').innerHTML = SKILLS.map((s,i)=>{
+    const done=state.completedSkills.has(s.id), active=i===state.currentSkillIdx;
+    return `<button class="skill-nav-btn ${active?'active':''} ${done?'completed':''}" onclick="goSkill(${i})">
+      <div class="skill-num">${done?'✓':s.num}</div>
+      <div class="skill-nav-label">${s.title}</div>
+      ${done?'<span class="skill-check">✓</span>':''}
+    </button>`;
+  }).join('');
+  const done=state.completedSkills.size, total=SKILLS.length;
+  document.getElementById('progressLabel').textContent=`${done} of ${total} completed`;
+  document.getElementById('progressFill').style.width=`${(done/total)*100}%`;
+  if(done===total) document.getElementById('completionBanner').style.display='block';
+}
+
+function goSkill(idx) {
+  state.currentSkillIdx=idx; state.hintLevel[SKILLS[idx].id]=0;
+  renderNav(); renderSkillPanel(); saveState();
+  document.getElementById('skillPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── Skill Panel Router ──
+function renderSkillPanel() {
+  const skill=SKILLS[state.currentSkillIdx], path=state.skillPaths[skill.id], panel=document.getElementById('skillPanel');
+  if(!path) { panel.innerHTML=renderPathChooser(skill); return; }
+  if(path==='prove') { panel.innerHTML=renderProveIt(skill); return; }
+  panel.innerHTML=renderPractice(skill);
+}
+
+function renderPathChooser(skill) {
+  const done=state.completedSkills.has(skill.id);
+  return `<div class="skill-header"><div class="skill-header-left"><h2>Skill ${skill.num}: ${skill.title}</h2><p>${skill.scenario}</p></div>${done?'<span style="font-size:24px">✅</span>':''}</div>
+  <div style="padding:30px 24px;text-align:center">
+    <p style="font-size:15px;color:var(--text-mid);margin-bottom:24px;max-width:520px;margin-left:auto;margin-right:auto">
+      Choose your path for <strong>${skill.title}</strong>.
+    </p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button onclick="choosePath('${skill.id}','prove')" style="background:#fff;border:2px solid var(--xl-green);color:var(--xl-green-dark);padding:16px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;min-width:200px">
+        ✋ I already know this<br><span style="font-size:12px;font-weight:400;opacity:.7">→ Go to challenge</span>
+      </button>
+      <button onclick="choosePath('${skill.id}','practice')" style="background:var(--xl-green);border:2px solid var(--xl-green);color:#fff;padding:16px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;min-width:200px">
+        📖 I need to learn this<br><span style="font-size:12px;font-weight:400;opacity:.8">→ Practice with help</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function choosePath(skillId,path) { state.skillPaths[skillId]=path; state.hintLevel[skillId]=0; saveState(); renderSkillPanel(); }
+
+function renderProveIt(skill) {
+  const done=state.completedSkills.has(skill.id);
+  return `<div class="skill-header"><div class="skill-header-left"><h2>Skill ${skill.num}: ${skill.title}</h2><p>Prove It — Demonstrate this skill in your own Excel</p></div>
+  <div class="path-chooser"><button class="path-btn path-selected">✋ Prove It</button><button class="path-btn" onclick="choosePath('${skill.id}','practice')">📖 Practice Instead</button></div></div>
+  <div class="prove-it-view">
+    <h3>Your Challenge</h3>
+    <p>Open Microsoft Excel 365 on your computer and complete the task below.</p>
+    <div class="prove-task-box"><div class="task-label">Task</div><p>${skill.proveTask}</p></div>
+    <div style="background:#f8f9fa;border:1px solid var(--xl-border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">💡 Resources</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <a href="${skill.resources.ms}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">📄 Microsoft Support</a>
+        <a href="${skill.resources.youtube}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">▶️ YouTube</a>
+        <a href="${skill.resources.linkedin}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">🎓 LinkedIn Learning</a>
+      </div>
+    </div>
+    ${done?`<div class="feedback-box correct" style="margin-bottom:16px"><div class="feedback-icon">✅</div><div class="feedback-text"><strong>Skill Complete!</strong><p>Already done. Move on to the next skill.</p></div></div>`:''}
+    <div class="prove-submit-area">
+      <button class="btn-prove primary" onclick="markProveItDone('${skill.id}')">${done?'✓ Already Complete':'✅ Mark Complete'}</button>
+      <button class="btn-prove" style="background:#f2f2f2;border:1px solid var(--xl-border);color:var(--text-mid)" onclick="choosePath('${skill.id}','practice')">Switch to Practice Mode</button>
+    </div>
+  </div>${renderNavRow()}`;
+}
+
+function markProveItDone(skillId) {
+  state.completedSkills.add(skillId); saveState(); renderNav(); renderSkillPanel();
+  const idx=SKILLS.findIndex(s=>s.id===skillId);
+  if(idx<SKILLS.length-1) setTimeout(()=>goSkill(idx+1),800);
+}
+
+function renderPractice(skill) {
+  const done=state.completedSkills.has(skill.id), hl=state.hintLevel[skill.id]||0, resOpen=state.resourcesOpen[skill.id];
+  return `<div class="skill-header"><div class="skill-header-left"><h2>Skill ${skill.num}: ${skill.title}</h2><p>${skill.scenario}</p></div>
+  <div class="path-chooser"><button class="path-btn" onclick="choosePath('${skill.id}','prove')">✋ Prove It Instead</button><button class="path-btn path-selected">📖 Practice</button></div></div>
+  <div class="task-bar">
+    <div class="task-description"><div class="task-label">Your Task</div><p>${skill.task}</p></div>
+    <div class="task-actions">
+      <button class="btn-hint" onclick="showHint('${skill.id}')">💡 Hint (${hl}/3)</button>
+      <button class="btn-resources" onclick="toggleResources('${skill.id}')">📚 Resources</button>
+    </div>
+  </div>
+  <div class="hint-box ${hl>0?'visible':''}" id="hintBox_${skill.id}">${hl>0?`<strong>Hint ${hl}:</strong> ${hl===1?skill.hint1:hl===2?skill.hint2:skill.hint3}`:''}</div>
+  <div class="practice-body">
+    <div class="sim-area">
+      ${renderSim(skill)}
+      ${done?`<div class="feedback-area"><div class="feedback-box correct"><div class="feedback-icon">✅</div><div class="feedback-text"><strong>Correct! Skill Complete.</strong><p>${getCorrectFeedback(skill)}</p></div></div></div>`:`<div class="feedback-area" id="feedbackArea_${skill.id}"></div>`}
+    </div>
+    <div class="resources-panel ${resOpen?'open':''}" id="resPanel_${skill.id}">
+      <div class="resources-inner">
+        <h4>📚 Resources</h4>
+        <div class="resource-item"><div class="ri-type">🤖 AI Prompt</div><div class="ri-title">Ask ChatGPT / Copilot</div><div class="ai-prompt">${skill.resources.ai}</div><span class="ri-link" onclick="copyPrompt('${skill.id}')">📋 Copy prompt</span></div>
+        <div class="resource-item"><div class="ri-type">🎓 LinkedIn Learning</div><div class="ri-title">Video Tutorial</div><div class="ri-desc">Free with Clark County Library card — lvccld.org</div><a href="${skill.resources.linkedin}" target="_blank" class="ri-link">Open LinkedIn Learning ↗</a></div>
+        <div class="resource-item"><div class="ri-type">▶️ YouTube</div><div class="ri-title">YouTube Search</div><a href="${skill.resources.youtube}" target="_blank" class="ri-link">Search YouTube ↗</a></div>
+        <div class="resource-item"><div class="ri-type">📄 Microsoft</div><div class="ri-title">Official Support</div><a href="${skill.resources.ms}" target="_blank" class="ri-link">Open Microsoft Support ↗</a></div>
+      </div>
+    </div>
+  </div>${renderNavRow()}`;
+}
+
+const correctFeedback = {
+  'autofill':'AutoFill recognizes patterns — months, days, numbers, and custom lists — and extends them automatically.',
+  'insert-delete-cols-rows':'Selecting multiple headers before inserting inserts that exact number of rows or columns at once.',
+  'format-cells':'The Number group in Home gives quick access to Currency, Percentage, Date, and other common formats.',
+  'merge-cells':'Merge & Center is great for report titles. Use sparingly — merged cells can cause issues with sorting and formulas.',
+  'cell-alignment':'Consistent alignment makes data much easier to scan — headers centered, numbers right-aligned.',
+  'format-painter':'Double-clicking Format Painter locks it on so you can paint multiple ranges without re-clicking.',
+  'wrap-text':'Wrap Text auto-expands row height to show all content — great for notes and description columns.',
+  'conditional-formatting':'Conditional formatting updates automatically when data changes — no manual highlighting needed.',
+  'name-ranges':'Named ranges make formulas like =SUM(Salaries) much easier to read than =SUM(C2:C6).',
+  'insert-delete-cells':'Deleting individual cells with "Shift cells up" fixes alignment without removing entire rows.'
+};
+function getCorrectFeedback(skill){ return correctFeedback[skill.id]||''; }
+
+// ── Sim Renderers ──
+function renderSim(skill) {
+  const sims = {
+    'autofill': renderAutoFillSim,
+    'insert-delete-cols-rows': renderMultiColSim,
+    'format-cells': renderFormatCellsSim,
+    'merge-cells': renderMergeCellsSim,
+    'cell-alignment': renderAlignmentSim,
+    'format-painter': renderFormatPainterSim,
+    'wrap-text': renderWrapTextSim,
+    'conditional-formatting': renderCondFmtSim,
+    'name-ranges': renderNameRangeSim,
+    'insert-delete-cells': renderDeleteCellSim,
+  };
+  return (sims[skill.id]||renderAutoFillSim)(skill);
+}
+
+// Healthcare staff data
+const staffData = [
+  ['**Name','**Department','**Salary','**Sick Days','**Status'],
+  ['Maria Santos','Nursing','$68,500','3','Active'],
+  ['James Okafor','Radiology','$72,000','7','Active'],
+  ['Linda Park','Administration','$54,200','2','Active'],
+  ['Carlos Reyes','Emergency','$81,500','9','Active'],
+  ['Emily Chen','Laboratory','$63,800','1','Active'],
+];
+
+function buildGrid(rows, opts={}) {
+  const cols = opts.cols||['','A','B','C','D','E','F'];
+  let html=`<div class="xl-grid-wrap"><table class="xl-grid"><thead><tr>`;
+  cols.forEach((c,i)=>{
+    const selCls = opts.selectedCols&&opts.selectedCols.includes(c)?'col-selected':'';
+    html+=`<th class="xl-col-hdr ${i===0?'select-all':''} ${selCls}">${c}</th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+  rows.forEach((row,ri)=>{
+    const selRow = opts.selectedRows&&opts.selectedRows.includes(ri+1);
+    html+=`<tr><td class="xl-row-hdr ${selRow?'row-selected':''}">${ri+1}</td>`;
+    row.forEach((cell,ci)=>{
+      let cls='xl-cell', txt=cell?cell.toString():'';
+      if(txt.startsWith('**')){cls+=' bold';txt=txt.slice(2);}
+      if(opts.highlight&&opts.highlight.includes(`${cols[ci+1]}${ri+1}`))cls+=' hl';
+      if(opts.after&&opts.after.includes(`${cols[ci+1]}${ri+1}`))cls+=' after';
+      if(opts.merged&&opts.merged[`${cols[ci+1]}${ri+1}`]){cls+=' merged';txt=opts.merged[`${cols[ci+1]}${ri+1}`];}
+      if(opts.currency&&cols[ci+1]==='C'&&ri>0)cls+=' currency';
+      if(opts.cfRed&&opts.cfRed.includes(`${cols[ci+1]}${ri+1}`))cls+=' cf-red';
+      if(opts.cfYellow&&opts.cfYellow.includes(`${cols[ci+1]}${ri+1}`))cls+=' cf-yellow';
+      if(opts.wrapped&&opts.wrapped.includes(`${cols[ci+1]}${ri+1}`))cls+=' wrapped';
+      if(opts.indent&&opts.indent.includes(`${cols[ci+1]}${ri+1}`))cls+=' indent';
+      html+=`<td class="${cls}">${txt}</td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  return html;
+}
+
+function simShell(skillId, filename, activeTab, ribbonHtml, formulaCell, formulaVal, gridHtml, extraOverlay='', sheets=['Staff Data']) {
+  const sheetTabs = sheets.map((s,i)=>`<div class="xl-sheettab ${i===0?'active':''}">${s}</div>`).join('')+`<span class="xl-new-tab">⊕</span>`;
+  return `<div class="excel-sim" id="sim_${skillId}" style="position:relative">
+  <div class="xl-titlebar"><span style="font-weight:600">${filename}</span><span class="xl-titlebar-app">Microsoft Excel</span></div>
+  <div class="xl-ribbon">
+    <div class="xl-tabs">${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t=>`<div class="xl-tab ${t===activeTab?'active':''}">${t}</div>`).join('')}</div>
+    <div class="xl-ribbon-content">${ribbonHtml}</div>
+  </div>
+  <div class="xl-formulabar">
+    <input class="xl-namebox" value="${formulaCell}" readonly id="namebox_${skillId}">
+    <span class="xl-fx-label">fx</span>
+    <input class="xl-formulainput" value="${formulaVal}" readonly>
+  </div>
+  ${gridHtml}
+  <div class="xl-sheettabs">${sheetTabs}</div>
+  <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+  ${extraOverlay}
+</div>`;
+}
+
+function wrongBtn(id){const fb=document.getElementById(`feedbackArea_${id}`);if(fb)fb.innerHTML=`<div class="feedback-box incorrect"><div class="feedback-icon">❌</div><div class="feedback-text"><strong>Not quite.</strong><p>That's not the right button. Check the task description or use a hint.</p></div></div>`;}
+
+// 1. AutoFill
+function renderAutoFillSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const months = ['January','February','March','April','May','June','July','August'];
+  const monthRow = done ? months : ['January','February','','','','','',''];
+  const ribbon = `<div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">✂️</span><span class="xl-btn-label">Cut</span></button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">📋</span><span class="xl-btn-label">Copy</span></button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">📌</span><span class="xl-btn-label">Paste</span></button>
+  </div><div class="xl-group-label">Clipboard</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>`;
+
+  const cols = ['','A','B','C','D','E','F','G','H'];
+  let gridHtml = `<div class="xl-grid-wrap"><table class="xl-grid"><thead><tr>`;
+  cols.forEach((c,i)=>{ gridHtml+=`<th class="xl-col-hdr ${i===0?'select-all':''}">${c}</th>`; });
+  gridHtml+=`</tr></thead><tbody><tr><td class="xl-row-hdr">1</td>`;
+  monthRow.forEach((m,i)=>{
+    const isStart = i<2 && !done;
+    const isEmpty = !m && !done;
+    gridHtml+=`<td class="xl-cell ${isStart?'bold':''} ${isEmpty?'hl':''}">${m}</td>`;
+  });
+  gridHtml+=`</tr>`;
+  // data rows
+  for(let r=2;r<=6;r++){
+    gridHtml+=`<tr><td class="xl-row-hdr">${r}</td>`;
+    for(let c=0;c<8;c++) gridHtml+=`<td class="xl-cell"></td>`;
+    gridHtml+=`</tr>`;
+  }
+  gridHtml+=`</tbody></table></div>`;
+
+  const overlay = !done ? `
+    <div style="padding:8px 12px;background:#fffde7;border-top:1px solid #f0e68c;font-size:11px;color:#5a4000">
+      💡 Cells A1 (January) and B1 (February) are filled. Select both, then drag the <strong>fill handle</strong> 
+      (small green square at bottom-right of B1) to H1 to AutoFill the remaining months.
+    </div>
+    <div id="fillHandleArea_${skill.id}" style="padding:10px 12px">
+      <button class="xl-btn btn-target" style="width:auto;padding:6px 16px;flex-direction:row;gap:8px;font-size:12px" onclick="markComplete('${skill.id}')">
+        <span>↔️</span> <span>Drag Fill Handle to H1</span>
+      </button>
+      <span style="font-size:11px;color:var(--text-light);margin-left:8px">(click to simulate)</span>
+    </div>` : '';
+
+  return simShell(skill.id,'NVH_Schedule.xlsx','Home',ribbon,'A1:B1','',gridHtml,overlay,['Schedule']);
+}
+
+// 2. Multi-col insert
+function renderMultiColSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const hdrs = done
+    ? ['**Name','**Department','**[New Col]','**[New Col]','**Salary','**Status']
+    : ['**Name','**Department','**Salary','**Status','',''];
+  const rows = [hdrs,
+    ['Maria Santos','Nursing',done?'':'$68,500',done?'':'Active','',''],
+    ['James Okafor','Radiology',done?'':'$72,000',done?'':'Active','',''],
+    ['Linda Park','Admin',done?'':'$54,200',done?'':'Active','',''],
+  ];
+
+  const ribbon = `<div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">✂️</span><span class="xl-btn-label">Cut</span></button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">📌</span><span class="xl-btn-label">Paste</span></button>
+  </div><div class="xl-group-label">Clipboard</div></div>`;
+
+  const ctxMenu = !done ? `<div id="ctxMenu_${skill.id}" class="ctx-menu" style="display:none;position:absolute;top:90px;left:120px">
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">✂️ Cut</div>
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">📋 Copy</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item btn-target" onclick="markComplete('${skill.id}')">➕ Insert</div>
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">🗑️ Delete</div>
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">👁️ Hide</div>
+  </div>
+  <div style="padding:8px 12px;background:#fffde7;border-top:1px solid #f0e68c;font-size:11px;color:#5a4000">
+    💡 Click the column C header, then Shift+click column D header to select both, then right-click.
+  </div>
+  <div style="padding:8px 12px">
+    <button onclick="document.getElementById('ctxMenu_${skill.id}').style.display='block'" style="background:var(--xl-green-light);border:1.5px solid var(--xl-green);color:var(--xl-green-dark);padding:5px 12px;border-radius:3px;font-size:12px;cursor:pointer">
+      Right-click columns C &amp; D (simulate)
+    </button>
+  </div>` : '';
+
+  const grid = buildGrid(rows, {cols:['','A','B','C','D','E','F'], selectedCols:done?[]:['C','D'], after:done?['C1','D1']:[]});
+  return simShell(skill.id,'NVH_HR_Directory.xlsx','Home',ribbon,'C:D','',grid,ctxMenu,['HR Directory']);
+}
+
+// 3. Format Cells (currency)
+function renderFormatCellsSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const rows = [
+    ['**Name','**Department','**Salary','**Start Date','**FTE'],
+    ['Maria Santos','Nursing',done?'$68,500.00':'68500',done?'3/15/2019':'3/15/2019','1.0'],
+    ['James Okafor','Radiology',done?'$72,000.00':'72000',done?'7/22/2020':'7/22/2020','1.0'],
+    ['Linda Park','Admin',done?'$54,200.00':'54200',done?'1/10/2021':'1/10/2021','0.8'],
+    ['Carlos Reyes','Emergency',done?'$81,500.00':'81500',done?'9/5/2018':'9/5/2018','1.0'],
+    ['Emily Chen','Lab',done?'$63,800.00':'63800',done?'5/30/2022':'5/30/2022','1.0'],
+  ];
+  const ribbon = `
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">📌</span><span class="xl-btn-label">Paste</span></button>
+  </div><div class="xl-group-label">Clipboard</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-style:italic">I</span><span class="xl-btn-label">Italic</span></button>
+  </div><div class="xl-group-label">Font</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="markComplete('${skill.id}')">
+      <span class="xl-btn-icon">💲</span><span class="xl-btn-label">Currency</span>
+    </button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">%</span><span class="xl-btn-label">Percent</span></button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">,</span><span class="xl-btn-label">Comma</span></button>
+  </div><div class="xl-group-label">Number</div></div>`;
+  const grid = buildGrid(rows, {cols:['','A','B','C','D','E'], highlight:done?[]:['C2','C3','C4','C5','C6'], after:done?['C2','C3','C4','C5','C6']:[], currency:done});
+  return simShell(skill.id,'NVH_Payroll.xlsx','Home',ribbon,'C2:C6','',grid,'',['Payroll']);
+}
+
+// 4. Merge cells
+function renderMergeCellsSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const rows = done
+    ? [['Nevada Valley Healthcare — Staff Report','','','',''],
+       ['**Name','**Dept','**Salary','**Hire Date','**FTE'],
+       ['Maria Santos','Nursing','$68,500','3/15/2019','1.0'],
+       ['James Okafor','Radiology','$72,000','7/22/2020','1.0'],
+       ['Linda Park','Admin','$54,200','1/10/2021','0.8'],]
+    : [['Nevada Valley Healthcare — Staff Report','','','',''],
+       ['**Name','**Dept','**Salary','**Hire Date','**FTE'],
+       ['Maria Santos','Nursing','$68,500','3/15/2019','1.0'],
+       ['James Okafor','Radiology','$72,000','7/22/2020','1.0'],
+       ['Linda Park','Admin','$54,200','1/10/2021','0.8'],];
+
+  const ribbon = `
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="markComplete('${skill.id}')">
+      <span class="xl-btn-icon">⬛</span><span class="xl-btn-label">Merge & Center</span>
+    </button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">↔️</span><span class="xl-btn-label">Wrap Text</span></button>
+  </div><div class="xl-group-label">Alignment</div></div>`;
+
+  // Custom grid with merged first row
+  let gridHtml = `<div class="xl-grid-wrap"><table class="xl-grid"><thead><tr>
+    <th class="xl-col-hdr select-all"></th>
+    <th class="xl-col-hdr">A</th><th class="xl-col-hdr">B</th><th class="xl-col-hdr">C</th><th class="xl-col-hdr">D</th><th class="xl-col-hdr">E</th>
+  </tr></thead><tbody>`;
+  // Row 1 — merged or not
+  if(done){
+    gridHtml+=`<tr><td class="xl-row-hdr">1</td><td colspan="5" class="xl-cell merged" style="text-align:center;font-weight:700">Nevada Valley Healthcare — Staff Report</td></tr>`;
+  } else {
+    gridHtml+=`<tr><td class="xl-row-hdr">1</td>
+      <td class="xl-cell hl bold">Nevada Valley Healthcare — Staff Report</td>
+      <td class="xl-cell hl"></td><td class="xl-cell hl"></td><td class="xl-cell hl"></td><td class="xl-cell hl"></td></tr>`;
+  }
+  rows.slice(1).forEach((row,ri)=>{
+    gridHtml+=`<tr><td class="xl-row-hdr">${ri+2}</td>`;
+    row.forEach(cell=>{
+      let cls='xl-cell', txt=cell.toString();
+      if(txt.startsWith('**')){cls+=' bold';txt=txt.slice(2);}
+      gridHtml+=`<td class="${cls}">${txt}</td>`;
+    });
+    gridHtml+=`</tr>`;
+  });
+  gridHtml+=`</tbody></table></div>`;
+  return simShell(skill.id,'NVH_StaffReport.xlsx','Home',ribbon,'A1:E1','',gridHtml,'',['Staff Report']);
+}
+
+// 5. Alignment
+function renderAlignmentSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const ribbon = `
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">⬅</span><span class="xl-btn-label">Left</span></button>
+    <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="markComplete('${skill.id}')">
+      <span class="xl-btn-icon">☰</span><span class="xl-btn-label">Center</span>
+    </button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">➡</span><span class="xl-btn-label">Right</span></button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">↵</span><span class="xl-btn-label">Indent</span></button>
+  </div><div class="xl-group-label">Alignment</div></div>`;
+  const rows = [
+    [done?'Name':'**Name', done?'Dept':'**Dept', done?'Salary':'**Salary', done?'Sick Days':'**Sick Days', done?'Status':'**Status'],
+    ['Maria Santos','Nursing','$68,500','3','Active'],
+    ['James Okafor','Radiology','$72,000','7','Active'],
+    ['Linda Park','Admin','$54,200','2','Active'],
+    ['Carlos Reyes','Emergency','$81,500','9','Active'],
+  ];
+  const grid = buildGrid(rows, {highlight:done?[]:['A1','B1','C1','D1','E1'], after:done?['A1','B1','C1','D1','E1']:[]});
+  return simShell(skill.id,'NVH_Directory.xlsx','Home',ribbon,'A1:E1','',grid,'',['Directory']);
+}
+
+// 6. Format Painter
+function renderFormatPainterSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const ribbon = `
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">📋</span><span class="xl-btn-label">Copy</span></button>
+    <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="handleFormatPainter('${skill.id}')">
+      <span class="xl-btn-icon">🖌️</span><span class="xl-btn-label">Format Painter</span>
+    </button>
+  </div><div class="xl-group-label">Clipboard</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>`;
+
+  const rows = [
+    ['**Section A — Morning Shift','','',''],
+    ['Maria Santos','Nursing','07:00','15:00'],
+    ['James Okafor','Radiology','07:00','15:00'],
+    ['Linda Park','Admin','08:00','16:00'],
+    ['**Section B — Afternoon Shift','','',''],
+    done?['Carlos Reyes','Emergency','15:00','23:00']:['Carlos Reyes','Emergency','15:00','23:00'],
+    done?['Emily Chen','Lab','15:00','23:00']:['Emily Chen','Lab','15:00','23:00'],
+  ];
+  const grid = buildGrid(rows, {
+    cols:['','A','B','C','D'],
+    highlight:done?[]:['A5'],
+    after:done?['A5']:[]
+  });
+  const hint2 = !done&&state.skillAttempted[skill.id] ? `<div style="padding:6px 12px;background:#e8f5e9;font-size:11px;color:var(--xl-green-dark)">✅ Format Painter active — now click cell A5 to apply the formatting.</div><div style="padding:8px 12px"><button onclick="markComplete('${skill.id}')" style="background:var(--xl-green);color:#fff;border:none;padding:5px 14px;border-radius:3px;font-size:12px;cursor:pointer">Click A5 (simulate)</button></div>` : '';
+  return simShell(skill.id,'NVH_Schedule.xlsx','Home',ribbon,'A1','',grid,hint2,['Schedule']);
+}
+
+function handleFormatPainter(id){
+  state.skillAttempted[id]=true;
+  const btn=document.getElementById(`btn_${id}`);
+  if(btn){btn.classList.remove('btn-target');btn.classList.add('btn-clicked');}
+  renderSkillPanel();
+}
+
+// 7. Wrap Text
+function renderWrapTextSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const ribbon = `
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">☰</span><span class="xl-btn-label">Center</span></button>
+    <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="markComplete('${skill.id}')">
+      <span class="xl-btn-icon">↵</span><span class="xl-btn-label">Wrap Text</span>
+    </button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">⬛</span><span class="xl-btn-label">Merge</span></button>
+  </div><div class="xl-group-label">Alignment</div></div>`;
+
+  const rows = [
+    ['**Name','**Job Description','**Dept','**FTE'],
+    ['Maria Santos', done?'Registered Nurse — Provides bedside patient care and medication administration in the ICU unit':'Registered Nurse — Provide...','Nursing','1.0'],
+    ['James Okafor', done?'Radiology Technician — Operates X-ray and MRI equipment for diagnostic imaging procedures':'Radiology Tech — Operates...','Radiology','1.0'],
+    ['Linda Park', done?'Administrative Coordinator — Manages scheduling, billing, and patient record documentation':'Admin Coord — Manages...','Admin','0.8'],
+  ];
+  const grid = buildGrid(rows, {cols:['','A','B','C','D'], highlight:done?[]:['B2','B3','B4'], after:done?['B2','B3','B4']:[], wrapped:done?['B2','B3','B4']:[]});
+  return simShell(skill.id,'NVH_JobDescriptions.xlsx','Home',ribbon,'B2:B4','',grid,'',['Job Descriptions']);
+}
+
+// 8. Conditional Formatting
+function renderCondFmtSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const ribbon = `
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>
+  <div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="handleCFClick('${skill.id}')">
+      <span class="xl-btn-icon">🎨</span><span class="xl-btn-label">Conditional Formatting</span>
+    </button>
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon">🗂️</span><span class="xl-btn-label">Format as Table</span></button>
+  </div><div class="xl-group-label">Styles</div></div>`;
+
+  const sickDays = [3,7,2,9,1];
+  const rows = [
+    ['**Name','**Department','**Sick Days','**Status'],
+    ...['Maria Santos','James Okafor','Linda Park','Carlos Reyes','Emily Chen'].map((n,i)=>[
+      n, ['Nursing','Radiology','Admin','Emergency','Lab'][i],
+      sickDays[i].toString(), 'Active'
+    ])
+  ];
+  const cfRed = done?['C3','C5']:[];
+  const grid = buildGrid(rows, {cols:['','A','B','C','D'], highlight:done?[]:['C2','C3','C4','C5','C6'], cfRed});
+
+  const cfDialog = !done&&state.skillAttempted[skill.id] ? `
+  <div class="xl-dialog-overlay" id="cfDialog_${skill.id}">
+    <div class="xl-dialog">
+      <div class="xl-dialog-title">Highlight Cells Rules — Greater Than</div>
+      <div class="xl-dialog-body">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:12px">Format cells where value is greater than:</span>
+          <input type="text" value="5" style="width:50px;padding:3px 6px;border:1px solid var(--xl-border);border-radius:3px;font-size:12px">
+        </div>
+        <div style="font-size:12px;margin-bottom:8px">With:</div>
+        <div class="fmt-grid">
+          <div class="fmt-btn btn-target" onclick="markComplete('${skill.id}')">🔴 Light Red Fill with Dark Red Text</div>
+          <div class="fmt-btn" onclick="wrongBtn('${skill.id}')">🟡 Yellow Fill</div>
+          <div class="fmt-btn" onclick="wrongBtn('${skill.id}')">🟢 Green Fill</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-light)">Preview: <span style="background:#ffcccc;padding:2px 8px;border-radius:2px">7</span></div>
+      </div>
+      <div class="xl-dialog-footer">
+        <button class="xl-dlg-btn" onclick="document.getElementById('cfDialog_${skill.id}').style.display='none';state.skillAttempted['${skill.id}']=false;renderSkillPanel()">Cancel</button>
+        <button class="xl-dlg-btn primary" onclick="markComplete('${skill.id}')">OK</button>
+      </div>
+    </div>
+  </div>` : '';
+
+  return simShell(skill.id,'NVH_AttendanceTracker.xlsx','Home',ribbon,'D2:D6','',grid,cfDialog,['Attendance']);
+}
+
+function handleCFClick(id){
+  state.skillAttempted[id]=true;
+  const btn=document.getElementById(`btn_${id}`);
+  if(btn){btn.classList.remove('btn-target');btn.classList.add('btn-clicked');}
+  renderSkillPanel();
+}
+
+// 9. Name Range
+function renderNameRangeSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const rows = [
+    ['**Name','**Department','**Salary','**Hire Year','**FTE'],
+    ['Maria Santos','Nursing','$68,500','2019','1.0'],
+    ['James Okafor','Radiology','$72,000','2020','1.0'],
+    ['Linda Park','Admin','$54,200','2021','0.8'],
+    ['Carlos Reyes','Emergency','$81,500','2018','1.0'],
+    ['Emily Chen','Lab','$63,800','2022','1.0'],
+  ];
+  const grid = buildGrid(rows, {cols:['','A','B','C','D','E'], highlight:done?[]:['C2','C3','C4','C5','C6'], after:done?['C2','C3','C4','C5','C6']:[]});
+  const ribbon = `<div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>`;
+
+  const overlay = `<div style="padding:8px 12px;background:#fffde7;border-top:1px solid #f0e68c;font-size:11px;color:#5a4000">
+    💡 Select C2:C6, then click the Name Box above and type "Salaries" and press Enter.
+  </div>
+  <div style="padding:8px 12px;display:flex;align-items:center;gap:8px">
+    <input class="xl-namebox" id="namebox2_${skill.id}" style="width:110px;border:1.5px solid ${done?'var(--pass-bd)':'var(--xl-green)'};background:${done?'var(--pass-bg)':'var(--xl-green-light)'};font-size:12px;padding:4px 8px;border-radius:3px" 
+      value="${done?'Salaries':'C2:C6'}" readonly>
+    ${!done?`<button onclick="handleNameDefine('${skill.id}')" style="background:var(--xl-green);color:#fff;border:none;padding:5px 14px;border-radius:3px;font-size:12px;cursor:pointer">Type "Salaries" + Enter (simulate)</button>`:'<span style="color:var(--pass-bd);font-weight:600;font-size:12px">✓ Named "Salaries"</span>'}
+  </div>`;
+  return simShell(skill.id,'NVH_Payroll.xlsx','Home',ribbon,'C2:C6','',grid,overlay,['Payroll']);
+}
+
+function handleNameDefine(id){
+  const nb=document.getElementById(`namebox2_${id}`);
+  if(nb){nb.value='Salaries';nb.style.borderColor='var(--pass-bd)';nb.style.background='var(--pass-bg)';}
+  markComplete(id);
+}
+
+// 10. Delete Cell
+function renderDeleteCellSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const withBlank = [
+    ['**Patient ID','**Name','**Dept','**Date'],
+    ['NVH-001','Maria Santos','Nursing','6/1/2026'],
+    ['NVH-002','James Okafor','Radiology','6/2/2026'],
+    ['NVH-003','','Emergency','6/3/2026'],  // blank B4
+    ['NVH-004','Carlos Reyes','Admin','6/4/2026'],
+    ['NVH-005','Emily Chen','Lab','6/5/2026'],
+  ];
+  const fixed = [
+    ['**Patient ID','**Name','**Dept','**Date'],
+    ['NVH-001','Maria Santos','Nursing','6/1/2026'],
+    ['NVH-002','James Okafor','Radiology','6/2/2026'],
+    ['NVH-003','Carlos Reyes','Emergency','6/3/2026'],
+    ['NVH-004','Emily Chen','Admin','6/4/2026'],
+    ['NVH-005','','Lab','6/5/2026'],
+  ];
+  const rows = done ? fixed : withBlank;
+  const grid = buildGrid(rows, {cols:['','A','B','C','D'], highlight:done?[]:['B4'], after:done?['B3','B4','B5']:[]});
+  const ribbon = `<div class="xl-group"><div class="xl-group-btns">
+    <button class="xl-btn" onclick="wrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+  </div><div class="xl-group-label">Font</div></div>`;
+
+  const ctxMenu = !done ? `
+  <div id="ctxDel_${skill.id}" class="ctx-menu" style="display:none;position:absolute;top:110px;left:80px">
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">✂️ Cut</div>
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">📋 Copy</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">➕ Insert…</div>
+    <div class="ctx-item btn-target" onclick="handleDeleteCell('${skill.id}')">🗑️ Delete…</div>
+    <div class="ctx-item" onclick="wrongBtn('${skill.id}')">🧹 Clear Contents</div>
+  </div>
+  <div style="padding:8px 12px;background:#fffde7;border-top:1px solid #f0e68c;font-size:11px;color:#5a4000">
+    💡 Cell B4 is blank — it's throwing off the alignment. Right-click B4 and choose Delete → Shift cells up.
+  </div>
+  <div style="padding:8px 12px">
+    <button onclick="document.getElementById('ctxDel_${skill.id}').style.display='block'" style="background:var(--xl-green-light);border:1.5px solid var(--xl-green);color:var(--xl-green-dark);padding:5px 12px;border-radius:3px;font-size:12px;cursor:pointer">
+      Right-click B4 (simulate)
+    </button>
+  </div>` : '';
+
+  const shiftDialog = !done&&state.skillAttempted[skill.id] ? `
+  <div class="xl-dialog-overlay">
+    <div class="xl-dialog">
+      <div class="xl-dialog-title">Delete</div>
+      <div class="xl-dialog-body">
+        <div style="margin-bottom:8px;font-size:12px">Choose how to shift the remaining cells:</div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:400;font-size:12px"><input type="radio" name="shiftdel_${skill.id}"> Shift cells left</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:400;font-size:12px;color:var(--xl-green);font-weight:600"><input type="radio" name="shiftdel_${skill.id}" checked> Shift cells up ← select this</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:400;font-size:12px"><input type="radio" name="shiftdel_${skill.id}"> Entire row</label>
+        <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:12px"><input type="radio" name="shiftdel_${skill.id}"> Entire column</label>
+      </div>
+      <div class="xl-dialog-footer">
+        <button class="xl-dlg-btn" onclick="state.skillAttempted['${skill.id}']=false;renderSkillPanel()">Cancel</button>
+        <button class="xl-dlg-btn primary" onclick="markComplete('${skill.id}')">OK</button>
+      </div>
+    </div>
+  </div>` : '';
+
+  return simShell(skill.id,'NVH_PatientIntake.xlsx','Home',ribbon,'B4','',grid, ctxMenu+shiftDialog,['Intake Log']);
+}
+
+function handleDeleteCell(id){
+  const menu=document.getElementById(`ctxDel_${id}`);
+  if(menu)menu.style.display='none';
+  state.skillAttempted[id]=true;
+  renderSkillPanel();
+}
+
+// ── Core functions ──
+function markComplete(skillId) {
+  state.completedSkills.add(skillId); saveState(); renderNav(); renderSkillPanel();
+  if(window.api&&window.api.saveLabAnswer) window.api.saveLabAnswer('e2_'+skillId,'completed',true).catch(()=>{});
+  const idx=SKILLS.findIndex(s=>s.id===skillId);
+  if(idx<SKILLS.length-1) setTimeout(()=>goSkill(idx+1),1200);
+}
+
+function showHint(skillId) {
+  const skill=SKILLS.find(s=>s.id===skillId); if(!skill)return;
+  const hl=state.hintLevel[skillId]||0; if(hl>=3)return;
+  state.hintLevel[skillId]=hl+1;
+  const newHl=state.hintLevel[skillId];
+  const box=document.getElementById(`hintBox_${skillId}`);
+  if(box){box.innerHTML=`<strong>Hint ${newHl}:</strong> ${newHl===1?skill.hint1:newHl===2?skill.hint2:skill.hint3}`;box.classList.add('visible');}
+  document.querySelectorAll('.btn-hint').forEach(b=>{if(b.closest('#skillPanel'))b.textContent=`💡 Hint (${newHl}/3)`;});
+}
+
+function toggleResources(skillId) {
+  state.resourcesOpen[skillId]=!state.resourcesOpen[skillId];
+  const p=document.getElementById(`resPanel_${skillId}`);
+  if(p)p.classList.toggle('open',state.resourcesOpen[skillId]);
+}
+
+function copyPrompt(skillId) {
+  const skill=SKILLS.find(s=>s.id===skillId); if(!skill)return;
+  navigator.clipboard.writeText(skill.resources.ai).then(()=>alert('Prompt copied! Paste into ChatGPT, Copilot, or Perplexity.')).catch(()=>prompt('Copy this prompt:',skill.resources.ai));
+}
+
+function renderNavRow() {
+  const idx=state.currentSkillIdx, skill=SKILLS[idx], done=state.completedSkills.has(skill.id);
+  return `<div class="skill-nav-row">
+    <button class="btn-nav secondary" onclick="goSkill(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+    <span class="skill-status-text">${done?'✅ Complete':'Skill '+skill.num+' of '+SKILLS.length}</span>
+    <button class="btn-nav primary" onclick="goSkill(${idx+1})" ${idx===SKILLS.length-1?'disabled':''}>Next →</button>
+  </div>`;
+}
+
+renderNav();
+renderSkillPanel();
+</script>
+</body>
+</html>
