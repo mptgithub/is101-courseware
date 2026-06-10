@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Introduction to Computing | CSN</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #2b579a; --blue-dark: #1e3f6f; --blue-light: #e8f0fb;
+    --green: #217346; --green-dark: #185a35; --green-light: #e9f5ee;
+    --purple: #6b2fa0; --purple-light: #f3eafc;
+    --orange: #c55a11; --orange-light: #fef3ec;
+    --border: #d0d0d0; --text: #1a1a1a; --text-mid: #444; --text-light: #767676;
+    --pass-bg: #e6f4ea; --pass-bd: #34a853;
+    --radius: 8px; --shadow: 0 2px 10px rgba(0,0,0,.12);
+  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: var(--text); min-height: 100vh; }
+
+  /* ── Top Bar ── */
+  .topbar {
+    background: var(--blue); color: #fff;
+    padding: 0 24px; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar-logo { font-size: 22px; }
+  .topbar-title { font-size: 16px; font-weight: 700; }
+  .topbar-sub { font-size: 12px; opacity: .8; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .nshe-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+  .btn-instructor { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; text-decoration: none; }
+
+  /* ── Page ── */
+  .page-wrap { max-width: 1000px; margin: 0 auto; padding: 28px 16px 80px; }
+
+  /* ── Welcome ── */
+  .welcome-card {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: #fff; border-radius: var(--radius); padding: 24px 28px;
+    margin-bottom: 28px; box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .welcome-card h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .welcome-card p { font-size: 14px; opacity: .85; }
+  .overall-progress { text-align: right; }
+  .overall-progress .big-num { font-size: 32px; font-weight: 700; line-height: 1; }
+  .overall-progress .label { font-size: 12px; opacity: .75; margin-top: 2px; }
+  .overall-bar { width: 180px; height: 8px; background: rgba(255,255,255,.25); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .overall-fill { height: 100%; background: #4caf50; border-radius: 4px; transition: width .5s ease; }
+
+  /* ── Section header ── */
+  .section-label { font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; }
+
+  /* ── Unit Cards ── */
+  .units-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 18px; margin-bottom: 32px; }
+  .unit-card {
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+    overflow: hidden; border: 2px solid transparent; transition: all .2s;
+  }
+  .unit-card:hover { border-color: var(--border); transform: translateY(-1px); }
+  .unit-card-header {
+    padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+  }
+  .unit-icon { font-size: 28px; flex-shrink: 0; }
+  .unit-header-text { flex: 1; }
+  .unit-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; opacity: .7; }
+  .unit-name { font-size: 17px; font-weight: 700; margin: 2px 0; }
+  .unit-meta { font-size: 12px; color: var(--text-light); }
+  .unit-progress-wrap { text-align: right; }
+  .unit-pct { font-size: 20px; font-weight: 700; }
+  .unit-pct-label { font-size: 11px; color: var(--text-light); }
+  .unit-progress-bar { width: 80px; height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; margin-top: 4px; margin-left: auto; }
+  .unit-progress-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+  .unit-card-body { padding: 0 20px 16px; }
+  /* Skill group rows */
+  .skill-group { margin-bottom: 8px; }
+  .skill-group-label { font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
+  .skill-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .skill-pill {
+    background: #f5f5f5; border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
+    cursor: pointer; color: var(--text-mid); transition: all .12s;
+  }
+  .skill-pill:hover { border-color: #999; background: #ebebeb; }
+  .skill-pill.done { background: var(--pass-bg); border-color: var(--pass-bd); color: #1a5c2e; }
+  .unit-card-footer {
+    padding: 12px 20px; border-top: 1px solid #f0f0f0;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  }
+  .btn-jump { padding: 7px 16px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+  .btn-jump.primary { color: #fff; }
+  .btn-jump.secondary { background: #f5f5f5; border: 1.5px solid var(--border); color: var(--text-mid); }
+  .btn-jump.secondary:hover { background: #ebebeb; }
+
+  /* Colors per unit */
+  .u1 { --uc: #6b2fa0; --uc-light: #f3eafc; }
+  .u2 { --uc: #2b579a; --uc-light: #e8f0fb; }
+  .u3 { --uc: #217346; --uc-light: #e9f5ee; }
+  .u4 { --uc: #c55a11; --uc-light: #fef3ec; }
+  .unit-card-header { background: var(--uc-light); }
+  .unit-num { color: var(--uc); }
+  .unit-pct { color: var(--uc); }
+  .unit-progress-fill { background: var(--uc); }
+  .btn-jump.primary { background: var(--uc); }
+  .btn-jump.primary:hover { filter: brightness(.9); }
+
+  /* ── Skill Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: var(--radius); box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    width: 100%; max-width: 520px; overflow: hidden;
+  }
+  .modal-header { padding: 18px 22px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .modal-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+  .modal-header p { font-size: 13px; color: var(--text-light); }
+  .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-light); line-height: 1; padding: 0; margin-left: 8px; flex-shrink: 0; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 0 22px 18px; }
+  .modal-section { margin-bottom: 14px; }
+  .modal-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-light); margin-bottom: 6px; }
+  .modal-skill-name { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .modal-scenario { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+  .path-cards { display: flex; gap: 10px; flex-wrap: wrap; }
+  .path-card {
+    flex: 1; min-width: 140px; border: 2px solid var(--border); border-radius: 6px;
+    padding: 14px 16px; cursor: pointer; transition: all .15s; background: #fafafa;
+  }
+  .path-card:hover { border-color: #999; background: #f0f0f0; }
+  .path-card.primary-path { border-color: var(--uc,var(--blue)); background: var(--uc-light,var(--blue-light)); }
+  .path-card.primary-path:hover { filter: brightness(.97); }
+  .path-icon { font-size: 22px; margin-bottom: 6px; }
+  .path-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .path-desc { font-size: 11px; color: var(--text-light); line-height: 1.4; }
+  .modal-footer { padding: 12px 22px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; }
+  .btn-cancel { background: none; border: 1px solid var(--border); color: var(--text-mid); padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #333; color: #fff; padding: 10px 20px; border-radius: 6px;
+    font-size: 13px; z-index: 300; transition: transform .3s ease; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.warning { background: #e65100; }
+  .toast.success { background: var(--green); }
+
+  /* ── Coming Soon badge ── */
+  .coming-soon { background: #f5f5f5; border: 1px dashed #bbb; border-radius: 4px; padding: 8px 14px; font-size: 12px; color: var(--text-light); text-align: center; }
+
+  @media(max-width:600px){ .units-grid{grid-template-columns:1fr;} .path-cards{flex-direction:column;} }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🎓</span>
+    <div>
+      <div class="topbar-title">IS101 — Introduction to Computing</div>
+      <div class="topbar-sub">College of Southern Nevada · Dr. Mark Taormino</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="nshe-badge" id="nsheDisplay">Loading...</span>
+    <a href="instructor.html" class="btn-instructor">Instructor</a>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Welcome -->
+  <div class="welcome-card">
+    <div>
+      <h1>Welcome back! 👋</h1>
+      <p>Pick up where you left off. Click any skill pill to open the practice simulator.</p>
+    </div>
+    <div class="overall-progress">
+      <div class="big-num" id="overallPct">0%</div>
+      <div class="label">Overall Progress</div>
+      <div class="overall-bar"><div class="overall-fill" id="overallFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="section-label">Your Course Units</div>
+
+  <!-- Units Grid -->
+  <div class="units-grid" id="unitsGrid"></div>
+
+</div>
+
+<!-- Skill Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header" id="modalHeader">
+      <div>
+        <h2 id="modalSkillName">Skill Name</h2>
+        <p id="modalSkillMeta">Unit · Skill group</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-label">Scenario</div>
+        <div class="modal-scenario" id="modalScenario">Loading...</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Choose Your Path</div>
+        <div class="path-cards" id="pathCards"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// COURSE DATA
+// ═══════════════════════════════════════════════
+const UNITS = [
+  {
+    id: 1, color: 'u1', icon: '🤖',
+    name: 'Artificial Intelligence: It is Real!',
+    meta: '2 topics · AI Knowledge Check · NotebookLM Walkthrough',
+    groups: [
+      {
+        label: 'Topic 1 — Understanding AI',
+        skills: [
+          { id:'ai-t1-watch', label:'Watch Lesson', file:'IS101_Video_Lessons_05272026_0928.html', type:'video' },
+          { id:'ai-t1-exam', label:'AI Knowledge Check', file:'IS101_AI_Exam_05272026_0928.html', type:'exam' },
+        ]
+      },
+      {
+        label: 'Topic 2 — Google NotebookLM',
+        skills: [
+          { id:'ai-t2-watch', label:'Watch Lesson', file:'IS101_Video_Lessons_05272026_0928.html', type:'video' },
+          { id:'ai-t2-checklist', label:'NotebookLM Walkthrough', file:'IS101_NotebookLM_Checklist_05272026_0928.html', type:'checklist' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 2, color: 'u2', icon: '📝',
+    name: 'Word Processing (Microsoft Word 365)',
+    meta: 'MO-100 · 6 Domains · 50+ skills · 4 Projects',
+    groups: [
+      {
+        label: 'D1 — Manage Documents',
+        skills: [
+          {id:'search-text',label:'Search Text'},{id:'insert-hyperlink',label:'Insert Hyperlink'},
+          {id:'goto',label:'Go To'},{id:'set-margins',label:'Margins'},
+          {id:'set-orientation',label:'Orientation'},{id:'insert-header',label:'Headers & Footers'},
+          {id:'insert-page-numbers',label:'Page Numbers'},{id:'save-as-format',label:'Save As Format'},
+        ]
+      },
+      {
+        label: 'D2 — Format Text & Paragraphs',
+        skills: [
+          {id:'find-replace',label:'Find & Replace'},{id:'apply-text-effects',label:'Text Effects'},
+          {id:'format-painter',label:'Format Painter'},{id:'set-line-spacing',label:'Line Spacing'},
+          {id:'set-paragraph-spacing',label:'Paragraph Spacing'},{id:'apply-paragraph-style',label:'Paragraph Styles'},
+          {id:'format-columns',label:'Columns'},{id:'insert-section-break',label:'Section Breaks'},
+        ]
+      },
+      {
+        label: 'D3 — Tables & Lists',
+        skills: [
+          {id:'create-table',label:'Create Table'},{id:'merge-cells',label:'Merge Cells'},
+          {id:'sort-table',label:'Sort Table'},{id:'numbered-list',label:'Numbered List'},
+          {id:'bulleted-list',label:'Bulleted List'},{id:'increase-list-level',label:'List Levels'},
+        ]
+      },
+      {
+        label: 'D4 — References',
+        skills: [
+          {id:'insert-footnote',label:'Footnotes'},{id:'insert-endnote',label:'Endnotes'},
+          {id:'insert-toc',label:'Table of Contents'},{id:'customize-toc',label:'Customize TOC'},
+        ]
+      },
+      {
+        label: 'D5 — Graphic Elements',
+        skills: [
+          {id:'insert-shape',label:'Insert Shape'},{id:'insert-picture',label:'Insert Picture'},
+          {id:'insert-smartart',label:'SmartArt'},{id:'add-alt-text',label:'Alt Text'},
+          {id:'position-object',label:'Position Object'},{id:'wrap-text',label:'Wrap Text'},
+        ]
+      },
+      {
+        label: 'D6 — Collaboration',
+        skills: [
+          {id:'add-comment',label:'Add Comment'},{id:'track-changes',label:'Track Changes'},
+          {id:'accept-tracked-change',label:'Accept Changes'},{id:'reject-tracked-change',label:'Reject Changes'},
+        ]
+      }
+    ]
+  },
+  {
+    id: 3, color: 'u3', icon: '📊',
+    name: 'Spreadsheets (Microsoft Excel 365)',
+    meta: 'MO-210 · 5 Domains · 47 skills · 4 Projects',
+    groups: [
+      {
+        label: 'E1 — Manage Worksheets & Workbooks',
+        skills: [
+          {id:'import-data',label:'Import CSV/TXT'},{id:'navigate-named',label:'Navigate Named Ranges'},
+          {id:'customize-qat',label:'Quick Access Toolbar'},{id:'print-settings',label:'Print Settings'},
+          {id:'configure-rows-cols',label:'Rows & Columns'},{id:'workbook-themes',label:'Workbook Themes'},
+          {id:'freeze-panes',label:'Freeze Panes'},{id:'workbook-properties',label:'Workbook Properties'},
+          {id:'save-format',label:'Save As Format'},
+        ]
+      },
+      {
+        label: 'E2 — Manage Data Cells & Ranges',
+        skills: [
+          {id:'autofill',label:'AutoFill'},{id:'insert-delete-cols-rows',label:'Insert/Delete Cols & Rows'},
+          {id:'format-cells',label:'Format Cells'},{id:'merge-cells',label:'Merge & Unmerge'},
+          {id:'cell-alignment',label:'Alignment & Indent'},{id:'format-painter',label:'Format Painter'},
+          {id:'wrap-text',label:'Wrap Text'},{id:'conditional-formatting',label:'Conditional Formatting'},
+          {id:'name-ranges',label:'Name Ranges'},{id:'insert-delete-cells',label:'Insert/Delete Cells'},
+        ]
+      },
+      {
+        label: 'E3 — Manage Tables & Table Data',
+        skills: [
+          {id:'create-table',label:'Create Table'},{id:'table-styles',label:'Table Styles'},
+          {id:'total-row',label:'Total Row'},{id:'filter-sort',label:'Filter & Sort'},
+          {id:'table-cols-rows',label:'Add/Remove Cols & Rows'},{id:'remove-duplicates',label:'Remove Duplicates'},
+        ]
+      },
+      {
+        label: 'E4 — Formulas & Functions',
+        skills: [
+          {id:'sum',label:'SUM'},{id:'average',label:'AVERAGE'},{id:'min-max',label:'MIN / MAX'},
+          {id:'count',label:'COUNT / COUNTA'},{id:'if-function',label:'IF'},
+          {id:'nested-if',label:'Nested IF'},{id:'countif',label:'COUNTIF'},{id:'sumif',label:'SUMIF'},
+          {id:'left-right-mid',label:'LEFT / RIGHT / MID'},{id:'concat',label:'CONCAT / TEXTJOIN'},
+          {id:'today-now',label:'TODAY / NOW'},{id:'year-month-day',label:'YEAR / MONTH / DAY'},
+          {id:'vlookup',label:'VLOOKUP'},{id:'xlookup',label:'XLOOKUP'},{id:'iferror',label:'IFERROR'},
+        ]
+      },
+      {
+        label: 'E5 — Manage Charts',
+        skills: [
+          {id:'create-chart',label:'Create Charts'},{id:'chart-sheets',label:'Chart Sheets'},
+          {id:'modify-charts',label:'Modify Charts'},{id:'format-chart',label:'Format Chart Elements'},
+          {id:'chart-elements',label:'Add Chart Elements'},{id:'chart-styles',label:'Chart Styles'},
+          {id:'chart-alt-text',label:'Alt Text'},
+        ]
+      }
+    ]
+  },
+  {
+    id: 4, color: 'u4', icon: '📺',
+    name: 'Presentations (PowerPoint 365)',
+    meta: 'MO-300 · Coming Soon',
+    groups: [
+      { label: 'Coming Soon', skills: [] }
+    ]
+  }
+];
+
+// ── Routing maps ──
+const WORD_DOMAIN_MAP = {
+  'search-text':'D1','insert-hyperlink':'D1','goto':'D1','show-hide-formatting':'D1',
+  'set-margins':'D1','set-orientation':'D1','set-paper-size':'D1','apply-style-set':'D1',
+  'insert-header':'D1','insert-footer':'D1','insert-page-numbers':'D1','add-watermark':'D1',
+  'set-page-color':'D1','add-page-borders':'D1','save-as-format':'D1','modify-doc-properties':'D1',
+  'modify-print-settings':'D1','share-document':'D1','remove-hidden-properties':'D1',
+  'check-accessibility':'D1','check-compatibility':'D1',
+  'find-replace':'D2','insert-symbol':'D2','apply-text-effects':'D2','format-painter':'D2',
+  'set-line-spacing':'D2','set-paragraph-spacing':'D2','set-indentation':'D2',
+  'apply-character-style':'D2','apply-paragraph-style':'D2','clear-formatting':'D2',
+  'format-columns':'D2','insert-page-break':'D2','insert-section-break':'D2',
+  'insert-column-break':'D2','change-section-page-setup':'D2',
+  'create-table':'D3','convert-text-table':'D3','convert-table-text':'D3','sort-table':'D3',
+  'cell-margins-spacing':'D3','merge-cells':'D3','split-cells':'D3','resize-table':'D3',
+  'split-table':'D3','repeat-header-row':'D3','numbered-list':'D3','bulleted-list':'D3',
+  'change-list-format':'D3','increase-list-level':'D3','restart-list-numbering':'D3',
+  'insert-footnote':'D4','insert-endnote':'D4','modify-footnote-endnote':'D4',
+  'insert-toc':'D4','customize-toc':'D4',
+  'insert-shape':'D5','insert-picture':'D5','insert-3d-model':'D5','insert-smartart':'D5',
+  'insert-screenshot':'D5','insert-text-box':'D5','insert-icon':'D5',
+  'apply-artistic-effects':'D5','apply-picture-styles':'D5','remove-background':'D5',
+  'format-shape':'D5','format-smartart':'D5','format-3d-model':'D5',
+  'add-text-text-box':'D5','add-text-shape':'D5','modify-smartart-content':'D5',
+  'position-object':'D5','wrap-text':'D5','add-alt-text':'D5',
+  'add-comment':'D6','review-reply-comment':'D6','resolve-comment':'D6','delete-comment':'D6',
+  'track-changes':'D6','review-tracked-changes':'D6','accept-tracked-change':'D6',
+  'reject-tracked-change':'D6','lock-track-changes':'D6',
+};
+
+const WORD_DOMAIN_FILES = {
+  'D1':'IS101_Word_D1_06092026_1956.html','D2':'IS101_Word_D2_06092026_1956.html',
+  'D3':'IS101_Word_D3_06092026_1956.html','D4':'IS101_Word_D4_06092026_1956.html',
+  'D5':'IS101_Word_D5_06092026_1956.html','D6':'IS101_Word_D6_06092026_1956.html',
+};
+
+const EXCEL_DOMAIN_MAP = {
+  // E1 — Manage Worksheets and Workbooks
+  'import-data':'E1','navigate-named':'E1','customize-qat':'E1',
+  'print-settings':'E1','configure-rows-cols':'E1','workbook-themes':'E1',
+  'freeze-panes':'E1','workbook-properties':'E1','save-format':'E1',
+  // E2 — Manage Data Cells and Ranges
+  'autofill':'E2','insert-delete-cols-rows':'E2','insert-delete-cells':'E2',
+  'format-cells':'E2','merge-cells':'E2','cell-alignment':'E2',
+  'format-painter':'E2','wrap-text':'E2','conditional-formatting':'E2','name-ranges':'E2',
+  // E3 — Manage Tables and Table Data
+  'create-table':'E3','table-styles':'E3','total-row':'E3',
+  'filter-sort':'E3','table-cols-rows':'E3','remove-duplicates':'E3',
+  // E4 — Formulas and Functions
+  'sum':'E4','average':'E4','min-max':'E4','count':'E4',
+  'if-function':'E4','nested-if':'E4','countif':'E4','sumif':'E4',
+  'left-right-mid':'E4','concat':'E4','today-now':'E4',
+  'year-month-day':'E4','vlookup':'E4','xlookup':'E4','iferror':'E4',
+  // E5 — Manage Charts
+  'create-chart':'E5','chart-sheets':'E5','modify-charts':'E5',
+  'format-chart':'E5','chart-elements':'E5','chart-styles':'E5','chart-alt-text':'E5',
+};
+
+const EXCEL_DOMAIN_FILES = {
+  'E1':'IS101_Excel_E1_06102026_0900.html',
+  'E2':'IS101_Excel_E2_06102026_1315.html',
+  'E3':'IS101_Excel_E3_06102026_1315.html',
+  'E4':'IS101_Excel_E4_06102026_1333.html',
+  'E5':'IS101_Excel_E5_06102026_1406.html',
+};
+
+// ── State ──
+let progress = {};
+let currentUnit = null;
+let currentSkillId = null;
+
+// Load progress from localStorage
+try {
+  const saved = localStorage.getItem('is101_progress');
+  if (saved) progress = JSON.parse(saved);
+} catch(e) {}
+
+function saveProgress() {
+  try { localStorage.setItem('is101_progress', JSON.stringify(progress)); } catch(e) {}
+}
+
+// ── NSHE display ──
+const nshe = sessionStorage.getItem('nshe_id') || localStorage.getItem('nshe_id') || '';
+document.getElementById('nsheDisplay').textContent = nshe ? `NSHE: ${nshe}` : 'Student';
+
+// ── Build UI ──
+function buildUnits() {
+  const grid = document.getElementById('unitsGrid');
+  grid.innerHTML = '';
+
+  let totalSkills = 0, doneSkills = 0;
+
+  UNITS.forEach(unit => {
+    const allSkills = unit.groups.flatMap(g => g.skills);
+    const doneCount = allSkills.filter(s => progress[s.id]).length;
+    const pct = allSkills.length ? Math.round((doneCount / allSkills.length) * 100) : 0;
+    totalSkills += allSkills.length;
+    doneSkills += doneCount;
+
+    const card = document.createElement('div');
+    card.className = `unit-card ${unit.color}`;
+    card.innerHTML = `
+      <div class="unit-card-header">
+        <div class="unit-icon">${unit.icon}</div>
+        <div class="unit-header-text">
+          <div class="unit-num">Unit ${unit.id}</div>
+          <div class="unit-name">${unit.name}</div>
+          <div class="unit-meta">${unit.meta}</div>
+        </div>
+        <div class="unit-progress-wrap">
+          <div class="unit-pct">${pct}%</div>
+          <div class="unit-pct-label">${doneCount} / ${allSkills.length}</div>
+          <div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="unit-card-body">
+        ${unit.id === 4 ? '<div class="coming-soon">📅 PowerPoint labs coming soon</div>' :
+          unit.groups.map(g => `
+          <div class="skill-group">
+            <div class="skill-group-label">${g.label}</div>
+            <div class="skill-pills">
+              ${g.skills.length === 0 ? '<span style="font-size:11px;color:var(--text-light)">Coming soon</span>' :
+                g.skills.map(s => `
+                <span class="skill-pill ${progress[s.id] ? 'done' : ''}"
+                  onclick="openSkillModal(${unit.id},'${s.id}','${(s.label||'').replace(/'/g,"\\'")}','${g.label}')">
+                  ${progress[s.id] ? '✓ ' : ''}${s.label}
+                </span>`).join('')}
+            </div>
+          </div>`).join('')
+        }
+      </div>
+      <div class="unit-card-footer">
+        ${unit.id === 1 ? `
+          <button class="btn-jump primary" onclick="window.location.href='IS101_AI_Exam_05272026_0928.html'">AI Knowledge Check →</button>
+          <button class="btn-jump secondary" onclick="window.location.href='IS101_NotebookLM_Checklist_05272026_0928.html'">NotebookLM Walkthrough →</button>
+        ` : unit.id === 4 ? `
+          <span style="font-size:12px;color:var(--text-light)">Coming soon</span>
+        ` : `
+          <button class="btn-jump primary" onclick="jumpToProjects(${unit.id})">Jump to Projects →</button>
+          <button class="btn-jump secondary" onclick="jumpToFirstSkill(${unit.id})">Start First Skill →</button>
+        `}
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Overall progress
+  const overallPct = totalSkills ? Math.round((doneSkills / totalSkills) * 100) : 0;
+  document.getElementById('overallPct').textContent = overallPct + '%';
+  document.getElementById('overallFill').style.width = overallPct + '%';
+}
+
+// ── Modal ──
+function openSkillModal(unitId, skillId, skillLabel, groupLabel) {
+  currentUnit = unitId;
+  currentSkillId = skillId;
+
+  document.getElementById('modalSkillName').textContent = skillLabel;
+  document.getElementById('modalSkillMeta').textContent = `Unit ${unitId} · ${groupLabel}`;
+  document.getElementById('modalScenario').textContent = getScenario(unitId, skillId);
+
+  // Set unit color on modal header
+  const hdr = document.getElementById('modalHeader');
+  const unit = UNITS.find(u => u.id === unitId);
+  hdr.style.background = unitId === 1 ? '#f3eafc' : unitId === 2 ? '#e8f0fb' : unitId === 3 ? '#e9f5ee' : '#fef3ec';
+
+  // Build path cards
+  const paths = document.getElementById('pathCards');
+  if (unitId === 1) {
+    paths.innerHTML = `
+      <div class="path-card primary-path" onclick="goDirectly('${skillId}',${unitId})">
+        <div class="path-icon">▶️</div>
+        <div class="path-title">Go to Activity</div>
+        <div class="path-desc">Open this lesson or activity now</div>
+      </div>`;
+  } else {
+    paths.innerHTML = `
+      <div class="path-card primary-path" onclick="goPractice()">
+        <div class="path-icon">📖</div>
+        <div class="path-title">Practice with Help</div>
+        <div class="path-desc">Guided simulator with hints and resources</div>
+      </div>
+      <div class="path-card" onclick="goProveIt()">
+        <div class="path-icon">✋</div>
+        <div class="path-title">Prove It</div>
+        <div class="path-desc">Skip to the challenge — demonstrate the skill</div>
+      </div>`;
+  }
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  currentUnit = null;
+  currentSkillId = null;
+}
+
+// Close on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function getScenario(unitId, skillId) {
+  const scenarios = {
+    // Unit 1
+    'ai-t1-watch': 'Watch the video lesson on how AI works, machine learning, and hallucinations.',
+    'ai-t1-exam': 'Test your AI knowledge — 10 questions, requires 100% to pass. Unlimited retakes.',
+    'ai-t2-watch': 'Watch the deep-dive lesson on Google NotebookLM features.',
+    'ai-t2-checklist': 'Complete the interactive NotebookLM walkthrough — 6 sections, 19 steps.',
+    // Unit 2 Word
+    'find-replace': 'Desert Sun Consulting: use Find & Replace to update company name across a report.',
+    'set-margins': 'Nevada Valley Healthcare: adjust document margins for a professional training manual.',
+    'insert-header': 'Oasis Events: add a header with the company name and page number.',
+    'insert-toc': 'CSN Sociology Paper: insert an automatic Table of Contents from heading styles.',
+    'merge-cells': 'Desert Sun: merge table cells to create a title row spanning all columns.',
+    'track-changes': 'Nevada Valley Healthcare: enable Track Changes before reviewing a document.',
+    'add-alt-text': 'CSN: add descriptive alt text to images for accessibility compliance.',
+    // Unit 3 Excel
+    'import-data': 'Desert Sun Consulting: import a .csv expense report from a branch office.',
+    'navigate-named': 'Desert Sun quarterly workbook: jump to the named range "Q2_Revenue".',
+    'customize-qat': 'Desert Sun: add Quick Print to the Quick Access Toolbar.',
+    'print-settings': 'Desert Sun: set page orientation to Landscape before printing the Q2 report.',
+    'configure-rows-cols': 'Desert Sun: unhide column E in the expense tracker.',
+    'workbook-themes': 'Desert Sun: apply the Retrospect theme to match brand colors.',
+    'freeze-panes': 'Desert Sun: freeze row 1 so headers stay visible while scrolling 200+ rows.',
+    'workbook-properties': 'Desert Sun: add title and author to the workbook properties.',
+    'save-format': 'Desert Sun: save the Q2 report as a PDF to share with a client.',
+    'autofill': 'Nevada Valley Healthcare: extend a series of months using AutoFill.',
+    'insert-delete-cols-rows': 'NV Healthcare HR: insert two new columns for certifications.',
+    'format-cells': 'NV Healthcare payroll: apply Currency format to salary cells.',
+    'conditional-formatting': 'NV Healthcare: highlight employees with more than 5 sick days in red.',
+    'sum': 'Desert Bloom Florist: total monthly revenue with a SUM formula.',
+    'average': 'Desert Bloom Florist: find average daily sales with AVERAGE.',
+    'min-max': 'Desert Bloom Florist: identify best and worst sales day with MIN and MAX.',
+    'count': 'Desert Bloom Florist: count sales entries with COUNT and COUNTA.',
+    'if-function': 'CSN Grade Book: assign Pass/Fail based on whether score is 70 or above.',
+    'nested-if': 'CSN Grade Book: assign letter grades A–F using a nested IF formula.',
+    'countif': 'CSN Grade Book: count how many students received an A grade.',
+    'sumif': 'Cactus Kitchen: sum revenue only from the Dinner menu category.',
+    'left-right-mid': 'Cactus Kitchen: extract category code from item codes using LEFT.',
+    'concat': 'Cactus Kitchen: combine first and last name columns into full name.',
+    'today-now': 'Desert Bloom Florist: insert today\'s date on invoices automatically.',
+    'year-month-day': 'Desert Bloom Florist: extract the year from hire dates.',
+    'vlookup': 'Cactus Kitchen: look up menu item prices from a reference table.',
+    'xlookup': 'Cactus Kitchen: modernize lookup formulas using XLOOKUP.',
+    'iferror': 'Cactus Kitchen: replace #N/A errors with "Not Found" using IFERROR.',
+    'create-table': 'Oasis Events: convert booking data into an Excel Table.',
+    'table-styles': 'Oasis Events: apply a green table style to match company branding.',
+    'total-row': 'Oasis Events: add a Total Row showing sum of revenue and average guests.',
+    'filter-sort': 'Oasis Events: filter for Ballroom bookings only, sorted by revenue.',
+    'table-cols-rows': 'Oasis Events: add a Deposit Paid column and remove a cancelled event.',
+    'remove-duplicates': 'Oasis Events: remove duplicate booking rows imported from two systems.',
+    'create-chart': 'SW Technology Solutions: create a column chart of headcount by department.',
+    'chart-sheets': 'STS: move the chart to its own dedicated sheet named "HR Dashboard".',
+    'modify-charts': 'STS: change the chart type from Column to Line to show trends.',
+    'format-chart': 'STS: format the chart bars to use the company blue color.',
+    'chart-elements': 'STS: add a chart title and data labels for the presentation.',
+    'chart-styles': 'STS: apply Quick Layout 1 and dark Chart Style 8.',
+    'chart-alt-text': 'STS: add alt text to the chart for screen reader accessibility.',
+  };
+  return scenarios[skillId] || 'Click Practice with Help to open the simulator for this skill.';
+}
+
+// ── Navigation ──
+function goPractice() {
+  closeModal();
+  if (currentUnit === 2) {
+    const domain = WORD_DOMAIN_MAP[currentSkillId] || 'D1';
+    window.location.href = WORD_DOMAIN_FILES[domain];
+  } else if (currentUnit === 3) {
+    const domain = EXCEL_DOMAIN_MAP[currentSkillId] || 'E1';
+    const file = EXCEL_DOMAIN_FILES[domain];
+    if (file) {
+      window.location.href = file;
+    } else {
+      showToast('Excel labs coming soon!', 'warning');
+    }
+  } else {
+    showToast('Practice labs coming soon!', 'warning');
+  }
+}
+
+function goProveIt() {
+  closeModal();
+  if (currentUnit === 2) {
+    const domain = WORD_DOMAIN_MAP[currentSkillId] || 'D1';
+    window.location.href = WORD_DOMAIN_FILES[domain] + '#prove-' + currentSkillId;
+  } else if (currentUnit === 3) {
+    const domain = EXCEL_DOMAIN_MAP[currentSkillId] || 'E1';
+    window.location.href = EXCEL_DOMAIN_FILES[domain] + '#prove-' + currentSkillId;
+  } else {
+    showToast('Coming soon!', 'warning');
+  }
+}
+
+function goDirectly(skillId, unitId) {
+  closeModal();
+  const map = {
+    'ai-t1-watch':'IS101_Video_Lessons_05272026_0928.html',
+    'ai-t1-exam':'IS101_AI_Exam_05272026_0928.html',
+    'ai-t2-watch':'IS101_Video_Lessons_05272026_0928.html',
+    'ai-t2-checklist':'IS101_NotebookLM_Checklist_05272026_0928.html',
+  };
+  if (map[skillId]) {
+    window.location.href = map[skillId];
+  } else {
+    showToast('Activity not found.', 'warning');
+  }
+}
+
+function jumpToProjects(unitId) {
+  closeModal();
+  window.location.href = 'IS101_Project_Grader_05272026_0928.html';
+}
+
+function jumpToFirstSkill(unitId) {
+  const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) return;
+  const firstGroup = unit.groups[0];
+  if (!firstGroup || !firstGroup.skills.length) return;
+  const first = firstGroup.skills[0];
+  openSkillModal(unitId, first.id, first.label, firstGroup.label);
+}
+
+// ── Toast ──
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ── Init ──
+buildUnits();
+
+// Mark steps complete from domain files via URL hash (e.g. #complete-sum)
+if (location.hash.startsWith('#complete-')) {
+  const skillId = location.hash.replace('#complete-', '');
+  if (skillId) {
+    progress[skillId] = true;
+    saveProgress();
+    buildUnits();
+    showToast('✓ Skill marked complete!', 'success');
+    history.replaceState(null, '', location.pathname);
+  }
+}
+</script>
+</body>
+</html>
