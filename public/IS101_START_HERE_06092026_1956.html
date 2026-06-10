@@ -1565,17 +1565,11 @@ document.getElementById('nsheInput').addEventListener('keydown', (e) => {
 //  PROGRESS
 // ─────────────────────────────────────────────
 async function loadProgress() {
+  // Pure localStorage mode — no server calls from START_HERE
+  // Progress saves locally in the browser; server sync is not required
   try {
-    if (typeof ApiClient !== 'undefined') {
-      const data = await ApiClient.getProgress();
-      if (data) {
-        progress = data.stepCompletions || {};
-      }
-    } else {
-      // localStorage fallback for local dev
-      const stored = localStorage.getItem('is101_progress_' + currentStudent);
-      progress = stored ? JSON.parse(stored) : {};
-    }
+    const stored = localStorage.getItem('is101_progress_' + currentStudent);
+    progress = stored ? JSON.parse(stored) : {};
   } catch(e) {
     progress = {};
   }
@@ -1585,11 +1579,7 @@ async function loadProgress() {
 function saveStepProgress(stepId) {
   progress[stepId] = true;
   try {
-    if (typeof ApiClient !== 'undefined') {
-      ApiClient.saveStepProgress(stepId);
-    } else {
-      localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
-    }
+    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
   } catch(e) {}
   renderAllProgress();
 }

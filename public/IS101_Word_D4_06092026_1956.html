@@ -132,6 +132,15 @@ body{font-family:"Segoe UI",system-ui,sans-serif;background:#808080;height:100vh
 .res-note{font-size:10px;color:#6b7280;line-height:1.5;margin-top:4px}
 @keyframes hlpulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}60%{box-shadow:0 0 0 4px rgba(245,158,11,.08)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Domain nav header ── */
+#domain-nav{height:36px;background:#1e293b;display:flex;align-items:center;padding:0 14px;gap:12px;flex-shrink:0;border-bottom:2px solid #2b579a}
+#domain-nav a{color:rgba(255,255,255,.7);font-size:11px;text-decoration:none;display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:3px;transition:all .15s;white-space:nowrap}
+#domain-nav a:hover{background:rgba(255,255,255,.12);color:#fff}
+#domain-nav .nav-sep{color:rgba(255,255,255,.25);font-size:11px}
+#domain-nav .nav-title{color:rgba(255,255,255,.85);font-size:11px;font-weight:600;flex:1}
+#domain-nav .nav-prog{font-size:10px;color:#60a5fa;background:rgba(59,130,246,.15);padding:3px 10px;border-radius:10px;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -306,7 +315,7 @@ function openDlg(id){document.getElementById('backdrop').style.display='block';d
 function closeDlg(){document.getElementById('backdrop').style.display='none';document.querySelectorAll('.w-dlg').forEach(d=>d.style.display='none');}
 window.dlgGrade=function(){closeDlg();grade();};
 
-function grade(){S.res[LABS[S.lab].id]=true;S.wrongCount=0;S.hintCount=0;renderAll();}
+function grade(){S.res[LABS[S.lab].id]=true;S.wrongCount=0;S.hintCount=0;saveProgress();renderAll();}
 function wrong(){
   if(!S.res[LABS[S.lab].id]){
     S.wrongCount++;
@@ -423,7 +432,37 @@ window.goLab=function(i){
   renderAll();
 };
 function renderAll(){renderSidebar();buildRibbon();renderDoc();renderTask();}
+
+// ── localStorage persistence ──────────────────────────────────────
+const STORAGE_KEY = 'is101_word_d4_progress';
+
+function saveProgress() {
+  try {
+    const nshe = localStorage.getItem('is101_nshe') || 'guest';
+    const key = STORAGE_KEY + '_' + nshe;
+    localStorage.setItem(key, JSON.stringify(S.res));
+  } catch(e) {}
+}
+
+function loadSavedProgress() {
+  try {
+    const nshe = localStorage.getItem('is101_nshe') || 'guest';
+    const key = STORAGE_KEY + '_' + nshe;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Restore completions
+      Object.assign(S.res, parsed);
+      // Jump to first incomplete lab
+      const firstIncomplete = LABS.findIndex(l => !S.res[l.id]);
+      if (firstIncomplete > 0) S.lab = firstIncomplete;
+    }
+  } catch(e) {}
+}
+// ─────────────────────────────────────────────────────────────────
+
 renderRuler();
+loadSavedProgress();
 renderAll();
 </script>
 </body>
