@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Excel E1: Manage Worksheets and Workbooks</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --xl-green:      #217346;
+    --xl-green-dark: #185a35;
+    --xl-green-light:#e9f5ee;
+    --xl-accent:     #107c41;
+    --xl-tab-bg:     #f3f2f1;
+    --xl-tab-active: #ffffff;
+    --xl-border:     #d0d0d0;
+    --xl-cell-hl:    #fff2cc;
+    --xl-cell-hl-bd: #e6b800;
+    --xl-row-hdr:    #f2f2f2;
+    --xl-col-hdr:    #f2f2f2;
+    --xl-grid-bd:    #d9d9d9;
+    --xl-formula-bg: #ffffff;
+    --text-dark:     #1a1a1a;
+    --text-mid:      #444;
+    --text-light:    #767676;
+    --hint-bg:       #fff8e1;
+    --hint-bd:       #f0c040;
+    --pass-bg:       #e6f4ea;
+    --pass-bd:       #34a853;
+    --fail-bg:       #fce8e6;
+    --fail-bd:       #d93025;
+    --panel-bg:      #f8f9fa;
+    --radius:        6px;
+    --shadow:        0 2px 8px rgba(0,0,0,.12);
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f0f0f0;
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* ── Top Bar ── */
+  .topbar {
+    background: var(--xl-green);
+    color: #fff;
+    padding: 0 20px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-icon { font-size: 22px; }
+  .topbar-title { font-size: 14px; font-weight: 600; }
+  .topbar-subtitle { font-size: 12px; opacity: .8; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .btn-back {
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-back:hover { background: rgba(255,255,255,.28); }
+
+  /* ── Layout ── */
+  .page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  /* ── Domain Header ── */
+  .domain-header {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 18px 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .domain-badge {
+    background: var(--xl-green);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .domain-title { font-size: 20px; font-weight: 700; color: var(--xl-green-dark); margin: 4px 0; }
+  .domain-meta { font-size: 13px; color: var(--text-light); }
+  .domain-progress-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 160px; }
+  .progress-label { font-size: 12px; color: var(--text-light); }
+  .progress-track {
+    width: 160px; height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--xl-green);
+    border-radius: 4px;
+    transition: width .4s ease;
+  }
+
+  /* ── Skill List Nav ── */
+  .skill-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .skill-nav-btn {
+    background: #fff;
+    border: 2px solid var(--xl-border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .skill-nav-btn:hover { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .skill-nav-btn.active { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .skill-nav-btn.completed { border-color: var(--pass-bd); background: var(--pass-bg); }
+  .skill-num {
+    width: 26px; height: 26px;
+    background: var(--xl-green);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .skill-nav-btn.completed .skill-num { background: var(--pass-bd); }
+  .skill-nav-label { font-size: 12px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+  .skill-check { margin-left: auto; color: var(--pass-bd); font-size: 14px; }
+
+  /* ── Skill Panel ── */
+  .skill-panel {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  /* ── Skill Header ── */
+  .skill-header {
+    background: var(--xl-green);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .skill-header-left h2 { font-size: 17px; font-weight: 700; }
+  .skill-header-left p { font-size: 13px; opacity: .85; margin-top: 3px; }
+  .path-chooser { display: flex; gap: 8px; flex-wrap: wrap; }
+  .path-btn {
+    background: rgba(255,255,255,.18);
+    border: 1.5px solid rgba(255,255,255,.45);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .path-btn:hover { background: rgba(255,255,255,.3); }
+  .path-btn.path-selected { background: #fff; color: var(--xl-green); border-color: #fff; }
+
+  /* ── Prove It View ── */
+  .prove-it-view { padding: 24px; }
+  .prove-it-view h3 { font-size: 16px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 6px; }
+  .prove-it-view p { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; line-height: 1.6; }
+  .prove-task-box {
+    background: var(--xl-green-light);
+    border: 1.5px solid var(--xl-green);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .prove-task-box .task-label { font-size: 11px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .prove-task-box p { font-size: 15px; color: var(--text-dark); font-weight: 600; margin: 0; }
+
+  /* ── Practice View ── */
+  .practice-view { display: flex; flex-direction: column; }
+
+  /* Task Bar */
+  .task-bar {
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--xl-border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .task-description { flex: 1; }
+  .task-description .task-label { font-size: 11px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .task-description p { font-size: 15px; font-weight: 600; color: var(--text-dark); line-height: 1.5; margin: 0; }
+  .task-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .btn-hint {
+    background: var(--hint-bg);
+    border: 1.5px solid var(--hint-bd);
+    color: #7a5800;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-hint:hover { background: #fff3cc; }
+  .btn-resources {
+    background: var(--xl-green-light);
+    border: 1.5px solid var(--xl-green);
+    color: var(--xl-green-dark);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-resources:hover { background: #d4edda; }
+
+  /* Hint Box */
+  .hint-box {
+    background: var(--hint-bg);
+    border-left: 4px solid var(--hint-bd);
+    padding: 12px 16px;
+    margin: 0 24px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 13px;
+    color: #5a4000;
+    display: none;
+  }
+  .hint-box.visible { display: block; }
+  .hint-box strong { display: block; margin-bottom: 4px; }
+
+  /* ── Excel Simulator ── */
+  .excel-sim {
+    border: 1px solid var(--xl-border);
+    border-radius: 0;
+    overflow: hidden;
+    margin: 0;
+    user-select: none;
+  }
+
+  /* Title bar */
+  .xl-titlebar {
+    background: var(--xl-green);
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .xl-titlebar-name { font-weight: 600; }
+  .xl-titlebar-app { opacity: .7; margin-left: auto; }
+
+  /* Ribbon */
+  .xl-ribbon {
+    background: #fff;
+    border-bottom: 1px solid var(--xl-border);
+  }
+  .xl-tabs {
+    display: flex;
+    background: var(--xl-green-dark);
+    padding: 0 8px;
+    gap: 2px;
+  }
+  .xl-tab {
+    color: rgba(255,255,255,.75);
+    font-size: 11px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 3px 3px 0 0;
+    font-weight: 500;
+    transition: all .1s;
+  }
+  .xl-tab:hover { color: #fff; background: rgba(255,255,255,.12); }
+  .xl-tab.active { background: #fff; color: var(--xl-green-dark); font-weight: 700; }
+  .xl-ribbon-content {
+    padding: 6px 12px 8px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    min-height: 52px;
+    align-items: flex-end;
+  }
+  .xl-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid #e8e8e8;
+    padding-right: 8px;
+    margin-right: 4px;
+  }
+  .xl-group:last-child { border-right: none; }
+  .xl-group-btns { display: flex; gap: 2px; margin-bottom: 2px; }
+  .xl-group-label { font-size: 9px; color: #888; text-align: center; }
+  .xl-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 6px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    font-size: 10px;
+    color: var(--text-dark);
+    min-width: 36px;
+    gap: 2px;
+    transition: all .1s;
+  }
+  .xl-btn:hover { background: #e5e5e5; border-color: #ccc; }
+  .xl-btn.btn-target {
+    background: var(--xl-green-light);
+    border-color: var(--xl-green);
+    animation: pulse-btn 1.5s infinite;
+  }
+  .xl-btn.btn-clicked {
+    background: var(--xl-green);
+    color: #fff;
+    border-color: var(--xl-green-dark);
+    animation: none;
+  }
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(33,115,70,.4); }
+    50% { box-shadow: 0 0 0 4px rgba(33,115,70,0); }
+  }
+  .xl-btn-icon { font-size: 16px; line-height: 1; }
+  .xl-btn-label { font-size: 9px; white-space: nowrap; }
+
+  /* Dropdown arrow btns */
+  .xl-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 4px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    font-size: 10px;
+    color: var(--text-dark);
+    transition: all .1s;
+    min-height: 20px;
+  }
+  .xl-btn-sm:hover { background: #e5e5e5; border-color: #ccc; }
+  .xl-btn-sm.btn-target { background: var(--xl-green-light); border-color: var(--xl-green); animation: pulse-btn 1.5s infinite; }
+  .xl-btn-sm.btn-clicked { background: var(--xl-green); color: #fff; border-color: var(--xl-green-dark); animation: none; }
+
+  /* Formula bar */
+  .xl-formulabar {
+    background: var(--xl-formula-bg);
+    border-bottom: 1px solid var(--xl-border);
+    display: flex;
+    align-items: center;
+    padding: 3px 8px;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .xl-namebox {
+    width: 80px;
+    border: 1px solid var(--xl-border);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .xl-fx-label { font-style: italic; color: var(--text-light); font-size: 13px; }
+  .xl-formulainput {
+    flex: 1;
+    border: 1px solid var(--xl-border);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    background: var(--xl-formula-bg);
+  }
+
+  /* Spreadsheet grid */
+  .xl-grid-wrap {
+    overflow-x: auto;
+    background: #fff;
+  }
+  .xl-grid {
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+    min-width: 600px;
+  }
+  .xl-col-hdr {
+    background: var(--xl-col-hdr);
+    border: 1px solid var(--xl-grid-bd);
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    padding: 2px 8px;
+    font-weight: 400;
+    min-width: 80px;
+    height: 20px;
+  }
+  .xl-col-hdr.select-all { min-width: 36px; width: 36px; }
+  .xl-row-hdr {
+    background: var(--xl-row-hdr);
+    border: 1px solid var(--xl-grid-bd);
+    text-align: right;
+    font-size: 11px;
+    color: #666;
+    padding: 2px 6px;
+    font-weight: 400;
+    width: 36px;
+    min-width: 36px;
+  }
+  .xl-cell {
+    border: 1px solid var(--xl-grid-bd);
+    padding: 2px 6px;
+    height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+  .xl-cell.highlight {
+    background: var(--xl-cell-hl);
+    border: 1.5px solid var(--xl-cell-hl-bd);
+  }
+  .xl-cell.bold { font-weight: 700; }
+  .xl-cell.center { text-align: center; }
+  .xl-cell.right { text-align: right; }
+  .xl-cell.hdr-row { background: #dae3f3; font-weight: 700; }
+  .xl-cell.green-fill { background: #e2efda; }
+  .xl-cell.after { background: #e6f4ea; border-color: var(--pass-bd); }
+
+  /* Pane freeze visual */
+  .xl-cell.frozen-right { border-left: 2px solid var(--xl-green) !important; }
+  .xl-row-hdr.frozen-below { border-bottom: 2px solid var(--xl-green) !important; }
+
+  /* Sheet tabs */
+  .xl-sheettabs {
+    background: var(--xl-tab-bg);
+    border-top: 1px solid var(--xl-border);
+    display: flex;
+    align-items: flex-end;
+    padding: 0 8px;
+    gap: 2px;
+    min-height: 28px;
+  }
+  .xl-sheettab {
+    background: #e0e0e0;
+    border: 1px solid #bbb;
+    border-bottom: none;
+    padding: 4px 14px;
+    font-size: 11px;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    color: var(--text-mid);
+  }
+  .xl-sheettab.active {
+    background: #fff;
+    border-color: var(--xl-border);
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  .xl-sheettab.btn-target { background: var(--xl-cell-hl); border-color: var(--xl-cell-hl-bd); animation: pulse-btn 1.5s infinite; }
+  .xl-sheettab.btn-clicked { background: var(--xl-green-light); border-color: var(--xl-green); }
+  .xl-new-tab { font-size: 14px; color: #888; padding: 2px 6px; cursor: pointer; }
+
+  /* Status bar */
+  .xl-statusbar {
+    background: var(--xl-green);
+    color: rgba(255,255,255,.85);
+    font-size: 11px;
+    padding: 3px 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Overlay / dialog */
+  .xl-dialog-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    border-radius: var(--radius);
+  }
+  .xl-dialog {
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    min-width: 300px;
+    max-width: 380px;
+    width: 90%;
+  }
+  .xl-dialog-title {
+    background: var(--xl-green-dark);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 3px 3px 0 0;
+  }
+  .xl-dialog-body { padding: 14px; font-size: 12px; color: var(--text-dark); }
+  .xl-dialog-body label { display: block; margin-bottom: 4px; font-weight: 600; }
+  .xl-dialog-body select, .xl-dialog-body input[type=text] {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--xl-border);
+    border-radius: 3px;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .xl-dialog-body .format-sample {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .xl-dialog-footer {
+    padding: 8px 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    border-top: 1px solid var(--xl-border);
+  }
+  .xl-dlg-btn {
+    padding: 5px 14px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--xl-border);
+    background: #f2f2f2;
+    color: var(--text-dark);
+  }
+  .xl-dlg-btn.primary { background: var(--xl-green); color: #fff; border-color: var(--xl-green-dark); }
+  .xl-dlg-btn.primary:hover { background: var(--xl-green-dark); }
+  .xl-dlg-btn:hover { background: #e5e5e5; }
+
+  /* QAT bar */
+  .xl-qat {
+    background: var(--xl-green-dark);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 8px;
+    font-size: 12px;
+  }
+  .xl-qat-btn {
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .xl-qat-btn:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.3); }
+  .xl-qat-btn.btn-target { background: rgba(255,255,255,.25); border-color: rgba(255,255,255,.6); animation: pulse-btn 1.5s infinite; }
+  .xl-qat-btn.btn-clicked { background: rgba(255,255,255,.4); }
+  .xl-qat-separator { color: rgba(255,255,255,.3); font-size: 16px; margin: 0 2px; }
+  .xl-qat-label { font-size: 11px; opacity: .7; margin-right: 4px; }
+  .xl-qat-dropdown { font-size: 10px; opacity: .6; cursor: pointer; }
+
+  /* Print settings dialog content */
+  .print-option-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .print-option-row label { font-weight: 400; }
+  .print-option-row select { width: 140px; margin-bottom: 0; }
+
+  /* Sidebar resources panel */
+  .practice-body {
+    display: flex;
+    position: relative;
+  }
+  .sim-area { flex: 1; min-width: 0; position: relative; }
+  .resources-panel {
+    width: 0;
+    overflow: hidden;
+    transition: width .3s ease;
+    border-left: 1px solid var(--xl-border);
+    background: var(--panel-bg);
+    flex-shrink: 0;
+  }
+  .resources-panel.open { width: 260px; }
+  .resources-inner { width: 260px; padding: 16px; }
+  .resources-inner h4 { font-size: 13px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 12px; border-bottom: 2px solid var(--xl-green); padding-bottom: 6px; }
+  .resource-item {
+    background: #fff;
+    border: 1px solid var(--xl-border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .resource-item .ri-type { font-size: 10px; font-weight: 700; color: var(--xl-green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .resource-item .ri-title { font-size: 12px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+  .resource-item .ri-desc { font-size: 11px; color: var(--text-light); line-height: 1.4; margin-bottom: 6px; }
+  .resource-item .ri-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--xl-green-light);
+    border: 1px solid var(--xl-green);
+    color: var(--xl-green-dark);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 3px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .resource-item .ri-link:hover { background: #d0e8d8; }
+  .resource-item .ai-prompt {
+    font-family: 'Consolas', monospace;
+    font-size: 10px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 6px 8px;
+    color: var(--text-mid);
+    line-height: 1.4;
+    margin-bottom: 6px;
+    white-space: pre-wrap;
+  }
+
+  /* Feedback */
+  .feedback-area { padding: 16px 24px 20px; }
+  .feedback-box {
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .feedback-box.correct { background: var(--pass-bg); border: 1.5px solid var(--pass-bd); }
+  .feedback-box.incorrect { background: var(--fail-bg); border: 1.5px solid var(--fail-bd); }
+  .feedback-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+  .feedback-text strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .feedback-text p { font-size: 13px; color: var(--text-mid); margin: 0; line-height: 1.5; }
+
+  /* Nav buttons */
+  .skill-nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-top: 1px solid var(--xl-border);
+    background: var(--panel-bg);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .btn-nav {
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--xl-green);
+    transition: all .15s;
+  }
+  .btn-nav.primary { background: var(--xl-green); color: #fff; }
+  .btn-nav.primary:hover { background: var(--xl-green-dark); }
+  .btn-nav.secondary { background: #fff; color: var(--xl-green); }
+  .btn-nav.secondary:hover { background: var(--xl-green-light); }
+  .btn-nav:disabled { opacity: .4; cursor: not-allowed; }
+  .skill-status-text { font-size: 12px; color: var(--text-light); }
+
+  /* Completion banner */
+  .completion-banner {
+    background: var(--pass-bg);
+    border: 2px solid var(--pass-bd);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    text-align: center;
+    margin: 20px 0;
+  }
+  .completion-banner .cb-icon { font-size: 36px; margin-bottom: 8px; }
+  .completion-banner h3 { font-size: 18px; font-weight: 700; color: #1a5c2e; margin-bottom: 6px; }
+  .completion-banner p { font-size: 14px; color: #2e7d46; }
+
+  /* Prove It submit area */
+  .prove-submit-area { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-prove { padding: 10px 22px; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; }
+  .btn-prove.primary { background: var(--xl-green); color: #fff; }
+  .btn-prove.primary:hover { background: var(--xl-green-dark); }
+
+  /* ── Context menu sim ── */
+  .ctx-menu {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #aaa;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    border-radius: 3px;
+    min-width: 160px;
+    z-index: 60;
+    font-size: 12px;
+  }
+  .ctx-menu-item {
+    padding: 6px 16px;
+    cursor: pointer;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ctx-menu-item:hover { background: #e5f0ea; color: var(--xl-green-dark); }
+  .ctx-menu-item.disabled { color: #bbb; cursor: not-allowed; }
+  .ctx-menu-sep { height: 1px; background: #e0e0e0; margin: 3px 0; }
+  .ctx-menu-item.btn-target { background: var(--xl-cell-hl); animation: pulse-btn 1.5s infinite; }
+
+  /* File menu overlay */
+  .xl-file-menu {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 80;
+    display: flex;
+  }
+  .xl-file-panel {
+    background: var(--xl-green-dark);
+    color: #fff;
+    width: 200px;
+    padding: 16px 0;
+  }
+  .xl-file-item {
+    padding: 9px 20px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .xl-file-item:hover { background: rgba(255,255,255,.15); }
+  .xl-file-item.active { background: rgba(255,255,255,.25); font-weight: 600; }
+  .xl-file-item.btn-target { background: rgba(255, 230, 100, .3); animation: pulse-btn 1.5s infinite; }
+  .xl-file-content {
+    flex: 1;
+    background: #fff;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .xl-file-content h3 { font-size: 16px; font-weight: 700; color: var(--xl-green-dark); margin-bottom: 16px; }
+  .xl-saveas-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--xl-border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: #fafafa;
+    transition: all .15s;
+  }
+  .xl-saveas-option:hover { border-color: var(--xl-green); background: var(--xl-green-light); }
+  .xl-saveas-option.btn-target { border-color: var(--xl-green); background: var(--xl-green-light); animation: pulse-btn 1.5s infinite; }
+  .xl-saveas-option.selected { border-color: var(--pass-bd); background: var(--pass-bg); }
+  .xl-saveas-icon { font-size: 24px; }
+  .xl-saveas-label { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+  .xl-saveas-desc { font-size: 11px; color: var(--text-light); }
+
+  /* Properties panel */
+  .xl-props-field { margin-bottom: 10px; }
+  .xl-props-field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-mid); margin-bottom: 3px; }
+  .xl-props-field input {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--xl-border);
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .xl-props-field input.btn-target { border-color: var(--xl-green); background: var(--xl-green-light); animation: pulse-btn 1.5s infinite; }
+  .xl-props-field input.btn-clicked { border-color: var(--pass-bd); background: var(--pass-bg); }
+
+  /* Theme selector */
+  .theme-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .theme-swatch {
+    width: 56px;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    text-align: center;
+  }
+  .theme-swatch:hover { border-color: #999; }
+  .theme-swatch.btn-target { border-color: var(--xl-green); animation: pulse-btn 1.5s infinite; }
+  .theme-swatch.selected { border-color: var(--pass-bd); }
+  .theme-swatch .ts-bar { height: 16px; }
+  .theme-swatch .ts-name { font-size: 9px; padding: 2px 0; color: var(--text-mid); }
+
+  /* Go To dialog */
+  .xl-goto-result {
+    background: #f5f5f5;
+    border: 1px solid var(--xl-border);
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text-mid);
+    font-family: 'Consolas', monospace;
+    margin-bottom: 8px;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .skill-nav { grid-template-columns: 1fr 1fr; }
+    .resources-panel.open { width: 200px; }
+    .resources-inner { width: 200px; }
+    .domain-header { flex-direction: column; }
+    .domain-progress-wrap { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-icon">📊</span>
+    <div>
+      <div class="topbar-title">IS101 — Excel Labs</div>
+      <div class="topbar-subtitle">E1: Manage Worksheets and Workbooks</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a class="btn-back" href="IS101_START_HERE_05272026_0928.html">← Dashboard</a>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Domain Header -->
+  <div class="domain-header">
+    <div>
+      <div class="domain-badge">Domain E1 · MO-210</div>
+      <div class="domain-title">Manage Worksheets and Workbooks</div>
+      <div class="domain-meta">Desert Sun Consulting · 9 skills · Microsoft Excel 365</div>
+    </div>
+    <div class="domain-progress-wrap">
+      <div class="progress-label" id="progressLabel">0 of 9 completed</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Skill Navigation -->
+  <div class="skill-nav" id="skillNav"></div>
+
+  <!-- Skill Panel -->
+  <div class="skill-panel" id="skillPanel"></div>
+
+  <!-- Completion Banner (hidden until all done) -->
+  <div class="completion-banner" id="completionBanner" style="display:none">
+    <div class="cb-icon">🏆</div>
+    <h3>Domain E1 Complete!</h3>
+    <p>You've mastered all 9 worksheet and workbook management skills. Return to the dashboard to continue.</p>
+    <div style="margin-top:16px">
+      <a class="btn-back" href="IS101_START_HERE_05272026_0928.html" style="font-size:13px;padding:8px 18px">← Back to Dashboard</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA — 9 E1 Skills
+// ─────────────────────────────────────────────
+const SKILLS = [
+  {
+    id: 'import-data',
+    num: 1,
+    title: 'Import Data from Delimited Text Files',
+    scenario: 'Desert Sun Consulting receives monthly expense data from branch offices as .csv files. You need to import a file into Excel.',
+    task: 'Import the file "BranchExpenses_Q2.csv" into the workbook using the Data tab.',
+    proveTask: 'Open Excel, go to Data → Get & Transform Data → From Text/CSV, select a .csv file, click Import, preview the data, and click Load to bring it into the sheet.',
+    hint1: 'Look in the Data tab on the ribbon.',
+    hint2: 'Find the "Get & Transform Data" group — look for "From Text/CSV".',
+    hint3: 'Click Data → From Text/CSV → browse to the file → Import → Load.',
+    targetTab: 'Data',
+    targetGroup: 'Get & Transform Data',
+    targetBtn: 'from-text-csv',
+    simType: 'ribbon-click',
+    resources: {
+      ai: 'Show me step by step how to import a CSV file into Microsoft Excel 365 using the Data tab.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+import+data+csv',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+import+csv+data+tab',
+      ms: 'https://support.microsoft.com/en-us/office/import-or-export-text-txt-or-csv-files-5250ac4c-663c-47ce-937b-339e391393ba'
+    }
+  },
+  {
+    id: 'navigate-named',
+    num: 2,
+    title: 'Navigate to Named Cells and Ranges',
+    scenario: 'The Desert Sun quarterly workbook has a named range "Q2_Revenue" on the Sales sheet. You need to jump directly to it.',
+    task: 'Use the Name Box to navigate to the named range "Q2_Revenue".',
+    proveTask: 'Click the Name Box (cell address box at the left of the formula bar), type a named range or cell address such as Q2_Revenue, and press Enter to navigate there instantly.',
+    hint1: 'The Name Box is the small box to the LEFT of the formula bar that shows the current cell address like "A1".',
+    hint2: 'Click directly on the Name Box so the text is selected, then type the range name.',
+    hint3: 'Click Name Box → type "Q2_Revenue" → press Enter. Alternatively use Ctrl+G (Go To dialog).',
+    targetTab: 'Home',
+    targetGroup: null,
+    targetBtn: 'namebox',
+    simType: 'namebox-nav',
+    resources: {
+      ai: 'How do I use named ranges in Excel 365? Show me how to navigate to a named range and how to create one.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+named+ranges',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+named+ranges+name+box',
+      ms: 'https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64'
+    }
+  },
+  {
+    id: 'customize-qat',
+    num: 3,
+    title: 'Customize the Quick Access Toolbar',
+    scenario: 'The Desert Sun team prints reports daily. You want to add the Quick Print button to the QAT for faster access.',
+    task: 'Add the "Quick Print" command to the Quick Access Toolbar using File → Options.',
+    proveTask: 'Right-click the QAT and choose "Customize Quick Access Toolbar", or go to File → Options → Quick Access Toolbar. Find the command in the list on the left, click Add, then OK.',
+    hint1: 'You can right-click on any ribbon button to see "Add to Quick Access Toolbar" — or go to File → Options.',
+    hint2: 'In File → Options → Quick Access Toolbar, use the dropdown to find "All Commands" then locate "Quick Print".',
+    hint3: 'File → Options → Quick Access Toolbar → Choose commands from: All Commands → Quick Print → Add → OK.',
+    targetTab: null,
+    targetGroup: null,
+    targetBtn: 'qat-customize',
+    simType: 'qat-customize',
+    resources: {
+      ai: 'How do I add buttons to the Quick Access Toolbar in Microsoft Excel 365? Walk me through the steps.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+quick+access+toolbar',
+      youtube: 'https://www.youtube.com/results?search_query=excel+quick+access+toolbar+customize+365',
+      ms: 'https://support.microsoft.com/en-us/office/customize-the-quick-access-toolbar-43fff1c9-ebc4-4963-bdbd-c2b6b0739e52'
+    }
+  },
+  {
+    id: 'print-settings',
+    num: 4,
+    title: 'Configure Print Settings',
+    scenario: 'Before presenting the Q2 financial summary to Desert Sun leadership, you need to set the print area and change orientation to Landscape.',
+    task: 'Open the Page Layout tab and set the page orientation to Landscape for the quarterly report.',
+    proveTask: 'Go to Page Layout tab → Orientation → Landscape. Also explore setting a print area (Page Layout → Print Area → Set Print Area) and adjusting scaling to "Fit Sheet on One Page" in Print Preview.',
+    hint1: 'Look in the Page Layout tab on the ribbon.',
+    hint2: 'Find the "Page Setup" group in Page Layout — "Orientation" is right there.',
+    hint3: 'Page Layout → Orientation → Landscape. For print area: select the cells first, then Page Layout → Print Area → Set Print Area.',
+    targetTab: 'Page Layout',
+    targetGroup: 'Page Setup',
+    targetBtn: 'orientation',
+    simType: 'ribbon-click',
+    resources: {
+      ai: 'How do I set up print settings in Excel 365? Explain how to set a print area, change orientation, and scale to fit one page.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+print+settings',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+print+settings+orientation+print+area',
+      ms: 'https://support.microsoft.com/en-us/office/set-or-clear-a-print-area-on-a-worksheet-27048af8-a321-416d-ba1b-e99ae2182a7e'
+    }
+  },
+  {
+    id: 'configure-rows-cols',
+    num: 5,
+    title: 'Configure Rows and Columns',
+    scenario: 'The Desert Sun expense tracker has a hidden "Notes" column (column E) that needs to be unhidden for the manager review.',
+    task: 'Right-click the column headers to unhide column E in the expense tracker.',
+    proveTask: 'Select the columns on either side of the hidden column (D and F), right-click the selection, and choose "Unhide". You can also insert, delete, and resize rows/columns from the right-click menu.',
+    hint1: 'To unhide a column, you must first SELECT the columns on BOTH sides of the hidden one.',
+    hint2: 'Click column D header, then Shift+click column F header. Then right-click the selection.',
+    hint3: 'Select D and F column headers → right-click → Unhide. The hidden column E will reappear.',
+    targetTab: null,
+    targetGroup: null,
+    targetBtn: 'unhide-col',
+    simType: 'context-menu',
+    resources: {
+      ai: 'How do I hide and unhide rows and columns in Excel 365? Also explain how to insert, delete, and resize them.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+rows+columns+hide+unhide',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+hide+unhide+columns+rows',
+      ms: 'https://support.microsoft.com/en-us/office/hide-or-show-rows-or-columns-659c2cad-802e-44ee-a614-dde8443579f8'
+    }
+  },
+  {
+    id: 'workbook-themes',
+    num: 6,
+    title: 'Configure Workbook Themes',
+    scenario: 'Desert Sun Consulting wants all workbooks to match their brand. Apply the "Office" theme with a professional color palette.',
+    task: 'Apply the "Retrospect" theme to the workbook using Page Layout → Themes.',
+    proveTask: 'Go to Page Layout tab → Themes dropdown. Browse the gallery and click a theme (like "Retrospect") to apply its colors and fonts across the entire workbook.',
+    hint1: 'Look in the Page Layout tab — the Themes button is at the far left of the ribbon.',
+    hint2: 'Click the Themes dropdown to see a gallery of built-in themes with preview.',
+    hint3: 'Page Layout → Themes (big button at left) → click "Retrospect" in the gallery.',
+    targetTab: 'Page Layout',
+    targetGroup: 'Themes',
+    targetBtn: 'themes',
+    simType: 'theme-picker',
+    resources: {
+      ai: 'How do I apply and customize workbook themes in Microsoft Excel 365? Explain what themes affect.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+themes+design',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+workbook+themes+page+layout',
+      ms: 'https://support.microsoft.com/en-us/office/change-a-theme-and-make-it-the-default-in-word-or-excel-c846f997-968e-4daa-b2d4-42bd2afef904'
+    }
+  },
+  {
+    id: 'freeze-panes',
+    num: 7,
+    title: 'Freeze Rows and Columns',
+    scenario: 'The Desert Sun employee expenses sheet has 200+ rows. The header row scrolls out of view when reviewing data. Freeze it.',
+    task: 'Freeze the top row so the column headers stay visible when scrolling down.',
+    proveTask: 'Click View tab → Freeze Panes → Freeze Top Row. To freeze both a row and column, first click the cell BELOW and to the RIGHT of what you want frozen, then use View → Freeze Panes → Freeze Panes.',
+    hint1: 'Look in the View tab on the ribbon.',
+    hint2: 'Find the "Window" group in the View tab — look for "Freeze Panes".',
+    hint3: 'View → Freeze Panes → Freeze Top Row. A dark line appears below row 1 to show it\'s frozen.',
+    targetTab: 'View',
+    targetGroup: 'Window',
+    targetBtn: 'freeze-panes',
+    simType: 'ribbon-click',
+    resources: {
+      ai: 'How do I freeze rows and columns in Excel 365? Show me how to freeze the top row, first column, and both at once.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+freeze+panes',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+freeze+panes+rows+columns',
+      ms: 'https://support.microsoft.com/en-us/office/freeze-panes-to-lock-rows-and-columns-dab2ffc9-020d-4026-8121-67dd25f2508f'
+    }
+  },
+  {
+    id: 'workbook-properties',
+    num: 8,
+    title: 'Modify Basic Workbook Properties',
+    scenario: 'Before submitting the Q2 report, the Desert Sun manager needs to add a title and author name to the workbook properties.',
+    task: 'Edit the workbook properties to add a Title of "Q2 Financial Summary" and Author of "Desert Sun Consulting".',
+    proveTask: 'Go to File → Info → Properties panel on the right. Click the fields to type Title, Subject, Author, and Keywords. Or click "Properties → Advanced Properties" for the full dialog.',
+    hint1: 'Click the File tab (top left, green background) to open the Backstage view.',
+    hint2: 'In the Backstage, click "Info" in the left menu. The Properties panel is on the RIGHT side.',
+    hint3: 'File → Info → look for the Properties section on the right side → click the Title field → type the title.',
+    targetTab: null,
+    targetGroup: null,
+    targetBtn: 'workbook-props',
+    simType: 'file-properties',
+    resources: {
+      ai: 'How do I edit workbook properties in Excel 365? Show me how to change the title, author, and other document properties.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+document+properties',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+workbook+properties+title+author',
+      ms: 'https://support.microsoft.com/en-us/office/view-or-change-the-properties-for-an-office-file-21d604c2-481e-4379-8e54-1dd4622c6b75'
+    }
+  },
+  {
+    id: 'save-format',
+    num: 9,
+    title: 'Save a Workbook in an Alternative File Format',
+    scenario: 'The Desert Sun report needs to be sent to a client who does not use Excel. Save it as a PDF so the formatting is preserved.',
+    task: 'Save the workbook as a PDF file using File → Save As.',
+    proveTask: 'Go to File → Save As → Browse (or choose a location). In the "Save as type" dropdown, choose "PDF (*.pdf)". Click Save. The file will be saved and may open in your default PDF viewer.',
+    hint1: 'Click the File tab on the ribbon (green, top left).',
+    hint2: 'Choose "Save As" from the left menu, then select a location.',
+    hint3: 'File → Save As → change the file type dropdown from "Excel Workbook (*.xlsx)" to "PDF (*.pdf)" → Save.',
+    targetTab: null,
+    targetGroup: null,
+    targetBtn: 'save-as-pdf',
+    simType: 'save-as',
+    resources: {
+      ai: 'How do I save an Excel 365 workbook as a PDF or other file format? Explain what formats are available and when to use each.',
+      linkedin: 'https://www.linkedin.com/learning/search?keywords=excel+save+as+pdf',
+      youtube: 'https://www.youtube.com/results?search_query=excel+365+save+as+pdf+different+format',
+      ms: 'https://support.microsoft.com/en-us/office/save-a-workbook-in-another-file-format-6a16c862-4a36-48f9-a300-c2ca0065286e'
+    }
+  }
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let state = {
+  currentSkillIdx: 0,
+  completedSkills: new Set(),
+  skillPaths: {},      // 'prove' | 'practice'
+  hintLevel: {},       // 0,1,2,3
+  resourcesOpen: {},
+  skillAttempted: {},  // whether user clicked something
+};
+
+// Try to load from sessionStorage
+try {
+  const saved = sessionStorage.getItem('is101_e1_state');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    state.completedSkills = new Set(parsed.completedSkills || []);
+    state.skillPaths = parsed.skillPaths || {};
+    state.currentSkillIdx = parsed.currentSkillIdx || 0;
+  }
+} catch(e) {}
+
+function saveState() {
+  try {
+    sessionStorage.setItem('is101_e1_state', JSON.stringify({
+      completedSkills: [...state.completedSkills],
+      skillPaths: state.skillPaths,
+      currentSkillIdx: state.currentSkillIdx
+    }));
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────
+// RENDER NAV
+// ─────────────────────────────────────────────
+function renderNav() {
+  const nav = document.getElementById('skillNav');
+  nav.innerHTML = SKILLS.map((s, i) => {
+    const done = state.completedSkills.has(s.id);
+    const active = i === state.currentSkillIdx;
+    return `<button class="skill-nav-btn ${active?'active':''} ${done?'completed':''}" onclick="goSkill(${i})">
+      <div class="skill-num">${done ? '✓' : s.num}</div>
+      <div class="skill-nav-label">${s.title}</div>
+      ${done ? '<span class="skill-check">✓</span>' : ''}
+    </button>`;
+  }).join('');
+
+  const done = state.completedSkills.size;
+  const total = SKILLS.length;
+  document.getElementById('progressLabel').textContent = `${done} of ${total} completed`;
+  document.getElementById('progressFill').style.width = `${(done/total)*100}%`;
+
+  if (done === total) {
+    document.getElementById('completionBanner').style.display = 'block';
+  }
+}
+
+function goSkill(idx) {
+  state.currentSkillIdx = idx;
+  state.hintLevel[SKILLS[idx].id] = 0;
+  renderNav();
+  renderSkillPanel();
+  saveState();
+  document.getElementById('skillPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// ─────────────────────────────────────────────
+// RENDER SKILL PANEL ROUTER
+// ─────────────────────────────────────────────
+function renderSkillPanel() {
+  const skill = SKILLS[state.currentSkillIdx];
+  const path = state.skillPaths[skill.id];
+  const panel = document.getElementById('skillPanel');
+
+  if (!path) {
+    panel.innerHTML = renderPathChooser(skill);
+    return;
+  }
+  if (path === 'prove') {
+    panel.innerHTML = renderProveIt(skill);
+    return;
+  }
+  // practice
+  panel.innerHTML = renderPractice(skill);
+  // after render, attach sim events
+  setTimeout(() => attachSimEvents(skill), 50);
+}
+
+// ─────────────────────────────────────────────
+// PATH CHOOSER
+// ─────────────────────────────────────────────
+function renderPathChooser(skill) {
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="skill-header">
+    <div class="skill-header-left">
+      <h2>Skill ${skill.num}: ${skill.title}</h2>
+      <p>${skill.scenario}</p>
+    </div>
+    ${done ? '<span style="font-size:24px">✅</span>' : ''}
+  </div>
+  <div style="padding:30px 24px;text-align:center">
+    <p style="font-size:15px;color:var(--text-mid);margin-bottom:24px;max-width:520px;margin-left:auto;margin-right:auto">
+      Choose your path. If you already know how to <strong>${skill.title.toLowerCase()}</strong>, 
+      go straight to the challenge. Otherwise, practice in the simulator with hints and resources.
+    </p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button onclick="choosePath('${skill.id}','prove')" style="
+        background:#fff;border:2px solid var(--xl-green);color:var(--xl-green-dark);
+        padding:16px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;
+        transition:all .15s;min-width:200px">
+        ✋ I already know this<br>
+        <span style="font-size:12px;font-weight:400;opacity:.7">→ Go to challenge</span>
+      </button>
+      <button onclick="choosePath('${skill.id}','practice')" style="
+        background:var(--xl-green);border:2px solid var(--xl-green);color:#fff;
+        padding:16px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;
+        transition:all .15s;min-width:200px">
+        📖 I need to learn this<br>
+        <span style="font-size:12px;font-weight:400;opacity:.8">→ Practice with help</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function choosePath(skillId, path) {
+  state.skillPaths[skillId] = path;
+  state.hintLevel[skillId] = 0;
+  saveState();
+  renderSkillPanel();
+}
+
+// ─────────────────────────────────────────────
+// PROVE IT
+// ─────────────────────────────────────────────
+function renderProveIt(skill) {
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="skill-header">
+    <div class="skill-header-left">
+      <h2>Skill ${skill.num}: ${skill.title}</h2>
+      <p>Prove It — Demonstrate this skill in your own Excel</p>
+    </div>
+    <div class="path-chooser">
+      <button class="path-btn path-selected">✋ Prove It</button>
+      <button class="path-btn" onclick="choosePath('${skill.id}','practice')">📖 Practice Instead</button>
+    </div>
+  </div>
+  <div class="prove-it-view">
+    <h3>Your Challenge</h3>
+    <p>Open Microsoft Excel 365 on your computer and complete the task below. When you finish, click "Mark Complete" to log your progress.</p>
+    <div class="prove-task-box">
+      <div class="task-label">Task</div>
+      <p>${skill.proveTask}</p>
+    </div>
+    <div style="background:#f8f9fa;border:1px solid var(--xl-border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">💡 Resources</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <a href="${skill.resources.ms}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">
+          📄 Microsoft Support
+        </a>
+        <a href="${skill.resources.youtube}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">
+          ▶️ YouTube Tutorial
+        </a>
+        <a href="${skill.resources.linkedin}" target="_blank" class="resource-item" style="text-decoration:none;padding:6px 12px;font-size:12px">
+          🎓 LinkedIn Learning
+        </a>
+      </div>
+    </div>
+    ${done ? `
+    <div class="feedback-box correct" style="margin-bottom:16px">
+      <div class="feedback-icon">✅</div>
+      <div class="feedback-text"><strong>Skill Complete!</strong><p>You've already completed this skill. Move on to the next one.</p></div>
+    </div>` : ''}
+    <div class="prove-submit-area">
+      <button class="btn-prove primary" onclick="markProveItDone('${skill.id}')">
+        ${done ? '✓ Already Complete' : '✅ Mark Complete'}
+      </button>
+      <button class="btn-prove" style="background:#f2f2f2;border:1px solid var(--xl-border);color:var(--text-mid)" onclick="choosePath('${skill.id}','practice')">
+        Switch to Practice Mode
+      </button>
+    </div>
+  </div>
+  ${renderSkillNavRow()}`;
+}
+
+function markProveItDone(skillId) {
+  state.completedSkills.add(skillId);
+  saveState();
+  renderNav();
+  renderSkillPanel();
+  // Auto-advance
+  const idx = SKILLS.findIndex(s => s.id === skillId);
+  if (idx < SKILLS.length - 1) {
+    setTimeout(() => goSkill(idx + 1), 800);
+  }
+}
+
+// ─────────────────────────────────────────────
+// PRACTICE MODE
+// ─────────────────────────────────────────────
+function renderPractice(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const hl = state.hintLevel[skill.id] || 0;
+  const resOpen = state.resourcesOpen[skill.id];
+
+  return `
+  <div class="skill-header">
+    <div class="skill-header-left">
+      <h2>Skill ${skill.num}: ${skill.title}</h2>
+      <p>${skill.scenario}</p>
+    </div>
+    <div class="path-chooser">
+      <button class="path-btn" onclick="choosePath('${skill.id}','prove')">✋ Prove It Instead</button>
+      <button class="path-btn path-selected">📖 Practice</button>
+    </div>
+  </div>
+  <div class="task-bar">
+    <div class="task-description">
+      <div class="task-label">Your Task</div>
+      <p>${skill.task}</p>
+    </div>
+    <div class="task-actions">
+      <button class="btn-hint" onclick="showHint('${skill.id}')">💡 Hint (${hl}/3)</button>
+      <button class="btn-resources" onclick="toggleResources('${skill.id}')">📚 Resources</button>
+    </div>
+  </div>
+  <div class="hint-box ${hl>0?'visible':''}" id="hintBox_${skill.id}">
+    ${hl>=1?`<strong>Hint ${hl}:</strong> ${hl===1?skill.hint1:hl===2?skill.hint2:skill.hint3}`:''}
+  </div>
+  <div class="practice-body">
+    <div class="sim-area">
+      ${renderSim(skill)}
+      ${done ? `
+      <div class="feedback-area">
+        <div class="feedback-box correct">
+          <div class="feedback-icon">✅</div>
+          <div class="feedback-text">
+            <strong>Correct! Skill Complete.</strong>
+            <p>You successfully completed <em>${skill.title}</em>. ${getCorrectFeedback(skill)}</p>
+          </div>
+        </div>
+      </div>` : `<div class="feedback-area" id="feedbackArea_${skill.id}"></div>`}
+    </div>
+    <div class="resources-panel ${resOpen?'open':''}" id="resPanel_${skill.id}">
+      <div class="resources-inner">
+        <h4>📚 Resources</h4>
+        <div class="resource-item">
+          <div class="ri-type">🤖 AI Prompt</div>
+          <div class="ri-title">Ask ChatGPT / Copilot</div>
+          <div class="ai-prompt">${skill.resources.ai}</div>
+          <span class="ri-link" onclick="copyPrompt('${skill.id}')">📋 Copy prompt</span>
+        </div>
+        <div class="resource-item">
+          <div class="ri-type">🎓 LinkedIn Learning</div>
+          <div class="ri-title">Video Tutorial</div>
+          <div class="ri-desc">Free with Clark County Library card — visit lvccld.org</div>
+          <a href="${skill.resources.linkedin}" target="_blank" class="ri-link">Open LinkedIn Learning ↗</a>
+        </div>
+        <div class="resource-item">
+          <div class="ri-type">▶️ YouTube</div>
+          <div class="ri-title">YouTube Search</div>
+          <a href="${skill.resources.youtube}" target="_blank" class="ri-link">Search YouTube ↗</a>
+        </div>
+        <div class="resource-item">
+          <div class="ri-type">📄 Microsoft</div>
+          <div class="ri-title">Official Support Article</div>
+          <a href="${skill.resources.ms}" target="_blank" class="ri-link">Open Microsoft Support ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  ${renderSkillNavRow()}`;
+}
+
+function getCorrectFeedback(skill) {
+  const map = {
+    'import-data': 'Data → From Text/CSV brings external data into Excel without copying and pasting.',
+    'navigate-named': 'The Name Box lets you jump instantly to any cell address or named range.',
+    'customize-qat': 'The QAT saves clicks on your most-used commands.',
+    'print-settings': 'Landscape orientation is ideal for wide data tables.',
+    'configure-rows-cols': 'Selecting columns on BOTH sides before unhiding is the key step.',
+    'workbook-themes': 'Themes apply consistent colors and fonts across the entire workbook.',
+    'freeze-panes': 'Frozen panes keep headers visible as you scroll through large datasets.',
+    'workbook-properties': 'Properties help organize and identify files in shared folders.',
+    'save-format': 'PDF format locks the layout so it looks the same on any device.'
+  };
+  return map[skill.id] || '';
+}
+
+// ─────────────────────────────────────────────
+// SIMULATOR RENDERERS
+// ─────────────────────────────────────────────
+function renderSim(skill) {
+  switch(skill.simType) {
+    case 'ribbon-click': return renderRibbonClickSim(skill);
+    case 'namebox-nav': return renderNameboxSim(skill);
+    case 'qat-customize': return renderQATSim(skill);
+    case 'context-menu': return renderContextMenuSim(skill);
+    case 'theme-picker': return renderThemeSim(skill);
+    case 'file-properties': return renderFilePropsSim(skill);
+    case 'save-as': return renderSaveAsSim(skill);
+    default: return renderRibbonClickSim(skill);
+  }
+}
+
+// ── Spreadsheet grid (reusable) ──
+function buildGrid(rows, highlightCells = [], afterMode = false) {
+  const cols = ['','A','B','C','D','E','F','G'];
+  let html = `<div class="xl-grid-wrap"><table class="xl-grid"><thead><tr>`;
+  cols.forEach((c,i) => {
+    html += `<th class="xl-col-hdr ${i===0?'select-all':''}">${c}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+  rows.forEach((row, ri) => {
+    html += `<tr><td class="xl-row-hdr ${afterMode&&ri===0?'frozen-below':''}">${ri+1}</td>`;
+    row.forEach((cell, ci) => {
+      const addr = `${cols[ci+1]}${ri+1}`;
+      const hl = highlightCells.includes(addr);
+      const isFrozenRight = afterMode && ci === 0;
+      let classes = 'xl-cell';
+      if (hl) classes += afterMode ? ' after' : ' highlight';
+      if (cell && cell.toString().startsWith('**')) classes += ' bold';
+      if (isFrozenRight) classes += ' frozen-right';
+      const txt = cell ? cell.toString().replace(/^\*\*/,'') : '';
+      html += `<td class="${classes}">${txt}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+// Expense data grid
+const expenseData = [
+  ['**Department','**Q1 Expenses','**Q2 Expenses','**Q3 Expenses','**Change',''],
+  ['Marketing','$12,400','$14,200','$13,800','▲ 14.5%',''],
+  ['Operations','$28,900','$31,500','$30,200','▲ 9.0%',''],
+  ['HR','$8,200','$7,900','$8,500','▲ 3.7%',''],
+  ['IT','$15,600','$17,800','$16,900','▲ 14.1%',''],
+  ['Finance','$6,400','$6,100','$6,700','▲ 4.7%',''],
+];
+
+// ── 1. Ribbon Click Sim (generic for tabs) ──
+function renderRibbonClickSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const clicked = state.skillAttempted[skill.id];
+
+  // Build tab-appropriate ribbon
+  let ribbonContent = '';
+  let activeTab = skill.targetTab || 'Home';
+
+  if (skill.id === 'import-data') {
+    ribbonContent = buildDataRibbon(skill, done || clicked);
+  } else if (skill.id === 'print-settings') {
+    ribbonContent = buildPageLayoutRibbon(skill, done || clicked);
+  } else if (skill.id === 'freeze-panes') {
+    ribbonContent = buildViewRibbon(skill, done || clicked);
+  } else {
+    ribbonContent = buildHomeRibbon(skill, done || clicked);
+  }
+
+  const gridHtml = skill.id === 'freeze-panes'
+    ? buildGrid(expenseData, [], done || clicked)
+    : buildGrid(expenseData);
+
+  return `
+  <div class="excel-sim" id="sim_${skill.id}">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_Q2_Expenses.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-qat">
+      <span class="xl-qat-label">QAT:</span>
+      <button class="xl-qat-btn" title="Save">💾</button>
+      <button class="xl-qat-btn" title="Undo">↩</button>
+      <button class="xl-qat-btn" title="Redo">↪</button>
+      <span class="xl-qat-dropdown">▼</span>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t===activeTab?'active':''}" onclick="switchTab_${skill.id.replace(/-/g,'_')}('${t}')">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content" id="ribbonContent_${skill.id}">
+        ${ribbonContent}
+      </div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox" value="A1" readonly>
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="" readonly>
+    </div>
+    ${gridHtml}
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Q2 Expenses</div>
+      <div class="xl-sheettab">Q1 Expenses</div>
+      <div class="xl-sheettab">Summary</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar">
+      <span>Ready</span>
+      <span>100% 🔍</span>
+    </div>
+  </div>`;
+}
+
+function buildDataRibbon(skill, done) {
+  return `
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="handleRibbonClick('${skill.id}')">
+        <span class="xl-btn-icon">📄</span>
+        <span class="xl-btn-label">From Text/CSV</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🌐</span>
+        <span class="xl-btn-label">From Web</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Get & Transform Data</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🔄</span>
+        <span class="xl-btn-label">Refresh All</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Queries & Connections</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">↕️</span>
+        <span class="xl-btn-label">Sort</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🔽</span>
+        <span class="xl-btn-label">Filter</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Sort & Filter</div>
+  </div>`;
+}
+
+function buildPageLayoutRibbon(skill, done) {
+  return `
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" style="min-width:48px" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🎨</span>
+        <span class="xl-btn-label">Themes</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Themes</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">📐</span>
+        <span class="xl-btn-label">Margins</span>
+      </button>
+      <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="handleRibbonClick('${skill.id}')">
+        <span class="xl-btn-icon">🔄</span>
+        <span class="xl-btn-label">Orientation</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">📄</span>
+        <span class="xl-btn-label">Size</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Page Setup</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🖨️</span>
+        <span class="xl-btn-label">Print Area</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Page Setup</div>
+  </div>`;
+}
+
+function buildViewRibbon(skill, done) {
+  return `
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">📊</span>
+        <span class="xl-btn-label">Normal</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">📋</span>
+        <span class="xl-btn-label">Page Break</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Workbook Views</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" onclick="handleRibbonClick('${skill.id}')">
+        <span class="xl-btn-icon">❄️</span>
+        <span class="xl-btn-label">Freeze Panes</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🪟</span>
+        <span class="xl-btn-label">Split</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Window</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">🔍</span>
+        <span class="xl-btn-label">Zoom</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Zoom</div>
+  </div>`;
+}
+
+function buildHomeRibbon(skill, done) {
+  return `
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">✂️</span>
+        <span class="xl-btn-label">Cut</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">📋</span>
+        <span class="xl-btn-label">Copy</span>
+      </button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')">
+        <span class="xl-btn-icon">📌</span>
+        <span class="xl-btn-label">Paste</span>
+      </button>
+    </div>
+    <div class="xl-group-label">Clipboard</div>
+  </div>
+  <div class="xl-group">
+    <div class="xl-group-btns">
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-weight:700">B</span><span class="xl-btn-label">Bold</span></button>
+      <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')"><span class="xl-btn-icon" style="font-style:italic">I</span><span class="xl-btn-label">Italic</span></button>
+    </div>
+    <div class="xl-group-label">Font</div>
+  </div>`;
+}
+
+// ── 2. Name Box Nav Sim ──
+function renderNameboxSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="excel-sim" id="sim_${skill.id}">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_Quarterly.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t==='Home'?'active':''}">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content">${buildHomeRibbon(skill, false)}</div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox ${!done?'btn-target':'btn-clicked'}" id="namebox_${skill.id}" 
+        value="${done?'Q2_Revenue':'A1'}" 
+        onclick="handleNameboxClick('${skill.id}')"
+        readonly
+        style="cursor:pointer;text-align:left">
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="${done?'=SUM(C2:C13)':''}" readonly>
+    </div>
+    ${buildGrid([
+      ['**Month','**Q1 Rev','**Q2 Rev','**Q3 Rev'],
+      ['January','$42,000','$45,500','$48,200'],
+      ['February','$38,500','$41,000','$43,800'],
+      ['March','$44,200','$47,800','$49,500'],
+      ['April','$40,100','$43,200','$45,000'],
+    ], done?['C2','C3','C4','C5']:[])}
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Sales</div>
+      <div class="xl-sheettab">Expenses</div>
+      <div class="xl-sheettab">Summary</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+  </div>`;
+}
+
+// ── 3. QAT Customize Sim ──
+function renderQATSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="excel-sim" id="sim_${skill.id}" style="position:relative">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_Reports.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-qat">
+      <span class="xl-qat-label">QAT:</span>
+      <button class="xl-qat-btn" title="Save">💾</button>
+      <button class="xl-qat-btn" title="Undo">↩</button>
+      <button class="xl-qat-btn" title="Redo">↪</button>
+      ${done?'<button class="xl-qat-btn btn-clicked" title="Quick Print">🖨️</button>':''}
+      <span class="xl-qat-separator">|</span>
+      <button class="xl-qat-btn ${!done?'btn-target':''}" id="btn_${skill.id}" title="Customize QAT" onclick="handleQATClick('${skill.id}')">▼</button>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t==='Home'?'active':''}">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content">${buildHomeRibbon(skill, false)}</div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox" value="A1" readonly>
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="" readonly>
+    </div>
+    ${buildGrid(expenseData)}
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Reports</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+    <div id="qatDialog_${skill.id}" style="display:none;position:absolute;top:60px;left:10px;z-index:70">
+      <div class="xl-dialog" style="min-width:360px">
+        <div class="xl-dialog-title">Customize Quick Access Toolbar</div>
+        <div class="xl-dialog-body">
+          <div style="display:flex;gap:10px">
+            <div style="flex:1">
+              <label>Choose commands from:</label>
+              <select style="margin-bottom:8px"><option>All Commands</option></select>
+              <div style="border:1px solid var(--xl-border);border-radius:3px;height:120px;overflow-y:auto;font-size:11px;padding:4px">
+                <div style="padding:3px 6px;cursor:pointer" onclick="handleWrongBtn('${skill.id}')">Page Setup</div>
+                <div style="padding:3px 6px;cursor:pointer" onclick="handleWrongBtn('${skill.id}')">Print Preview</div>
+                <div style="padding:3px 6px;background:var(--xl-green-light);border:1px solid var(--xl-green);border-radius:2px;cursor:pointer;color:var(--xl-green-dark)" id="qpBtn_${skill.id}" onclick="handleQATAdd('${skill.id}')">🖨️ Quick Print ← click Add</div>
+                <div style="padding:3px 6px;cursor:pointer" onclick="handleWrongBtn('${skill.id}')">Save As</div>
+                <div style="padding:3px 6px;cursor:pointer" onclick="handleWrongBtn('${skill.id}')">Spell Check</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:center;gap:6px">
+              <button class="xl-dlg-btn primary" style="font-size:11px;padding:4px 10px" onclick="handleQATAdd('${skill.id}')">Add →</button>
+              <button class="xl-dlg-btn" style="font-size:11px;padding:4px 10px" onclick="handleWrongBtn('${skill.id}')">← Remove</button>
+            </div>
+            <div style="flex:1">
+              <label>Current QAT:</label>
+              <div style="border:1px solid var(--xl-border);border-radius:3px;height:120px;overflow-y:auto;font-size:11px;padding:4px">
+                <div style="padding:3px 6px">💾 Save</div>
+                <div style="padding:3px 6px">↩ Undo</div>
+                <div style="padding:3px 6px">↪ Redo</div>
+                ${done?'<div style="padding:3px 6px;background:var(--pass-bg)">🖨️ Quick Print</div>':''}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="xl-dialog-footer">
+          <button class="xl-dlg-btn" onclick="document.getElementById('qatDialog_${skill.id}').style.display='none'">Cancel</button>
+          <button class="xl-dlg-btn primary" onclick="handleQATAdd('${skill.id}')">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── 5. Context Menu Sim (unhide column) ──
+function renderContextMenuSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const cols = ['','A','B','C','D','F','G'];
+  const hiddenData = [
+    ['**Department','**Employee','**Q2 Budget','**Approved','**Notes (hidden)',''],
+    ['Marketing','Sarah Chen','$14,200','✓','Pending review',''],
+    ['Operations','Mike Torres','$31,500','✓','On track',''],
+    ['HR','Lisa Park','$7,900','✓','Under review',''],
+    ['IT','James Okafor','$17,800','✓','Approved',''],
+    ['Finance','Emma Walsh','$6,100','✓','Completed',''],
+  ];
+
+  return `
+  <div class="excel-sim" id="sim_${skill.id}" style="position:relative">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_Expenses_Tracker.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t==='Home'?'active':''}">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content">${buildHomeRibbon(skill, false)}</div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox" value="D:F" readonly>
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="" readonly>
+    </div>
+    <div class="xl-grid-wrap">
+      <table class="xl-grid">
+        <thead><tr>
+          <th class="xl-col-hdr select-all"></th>
+          ${done
+            ? ['A','B','C','D','E','F','G'].map((c,i)=>`<th class="xl-col-hdr ${i===4?'green-fill':''}">${c}</th>`).join('')
+            : ['A','B','C','D','','F','G'].map((c,i)=>`<th class="xl-col-hdr ${i===4?'btn-target':''}" 
+                id="${i===4?'colEHdr_'+skill.id:''}"
+                onclick="${i===3||i===4||i===5?`handleColHdrClick('${skill.id}',${i})`:'handleWrongBtn(\''+skill.id+'\')'}"
+                style="${i===4?'width:12px;min-width:12px;background:var(--xl-cell-hl);cursor:pointer':''}">${c}</th>`).join('')
+          }
+        </tr></thead>
+        <tbody>
+          ${hiddenData.map((row, ri) => `<tr>
+            <td class="xl-row-hdr">${ri+1}</td>
+            ${done
+              ? row.map((cell,ci) => `<td class="xl-cell ${cell.toString().startsWith('**')?'bold':''} ${ci===4?'green-fill after':''}">${cell.toString().replace(/^\*\*/,'')}</td>`).join('')
+              : [row[0],row[1],row[2],row[3],row[5]].map((cell,ci) => `<td class="xl-cell ${cell&&cell.toString().startsWith('**')?'bold':''}">${cell?cell.toString().replace(/^\*\*/,''):''}</td>`).join('')+'<td class="xl-cell"></td>'
+            }
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${!done?`
+    <div id="ctxMenu_${skill.id}" class="ctx-menu" style="display:none;top:80px;left:200px">
+      <div class="ctx-menu-item" onclick="handleWrongBtn('${skill.id}')">✂️ Cut</div>
+      <div class="ctx-menu-item" onclick="handleWrongBtn('${skill.id}')">📋 Copy</div>
+      <div class="ctx-menu-sep"></div>
+      <div class="ctx-menu-item" onclick="handleWrongBtn('${skill.id}')">Insert</div>
+      <div class="ctx-menu-item" onclick="handleWrongBtn('${skill.id}')">Delete</div>
+      <div class="ctx-menu-item" onclick="handleWrongBtn('${skill.id}')">Hide</div>
+      <div class="ctx-menu-item btn-target" id="unhideItem_${skill.id}" onclick="handleUnhide('${skill.id}')">Unhide</div>
+      <div class="ctx-menu-item" onclick="handleWrongBtn('${skill.id}')">Column Width…</div>
+    </div>`:''}
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Tracker</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+    <p style="font-size:11px;color:var(--text-light);padding:6px 12px;background:#fffde7;border-top:1px solid #f0e68c">
+      💡 Column E is hidden. Select columns D and F (click D header, then Shift+click F header), then right-click to see the context menu.
+    </p>
+  </div>`;
+}
+
+// ── 6. Theme Picker Sim ──
+function renderThemeSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  const themes = [
+    {name:'Office',c1:'#4472c4',c2:'#ed7d31'},
+    {name:'Retrospect',c1:'#9e4c8a',c2:'#d15a3d'},
+    {name:'Slate',c1:'#394d5a',c2:'#6699cc'},
+    {name:'Ion',c1:'#1e73be',c2:'#f0523d'},
+    {name:'Facet',c1:'#456990',c2:'#f4a261'},
+    {name:'Wisp',c1:'#96b3d3',c2:'#f7c59f'},
+  ];
+
+  return `
+  <div class="excel-sim" id="sim_${skill.id}" style="position:relative">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_BrandTemplate.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t==='Page Layout'?'active':''}">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content">
+        <div class="xl-group">
+          <div class="xl-group-btns">
+            <button class="xl-btn ${!done?'btn-target':'btn-clicked'}" id="btn_${skill.id}" style="min-width:52px" onclick="handleThemeBtn('${skill.id}')">
+              <span class="xl-btn-icon">🎨</span>
+              <span class="xl-btn-label">Themes</span>
+            </button>
+          </div>
+          <div class="xl-group-label">Themes</div>
+        </div>
+        <div class="xl-group">
+          <div class="xl-group-btns">
+            <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')"><span class="xl-btn-icon">🎨</span><span class="xl-btn-label">Colors</span></button>
+            <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')"><span class="xl-btn-icon">🔤</span><span class="xl-btn-label">Fonts</span></button>
+          </div>
+          <div class="xl-group-label">Themes</div>
+        </div>
+        <div class="xl-group">
+          <div class="xl-group-btns">
+            <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')"><span class="xl-btn-icon">📐</span><span class="xl-btn-label">Margins</span></button>
+            <button class="xl-btn" onclick="handleWrongBtn('${skill.id}')"><span class="xl-btn-icon">🔄</span><span class="xl-btn-label">Orientation</span></button>
+          </div>
+          <div class="xl-group-label">Page Setup</div>
+        </div>
+      </div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox" value="A1" readonly>
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="" readonly>
+    </div>
+    ${buildGrid(expenseData)}
+    <div id="themeDropdown_${skill.id}" style="display:none;position:absolute;top:90px;left:12px;background:#fff;border:1px solid #aaa;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:60;padding:12px;min-width:240px">
+      <div style="font-size:11px;font-weight:700;color:#666;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Office Themes</div>
+      <div class="theme-grid">
+        ${themes.map(t => `
+        <div class="theme-swatch ${t.name===skill.targetBtn?'btn-target':''} ${done&&t.name==='Retrospect'?'selected':''}" 
+             id="theme_${skill.id}_${t.name}"
+             onclick="handleThemeSelect('${skill.id}','${t.name}')">
+          <div class="ts-bar" style="background:${t.c1}"></div>
+          <div class="ts-bar" style="background:${t.c2}"></div>
+          <div class="ts-name">${t.name}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Template</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+  </div>`;
+}
+
+// ── 8. File Properties Sim ──
+function renderFilePropsSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="excel-sim" id="sim_${skill.id}" style="position:relative">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_Q2_Financial.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t==='File'?'active':''}" onclick="${t==='File'?`handleFileMenuOpen('${skill.id}')`:''}">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content">${buildHomeRibbon(skill, false)}</div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox" value="A1" readonly>
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="" readonly>
+    </div>
+    ${buildGrid(expenseData)}
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Q2 Summary</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+    <div id="fileMenu_${skill.id}" style="display:none;position:absolute;inset:0;z-index:80">
+      <div class="xl-file-menu">
+        <div class="xl-file-panel">
+          <div style="padding:12px 20px 16px;font-size:14px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.2);margin-bottom:8px">← File</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">📄 New</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">📂 Open</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">💾 Save</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">💾 Save As</div>
+          <div class="xl-file-item active btn-target" id="infoItem_${skill.id}" onclick="handleInfoClick('${skill.id}')">ℹ️ Info</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">🖨️ Print</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">⚙️ Options</div>
+          <div class="xl-file-item" style="margin-top:auto" onclick="document.getElementById('fileMenu_${skill.id}').style.display='none'">✕ Close</div>
+        </div>
+        <div class="xl-file-content" id="fileContent_${skill.id}">
+          <h3>Click "Info" in the menu to view workbook properties</h3>
+          <p style="font-size:13px;color:var(--text-light)">The Info panel shows workbook properties where you can edit the Title, Author, Subject, and Keywords.</p>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── 9. Save As Sim ──
+function renderSaveAsSim(skill) {
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="excel-sim" id="sim_${skill.id}" style="position:relative">
+    <div class="xl-titlebar">
+      <span class="xl-titlebar-name">DesertSun_Q2_Report.xlsx</span>
+      <span class="xl-titlebar-app">Microsoft Excel</span>
+    </div>
+    <div class="xl-ribbon">
+      <div class="xl-tabs">
+        ${['File','Home','Insert','Page Layout','Formulas','Data','Review','View'].map(t =>
+          `<div class="xl-tab ${t==='File'?'active':''}" onclick="${t==='File'?`handleSaveAsMenuOpen('${skill.id}')`:''}">${t}</div>`
+        ).join('')}
+      </div>
+      <div class="xl-ribbon-content">${buildHomeRibbon(skill, false)}</div>
+    </div>
+    <div class="xl-formulabar">
+      <input class="xl-namebox" value="A1" readonly>
+      <span class="xl-fx-label">fx</span>
+      <input class="xl-formulainput" value="" readonly>
+    </div>
+    ${buildGrid(expenseData)}
+    <div class="xl-sheettabs">
+      <div class="xl-sheettab active">Q2 Report</div>
+      <span class="xl-new-tab">⊕</span>
+    </div>
+    <div class="xl-statusbar"><span>Ready</span><span>100% 🔍</span></div>
+    <div id="saveAsMenu_${skill.id}" style="display:none;position:absolute;inset:0;z-index:80">
+      <div class="xl-file-menu">
+        <div class="xl-file-panel">
+          <div style="padding:12px 20px 16px;font-size:14px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.2);margin-bottom:8px">← File</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">📄 New</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">💾 Save</div>
+          <div class="xl-file-item active btn-target" id="saveAsItem_${skill.id}" onclick="handleSaveAsClick('${skill.id}')">💾 Save As</div>
+          <div class="xl-file-item" onclick="handleWrongBtn('${skill.id}')">ℹ️ Info</div>
+          <div class="xl-file-item" style="margin-top:auto" onclick="document.getElementById('saveAsMenu_${skill.id}').style.display='none'">✕ Close</div>
+        </div>
+        <div class="xl-file-content" id="saveAsContent_${skill.id}">
+          <h3>Save As</h3>
+          <p style="font-size:13px;color:var(--text-light);margin-bottom:16px">Choose a format to save the workbook in:</p>
+          <div class="xl-saveas-option" onclick="handleWrongBtn('${skill.id}')">
+            <div class="xl-saveas-icon">📊</div>
+            <div><div class="xl-saveas-label">Excel Workbook (*.xlsx)</div><div class="xl-saveas-desc">Default Excel format</div></div>
+          </div>
+          <div class="xl-saveas-option" onclick="handleWrongBtn('${skill.id}')">
+            <div class="xl-saveas-icon">📊</div>
+            <div><div class="xl-saveas-label">Excel 97-2003 (*.xls)</div><div class="xl-saveas-desc">For older Excel users</div></div>
+          </div>
+          <div class="xl-saveas-option ${!done?'btn-target':'selected'}" id="pdfOption_${skill.id}" onclick="handleSaveAsPDF('${skill.id}')">
+            <div class="xl-saveas-icon">📄</div>
+            <div><div class="xl-saveas-label">PDF (*.pdf)</div><div class="xl-saveas-desc">${done?'✓ Selected — formatting locked for sharing':'Fixed layout, ideal for sharing or printing'}</div></div>
+          </div>
+          <div class="xl-saveas-option" onclick="handleWrongBtn('${skill.id}')">
+            <div class="xl-saveas-icon">📝</div>
+            <div><div class="xl-saveas-label">CSV (*.csv)</div><div class="xl-saveas-desc">Plain text, no formatting</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// EVENT HANDLERS
+// ─────────────────────────────────────────────
+function attachSimEvents(skill) {
+  // Tab switching for ribbon-click sims
+  const tabFnName = `switchTab_${skill.id.replace(/-/g,'_')}`;
+  window[tabFnName] = function(tab) {
+    const container = document.getElementById(`sim_${skill.id}`);
+    if (!container) return;
+    container.querySelectorAll('.xl-tab').forEach(t => t.classList.toggle('active', t.textContent===tab));
+    // Re-render ribbon for the active tab
+    const rc = document.getElementById(`ribbonContent_${skill.id}`);
+    if (!rc) return;
+    const done = state.completedSkills.has(skill.id);
+    if (tab === 'Data') rc.innerHTML = buildDataRibbon(skill, done);
+    else if (tab === 'Page Layout') rc.innerHTML = buildPageLayoutRibbon(skill, done);
+    else if (tab === 'View') rc.innerHTML = buildViewRibbon(skill, done);
+    else rc.innerHTML = buildHomeRibbon(skill, done);
+  };
+}
+
+function handleRibbonClick(skillId) {
+  state.skillAttempted[skillId] = true;
+  markComplete(skillId);
+}
+
+function handleWrongBtn(skillId) {
+  const fb = document.getElementById(`feedbackArea_${skillId}`);
+  if (!fb) return;
+  fb.innerHTML = `<div class="feedback-box incorrect">
+    <div class="feedback-icon">❌</div>
+    <div class="feedback-text">
+      <strong>Not quite.</strong>
+      <p>That's not the right button. Look at the task description and use the hint if you need help.</p>
+    </div>
+  </div>`;
+}
+
+function handleNameboxClick(skillId) {
+  const skill = SKILLS.find(s=>s.id===skillId);
+  if (!skill || state.completedSkills.has(skillId)) return;
+  // Show a "type in name box" dialog
+  const nb = document.getElementById(`namebox_${skillId}`);
+  if (nb) { nb.value = 'Q2_Revenue'; nb.classList.remove('btn-target'); nb.classList.add('btn-clicked'); }
+  markComplete(skillId);
+}
+
+function handleQATClick(skillId) {
+  const dlg = document.getElementById(`qatDialog_${skillId}`);
+  if (dlg) dlg.style.display = dlg.style.display==='none'?'block':'none';
+}
+
+function handleQATAdd(skillId) {
+  const dlg = document.getElementById(`qatDialog_${skillId}`);
+  if (dlg) dlg.style.display = 'none';
+  markComplete(skillId);
+}
+
+function handleColHdrClick(skillId, colIdx) {
+  if (colIdx === 3 || colIdx === 5) {
+    // selecting D or F - show context menu
+    const menu = document.getElementById(`ctxMenu_${skillId}`);
+    if (menu) { menu.style.display = 'block'; }
+  }
+}
+
+function handleUnhide(skillId) {
+  const menu = document.getElementById(`ctxMenu_${skillId}`);
+  if (menu) menu.style.display = 'none';
+  markComplete(skillId);
+}
+
+function handleThemeBtn(skillId) {
+  const dd = document.getElementById(`themeDropdown_${skillId}`);
+  if (dd) dd.style.display = dd.style.display==='none'?'block':'none';
+  const btn = document.getElementById(`btn_${skillId}`);
+  if (btn) btn.classList.remove('btn-target');
+}
+
+function handleThemeSelect(skillId, themeName) {
+  const dd = document.getElementById(`themeDropdown_${skillId}`);
+  if (dd) dd.style.display = 'none';
+  if (themeName === 'Retrospect') {
+    markComplete(skillId);
+  } else {
+    handleWrongBtn(skillId);
+  }
+}
+
+function handleFileMenuOpen(skillId) {
+  const menu = document.getElementById(`fileMenu_${skillId}`);
+  if (menu) menu.style.display = 'flex';
+}
+
+function handleInfoClick(skillId) {
+  const content = document.getElementById(`fileContent_${skillId}`);
+  const infoItem = document.getElementById(`infoItem_${skillId}`);
+  if (infoItem) { infoItem.classList.remove('btn-target'); infoItem.classList.add('active'); }
+  if (!content) return;
+  const done = state.completedSkills.has(skillId);
+  content.innerHTML = `
+    <h3>Info — Workbook Properties</h3>
+    <p style="font-size:13px;color:var(--text-light);margin-bottom:16px">Edit the workbook properties below.</p>
+    <div class="xl-props-field">
+      <label>Title</label>
+      <input type="text" class="${!done?'btn-target':''}" id="propTitle_${skillId}" 
+        value="${done?'Q2 Financial Summary':''}" 
+        placeholder="Click here and type: Q2 Financial Summary"
+        onclick="handlePropEdit('${skillId}','title')" readonly>
+    </div>
+    <div class="xl-props-field">
+      <label>Author</label>
+      <input type="text" id="propAuthor_${skillId}" 
+        value="${done?'Desert Sun Consulting':''}" 
+        placeholder="Author name"
+        onclick="handlePropEdit('${skillId}','author')" readonly>
+    </div>
+    <div class="xl-props-field">
+      <label>Subject</label>
+      <input type="text" placeholder="Subject" readonly>
+    </div>
+    <div class="xl-props-field">
+      <label>Keywords</label>
+      <input type="text" placeholder="Keywords" readonly>
+    </div>
+    <div style="margin-top:12px">
+      <button class="xl-dlg-btn primary" onclick="handlePropSave('${skillId}')">Save Properties</button>
+    </div>`;
+}
+
+function handlePropEdit(skillId, field) {}
+
+function handlePropSave(skillId) {
+  const titleEl = document.getElementById(`propTitle_${skillId}`);
+  if (titleEl) { titleEl.value = 'Q2 Financial Summary'; titleEl.classList.remove('btn-target'); titleEl.classList.add('btn-clicked'); }
+  const menu = document.getElementById(`fileMenu_${skillId}`);
+  if (menu) menu.style.display = 'none';
+  markComplete(skillId);
+}
+
+function handleSaveAsMenuOpen(skillId) {
+  const menu = document.getElementById(`saveAsMenu_${skillId}`);
+  if (menu) menu.style.display = 'flex';
+}
+
+function handleSaveAsClick(skillId) {
+  const item = document.getElementById(`saveAsItem_${skillId}`);
+  if (item) { item.classList.remove('btn-target'); item.classList.add('active'); }
+}
+
+function handleSaveAsPDF(skillId) {
+  const menu = document.getElementById(`saveAsMenu_${skillId}`);
+  if (menu) menu.style.display = 'none';
+  markComplete(skillId);
+}
+
+// ─────────────────────────────────────────────
+// MARK COMPLETE
+// ─────────────────────────────────────────────
+function markComplete(skillId) {
+  state.completedSkills.add(skillId);
+  saveState();
+  renderNav();
+  renderSkillPanel();
+  // Post to server if api-client.js is loaded
+  if (window.api && window.api.saveLabAnswer) {
+    window.api.saveLabAnswer('e1_' + skillId, 'completed', true).catch(()=>{});
+  }
+  // Auto-advance after short delay
+  const idx = SKILLS.findIndex(s=>s.id===skillId);
+  if (idx < SKILLS.length - 1) {
+    setTimeout(() => goSkill(idx + 1), 1200);
+  }
+}
+
+// ─────────────────────────────────────────────
+// HINTS & RESOURCES
+// ─────────────────────────────────────────────
+function showHint(skillId) {
+  const skill = SKILLS.find(s=>s.id===skillId);
+  if (!skill) return;
+  const hl = (state.hintLevel[skillId]||0);
+  if (hl >= 3) return;
+  state.hintLevel[skillId] = hl + 1;
+  const newHl = state.hintLevel[skillId];
+  const hintText = newHl===1?skill.hint1:newHl===2?skill.hint2:skill.hint3;
+  const box = document.getElementById(`hintBox_${skillId}`);
+  if (box) {
+    box.innerHTML = `<strong>Hint ${newHl}:</strong> ${hintText}`;
+    box.classList.add('visible');
+  }
+  // Update hint button
+  const btns = document.querySelectorAll('.btn-hint');
+  btns.forEach(b => { if (b.closest('#skillPanel')) b.textContent = `💡 Hint (${newHl}/3)`; });
+}
+
+function toggleResources(skillId) {
+  state.resourcesOpen[skillId] = !state.resourcesOpen[skillId];
+  const panel = document.getElementById(`resPanel_${skillId}`);
+  if (panel) panel.classList.toggle('open', state.resourcesOpen[skillId]);
+}
+
+function copyPrompt(skillId) {
+  const skill = SKILLS.find(s=>s.id===skillId);
+  if (!skill) return;
+  navigator.clipboard.writeText(skill.resources.ai).then(()=>{
+    alert('Prompt copied! Paste it into ChatGPT, Copilot, or Perplexity.');
+  }).catch(()=>{
+    prompt('Copy this prompt:', skill.resources.ai);
+  });
+}
+
+// ─────────────────────────────────────────────
+// NAV ROW
+// ─────────────────────────────────────────────
+function renderSkillNavRow() {
+  const idx = state.currentSkillIdx;
+  const skill = SKILLS[idx];
+  const done = state.completedSkills.has(skill.id);
+  return `
+  <div class="skill-nav-row">
+    <button class="btn-nav secondary" onclick="goSkill(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+    <span class="skill-status-text">${done?'✅ Complete':'Skill '+skill.num+' of '+SKILLS.length}</span>
+    <button class="btn-nav primary" onclick="goSkill(${idx+1})" ${idx===SKILLS.length-1?'disabled':''}>Next →</button>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderNav();
+renderSkillPanel();
+</script>
+</body>
+</html>
