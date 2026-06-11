@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Introduction to Computing | CSN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy-mid: #152540;
+    --navy-light: #1e3358;
+    --gold: #c9943a;
+    --gold-bright: #e8b04b;
+    --gold-pale: #f5d98a;
+    --cream: #f7f2ea;
+    --cream-dark: #ede5d4;
+    --white: #ffffff;
+    --text-dark: #0d1b2e;
+    --text-mid: #3a4e6b;
+    --text-muted: #7a8fa8;
+    --success: #2e7d4f;
+    --success-bg: #e8f5ee;
+    --warn: #b85c1a;
+    --warn-bg: #fdf0e6;
+    --border: rgba(13,27,46,0.12);
+    --shadow-sm: 0 2px 8px rgba(13,27,46,0.08);
+    --shadow-md: 0 6px 24px rgba(13,27,46,0.12);
+    --shadow-lg: 0 16px 48px rgba(13,27,46,0.18);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TOP HEADER ── */
+  .site-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  }
+  .site-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-crest {
+    width: 36px;
+    height: 36px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--navy);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .header-title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  .header-title .course-id {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-pale);
+  }
+  .header-title .course-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .student-badge {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .student-badge .dot {
+    width: 7px;
+    height: 7px;
+    background: #4ade80;
+    border-radius: 50%;
+  }
+  .logout-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* ── OVERALL PROGRESS BAR ── */
+  .overall-progress {
+    background: var(--navy-mid);
+    padding: 12px 2rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .overall-progress .label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 3px;
+    transition: width 0.8s ease;
+    width: 0%;
+  }
+  .overall-progress .pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-pale);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── HOME VIEW ── */
+  .home-hero {
+    background: var(--navy);
+    color: var(--white);
+    padding: 56px 2rem 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% 110%, rgba(201,148,58,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .home-hero .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .home-hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .home-hero h1 em {
+    font-style: italic;
+    color: var(--gold-pale);
+  }
+  .home-hero .subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .units-grid {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 2rem 60px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 20px;
+  }
+
+  /* ── UNIT CARD ── */
+  .unit-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .unit-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .unit-card.locked {
+    opacity: 0.65;
+    cursor: default;
+  }
+  .unit-card.locked:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-accent {
+    height: 5px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  }
+  .unit-card.u2 .card-accent { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .unit-card.u3 .card-accent { background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .unit-card.u4 .card-accent { background: linear-gradient(90deg, #9333ea, #c084fc); }
+
+  .card-body {
+    padding: 24px 24px 20px;
+  }
+  .card-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .unit-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .unit-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-dark);
+    line-height: 1.25;
+  }
+  .unit-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 12px;
+    margin-top: 2px;
+  }
+  .badge-active { background: var(--success-bg); color: var(--success); }
+  .badge-coming { background: var(--cream-dark); color: var(--text-muted); }
+  .badge-complete { background: #dbeafe; color: #1d4ed8; }
+
+  .unit-desc {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .meta-icon { font-size: 14px; }
+
+  /* mini progress in card */
+  .card-progress {
+    margin-bottom: 18px;
+  }
+  .card-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .card-track {
+    height: 5px;
+    background: var(--cream-dark);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .card-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+  .u1 .card-fill { background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }
+  .u2 .card-fill { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .u3 .card-fill { background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .u4 .card-fill { background: linear-gradient(90deg, #9333ea, #c084fc); }
+
+  .card-cta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
+  .u2 .btn-primary { background: #1d4ed8; }
+  .u2 .btn-primary:hover { background: #1e40af; }
+  .u3 .btn-primary { background: #15803d; }
+  .u3 .btn-primary:hover { background: #166534; }
+  .u4 .btn-primary { background: #7e22ce; }
+
+  .btn-secondary {
+    background: none;
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--cream); border-color: var(--text-muted); }
+
+  .locked-overlay {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ── UNIT OVERVIEW VIEW ── */
+  .view-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 2rem 60px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .breadcrumb a:hover { color: var(--gold); }
+  .breadcrumb .sep { color: var(--border); font-size: 16px; }
+  .breadcrumb .current { color: var(--text-dark); font-weight: 500; }
+
+  .unit-overview-header {
+    margin-bottom: 32px;
+  }
+  .unit-overview-header .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .unit-overview-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  .unit-overview-header p {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    max-width: 560px;
+  }
+
+  /* unit overview progress */
+  .overview-progress-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .overview-progress-block .progress-stat {
+    text-align: center;
+    min-width: 70px;
+  }
+  .progress-stat .big-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--text-dark);
+    line-height: 1;
+  }
+  .progress-stat .small-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+  .overview-progress-block .divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+  .overview-progress-track-wrap {
+    flex: 1;
+  }
+  .overview-progress-track-wrap .label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .overview-big-track {
+    height: 10px;
+    background: var(--cream-dark);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .overview-big-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 5px;
+    transition: width 0.8s ease;
+  }
+
+  /* jump to projects */
+  .jump-projects-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 28px;
+  }
+  .jump-projects-btn:hover { background: var(--gold); color: var(--navy); }
+
+  /* skill groups */
+  .skill-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .skill-group-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+  }
+  .skill-group-card:hover { box-shadow: var(--shadow-md); }
+
+  .skill-group-header {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .group-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--cream);
+  }
+  .group-info { flex: 1; }
+  .group-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+  .group-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .group-progress-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+  }
+  .mini-track {
+    width: 80px;
+    height: 4px;
+    background: var(--cream-dark);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .mini-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 28px;
+    text-align: right;
+  }
+  .chevron {
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.25s;
+  }
+  .skill-group-card.open .chevron { transform: rotate(180deg); }
+
+  .skill-group-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .skill-group-card.open .skill-group-body { display: block; }
+
+  .skill-rows {
+    padding: 8px 0;
+  }
+  .skill-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    transition: background 0.15s;
+  }
+  .skill-row:hover { background: rgba(0,0,0,0.03); }
+  .skill-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: transparent;
+    background: var(--white);
+    transition: all 0.2s;
+  }
+  .skill-check.done {
+    background: var(--success);
+    border-color: var(--success);
+    color: var(--white);
+  }
+  .skill-check.partial {
+    background: var(--warn-bg);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .skill-name-col { flex: 1; }
+  .skill-name {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  .skill-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .skill-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-prove {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-prove:hover { background: var(--navy-light); }
+  .btn-practice {
+    background: var(--cream-dark);
+    color: var(--text-mid);
+    border: none;
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-practice:hover { background: #ddd6c5; }
+
+  /* skill group footer */
+  .group-footer {
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-go-project {
+    background: none;
+    border: 1.5px solid var(--navy);
+    color: var(--navy);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-go-project:hover { background: var(--navy); color: var(--white); }
+
+  /* Topic-style skill group (Unit 1) */
+  .topic-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 14px;
+  }
+  .topic-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: var(--white);
+  }
+  .topic-num {
+    width: 36px;
+    height: 36px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  .topic-info { flex: 1; }
+  .topic-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 2px;
+  }
+  .topic-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+  }
+  .topic-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .topic-badge.done-badge { background: var(--success-bg); color: var(--success); }
+  .topic-badge.inprog-badge { background: rgba(201,148,58,0.2); color: var(--gold-pale); }
+  .topic-badge.todo-badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+  .topic-steps {
+    padding: 0;
+  }
+  .topic-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .topic-step:last-child { border-bottom: none; }
+  .topic-step:hover { background: var(--cream); }
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    background: var(--cream);
+  }
+  .step-icon.done-icon { background: var(--success-bg); }
+  .step-info { flex: 1; }
+  .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .step-cta button {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .step-cta button:hover { background: var(--navy-light); }
+  .step-cta button.completed-btn {
+    background: var(--success-bg);
+    color: var(--success);
+    cursor: default;
+  }
+  .step-cta button.completed-btn:hover { background: var(--success-bg); }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,27,46,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: var(--radius);
+    max-width: 480px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .modal-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .modal-header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { color: var(--white); }
+  .modal-body {
+    padding: 28px 24px;
+  }
+  .modal-body p {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+  .modal-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    background: var(--white);
+    text-align: left;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .choice-btn:hover {
+    border-color: var(--navy);
+    background: var(--cream);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .choice-btn.prove-choice:hover { border-color: var(--gold); }
+  .choice-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .choice-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 3px;
+  }
+  .choice-text span {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── LOGIN GATE ── */
+  .login-gate {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--navy);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .login-gate.show { display: flex; }
+  .login-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+  .login-crest {
+    width: 64px;
+    height: 64px;
+    background: var(--navy);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--gold);
+    margin: 0 auto 20px;
+  }
+  .login-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  .login-card p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .login-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.12em;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .login-input:focus { border-color: var(--gold); }
+  .login-input::placeholder { letter-spacing: normal; font-size: 14px; font-weight: 400; }
+  .login-submit {
+    width: 100%;
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 13px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 12px;
+  }
+  .login-submit:hover { background: var(--navy-light); }
+  .login-error {
+    font-size: 13px;
+    color: #dc2626;
+    min-height: 20px;
+  }
+  .login-note {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── NOTIFICATION TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--navy);
+    color: var(--white);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    z-index: 400;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--success); }
+  .toast.warning { background: var(--warn); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .units-grid { grid-template-columns: 1fr; padding: 20px 1rem 40px; }
+    .view-inner { padding: 24px 1rem 40px; }
+    .home-hero { padding: 36px 1rem 32px; }
+    .overall-progress { padding: 10px 1rem; }
+    .site-header { padding: 0 1rem; }
+    .modal-body .modal-choices { gap: 8px; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .unit-card {
+    animation: fadeInUp 0.4s ease both;
+  }
+  .unit-card:nth-child(1) { animation-delay: 0.05s; }
+  .unit-card:nth-child(2) { animation-delay: 0.12s; }
+  .unit-card:nth-child(3) { animation-delay: 0.19s; }
+  .unit-card:nth-child(4) { animation-delay: 0.26s; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     LOGIN GATE
+══════════════════════════════════════════════ -->
+<div class="login-gate show" id="loginGate">
+  <div class="login-card">
+    <div class="login-crest">C</div>
+    <h2>Welcome to IS101</h2>
+    <p>Enter your 10-digit NSHE ID to access the courseware.<br>No password required.</p>
+    <input type="text" class="login-input" id="nsheInput" placeholder="0000000000" maxlength="10" inputmode="numeric" autocomplete="off">
+    <button class="login-submit" onclick="handleLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+    <p class="login-note">🔒 Your NSHE ID is only used to save your progress.<br>No personal information is collected or displayed to other students.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SITE HEADER
+══════════════════════════════════════════════ -->
+<header class="site-header" id="siteHeader" style="display:none">
+  <div class="brand">
+    <div class="header-crest">C</div>
+    <div class="header-title">
+      <span class="course-id">IS101</span>
+      <span class="course-name">Introduction to Computing</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="student-badge">
+      <span class="dot"></span>
+      <span id="studentLabel">Student</span>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</header>
+
+<!-- ── OVERALL PROGRESS BAR ── -->
+<div class="overall-progress" id="overallProgressBar" style="display:none">
+  <span class="label">Course Progress</span>
+  <div class="progress-track">
+    <div class="progress-fill" id="overallFill" style="width:0%"></div>
+  </div>
+  <span class="pct" id="overallPct">0%</span>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     VIEW: HOME
+══════════════════════════════════════════════ -->
+<div class="view active" id="viewHome">
+  <div class="home-hero">
+    <div class="eyebrow">College of Southern Nevada · Dr. Mark Taormino</div>
+    <h1>Introduction to<br><em>Computing</em></h1>
+    <p class="subtitle">Learn at your own pace. Complete each unit to earn full credit. Start anywhere you're ready.</p>
+  </div>
+
+  <div class="units-grid">
+
+    <!-- UNIT 1 -->
+    <div class="unit-card u1" onclick="openUnit(1)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 1</div>
+            <div class="unit-title">Artificial Intelligence:<br>It is Real!</div>
+          </div>
+          <span class="unit-status-badge badge-active" id="u1Badge">Active</span>
+        </div>
+        <p class="unit-desc">Understand how AI actually works, why it can make things up, and how to use source-grounded AI tools like Google NotebookLM for academic work.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> 2 Topics</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~3 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📋</span> 1 Exam</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span id="u1ProgressLabel">0 of 4 steps complete</span>
+            <span id="u1Pct">0%</span>
+          </div>
+          <div class="card-track">
+            <div class="card-fill" id="u1Fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="card-cta">
+          <button class="btn-primary" id="u1CTA" onclick="openUnit(1)">Start Unit 1</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIT 2 -->
+    <div class="unit-card u2" onclick="openUnit(2)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 2</div>
+            <div class="unit-title">Word Processing:<br>Microsoft Word 365</div>
+          </div>
+          <span class="unit-status-badge badge-active" id="u2Badge">Active</span>
+        </div>
+        <p class="unit-desc">Master professional document creation — margins, styles, tables, and table of contents — then apply every skill in a real business project.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> 12 Skills</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~4 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📁</span> 4 Projects</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span id="u2ProgressLabel">0 of 12 skills complete</span>
+            <span id="u2Pct">0%</span>
+          </div>
+          <div class="card-track">
+            <div class="card-fill" id="u2Fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="card-cta">
+          <button class="btn-primary" id="u2CTA" onclick="openUnit(2)">Start Unit 2</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIT 3 -->
+    <div class="unit-card u3" onclick="openUnit(3)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 3</div>
+            <div class="unit-title">Spreadsheets:<br>Microsoft Excel 365</div>
+          </div>
+          <span class="unit-status-badge badge-active" id="u3Badge">Active</span>
+        </div>
+        <p class="unit-desc">Build real formulas with SUM, IF, VLOOKUP and more — then use them together in a business dashboard that requires every formula to work.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> 10 Skills</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~4 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📁</span> 4 Projects</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span id="u3ProgressLabel">0 of 10 skills complete</span>
+            <span id="u3Pct">0%</span>
+          </div>
+          <div class="card-track">
+            <div class="card-fill" id="u3Fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="card-cta">
+          <button class="btn-primary" id="u3CTA" onclick="openUnit(3)">Start Unit 3</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIT 4 -->
+    <div class="unit-card u4 locked" id="unit4Card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-header-row">
+          <div>
+            <div class="unit-number">Unit 4</div>
+            <div class="unit-title">Presentations:<br>PowerPoint 365</div>
+          </div>
+          <span class="unit-status-badge badge-coming">Coming Soon</span>
+        </div>
+        <p class="unit-desc">Design professional slide decks with layouts, themes, animations, and speaker notes. Complete a real presentation project for a Nevada business.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">🎯</span> Skills</span>
+          <span class="meta-item"><span class="meta-icon">⏱</span> ~3 hrs</span>
+          <span class="meta-item"><span class="meta-icon">📁</span> Projects</span>
+        </div>
+        <div class="card-progress">
+          <div class="card-progress-header">
+            <span>Not yet available</span>
+          </div>
+          <div class="card-track"><div class="card-fill" style="width:0%"></div></div>
+        </div>
+        <div class="card-cta">
+          <div class="locked-overlay">🔒 Available soon</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /units-grid -->
+</div><!-- /viewHome -->
+
+<!-- ══════════════════════════════════════════════
+     VIEW: UNIT OVERVIEW
+══════════════════════════════════════════════ -->
+<div class="view" id="viewUnit">
+  <div class="view-inner">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a onclick="showView('home')">🏠 Home</a>
+      <span class="sep">›</span>
+      <span class="current" id="unitBreadcrumb">Unit 1</span>
+    </div>
+
+    <!-- Unit Header -->
+    <div class="unit-overview-header">
+      <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
+      <h2 id="unitHeading">It is Real!</h2>
+      <p id="unitDesc">Understand how AI works, where it fails, and how to use it responsibly for academic work at CSN.</p>
+    </div>
+
+    <!-- Progress Block -->
+    <div class="overview-progress-block">
+      <div class="progress-stat">
+        <div class="big-num" id="overviewStepsDone">0</div>
+        <div class="small-label">Complete</div>
+      </div>
+      <div class="divider"></div>
+      <div class="progress-stat">
+        <div class="big-num" id="overviewStepsTotal">4</div>
+        <div class="small-label">Total Steps</div>
+      </div>
+      <div class="divider"></div>
+      <div class="overview-progress-track-wrap">
+        <div class="label-row">
+          <span>Unit Progress</span>
+          <span id="overviewPct">0%</span>
+        </div>
+        <div class="overview-big-track">
+          <div class="overview-big-fill" id="overviewFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jump to Projects -->
+    <button class="jump-projects-btn" id="jumpProjectsBtn" onclick="jumpToProjects()">
+      ⚡ Jump to Projects — skip practice, go straight to submission
+    </button>
+
+    <!-- Skill Groups / Topics -->
+    <div class="skill-groups" id="skillGroupsContainer">
+      <!-- filled dynamically -->
+    </div>
+
+  </div>
+</div><!-- /viewUnit -->
+
+<!-- ══════════════════════════════════════════════
+     TWO-PATH MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="twoPathModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalSkillName">Margins & Page Setup</h3>
+        <p id="modalSkillGroup">Unit 2 · Page &amp; Document Setup</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>How would you like to approach this skill?</p>
+      <div class="modal-choices">
+        <button class="choice-btn prove-choice" onclick="goProveit()">
+          <span class="choice-icon">⚡</span>
+          <div class="choice-text">
+            <strong>I already know this — Prove It</strong>
+            <span>Go straight to the project. Demonstrate the skill and earn full credit.</span>
+          </div>
+        </button>
+        <button class="choice-btn" onclick="goPractice()">
+          <span class="choice-icon">📚</span>
+          <div class="choice-text">
+            <strong>I need to learn this — Practice with Help</strong>
+            <span>Work through a guided simulator with hints, AI prompts, and video resources.</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TOAST NOTIFICATION
+══════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script src="api-client.js"></script>
+<script>
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let currentStudent = null;
+let currentUnit = null;
+let progress = {};
+let selectedSkill = null;
+
+// ─────────────────────────────────────────────
+//  UNIT DATA
+// ─────────────────────────────────────────────
+const UNITS = {
+  1: {
+    title: "It is Real!",
+    eyebrow: "Unit 1 — Artificial Intelligence",
+    desc: "Understand how AI works, where it fails, and how to use it responsibly for academic work at CSN.",
+    type: "topics",
+    totalSteps: 4,
+    topics: [
+      {
+        id: "ai-t1",
+        num: 1,
+        title: "Understanding AI",
+        meta: "~30–40 min",
+        steps: [
+          {
+            id: "ai-t1-watch",
+            icon: "🎬",
+            title: "Watch Lesson — Understanding AI",
+            desc: "Define AI, learn how machine learning works, understand hallucinations, and why grounded AI is safer for academic use.",
+            cta: "Watch Now",
+            href: "IS101_Video_Lessons_05272026_0928.html#ai-t1"
+          },
+          {
+            id: "ai-t1-exam",
+            icon: "✅",
+            title: "Knowledge Check — AI Basics",
+            desc: "10 multiple-choice questions. Score 100% to complete. Unlimited retakes.",
+            cta: "Take Quiz",
+            href: "IS101_AI_Exam_05272026_0928.html#ai-t1"
+          }
+        ]
+      },
+      {
+        id: "ai-t2",
+        num: 2,
+        title: "Google NotebookLM: A Deep Dive",
+        meta: "~2–3 hrs",
+        steps: [
+          {
+            id: "ai-t2-watch",
+            icon: "🎬",
+            title: "Watch Lesson — NotebookLM",
+            desc: "Create notebooks, upload sources, generate summaries and study guides, use Audio Overview, and compare NotebookLM vs ChatGPT.",
+            cta: "Watch Now",
+            href: "IS101_Video_Lessons_05272026_0928.html#ai-t2"
+          },
+          {
+            id: "ai-t2-checklist",
+            icon: "📋",
+            title: "NotebookLM Walkthrough",
+            desc: "6 sections, 19 hands-on steps. Work through the tool yourself using the interactive checklist. Self-graded.",
+            cta: "Open Checklist",
+            href: "IS101_NotebookLM_Checklist_05272026_0928.html"
+          }
+        ]
+      }
+    ]
+  },
+  2: {
+    title: "Word Processing: Microsoft Word 365",
+    eyebrow: "Unit 2 — Microsoft Word 365",
+    desc: "Master professional document creation. Practice each skill, then apply them all together in a real business project.",
+    type: "skills",
+    totalSteps: 85,
+    jumpTarget: "IS101_Project_Grader_05272026_0928.html#word",
+    groups: [
+      {
+        id: "w-g1", icon: "📄",
+        name: "D1 — Manage Documents",
+        skills: [
+          { id: "search-text", name: "Search for Text", hint: "Ctrl+F or Home → Find" },
+          { id: "insert-hyperlink", name: "Insert Hyperlink", hint: "Insert → Links → Hyperlink" },
+          { id: "goto", name: "Go To", hint: "Ctrl+G or Find & Replace → Go To tab" },
+          { id: "show-hide-formatting", name: "Show/Hide Formatting Marks", hint: "Home → Paragraph → ¶ button" },
+          { id: "set-margins", name: "Set Margins", hint: "Layout → Margins → Custom Margins" },
+          { id: "set-orientation", name: "Set Page Orientation", hint: "Layout → Orientation → Portrait or Landscape" },
+          { id: "set-paper-size", name: "Set Paper Size", hint: "Layout → Size → choose paper size" },
+          { id: "apply-style-set", name: "Apply Style Set", hint: "Design tab → Document Formatting → Style Sets" },
+          { id: "insert-header", name: "Insert Header", hint: "Insert → Header & Footer → Header" },
+          { id: "insert-footer", name: "Insert Footer", hint: "Insert → Header & Footer → Footer" },
+          { id: "insert-page-numbers", name: "Insert Page Numbers", hint: "Insert → Header & Footer → Page Number" },
+          { id: "add-watermark", name: "Add Watermark", hint: "Design → Page Background → Watermark" },
+          { id: "set-page-color", name: "Set Page Color", hint: "Design → Page Background → Page Color" },
+          { id: "add-page-borders", name: "Add Page Borders", hint: "Design → Page Background → Page Borders" },
+          { id: "save-as-format", name: "Save in Another Format", hint: "File → Save As → change file type" },
+          { id: "modify-doc-properties", name: "Modify Document Properties", hint: "File → Info → Properties panel" },
+          { id: "modify-print-settings", name: "Modify Print Settings", hint: "File → Print → settings options" },
+          { id: "share-document", name: "Share a Document", hint: "File → Share → Share with People" },
+          { id: "remove-hidden-properties", name: "Remove Hidden Properties", hint: "File → Info → Check for Issues → Inspect Document" },
+          { id: "check-accessibility", name: "Check Accessibility", hint: "File → Info → Check for Issues → Check Accessibility" },
+          { id: "check-compatibility", name: "Check Compatibility", hint: "File → Info → Check for Issues → Check Compatibility" }
+        ]
+      },
+      {
+        id: "w-g2", icon: "✏️",
+        name: "D2 — Insert & Format Text, Paragraphs, Sections",
+        skills: [
+          { id: "find-replace", name: "Find & Replace", hint: "Ctrl+H — replace text or formatting" },
+          { id: "insert-symbol", name: "Insert Symbol", hint: "Insert → Symbols → Symbol or Special Character" },
+          { id: "apply-text-effects", name: "Apply Text Effects", hint: "Home → Font → Text Effects (A with glow)" },
+          { id: "format-painter", name: "Format Painter", hint: "Home → Clipboard → Format Painter brush" },
+          { id: "set-line-spacing", name: "Set Line Spacing", hint: "Home → Paragraph → Line and Paragraph Spacing" },
+          { id: "set-paragraph-spacing", name: "Set Paragraph Spacing", hint: "Layout → Paragraph → Spacing Before/After" },
+          { id: "set-indentation", name: "Set Indentation", hint: "Layout → Paragraph → Indent Left/Right" },
+          { id: "apply-character-style", name: "Apply Character Style", hint: "Home → Styles → choose character style" },
+          { id: "apply-paragraph-style", name: "Apply Paragraph Style", hint: "Home → Styles → choose paragraph style" },
+          { id: "clear-formatting", name: "Clear Formatting", hint: "Home → Font → Clear All Formatting (eraser)" },
+          { id: "format-columns", name: "Format Columns", hint: "Layout → Page Setup → Columns" },
+          { id: "insert-page-break", name: "Insert Page Break", hint: "Insert → Pages → Page Break or Ctrl+Enter" },
+          { id: "insert-section-break", name: "Insert Section Break", hint: "Layout → Page Setup → Breaks → Section Breaks" },
+          { id: "insert-column-break", name: "Insert Column Break", hint: "Layout → Breaks → Column" },
+          { id: "change-section-page-setup", name: "Change Section Page Setup", hint: "Apply margin/orientation changes to current section only" }
+        ]
+      },
+      {
+        id: "w-g3", icon: "📊",
+        name: "D3 — Manage Tables and Lists",
+        skills: [
+          { id: "create-table", name: "Create a Table", hint: "Insert → Table → choose grid size" },
+          { id: "convert-text-table", name: "Convert Text to Table", hint: "Insert → Table → Convert Text to Table" },
+          { id: "convert-table-text", name: "Convert Table to Text", hint: "Table Layout → Data → Convert to Text" },
+          { id: "sort-table", name: "Sort Table Data", hint: "Table Layout → Data → Sort" },
+          { id: "cell-margins-spacing", name: "Cell Margins & Spacing", hint: "Table Layout → Alignment → Cell Margins" },
+          { id: "merge-cells", name: "Merge Cells", hint: "Select cells → Table Layout → Merge → Merge Cells" },
+          { id: "split-cells", name: "Split Cells", hint: "Table Layout → Merge → Split Cells" },
+          { id: "resize-table", name: "Resize Table", hint: "Drag table handle or Table Layout → Cell Size" },
+          { id: "split-table", name: "Split Table", hint: "Table Layout → Merge → Split Table" },
+          { id: "repeat-header-row", name: "Repeat Header Row", hint: "Table Layout → Data → Repeat Header Rows" },
+          { id: "numbered-list", name: "Create Numbered List", hint: "Home → Paragraph → Numbering button" },
+          { id: "bulleted-list", name: "Create Bulleted List", hint: "Home → Paragraph → Bullets button" },
+          { id: "change-list-format", name: "Change List Format", hint: "Click Numbering/Bullets dropdown → Define New" },
+          { id: "increase-list-level", name: "Increase/Decrease List Level", hint: "Tab to indent, Shift+Tab to outdent" },
+          { id: "restart-list-numbering", name: "Restart List Numbering", hint: "Right-click list item → Restart at 1" }
+        ]
+      },
+      {
+        id: "w-g4", icon: "📚",
+        name: "D4 — Create and Manage References",
+        skills: [
+          { id: "insert-footnote", name: "Insert Footnote", hint: "References → Footnotes → Insert Footnote" },
+          { id: "insert-endnote", name: "Insert Endnote", hint: "References → Footnotes → Insert Endnote" },
+          { id: "modify-footnote-endnote", name: "Modify Footnote/Endnote Properties", hint: "References → Footnotes dialog launcher" },
+          { id: "insert-toc", name: "Insert Table of Contents", hint: "References → Table of Contents → choose style" },
+          { id: "customize-toc", name: "Customize Table of Contents", hint: "References → Table of Contents → Custom Table of Contents" }
+        ]
+      },
+      {
+        id: "w-g5", icon: "🖼️",
+        name: "D5 — Insert and Format Graphic Elements",
+        skills: [
+          { id: "insert-shape", name: "Insert Shape", hint: "Insert → Illustrations → Shapes" },
+          { id: "insert-picture", name: "Insert Picture", hint: "Insert → Illustrations → Pictures" },
+          { id: "insert-3d-model", name: "Insert 3D Model", hint: "Insert → Illustrations → 3D Models" },
+          { id: "insert-smartart", name: "Insert SmartArt", hint: "Insert → Illustrations → SmartArt" },
+          { id: "insert-screenshot", name: "Insert Screenshot", hint: "Insert → Illustrations → Screenshot" },
+          { id: "insert-text-box", name: "Insert Text Box", hint: "Insert → Text → Text Box" },
+          { id: "insert-icon", name: "Insert Icon", hint: "Insert → Illustrations → Icons" },
+          { id: "apply-artistic-effects", name: "Apply Artistic Effects", hint: "Picture Format → Adjust → Artistic Effects" },
+          { id: "apply-picture-styles", name: "Apply Picture Styles", hint: "Picture Format → Picture Styles gallery" },
+          { id: "remove-background", name: "Remove Background", hint: "Picture Format → Adjust → Remove Background" },
+          { id: "format-shape", name: "Format Shape", hint: "Shape Format → Shape Styles → Format Shape pane" },
+          { id: "format-smartart", name: "Format SmartArt", hint: "SmartArt Design and Format contextual tabs" },
+          { id: "format-3d-model", name: "Format 3D Model", hint: "3D Model tab → rotation and size options" },
+          { id: "add-text-text-box", name: "Add Text to Text Box", hint: "Click inside text box and type" },
+          { id: "add-text-shape", name: "Add Text to Shape", hint: "Right-click shape → Add Text" },
+          { id: "modify-smartart-content", name: "Modify SmartArt Content", hint: "Click SmartArt → edit in Text pane or directly" },
+          { id: "position-object", name: "Position an Object", hint: "Picture/Shape Format → Arrange → Position" },
+          { id: "wrap-text", name: "Wrap Text Around Object", hint: "Picture Format → Arrange → Wrap Text" },
+          { id: "add-alt-text", name: "Add Alt Text", hint: "Right-click object → Edit Alt Text" }
+        ]
+      },
+      {
+        id: "w-g6", icon: "💬",
+        name: "D6 — Manage Document Collaboration",
+        skills: [
+          { id: "add-comment", name: "Add a Comment", hint: "Review → Comments → New Comment" },
+          { id: "review-reply-comment", name: "Review and Reply to Comments", hint: "Review → Comments → Next/Previous; click Reply" },
+          { id: "resolve-comment", name: "Resolve a Comment", hint: "Click comment → Resolve button" },
+          { id: "delete-comment", name: "Delete a Comment", hint: "Review → Comments → Delete" },
+          { id: "track-changes", name: "Track Changes", hint: "Review → Tracking → Track Changes (Ctrl+Shift+E)" },
+          { id: "review-tracked-changes", name: "Review Tracked Changes", hint: "Review → Tracking → Show Markup; use Next/Previous" },
+          { id: "accept-tracked-change", name: "Accept Tracked Changes", hint: "Review → Changes → Accept" },
+          { id: "reject-tracked-change", name: "Reject Tracked Changes", hint: "Review → Changes → Reject" },
+          { id: "lock-track-changes", name: "Lock Track Changes", hint: "Review → Tracking → Lock Tracking → set password" }
+        ]
+      }
+    ]
+  },
+  3: {
+    title: "Spreadsheets: Microsoft Excel 365",
+    eyebrow: "Unit 3 — Microsoft Excel 365",
+    desc: "Build working formulas and use them together in a real business dashboard. Every formula must work correctly.",
+    type: "skills",
+    totalSteps: 10,
+    jumpTarget: "IS101_Project_Grader_05272026_0928.html#excel",
+    groups: [
+      {
+        id: "e-g1",
+        icon: "➕",
+        name: "Basic Calculations",
+        skills: [
+          { id: "e-sum", name: "SUM", hint: "Add ranges of numbers across rows and columns" },
+          { id: "e-average", name: "AVERAGE", hint: "Calculate mean values for data sets" },
+          { id: "e-minmax", name: "MIN & MAX", hint: "Find highest and lowest values in a range" }
+        ]
+      },
+      {
+        id: "e-g2",
+        icon: "🔢",
+        name: "Working With Data",
+        skills: [
+          { id: "e-count", name: "COUNT & COUNTA", hint: "Count cells with numbers or any value" },
+          { id: "e-countif", name: "COUNTIF", hint: "Count cells matching a condition" },
+          { id: "e-sumif", name: "SUMIF", hint: "Sum cells that meet specific criteria" }
+        ]
+      },
+      {
+        id: "e-g3",
+        icon: "🔀",
+        name: "Decision Making",
+        skills: [
+          { id: "e-if", name: "IF (with nesting)", hint: "Return different results based on conditions" },
+          { id: "e-round", name: "ROUND", hint: "Round numbers to specified decimal places" }
+        ]
+      },
+      {
+        id: "e-g4",
+        icon: "🔍",
+        name: "Lookup & Analysis",
+        skills: [
+          { id: "e-vlookup", name: "VLOOKUP", hint: "Look up values across separate data tables" },
+          { id: "e-iferror", name: "IFERROR", hint: "Handle lookup errors gracefully" }
+        ]
+      }
+    ]
+  }
+};
+
+// ─────────────────────────────────────────────
+//  LOGIN
+// ─────────────────────────────────────────────
+async function handleLogin() {
+  const input = document.getElementById('nsheInput');
+  const errorEl = document.getElementById('loginError');
+  const nshe = input.value.trim();
+
+  if (!/^\d{10}$/.test(nshe)) {
+    errorEl.textContent = 'Please enter your full 10-digit NSHE ID.';
+    input.focus();
+    return;
+  }
+  errorEl.textContent = '';
+
+  // localStorage mode — no server required for testing
+  currentStudent = nshe;
+  localStorage.setItem('is101_nshe', nshe);
+  afterLogin();
+}
+
+function afterLogin() {
+  document.getElementById('loginGate').classList.remove('show');
+  document.getElementById('siteHeader').style.display = 'flex';
+  document.getElementById('overallProgressBar').style.display = 'flex';
+  document.getElementById('studentLabel').textContent = 'NSHE: ' + currentStudent;
+  loadProgress();
+}
+
+function handleLogout() {
+  try { if (typeof ApiClient !== 'undefined') ApiClient.logout(); } catch(e){}
+  currentStudent = null;
+  progress = {};
+  document.getElementById('loginGate').classList.add('show');
+  document.getElementById('siteHeader').style.display = 'none';
+  document.getElementById('overallProgressBar').style.display = 'none';
+  document.getElementById('nsheInput').value = '';
+  showView('home');
+}
+
+// Allow Enter key on NSHE input
+document.getElementById('nsheInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ─────────────────────────────────────────────
+//  PROGRESS
+// ─────────────────────────────────────────────
+async function loadProgress() {
+  // Pure localStorage mode — no server calls from START_HERE
+  // Progress saves locally in the browser; server sync is not required
+  try {
+    const stored = localStorage.getItem('is101_progress_' + currentStudent);
+    progress = stored ? JSON.parse(stored) : {};
+  } catch(e) {
+    progress = {};
+  }
+  renderAllProgress();
+}
+
+function saveStepProgress(stepId) {
+  progress[stepId] = true;
+  try {
+    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
+  } catch(e) {}
+  renderAllProgress();
+}
+
+function renderAllProgress() {
+  // Unit 1
+  const u1Steps = ['ai-t1-watch','ai-t1-exam','ai-t2-watch','ai-t2-checklist'];
+  const u1Done = u1Steps.filter(s => progress[s]).length;
+  const u1Pct = Math.round(u1Done / u1Steps.length * 100);
+  document.getElementById('u1Fill').style.width = u1Pct + '%';
+  document.getElementById('u1Pct').textContent = u1Pct + '%';
+  document.getElementById('u1ProgressLabel').textContent = u1Done + ' of ' + u1Steps.length + ' steps complete';
+  document.getElementById('u1CTA').textContent = u1Done > 0 ? 'Continue Unit 1' : 'Start Unit 1';
+
+  // Unit 2
+  const u2Skills = UNITS[2].groups.flatMap(g => g.skills.map(s => s.id));
+  const u2Done = u2Skills.filter(s => progress[s]).length;
+  const u2Pct = Math.round(u2Done / u2Skills.length * 100);
+  document.getElementById('u2Fill').style.width = u2Pct + '%';
+  document.getElementById('u2Pct').textContent = u2Pct + '%';
+  document.getElementById('u2ProgressLabel').textContent = u2Done + ' of ' + u2Skills.length + ' skills complete';
+  document.getElementById('u2CTA').textContent = u2Done > 0 ? 'Continue Unit 2' : 'Start Unit 2';
+
+  // Unit 3
+  const u3Skills = UNITS[3].groups.flatMap(g => g.skills.map(s => s.id));
+  const u3Done = u3Skills.filter(s => progress[s]).length;
+  const u3Pct = Math.round(u3Done / u3Skills.length * 100);
+  document.getElementById('u3Fill').style.width = u3Pct + '%';
+  document.getElementById('u3Pct').textContent = u3Pct + '%';
+  document.getElementById('u3ProgressLabel').textContent = u3Done + ' of ' + u3Skills.length + ' skills complete';
+  document.getElementById('u3CTA').textContent = u3Done > 0 ? 'Continue Unit 3' : 'Start Unit 3';
+
+  // Overall
+  const allSteps = [...u1Steps, ...u2Skills, ...u3Skills];
+  const allDone = allSteps.filter(s => progress[s]).length;
+  const allPct = Math.round(allDone / allSteps.length * 100);
+  document.getElementById('overallFill').style.width = allPct + '%';
+  document.getElementById('overallPct').textContent = allPct + '%';
+
+  // Badges
+  if (u1Pct === 100) document.getElementById('u1Badge').textContent = '✓ Complete';
+  if (u2Pct === 100) document.getElementById('u2Badge').textContent = '✓ Complete';
+  if (u3Pct === 100) document.getElementById('u3Badge').textContent = '✓ Complete';
+}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  window.scrollTo(0, 0);
+  currentUnit = null;
+}
+
+function openUnit(unitNum) {
+  const unit = UNITS[unitNum];
+  if (!unit) return;
+  currentUnit = unitNum;
+
+  document.getElementById('unitBreadcrumb').textContent = 'Unit ' + unitNum;
+  document.getElementById('unitEyebrow').textContent = unit.eyebrow;
+  document.getElementById('unitHeading').textContent = unit.title;
+  document.getElementById('unitDesc').textContent = unit.desc;
+  document.getElementById('overviewStepsTotal').textContent = unit.totalSteps;
+
+  // Show/hide jump button
+  const jumpBtn = document.getElementById('jumpProjectsBtn');
+  jumpBtn.style.display = unit.jumpTarget ? 'inline-flex' : 'none';
+
+  renderUnitContent(unitNum);
+  updateUnitOverviewProgress(unitNum);
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('viewUnit').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderUnitContent(unitNum) {
+  const unit = UNITS[unitNum];
+  const container = document.getElementById('skillGroupsContainer');
+  container.innerHTML = '';
+
+  if (unit.type === 'topics') {
+    // Unit 1 — topic/step style
+    unit.topics.forEach(topic => {
+      const doneCount = topic.steps.filter(s => progress[s.id]).length;
+      const totalCount = topic.steps.length;
+      let badgeClass = 'todo-badge', badgeText = 'Not started';
+      if (doneCount === totalCount) { badgeClass = 'done-badge'; badgeText = '✓ Complete'; }
+      else if (doneCount > 0) { badgeClass = 'inprog-badge'; badgeText = 'In Progress'; }
+
+      const stepsHtml = topic.steps.map(step => {
+        const done = !!progress[step.id];
+        return `
+          <div class="topic-step">
+            <div class="step-icon ${done ? 'done-icon' : ''}">${done ? '✅' : step.icon}</div>
+            <div class="step-info">
+              <div class="step-title">${step.title}</div>
+              <div class="step-desc">${step.desc}</div>
+            </div>
+            <div class="step-cta">
+              ${done
+                ? `<button class="completed-btn">✓ Done</button>`
+                : `<button onclick="goToStep('${step.id}', '${step.href}')">${step.cta}</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML += `
+        <div class="topic-card">
+          <div class="topic-header">
+            <div class="topic-num">${topic.num}</div>
+            <div class="topic-info">
+              <div class="topic-title">${topic.title}</div>
+              <div class="topic-meta">⏱ ${topic.meta} &nbsp;·&nbsp; ${totalCount} steps</div>
+            </div>
+            <span class="topic-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="topic-steps">${stepsHtml}</div>
+        </div>
+      `;
+    });
+
+  } else {
+    // Units 2 & 3 — skill group style
+    unit.groups.forEach((group, gi) => {
+      const doneCount = group.skills.filter(s => progress[s.id]).length;
+      const totalCount = group.skills.length;
+      const pct = Math.round(doneCount / totalCount * 100);
+
+      const skillsHtml = group.skills.map(skill => {
+        const done = !!progress[skill.id];
+        return `
+          <div class="skill-row">
+            <div class="skill-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
+            <div class="skill-name-col">
+              <div class="skill-name">${skill.name}</div>
+              <div class="skill-hint">${skill.hint}</div>
+            </div>
+            <div class="skill-actions">
+              ${done
+                ? `<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Complete</span>`
+                : `
+                  <button class="btn-prove" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Prove It</button>
+                  <button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>
+                `
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML += `
+        <div class="skill-group-card ${gi === 0 ? 'open' : ''}" id="group-${group.id}">
+          <div class="skill-group-header" onclick="toggleGroup('group-${group.id}')">
+            <div class="group-icon">${group.icon}</div>
+            <div class="group-info">
+              <div class="group-name">${group.name}</div>
+              <div class="group-sub">${totalCount} skills</div>
+            </div>
+            <div class="group-progress-mini">
+              <div class="mini-track"><div class="mini-fill" style="width:${pct}%"></div></div>
+              <span class="mini-pct">${pct}%</span>
+            </div>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="skill-group-body">
+            <div class="skill-rows">${skillsHtml}</div>
+            <div class="group-footer">
+              <button class="btn-go-project" onclick="jumpToProjects()">Go to Project →</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+}
+
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function updateUnitOverviewProgress(unitNum) {
+  const unit = UNITS[unitNum];
+  let allStepIds = [];
+  if (unit.type === 'topics') {
+    unit.topics.forEach(t => t.steps.forEach(s => allStepIds.push(s.id)));
+  } else {
+    unit.groups.forEach(g => g.skills.forEach(s => allStepIds.push(s.id)));
+  }
+  const done = allStepIds.filter(s => progress[s]).length;
+  const total = allStepIds.length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('overviewStepsDone').textContent = done;
+  document.getElementById('overviewStepsTotal').textContent = total;
+  document.getElementById('overviewPct').textContent = pct + '%';
+  document.getElementById('overviewFill').style.width = pct + '%';
+}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION — STEPS / SKILLS
+// ─────────────────────────────────────────────
+function goToStep(stepId, href) {
+  // For demo: mark complete and navigate
+  // In production: navigate and let the target page call back progress
+  if (href && href !== '#') {
+    window.location.href = href;
+  } else {
+    // Demo fallback — mark as done
+    saveStepProgress(stepId);
+    renderUnitContent(currentUnit);
+    updateUnitOverviewProgress(currentUnit);
+    showToast('Step marked complete!', 'success');
+  }
+}
+
+function openTwoPath(skillId, skillName, groupName) {
+  selectedSkill = skillId;
+  document.getElementById('modalSkillName').textContent = skillName;
+  document.getElementById('modalSkillGroup').textContent = 'Unit ' + currentUnit + ' · ' + groupName;
+  document.getElementById('twoPathModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('twoPathModal').classList.remove('open');
+  selectedSkill = null;
+}
+
+function goProveit() {
+  closeModal();
+  // In production: navigate to project grader for this skill
+  const unit = UNITS[currentUnit];
+  if (unit && unit.jumpTarget) {
+    window.location.href = unit.jumpTarget + '&skill=' + selectedSkill;
+  } else {
+    showToast('Project grader coming soon!', 'warning');
+  }
+}
+
+function goPractice() {
+  closeModal();
+  if (currentUnit === 2) {
+    // Word 365 — route to correct domain file based on skill group
+    // Domain map: which skills belong to which domain file
+    const WORD_DOMAIN_MAP = {
+      // D1 — Manage Documents
+      'search-text':'D1','insert-hyperlink':'D1','goto':'D1','show-hide-formatting':'D1',
+      'set-margins':'D1','set-orientation':'D1','set-paper-size':'D1','apply-style-set':'D1',
+      'insert-header':'D1','insert-footer':'D1','insert-page-numbers':'D1','add-watermark':'D1',
+      'set-page-color':'D1','add-page-borders':'D1','save-as-format':'D1','modify-doc-properties':'D1',
+      'modify-print-settings':'D1','share-document':'D1','remove-hidden-properties':'D1',
+      'check-accessibility':'D1','check-compatibility':'D1',
+      // D2 — Insert & Format Text, Paragraphs, Sections
+      'find-replace':'D2','insert-symbol':'D2','apply-text-effects':'D2','format-painter':'D2',
+      'set-line-spacing':'D2','set-paragraph-spacing':'D2','set-indentation':'D2',
+      'apply-character-style':'D2','apply-paragraph-style':'D2','clear-formatting':'D2',
+      'format-columns':'D2','insert-page-break':'D2','insert-section-break':'D2',
+      'insert-column-break':'D2','change-section-page-setup':'D2',
+      // D3 — Tables & Lists
+      'create-table':'D3','convert-text-table':'D3','convert-table-text':'D3','sort-table':'D3',
+      'cell-margins-spacing':'D3','merge-cells':'D3','split-cells':'D3','resize-table':'D3',
+      'split-table':'D3','repeat-header-row':'D3','numbered-list':'D3','bulleted-list':'D3',
+      'change-list-format':'D3','increase-list-level':'D3','restart-list-numbering':'D3',
+      // D4 — References
+      'insert-footnote':'D4','insert-endnote':'D4','modify-footnote-endnote':'D4',
+      'insert-toc':'D4','customize-toc':'D4',
+      // D5 — Graphic Elements
+      'insert-shape':'D5','insert-picture':'D5','insert-3d-model':'D5','insert-smartart':'D5',
+      'insert-screenshot':'D5','insert-text-box':'D5','insert-icon':'D5',
+      'apply-artistic-effects':'D5','apply-picture-styles':'D5','remove-background':'D5',
+      'format-shape':'D5','format-smartart':'D5','format-3d-model':'D5',
+      'add-text-text-box':'D5','add-text-shape':'D5','modify-smartart-content':'D5',
+      'position-object':'D5','wrap-text':'D5','add-alt-text':'D5',
+      // D6 — Document Collaboration
+      'add-comment':'D6','review-reply-comment':'D6','resolve-comment':'D6','delete-comment':'D6',
+      'track-changes':'D6','review-tracked-changes':'D6','accept-tracked-change':'D6',
+      'reject-tracked-change':'D6','lock-track-changes':'D6',
+    };
+    const domain = WORD_DOMAIN_MAP[selectedSkill] || 'D1';
+    const domainFiles = {
+      'D1': 'IS101_Word_D1_06092026_1956.html',
+      'D2': 'IS101_Word_D2_06092026_1956.html',
+      'D3': 'IS101_Word_D3_06092026_1956.html',
+      'D4': 'IS101_Word_D4_06092026_1956.html',
+      'D5': 'IS101_Word_D5_06092026_1956.html',
+      'D6': 'IS101_Word_D6_06092026_1956.html',
+    };
+    window.location.href = domainFiles[domain];
+  } else if (currentUnit === 3) {
+    const EXCEL_DOMAIN_MAP = {
+      // E1 — Manage Worksheets and Workbooks
+      'import-data':'E1','navigate-named':'E1','customize-qat':'E1',
+      'print-settings-xl':'E1','configure-rows-cols':'E1','workbook-themes':'E1',
+      'freeze-panes':'E1','workbook-properties':'E1','save-format-xl':'E1',
+      // E2 — Manage Data Cells and Ranges
+      'autofill':'E2','insert-delete-cols-rows':'E2','insert-delete-cells':'E2',
+      'format-cells':'E2','merge-unmerge':'E2','cell-alignment':'E2',
+      'format-painter-xl':'E2','wrap-text-xl':'E2','conditional-formatting':'E2','name-ranges':'E2',
+      // E3 — Manage Tables and Table Data
+      'create-table-xl':'E3','table-styles':'E3','total-row':'E3',
+      'filter-sort-table':'E3','table-cols-rows':'E3','remove-duplicates':'E3',
+      // E4 — Formulas and Functions
+      'sum':'E4','average':'E4','min-max':'E4','count-counta':'E4',
+      'if-function':'E4','nested-if':'E4','countif':'E4','sumif':'E4',
+      'left-right-mid':'E4','concat-textjoin':'E4','today-now':'E4',
+      'year-month-day':'E4','vlookup':'E4','xlookup':'E4','iferror':'E4',
+      // E5 — Manage Charts
+      'create-chart':'E5','chart-sheets':'E5','modify-charts':'E5',
+      'format-chart':'E5','chart-elements':'E5','chart-styles':'E5','chart-alt-text':'E5',
+    };
+    const EXCEL_DOMAIN_FILES = {
+      'E1': 'IS101_Excel_E1_06102026_0900.html',
+      'E2': 'IS101_Excel_E2_06102026_1315.html',
+      'E3': 'IS101_Excel_E3_06102026_1315.html',
+      'E4': 'IS101_Excel_E4_06102026_1333.html',
+      'E5': 'IS101_Excel_E5_06102026_1406.html',
+    };
+    const domain = EXCEL_DOMAIN_MAP[selectedSkill] || 'E1';
+    window.location.href = EXCEL_DOMAIN_FILES[domain];
+  } else {
+    showToast('Practice labs coming soon!', 'warning');
+  }
+}
+
+function jumpToProjects() {
+  const unit = UNITS[currentUnit];
+  if (unit && unit.jumpTarget) {
+    window.location.href = unit.jumpTarget;
+  } else {
+    showToast('Project grader coming soon!', 'warning');
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('twoPathModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : type === 'warning' ? '⚠ ' : '') + msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3200);
+}
+
+// ─────────────────────────────────────────────
+//  CHECK SESSION ON LOAD
+// ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Check localStorage for existing session
+  const saved = localStorage.getItem('is101_nshe');
+  if (saved && /^\d{10}$/.test(saved)) {
+    currentStudent = saved;
+    afterLogin();
+  } else {
+    document.getElementById('loginGate').classList.add('show');
+  }
+});
+</script>
+
+</body>
+</html>
