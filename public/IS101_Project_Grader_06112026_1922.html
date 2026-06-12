@@ -76,6 +76,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f1f5f9;color:#1e293
 .starter-box .sb-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px}
 .starter-box .sb-desc{font-size:12px;color:var(--gray)}
 .btn-download{background:var(--blue);color:#fff;border:none;padding:8px 18px;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-pdf{background:#DC2626;color:#fff;border:none;padding:8px 18px;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-pdf:hover{background:#B91C1C}
 .btn-download:hover{background:#1d4ed8}
 .btn-download.word{background:var(--word-blue)}
 .btn-download.word:hover{background:#1e3f6f}
@@ -218,7 +220,7 @@ const PROJECTS = [
 // ─── WORD PROJECTS ────────────────────────────────────────
 
 {
-  id:'word-core1', type:'word', choice:'core', choiceLabel:'Core — Option A',
+  id:'word-core1', type:'word', instructionPDF:'Word_Core1_Instructions.pdf',, choice:'core', choiceLabel:'Core — Option A',
   title:'Annual Business Report',
   company:'Desert Sun Consulting',
   scenario:'You are the administrative coordinator at Desert Sun Consulting, a Las Vegas-based management consulting firm. Format and complete the annual business report for distribution to stakeholders.',
@@ -281,7 +283,7 @@ const PROJECTS = [
 },
 
 {
-  id:'word-core2', type:'word', choice:'core', choiceLabel:'Core — Option B',
+  id:'word-core2', type:'word', instructionPDF:'Word_Core2_Instructions.pdf',, choice:'core', choiceLabel:'Core — Option B',
   title:'Employee Training Manual',
   company:'Nevada Valley Healthcare',
   scenario:'You are the HR coordinator at Nevada Valley Healthcare, a Las Vegas medical network. Format and complete the new employee onboarding training manual.',
@@ -344,7 +346,7 @@ const PROJECTS = [
 },
 
 {
-  id:'word-var1', type:'word', choice:'variation', choiceLabel:'Variation — Option A',
+  id:'word-var1', type:'word', instructionPDF:'Word_Var1_Instructions.pdf',, choice:'variation', choiceLabel:'Variation — Option A',
   title:'Academic Research Paper',
   company:'CSN Sociology — SOC 101',
   scenario:'You are a student in SOC 101 at the College of Southern Nevada. Format a research paper on "Social Media\'s Impact on Las Vegas Tourism" following APA-style guidelines.',
@@ -407,7 +409,7 @@ const PROJECTS = [
 },
 
 {
-  id:'word-var2', type:'word', choice:'variation', choiceLabel:'Variation — Option B',
+  id:'word-var2', type:'word', instructionPDF:'Word_Var2_Instructions.pdf',, choice:'variation', choiceLabel:'Variation — Option B',
   title:'Event Planning Proposal',
   company:'Oasis Events Banquet',
   scenario:'You are an event coordinator at Oasis Events, a Las Vegas banquet and event planning company. Format and complete a formal event proposal for a corporate gala client.',
@@ -472,7 +474,7 @@ const PROJECTS = [
 // ─── EXCEL PROJECTS ───────────────────────────────────────
 
 {
-  id:'xl-core1', type:'excel', choice:'core', choiceLabel:'Core — Option A',
+  id:'xl-core1', type:'excel', instructionPDF:'Excel_Core1_Instructions.pdf',, choice:'core', choiceLabel:'Core — Option A',
   title:'Financial Dashboard',
   company:'Desert Bloom Florist',
   scenario:'You are the office manager at Desert Bloom Florist, a Las Vegas floral company. Build a financial dashboard tracking monthly revenue, expenses, and product performance across 12 months.',
@@ -533,7 +535,7 @@ const PROJECTS = [
 },
 
 {
-  id:'xl-core2', type:'excel', choice:'core', choiceLabel:'Core — Option B',
+  id:'xl-core2', type:'excel', instructionPDF:'Excel_Core2_Instructions.pdf',, choice:'core', choiceLabel:'Core — Option B',
   title:'HR Employee Analytics',
   company:'Southwest Technology Solutions',
   scenario:'You are the HR analyst at Southwest Technology Solutions, a Las Vegas tech company. Build an employee analytics workbook tracking headcount, salaries, performance ratings, and department costs.',
@@ -594,7 +596,7 @@ const PROJECTS = [
 },
 
 {
-  id:'xl-var1', type:'excel', choice:'variation', choiceLabel:'Variation — Option A',
+  id:'xl-var1', type:'excel', instructionPDF:'Excel_Var1_Instructions.pdf',, choice:'variation', choiceLabel:'Variation — Option A',
   title:'Student Grade Book',
   company:'CSN IS101',
   scenario:'You are a faculty member in IS101 at the College of Southern Nevada. Build a complete grade book tracking 30 students across 8 assignments, a midterm, and a final exam with automatic letter grade calculation.',
@@ -655,7 +657,7 @@ const PROJECTS = [
 },
 
 {
-  id:'xl-var2', type:'excel', choice:'variation', choiceLabel:'Variation — Option B',
+  id:'xl-var2', type:'excel', instructionPDF:'Excel_Var2_Instructions.pdf',, choice:'variation', choiceLabel:'Variation — Option B',
   title:'Restaurant Inventory & Profit',
   company:'Cactus Kitchen',
   scenario:'You are the general manager at Cactus Kitchen, a Las Vegas Southwestern restaurant. Build an inventory and profit tracking workbook covering 20 menu items, supplier costs, and monthly profit analysis.',
@@ -889,10 +891,13 @@ function renderProject() {
     <div class="starter-box">
       <div class="sb-icon">${isWord?'📄':'📊'}</div>
       <div class="sb-text">
-        <div class="sb-title">Step 1 — Download Your Starter File</div>
-        <div class="sb-desc">Open this file in Microsoft ${isWord?'Word':'Excel'} 365 and complete all 40 tasks using the instructions in each section. Save your completed file before returning here.</div>
+        <div class="sb-title">Step 1 — Download Your Files</div>
+        <div class="sb-desc">Download both files below. Open the PDF instruction sheet and the starter file side by side in Microsoft ${isWord?'Word':'Excel'} 365. The PDF is your complete guide — follow it task by task.</div>
       </div>
-      <a href="${p.starterFile}" download class="btn-download ${isWord?'word':'excel'}">⬇️ Download ${p.starterFile}</a>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+        <a href="${p.starterFile}" download class="btn-download ${isWord?'word':'excel'}">⬇️ Starter File (.${isWord?'docx':'xlsx'})</a>
+        <a href="${p.instructionPDF}" download class="btn-pdf">📄 Instruction Sheet (PDF)</a>
+      </div>
     </div>
 
 
