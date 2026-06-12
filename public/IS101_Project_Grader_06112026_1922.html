@@ -94,10 +94,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f1f5f9;color:#1e293
 .upload-zone.has-file .uz-title{color:var(--green)}
 
 /* Recording requirement box */
-.recording-box{background:var(--orange-lt);border:1.5px solid var(--orange-bd);border-radius:8px;padding:14px 18px;margin-bottom:20px}
-.recording-box .rb-title{font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px}
-.recording-box .rb-text{font-size:12px;color:#78350f;line-height:1.6}
-.recording-box .rb-steps{margin:8px 0 0 16px;font-size:12px;color:#78350f;line-height:1.8}
+
 
 /* Rubric */
 .rubric-section{background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;border:1px solid var(--border)}
@@ -483,7 +480,7 @@ const PROJECTS = [
   fileType:'xlsx', totalPts:100,
   domains:[
     { name:'E1 — Manage Worksheets & Workbooks', pts:18, tasks:[
-      {num:1,desc:'Import ExpenseData.csv using Data → From Text/CSV',skill:'import-data',pts:2},
+      {num:1,desc:'Add a new worksheet to the workbook and rename it "Expense Log"',skill:'add-rename-sheet',pts:2},
       {num:2,desc:'Freeze row 1 and column A so headers stay visible while scrolling',skill:'freeze-panes',pts:2},
       {num:3,desc:'Define named range "MonthlyRevenue" for B2:B13',skill:'navigate-named',pts:2},
       {num:4,desc:'Add Quick Print to the Quick Access Toolbar',skill:'customize-qat',pts:2},
@@ -544,7 +541,7 @@ const PROJECTS = [
   fileType:'xlsx', totalPts:100,
   domains:[
     { name:'E1 — Manage Worksheets & Workbooks', pts:18, tasks:[
-      {num:1,desc:'Import EmployeeData.csv using Data → From Text/CSV',skill:'import-data',pts:2},
+      {num:1,desc:'Add a new worksheet to the workbook and rename it "Org Chart"',skill:'add-rename-sheet',pts:2},
       {num:2,desc:'Freeze row 1 and column A so employee names and headers stay visible',skill:'freeze-panes',pts:2},
       {num:3,desc:'Navigate to named range "SalaryData" using the Name Box',skill:'navigate-named',pts:2},
       {num:4,desc:'Configure print settings: set print area, add row/column headers',skill:'print-settings-xl',pts:2},
@@ -605,7 +602,7 @@ const PROJECTS = [
   fileType:'xlsx', totalPts:100,
   domains:[
     { name:'E1 — Manage Worksheets & Workbooks', pts:18, tasks:[
-      {num:1,desc:'Import Roster.csv using Data → From Text/CSV',skill:'import-data',pts:2},
+      {num:1,desc:'Add a new worksheet and rename it "Grade Summary"',skill:'add-rename-sheet',pts:2},
       {num:2,desc:'Freeze row 1 and column A so student names stay visible while scrolling right',skill:'freeze-panes',pts:2},
       {num:3,desc:'Navigate to named range "FinalScores" using the Name Box',skill:'navigate-named',pts:2},
       {num:4,desc:'Set print area; configure to print gridlines and row/column headers',skill:'print-settings-xl',pts:2},
@@ -666,7 +663,7 @@ const PROJECTS = [
   fileType:'xlsx', totalPts:100,
   domains:[
     { name:'E1 — Manage Worksheets & Workbooks', pts:18, tasks:[
-      {num:1,desc:'Import SupplierData.csv using Data → From Text/CSV',skill:'import-data',pts:2},
+      {num:1,desc:'Add a new worksheet and rename it "Monthly Sales"',skill:'add-rename-sheet',pts:2},
       {num:2,desc:'Freeze row 1 so menu item headers stay visible while scrolling',skill:'freeze-panes',pts:2},
       {num:3,desc:'Navigate to named range "MenuPrices" using the Name Box',skill:'navigate-named',pts:2},
       {num:4,desc:'Set print area; set page orientation to Landscape for the wide inventory sheet',skill:'print-settings-xl',pts:2},
@@ -898,19 +895,10 @@ function renderProject() {
       <a href="${p.starterFile}" download class="btn-download ${isWord?'word':'excel'}">⬇️ Download ${p.starterFile}</a>
     </div>
 
-    <div class="recording-box">
-      <div class="rb-title">📹 Step 2 — Screen Recording Requirement</div>
-      <div class="rb-text">To verify your own work, record a short screen recording showing yourself completing 3 tasks in the starter file. Submit the recording alongside your completed file.</div>
-      <ol class="rb-steps">
-        <li>Use Xbox Game Bar (Win+G) or Loom (loom.com — free) to record your screen</li>
-        <li>Show yourself completing any 3 tasks from the rubric below</li>
-        <li>The recording must show your name visible somewhere (in the file or on screen)</li>
-        <li>Upload the recording to Canvas along with your completed ${isWord?'.docx':'.xlsx'} file</li>
-      </ol>
-    </div>
+
 
     <div class="upload-section">
-      <h3>Step 3 — Upload Your Completed File (for grading)</h3>
+      <h3>Step 2 — Upload Your Completed File (for grading)</h3>
       <div class="upload-zone ${uploadedFile?'has-file':''}" id="uploadZone"
         onclick="document.getElementById('fileInput').click()"
         ondrop="handleDrop(event)" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
@@ -922,7 +910,7 @@ function renderProject() {
     </div>
 
     <div class="rubric-section">
-      <h3>Step 4 — Instructor Grading Rubric</h3>
+      <h3>Step 3 — Instructor Grading Rubric</h3>
       <div class="rs-meta">40 tasks · 100 points · Click ✓ (full), ½ (partial), or ✗ (zero) for each task</div>
       ${rubricHTML}
     </div>
