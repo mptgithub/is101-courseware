@@ -659,20 +659,7 @@
   .skill-actions {
     display: flex;
     gap: 6px;
-  }
-  .btn-prove {
-    background: var(--navy);
-    color: var(--white);
-    border: none;
-    padding: 6px 13px;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-prove:hover { background: var(--navy-light); }
+  }{ background: var(--navy-light); }
   .btn-practice {
     background: var(--cream-dark);
     color: var(--text-mid);
@@ -1316,20 +1303,12 @@
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      <p>How would you like to approach this skill?</p>
       <div class="modal-choices">
-        <button class="choice-btn prove-choice" onclick="goProveit()">
-          <span class="choice-icon">⚡</span>
-          <div class="choice-text">
-            <strong>I already know this — Prove It</strong>
-            <span>Go straight to the project. Demonstrate the skill and earn full credit.</span>
-          </div>
-        </button>
         <button class="choice-btn" onclick="goPractice()">
           <span class="choice-icon">📚</span>
           <div class="choice-text">
-            <strong>I need to learn this — Practice with Help</strong>
-            <span>Work through a guided simulator with hints, AI prompts, and video resources.</span>
+            <strong>Open Practice Simulator</strong>
+            <span>Work through a guided simulator with hints and step-by-step instructions.</span>
           </div>
         </button>
       </div>
@@ -1805,10 +1784,7 @@ function renderUnitContent(unitNum) {
             <div class="skill-actions">
               ${done
                 ? `<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Complete</span>`
-                : `
-                  <button class="btn-prove" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Prove It</button>
-                  <button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>
-                `
+                : `<button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>`
               }
             </div>
           </div>
@@ -1891,15 +1867,6 @@ function closeModal() {
   selectedSkill = null;
 }
 
-function goProveit() {
-  closeModal();
-  // In production: navigate to project grader for this skill
-  const unit = UNITS[currentUnit];
-  if (unit && unit.jumpTarget) {
-    window.location.href = unit.jumpTarget + '&skill=' + selectedSkill;
-  } else {
-    showToast('Project grader coming soon!', 'warning');
-  }
 }
 
 function goPractice() {
