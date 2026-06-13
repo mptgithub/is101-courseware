@@ -1422,7 +1422,7 @@ const UNITS = {
     desc: "Master professional document creation. Practice each skill, then apply them all together in a real business project.",
     type: "skills",
     totalSteps: 85,
-    jumpTarget: "IS101_Project_Grader_06112026_1922.html#word",
+    jumpTarget: "IS101_Project_Grader_06132026_0957.html#word",
     groups: [
       {
         id: "w-g1", icon: "📄",
@@ -1552,7 +1552,7 @@ const UNITS = {
     desc: "Build working formulas and use them together in a real business dashboard. Every formula must work correctly.",
     type: "skills",
     totalSteps: 10,
-    jumpTarget: "IS101_Project_Grader_06112026_1922.html#excel",
+    jumpTarget: "IS101_Project_Grader_06132026_0957.html#excel",
     groups: [
       {
         id: "e-g1",
@@ -1943,20 +1943,20 @@ function goPractice() {
     };
     const domain = WORD_DOMAIN_MAP[selectedSkill] || 'D1';
     const domainFiles = {
-      'D1': 'IS101_Word_D1_06092026_1956.html',
-      'D2': 'IS101_Word_D2_06092026_1956.html',
-      'D3': 'IS101_Word_D3_06092026_1956.html',
-      'D4': 'IS101_Word_D4_06092026_1956.html',
-      'D5': 'IS101_Word_D5_06092026_1956.html',
-      'D6': 'IS101_Word_D6_06092026_1956.html',
+      'D1': 'IS101_Word_D1_06132026_0855.html',
+      'D2': 'IS101_Word_D2_06132026_0855.html',
+      'D3': 'IS101_Word_D3_06132026_0855.html',
+      'D4': 'IS101_Word_D4_06132026_0855.html',
+      'D5': 'IS101_Word_D5_06132026_0855.html',
+      'D6': 'IS101_Word_D6_06132026_0855.html',
     };
     window.location.href = domainFiles[domain];
   } else if (currentUnit === 3) {
     const EXCEL_DOMAIN_MAP = {
       // E1 — Manage Worksheets and Workbooks
-      'import-data':'E1','navigate-named':'E1','customize-qat':'E1',
-      'print-settings-xl':'E1','configure-rows-cols':'E1','workbook-themes':'E1',
-      'freeze-panes':'E1','workbook-properties':'E1','save-format-xl':'E1',
+      'add-rename-sheet':'E1','navigate-named':'E1','customize-qat':'E1',
+      'print-settings':'E1','configure-rows-cols':'E1','workbook-themes':'E1',
+      'freeze-panes':'E1','workbook-properties':'E1','save-format':'E1',
       // E2 — Manage Data Cells and Ranges
       'autofill':'E2','insert-delete-cols-rows':'E2','insert-delete-cells':'E2',
       'format-cells':'E2','merge-unmerge':'E2','cell-alignment':'E2',
@@ -1974,11 +1974,11 @@ function goPractice() {
       'format-chart':'E5','chart-elements':'E5','chart-styles':'E5','chart-alt-text':'E5',
     };
     const EXCEL_DOMAIN_FILES = {
-      'E1': 'IS101_Excel_E1_06112026_1922.html',
-      'E2': 'IS101_Excel_E2_06112026_1922.html',
-      'E3': 'IS101_Excel_E3_06112026_1922.html',
-      'E4': 'IS101_Excel_E4_06112026_1922.html',
-      'E5': 'IS101_Excel_E5_06112026_1922.html',
+      'E1': 'IS101_Excel_E1_06132026_0855.html',
+      'E2': 'IS101_Excel_E2_06132026_0855.html',
+      'E3': 'IS101_Excel_E3_06132026_0855.html',
+      'E4': 'IS101_Excel_E4_06132026_0855.html',
+      'E5': 'IS101_Excel_E5_06132026_0855.html',
     };
     const domain = EXCEL_DOMAIN_MAP[selectedSkill] || 'E1';
     window.location.href = EXCEL_DOMAIN_FILES[domain];
