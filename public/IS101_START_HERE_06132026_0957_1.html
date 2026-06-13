@@ -1903,7 +1903,9 @@ function goProveit() {
 }
 
 function goPractice() {
+  const skillToLaunch = selectedSkill;  // save before closeModal nulls it
   closeModal();
+  const selectedSkill_saved = skillToLaunch;
   if (currentUnit === 2) {
     // Word 365 — route to correct domain file based on skill group
     // Domain map: which skills belong to which domain file
@@ -1941,7 +1943,7 @@ function goPractice() {
       'track-changes':'D6','review-tracked-changes':'D6','accept-tracked-change':'D6',
       'reject-tracked-change':'D6','lock-track-changes':'D6',
     };
-    const domain = WORD_DOMAIN_MAP[selectedSkill] || 'D1';
+    const domain = WORD_DOMAIN_MAP[skillToLaunch] || 'D1';
     const domainFiles = {
       'D1': 'IS101_Word_D1_06132026_0855.html',
       'D2': 'IS101_Word_D2_06132026_0855.html',
@@ -1980,7 +1982,7 @@ function goPractice() {
       'E4': 'IS101_Excel_E4_06132026_0855.html',
       'E5': 'IS101_Excel_E5_06132026_0855.html',
     };
-    const domain = EXCEL_DOMAIN_MAP[selectedSkill] || 'E1';
+    const domain = EXCEL_DOMAIN_MAP[skillToLaunch] || 'E1';
     window.location.href = EXCEL_DOMAIN_FILES[domain];
   } else {
     showToast('Practice labs coming soon!', 'warning');
