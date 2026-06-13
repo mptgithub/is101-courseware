@@ -1307,8 +1307,8 @@
         <button class="choice-btn" onclick="goPractice()">
           <span class="choice-icon">📚</span>
           <div class="choice-text">
-            <strong>Open Practice Simulator</strong>
-            <span>Work through a guided simulator with hints and step-by-step instructions.</span>
+            <strong>I need to learn this — Practice with Help</strong>
+            <span>Work through a guided simulator with hints, AI prompts, and video resources.</span>
           </div>
         </button>
       </div>
@@ -1324,7 +1324,7 @@
 <!-- ══════════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════════ -->
-<script src="api-client.js"></script>
+<script src="api-client.js" onerror="console.warn('api-client.js not found')"></script>
 <script>
 // ─────────────────────────────────────────────
 //  STATE
@@ -1784,7 +1784,9 @@ function renderUnitContent(unitNum) {
             <div class="skill-actions">
               ${done
                 ? `<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Complete</span>`
-                : `<button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>`
+                : `
+                  <button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>
+                `
               }
             </div>
           </div>
@@ -1867,12 +1869,10 @@ function closeModal() {
   selectedSkill = null;
 }
 
-}
 
 function goPractice() {
-  const skillToLaunch = selectedSkill;  // save before closeModal nulls it
+  const skillToLaunch = selectedSkill;
   closeModal();
-  const selectedSkill_saved = skillToLaunch;
   if (currentUnit === 2) {
     // Word 365 — route to correct domain file based on skill group
     // Domain map: which skills belong to which domain file
