@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Excel E2: Manage Data Cells & Ranges</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f0f0;height:100vh;
+  display:flex;flex-direction:column;overflow:hidden;user-select:none;color:#1f1f1f}
+
+/* ── TITLE BAR — white bg, red bottom border (Word's signature look) ── */
+#titlebar{
+  height:34px;background:#fff;border-bottom:2px solid #C42B1C;
+  display:flex;align-items:center;padding:0 6px;gap:4px;flex-shrink:0
+}
+.tb-wicon{width:20px;height:20px;flex-shrink:0}
+.tb-autosave{display:flex;align-items:center;gap:3px;font-size:11px;color:#444;padding:0 4px}
+.tb-toggle{width:30px;height:15px;background:#d0d0d0;border-radius:8px;position:relative;cursor:pointer;flex-shrink:0}
+.tb-toggle-knob{width:11px;height:11px;background:#888;border-radius:50%;position:absolute;top:2px;left:2px}
+.qat{display:flex;align-items:center;gap:1px;padding:0 2px}
+.qat-b{width:24px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;border:1px solid transparent}
+.qat-b:hover{background:#f0f0f0;border-color:#d8d8d8}
+.qat-sep{width:1px;height:14px;background:#d0d0d0;margin:0 2px}
+.qat-more{font-size:8px;color:#666;cursor:pointer;padding:3px 2px}
+.tb-docname{flex:1;text-align:center;font-size:12px;color:#333}
+.tb-search{
+  display:flex;align-items:center;gap:5px;background:#f5f5f5;
+  border:1px solid #d8d8d8;border-radius:20px;padding:4px 10px;
+  font-size:11px;color:#888;cursor:text;min-width:160px;margin-right:4px
+}
+.tb-search:hover{border-color:#bbb}
+.win-btn{width:42px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#555}
+.win-btn:hover{background:#f0f0f0}
+.win-btn.close:hover{background:#C42B1C;color:white}
+
+/* ── RIBBON TABS — no background, blue underline on active ── */
+#ribbon-tabs{
+  height:32px;background:#fff;border-bottom:1px solid #e0e0e0;
+  display:flex;align-items:flex-end;padding:0 2px;flex-shrink:0
+}
+.rtab{
+  padding:5px 12px 7px;font-size:12px;color:#444;cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;margin-bottom:-1px;
+  transition:color .1s
+}
+.rtab:hover{color:#217346}
+.rtab.active{color:#217346;border-bottom-color:#217346;font-weight:600}
+
+/* ── RIBBON BODY ── */
+#ribbon{
+  background:#fff;border-bottom:1px solid #e0e0e0;
+  min-height:90px;display:flex;align-items:stretch;
+  padding:2px 4px 0;overflow-x:auto;overflow-y:hidden;flex-shrink:0
+}
+
+/* Group */
+.rib-group{
+  display:flex;flex-direction:column;padding:2px 4px 0;
+  border-right:1px solid #e0e0e0;flex-shrink:0;min-width:fit-content
+}
+.rib-group:last-child{border-right:none}
+.rib-group-body{
+  display:flex;flex-direction:row;align-items:flex-start;
+  gap:2px;flex:1;align-items:flex-start
+}
+.rib-group-label{
+  font-size:9.5px;color:#666;text-align:center;padding:2px 0 4px;
+  white-space:nowrap;cursor:default;display:flex;align-items:center;
+  justify-content:center;gap:2px
+}
+.rib-group-label:hover{color:#217346}
+.rib-launcher{font-size:7px;color:#999}
+
+/* Layout helpers */
+.rib-row{display:flex;flex-direction:row;align-items:center;gap:1px;flex-shrink:0}
+.rib-col{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.rib-sep{width:1px;height:18px;background:#d8d8d8;margin:0 1px;align-self:center;flex-shrink:0}
+
+/* ── LARGE BUTTON (icon top + label bottom) ── */
+.rib-lg{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:3px 5px 2px;cursor:pointer;border-radius:3px;border:1px solid transparent;
+  min-width:46px;max-width:62px;min-height:66px;
+  transition:background .08s,border-color .08s
+}
+.rib-lg:hover{background:#E8F5EC;border-color:#A8D5B5}
+.rib-lg svg{flex-shrink:0}
+.rib-lg-lbl{font-size:9.5px;text-align:center;line-height:1.2;margin-top:2px;
+  white-space:normal;word-break:break-word;max-width:58px}
+
+/* ── LARGE SPLIT BUTTON ── */
+.rib-lg-split{display:flex;flex-direction:column;cursor:pointer;flex-shrink:0}
+.rib-lg-split-top{
+  display:flex;flex-direction:column;align-items:center;padding:3px 5px 1px;
+  border-radius:3px 3px 0 0;border:1px solid transparent;
+  transition:background .08s,border-color .08s;flex:1
+}
+.rib-lg-split-top:hover{background:#E8F5EC;border-color:#A8D5B5}
+.rib-lg-split-arr{
+  height:12px;display:flex;align-items:center;justify-content:center;
+  font-size:7px;color:#555;border:1px solid transparent;border-top:none;
+  border-radius:0 0 3px 3px;cursor:pointer;transition:background .08s
+}
+.rib-lg-split-arr:hover{background:#E8F5EC;border-color:#A8D5B5}
+
+/* ── ICON-ONLY COMPACT BUTTON ── */
+.rib-ic{
+  width:26px;height:22px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border-radius:3px;border:1px solid transparent;
+  transition:background .08s,border-color .08s;flex-shrink:0
+}
+.rib-ic:hover{background:#E8F5EC;border-color:#A8D5B5}
+.rib-ic.active{background:#B8E0C4;border-color:#217346}
+
+/* ── SMALL BUTTON (icon + label + arrow) — Editing group ── */
+.rib-sm{
+  display:flex;align-items:center;gap:3px;padding:2px 5px;cursor:pointer;
+  border-radius:3px;border:1px solid transparent;height:22px;
+  transition:background .08s,border-color .08s;white-space:nowrap;flex-shrink:0
+}
+.rib-sm:hover{background:#E8F5EC;border-color:#A8D5B5}
+.rib-sm svg{width:16px;height:16px;flex-shrink:0}
+.rib-sm-lbl{font-size:11px}
+.rib-arr{font-size:7px;color:#666;margin-left:2px}
+
+/* ── FONT NAME/SIZE BOXES ── */
+.rib-fontbox{
+  display:flex;align-items:center;background:#fff;border:1px solid #ababab;
+  border-radius:2px;padding:1px 4px;height:22px;cursor:text;font-size:12px;
+  gap:2px;flex-shrink:0
+}
+.rib-fontbox:hover{border-color:#217346}
+.rib-fontbox-txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rib-fontbox-arr{font-size:7px;color:#555;flex-shrink:0}
+
+/* ── STYLES GALLERY ── */
+.rib-styles-gal{display:flex;align-items:stretch;gap:2px;flex-shrink:0}
+.rib-style-item{
+  display:flex;align-items:center;justify-content:center;
+  width:74px;min-height:64px;border:1px solid #e0e0e0;border-radius:3px;
+  cursor:pointer;text-align:center;padding:4px 3px;
+  transition:border-color .1s,background .1s
+}
+.rib-style-item:hover{border-color:#217346;background:#f0f6fc}
+.rib-styles-arrows{
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:1px 0;flex-shrink:0
+}
+.rib-style-arr{
+  width:16px;height:20px;display:flex;align-items:center;justify-content:center;
+  border:1px solid #d0d0d0;border-radius:2px;font-size:8px;color:#555;
+  background:#f8f8f8;cursor:pointer
+}
+.rib-style-arr:hover{background:#E8F5EC;border-color:#217346}
+
+/* Highlight on current skill's button */
+.rib-hl{outline:2px solid #faa619;outline-offset:1px;animation:hlpulse 1.4s infinite}
+/* Arrange-style button: icon + text side by side, small */
+.rib-txt{
+  display:flex;align-items:center;gap:4px;padding:2px 6px;cursor:pointer;
+  border-radius:3px;border:1px solid transparent;height:20px;
+  transition:background .08s,border-color .08s;white-space:nowrap;font-size:11px
+}
+.rib-txt:hover{background:#E8F5EC;border-color:#A8D5B5}
+.rib-txt svg{width:14px;height:14px;flex-shrink:0}
+.rib-txt-dot{color:#999;font-size:9px;margin-left:1px}
+@keyframes hlpulse{0%,100%{outline-color:#faa619}50%{outline-color:#e05c00}}
+
+/* ── PROGRESS ── */
+#prog{height:2px;background:#e8e8e8;flex-shrink:0}
+#pfill{height:100%;background:#217346;transition:width .4s}
+
+/* ── MAIN LAYOUT ── */
+#main{flex:1;display:flex;overflow:hidden}
+
+/* Left panel */
+#lp{width:216px;background:#f3f2f1;border-right:1px solid #d8d8d8;display:flex;flex-direction:column;flex-shrink:0}
+#lp-tabs{display:flex;border-bottom:1px solid #d8d8d8;flex-shrink:0}
+.lpt{flex:1;padding:7px 4px;font-size:11px;text-align:center;cursor:pointer;color:#555;border-bottom:2px solid transparent}
+.lpt.active{color:#217346;border-bottom-color:#217346;font-weight:600}
+#sklist{flex:1;overflow-y:auto}
+.ski{padding:7px 10px;cursor:pointer;border-left:3px solid transparent;font-size:12px;display:flex;align-items:flex-start;gap:4px}
+.ski:hover{background:#e8e8e8}
+.ski.active{background:#d4edda;border-left-color:#217346;font-weight:600;color:#217346}
+.ski.done{color:#107c10}
+.ski .sn{font-size:10px;color:#999;min-width:18px;padding-top:1px;flex-shrink:0}
+.ski .sc{margin-left:auto;color:#107c10;font-size:11px;padding-top:1px;flex-shrink:0}
+#tp{background:white;border-top:2px solid #217346;padding:10px;flex-shrink:0;max-height:260px;overflow-y:auto}
+#tp h4{font-size:11px;font-weight:700;color:#217346;margin-bottom:5px}
+#tscen{font-size:10.5px;background:#f0f8f2;border-left:3px solid #217346;padding:6px 8px;margin-bottom:7px;color:#333;line-height:1.5;border-radius:0 3px 3px 0}
+#tinstr{font-size:12px;line-height:1.5;font-weight:500;margin-bottom:7px}
+#thint{font-size:11px;background:#fffbe6;border:1px solid #ffe58f;border-radius:3px;padding:6px 8px;color:#614700;line-height:1.45;display:none;margin-bottom:7px}
+#thint.show{display:block}
+.tb-row2{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.tbn{padding:4px 10px;border:1px solid #d0d0d0;border-radius:3px;font-size:11px;cursor:pointer;background:white}
+.tbn:hover{background:#f0f0f0}
+.tbn.prim{background:#217346;color:white;border-color:#217346}
+.tbn.prim:hover{background:#145230}
+#tfb{font-size:11.5px;padding:6px 8px;border-radius:3px;margin-top:6px;display:none;line-height:1.4}
+#tfb.ok{display:block;background:#dff6dd;color:#107c10;border:1px solid #9fd89f}
+#tfb.err{display:block;background:#fde7e9;color:#a4262c;border:1px solid #f1a8b0}
+
+/* Document area */
+#docarea{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#ruler{height:22px;background:#f3f3f3;border-bottom:1px solid #d8d8d8;display:flex;flex-shrink:0}
+.rulerm{height:100%;background:#C8C6C4;width:96px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#555;flex-shrink:0}
+.rulerc{flex:1;position:relative;display:flex;align-items:center;overflow:hidden}
+.ruler-line{position:absolute;left:0;right:0;height:1px;background:#bbb;top:50%}
+.ruler-ticks{display:flex;width:100%;position:absolute}
+.ruler-tick{flex:1;text-align:center;font-size:7.5px;color:#777}
+/* Ruler tab stops */
+.ruler-indent{position:absolute;font-size:8px;color:#444}
+#docscroll{flex:1;overflow:auto;background:#808080;padding:16px;display:flex;justify-content:center}
+#docpage{
+  background:white;width:816px;min-height:1056px;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);padding:96px;
+  flex-shrink:0;font-family:Calibri,sans-serif;font-size:11pt;line-height:1.5;position:relative
+}
+#doc-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .3s;z-index:0}
+#doc-wm.show{opacity:.1}
+#doc-wm span{font-size:100px;font-weight:900;color:#888;transform:rotate(-45deg);white-space:nowrap}
+#doc-hdr{border-bottom:1px dashed #bbb;min-height:18px;margin-bottom:12px;padding-bottom:6px;display:flex;justify-content:space-between;font-size:9pt;color:#666;font-family:'Segoe UI',sans-serif}
+#doc-ftr{border-top:1px dashed #bbb;min-height:18px;margin-top:20px;padding-top:5px;font-size:9pt;color:#666;text-align:center;font-family:'Segoe UI',sans-serif}
+.dh1{font-size:22pt;font-weight:700;text-align:center;margin-bottom:8pt;color:#000}
+.dh2{font-size:13pt;text-align:center;margin-bottom:4pt;color:#444}
+.dh3{font-size:10pt;text-align:center;color:#666;margin-bottom:32pt}
+.dsect{font-size:13pt;font-weight:700;color:#2F5496;margin:14pt 0 3pt}
+.dbody{font-size:11pt;margin-bottom:8pt;text-align:justify;line-height:1.6;color:#000}
+.pnum-el{position:absolute;font-size:9pt;color:#333;display:none;font-family:'Segoe UI',sans-serif}
+
+/* Status bar */
+#sb{height:22px;background:#217346;display:flex;align-items:center;padding:0 8px;gap:12px;flex-shrink:0;font-size:11px;color:rgba(255,255,255,.9)}
+.sbi{padding:0 3px;cursor:default}.sbi:hover{background:rgba(255,255,255,.1);border-radius:2px}
+#sbr{margin-left:auto;display:flex;align-items:center;gap:6px}
+.vbtn{width:20px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:2px;opacity:.7}
+.vbtn:hover,.vbtn.active{background:rgba(255,255,255,.2);opacity:1}
+.vbtn svg{width:12px;height:12px;fill:white}
+
+/* Screentip */
+#screentip{position:fixed;z-index:9999;display:none;pointer-events:none;max-width:270px}
+#screentip.show{display:block}
+.st-box{background:#1f1f1f;color:white;border-radius:4px;padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.st-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.st-key{font-size:10px;color:#90d4a0;margin-bottom:4px}
+.st-desc{font-size:11px;color:#ccc;line-height:1.45}
+
+/* Overlay */
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:100;display:none}
+#ov.show{display:block}
+
+/* Dialogs */
+.dlg{position:fixed;z-index:101;background:white;border:1px solid #bbb;box-shadow:0 8px 28px rgba(0,0,0,.22);border-radius:3px;min-width:380px}
+.dlg-hdr{background:#217346;color:white;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border-radius:3px 3px 0 0}
+.dlg-hdr h3{font-size:13px;font-weight:600}
+.dlg-x{cursor:pointer;font-size:16px;opacity:.8}.dlg-x:hover{opacity:1}
+.dlg-body{padding:16px}.dlg-foot{padding:10px 16px;border-top:1px solid #e5e5e5;display:flex;justify-content:flex-end;gap:6px}
+.dbtn{padding:5px 16px;border:1px solid #bbb;border-radius:2px;font-size:12px;cursor:pointer;background:white}
+.dbtn:hover{background:#f0f0f0}
+.dbtn.p{background:#217346;color:white;border-color:#217346}.dbtn.p:hover{background:#145230}
+.fr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fl{font-size:12px;color:#333;min-width:72px}
+.fi{flex:1;padding:4px 7px;border:1px solid #bbb;border-radius:2px;font-size:12px}
+.fi:focus{outline:none;border-color:#217346;box-shadow:0 0 0 2px rgba(43,87,154,.18)}
+.fsel{flex:1;padding:4px 7px;border:1px solid #bbb;border-radius:2px;font-size:12px;background:white}
+.fsect{background:#f3f2f1;border:1px solid #ddd;border-radius:3px;padding:10px;margin-bottom:10px}
+.fsect-t{font-size:11px;font-weight:700;color:#217346;margin-bottom:8px}
+
+/* Dropdowns */
+.dd{position:fixed;z-index:500;background:white;border:1px solid #bbb;box-shadow:0 4px 12px rgba(0,0,0,.15);border-radius:3px;min-width:200px;padding:4px 0;display:none}
+.dd.show{display:block}
+.ddi{padding:5px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;color:#1f1f1f}
+.ddi:hover{background:#E8F5EC}
+.ddc{width:16px;font-size:11px;color:#217346;flex-shrink:0}
+.ddsep{height:1px;background:#e5e5e5;margin:3px 0}
+.ddh{padding:3px 14px;font-size:9.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px}
+
+/* Backstage */
+#bs{position:fixed;inset:0;z-index:200;display:none;flex-direction:row}
+#bs.show{display:flex}
+#bs-nav{width:200px;background:#217346;padding:8px 0;flex-shrink:0}
+.bsi{padding:10px 16px;color:rgba(255,255,255,.85);font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.bsi:hover,.bsi.on{background:rgba(255,255,255,.12);color:white}
+#bs-content{flex:1;background:#f3f2f1;padding:28px;overflow-y:auto}
+#bs-close{position:absolute;top:8px;left:208px;color:white;font-size:18px;cursor:pointer;z-index:201;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+#bs-close:hover{background:rgba(255,255,255,.15)}
+</style>
+</head>
+<body>
+
+<!-- Title Bar: white bg, red bottom border, AutoSave, QAT, doc name, search, win controls -->
+<div id="titlebar">
+  <svg class="tb-wicon" viewBox="0 0 20 20"><rect width="20" height="20" rx="3" fill="#217346"/><text x="3" y="16" font-size="13" font-family="Segoe UI" font-weight="900" fill="white">X</text></svg>
+  <div class="tb-autosave">
+    AutoSave
+    <div class="tb-toggle"><div class="tb-toggle-knob"></div></div>
+    Off
+  </div>
+  <div class="qat">
+    <div class="qat-b" data-tt="Save" data-tt-key="Ctrl+S" data-tt-desc="Save the document to its current location."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><rect x="2" y="2" width="12" height="12" rx="1" fill="none" stroke="#555" stroke-width="1.4"/>
+<rect x="5" y="2" width="6" height="5" fill="#888"/><rect x="6.5" y="2.5" width="3" height="3" fill="white"/>
+<rect x="3" y="8" width="10" height="5" fill="#aaa"/></svg></div>
+    <div class="qat-b" data-tt="Undo" data-tt-key="Ctrl+Z" data-tt-desc="Undo the last action."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><path d="M4 10 A5 5 0 0 1 14 10" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round"/>
+<polyline points="2,7 4,11 7,8" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="qat-b" data-tt="Redo" data-tt-key="Ctrl+Y" data-tt-desc="Redo the last undone action."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><path d="M12 10 A5 5 0 0 0 2 10" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round"/>
+<polyline points="14,7 12,11 9,8" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="qat-sep"></div>
+    <div class="qat-b" data-tt="Quick Print" data-tt-desc="Send the document directly to the default printer."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><rect x="3" y="1" width="10" height="5" rx="1" fill="none" stroke="#555" stroke-width="1.3"/>
+<rect x="1" y="5" width="14" height="7" rx="1" fill="none" stroke="#555" stroke-width="1.3"/>
+<rect x="4" y="10" width="8" height="5" rx="1" fill="none" stroke="#555" stroke-width="1.3"/>
+<circle cx="12" cy="8" r="1" fill="#555"/></svg></div>
+    <div class="qat-sep"></div>
+    <div class="qat-b" data-tt="AutoSave" data-tt-desc="When on, changes are automatically saved to the cloud."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><path d="M4 10 A3 3 0 0 1 4 4 A4 4 0 0 1 13 5 A3 3 0 0 1 13 10 Z" fill="none" stroke="#555" stroke-width="1.3"/>
+<line x1="8" y1="12" x2="8" y2="8" stroke="#555" stroke-width="1.3" stroke-linecap="round"/>
+<polyline points="5,10 8,13 11,10" fill="none" stroke="#555" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="qat-more" data-tt="Customize Quick Access Toolbar" data-tt-desc="Add or remove buttons from the Quick Access Toolbar.">▾</div>
+  </div>
+  <div class="tb-docname">Nevada Valley Healthcare — Data.xlsx &nbsp;•&nbsp; Saved to this PC ∨</div>
+  <div class="tb-search">🔍 Search</div>
+  <div class="win-btn" title="Minimize">─</div>
+  <div class="win-btn" title="Restore">❐</div>
+  <div class="win-btn close" title="Close">✕</div>
+</div>
+
+<!-- Progress -->
+<div id="prog"><div id="pfill" style="width:0%"></div></div>
+
+<!-- Ribbon Tabs: no background, blue underline on active -->
+<div id="ribbon-tabs">
+  <div class="rtab" onclick="showBackstage()">File</div>
+  <div class="rtab active" data-tab="home" onclick="switchTab(this,'home')">Home</div>
+  <div class="rtab" data-tab="insert" onclick="switchTab(this,'insert')">Insert</div>
+  <div class="rtab" data-tab="pagelayout" onclick="switchTab(this,'pagelayout')">Page Layout</div>
+  <div class="rtab" data-tab="formulas" onclick="switchTab(this,'formulas')">Formulas</div>
+  <div class="rtab" data-tab="data" onclick="switchTab(this,'data')">Data</div>
+  <div class="rtab" data-tab="review" onclick="switchTab(this,'review')">Review</div>
+  <div class="rtab" data-tab="view" onclick="switchTab(this,'view')">View</div>
+  <div class="rtab" data-tab="help" onclick="switchTab(this,'help')">Help</div>
+</div>
+
+<!-- Ribbon content area -->
+<div id="ribbon"></div>
+
+<!-- Main layout -->
+<div id="formula-bar" style="height:26px;background:#f3f3f3;border-bottom:1px solid #d0d0d0;display:flex;align-items:center;padding:0 6px;gap:4px;flex-shrink:0">
+  <div style="width:80px;background:white;border:1px solid #bbb;border-radius:2px;padding:1px 6px;font-size:11px;color:#333;text-align:center" id="name-box">A1</div>
+  <div style="width:1px;height:18px;background:#bbb"></div>
+  <div style="font-size:13px;color:#217346;width:16px;text-align:center" title="Insert Function">ƒx</div>
+  <div style="flex:1;background:white;border:1px solid #bbb;border-radius:2px;padding:1px 8px;font-size:11px;color:#333;height:20px;display:flex;align-items:center" id="formula-display"></div>
+</div>
+<div id="main">
+  <!-- Left panel: skill list + task -->
+  <div id="lp">
+    <div id="lp-tabs">
+      <div class="lpt active">Skills</div>
+      <div class="lpt">Navigation</div>
+    </div>
+    <div id="sklist"></div>
+    <div id="tp">
+      <h4>📋 Current Task</h4>
+      <div id="tscen"></div>
+      <div id="tinstr">Select a skill from the list above to begin.</div>
+      <div id="thint"></div>
+      <div class="tb-row2">
+        <button class="tbn" id="bhint" onclick="showHint()" style="display:none">💡 Hint</button>
+        <button class="tbn prim" id="bnext" onclick="nextSkill()" style="display:none">Next →</button>
+      </div>
+      <div id="tfb"></div>
+    </div>
+  </div>
+
+  <!-- Document area -->
+  <div id="docarea">
+    <div id="ruler">
+      <div class="rulerm" id="rl-left">1"</div>
+      <div class="rulerc">
+        <div class="ruler-line"></div>
+        <div class="ruler-ticks">
+          <span class="ruler-tick">1</span><span class="ruler-tick">2</span><span class="ruler-tick">3</span><span class="ruler-tick">4</span><span class="ruler-tick">5</span><span class="ruler-tick">6</span><span class="ruler-tick">7</span><span class="ruler-tick">8</span>
+        </div>
+      </div>
+      <div class="rulerm" id="rl-right">1"</div>
+    </div>
+    <div id="docscroll" style="flex:1;overflow:auto;background:#f0f0f0;padding:0;display:flex;flex-direction:column">
+  <div style="background:white;flex-shrink:0">
+    <table style="border-collapse:collapse;width:100%;table-layout:fixed">
+      <thead>
+        <tr><th style="width:40px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center"></th><th style="min-width:100px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">A</th><th style="min-width:100px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">B</th><th style="min-width:100px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">C</th><th style="min-width:100px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">D</th><th style="min-width:100px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">E</th><th style="min-width:100px;background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">F</th></tr>
+        <tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">1</td><td style="background:#217346;color:white;font-weight:600;font-size:11px;padding:3px 6px;border:1px solid #1a5c38;text-align:center">EmpID</td><td style="background:#217346;color:white;font-weight:600;font-size:11px;padding:3px 6px;border:1px solid #1a5c38;text-align:center">First Name</td><td style="background:#217346;color:white;font-weight:600;font-size:11px;padding:3px 6px;border:1px solid #1a5c38;text-align:center">Last Name</td><td style="background:#217346;color:white;font-weight:600;font-size:11px;padding:3px 6px;border:1px solid #1a5c38;text-align:center">Department</td><td style="background:#217346;color:white;font-weight:600;font-size:11px;padding:3px 6px;border:1px solid #1a5c38;text-align:center">Salary</td><td style="background:#217346;color:white;font-weight:600;font-size:11px;padding:3px 6px;border:1px solid #1a5c38;text-align:center">Start Date</td></tr>
+      </thead>
+      <tbody>
+        <tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">2</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">E001</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Maria</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Santos</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Nursing</td><td style="background:#fff9c4;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:right">$68,500</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">3/15/2019</td></tr><tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">3</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">E002</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">James</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Okafor</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Radiology</td><td style="background:#fff9c4;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:right">$82,000</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">7/1/2020</td></tr><tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">4</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">E003</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Lisa</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Chen</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Admin</td><td style="background:#fff9c4;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:right">$45,200</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">1/10/2022</td></tr><tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">5</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">E004</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Robert</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Garcia</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Nursing</td><td style="background:#fff9c4;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:right">$71,000</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">5/22/2018</td></tr><tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">6</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">E005</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Aisha</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Williams</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">IT</td><td style="background:#fff9c4;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:right">$94,500</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">9/3/2021</td></tr><tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">7</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">E006</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Tom</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Nguyen</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">Admin</td><td style="background:#fff9c4;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:right">$43,800</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px;text-align:left">2/14/2023</td></tr>
+        <tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">9</td>
+        <td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td></tr>
+        <tr><td style="background:#f3f3f3;border:1px solid #d0d0d0;font-size:11px;color:#555;text-align:center;padding:2px 4px">10</td>
+        <td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td><td style="background:white;border:1px solid #d0d0d0;font-size:11px;padding:2px 6px">&nbsp;</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="flex:1;background:#f0f0f0"></div>
+  <!-- Sheet tabs -->
+  <div style="height:26px;background:#f3f3f3;border-top:1px solid #d0d0d0;display:flex;align-items:center;padding:0 4px;gap:2px;flex-shrink:0">
+    <div style="padding:3px 12px;background:white;border:1px solid #d0d0d0;border-bottom:none;font-size:11px;color:#217346;font-weight:600;cursor:pointer">Sheet1</div>
+    <div style="padding:3px 12px;background:#f3f3f3;border:1px solid #d0d0d0;border-bottom:none;font-size:11px;color:#555;cursor:pointer">Sheet2</div>
+    <div style="padding:3px 12px;background:#f3f3f3;border:1px solid #d0d0d0;border-bottom:none;font-size:11px;color:#555;cursor:pointer">Sheet3</div>
+    <div style="padding:3px 8px;font-size:14px;color:#555;cursor:pointer" title="Insert Sheet">⊕</div>
+  </div>
+</div>
+  </div>
+</div>
+
+</div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div id="sb">
+  <div class="sbi">Sheet 1 of 3  |  Ready</div>
+  <div class="sbi">Average: —  Count: —  Sum: —</div>
+  <div class="sbi">🌐 English (United States)  |  100%</div>
+  <div id="sbr">
+    <div class="vbtn active" title="Print Layout"><svg width="12" height="12" viewBox="0 0 16 16" style="fill:white;display:block"><rect x="3" y="1" width="10" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="5" y1="5" x2="11" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="5" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="vbtn" title="Web Layout"><svg width="12" height="12" viewBox="0 0 16 16" style="fill:white;display:block"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="3.5" cy="3" r="1" fill="currentColor"/><circle cx="6.5" cy="3" r="1" fill="currentColor"/>
+<line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="3" y1="11" x2="10" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="vbtn" title="Read Mode"><svg width="12" height="12" viewBox="0 0 16 16" style="fill:white;display:block"><rect x="1" y="2" width="14" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1"/>
+<line x1="3" y1="6" x2="6" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="3" y1="9" x2="6" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="10" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="10" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <span style="color:white;font-size:11px">100%</span>
+    <div style="width:80px;height:3px;background:rgba(255,255,255,.3);border-radius:2px;position:relative;cursor:pointer;margin:0 4px">
+      <div style="width:11px;height:11px;background:white;border-radius:50%;position:absolute;top:-4px;left:calc(100% - 11px);box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Screentip -->
+<div id="screentip"><div class="st-box"><div class="st-title" id="st-title"></div><div class="st-key" id="st-key"></div><div class="st-desc" id="st-desc"></div></div></div>
+
+
+<div class="dd" id="dd-margins">
+  <div class="ddh">Preset Margins</div>
+  <div class="ddi" onclick="quickMargin('normal')"><span class="ddc" id="dc-normal">✓</span><div><div style="font-weight:600;font-size:12px">Normal</div><div style="font-size:10px;color:#666">Top: 1"  Left: 1"  Bottom: 1"  Right: 1"</div></div></div>
+  <div class="ddi" onclick="quickMargin('narrow')"><span class="ddc" id="dc-narrow"></span><div><div style="font-weight:600;font-size:12px">Narrow</div><div style="font-size:10px;color:#666">Top: 0.5"  Left: 0.5"  Bottom: 0.5"  Right: 0.5"</div></div></div>
+  <div class="ddi" onclick="quickMargin('moderate')"><span class="ddc" id="dc-moderate"></span><div><div style="font-weight:600;font-size:12px">Moderate</div><div style="font-size:10px;color:#666">Top: 1"  Left: 0.75"  Bottom: 1"  Right: 0.75"</div></div></div>
+  <div class="ddi" onclick="quickMargin('wide')"><span class="ddc" id="dc-wide"></span><div><div style="font-weight:600;font-size:12px">Wide</div><div style="font-size:10px;color:#666">Top: 1"  Left: 2"  Bottom: 1"  Right: 2"</div></div></div>
+  <div class="ddi" onclick="quickMargin('mirrored')"><span class="ddc" id="dc-mirrored"></span><div><div style="font-weight:600;font-size:12px">Mirrored</div><div style="font-size:10px;color:#666">Top: 1"  Inside: 1.25"  Outside: 1"</div></div></div>
+  <div class="ddi" onclick="quickMargin('office2003')"><span class="ddc" id="dc-office2003"></span><div><div style="font-weight:600;font-size:12px">Office 2003 Default</div><div style="font-size:10px;color:#666">Top: 1"  Left: 1.25"  Bottom: 1"  Right: 1.25"</div></div></div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="openDlg('dlg-margins')"><span class="ddc"></span>Custom Margins...</div>
+</div>
+<div class="dd" id="dd-orient">
+  <div class="ddi" onclick="setOrientation('portrait')"><span class="ddc" id="dc-portrait">✓</span>Portrait</div>
+  <div class="ddi" onclick="setOrientation('landscape')"><span class="ddc" id="dc-landscape"></span>Landscape</div>
+</div>
+<div class="dd" id="dd-size">
+  <div class="ddi" onclick="setPaperSize('letter')"><span class="ddc" id="dc-letter">✓</span><div><div style="font-weight:600;font-size:12px">Letter</div><div style="font-size:10px;color:#666">8.5" × 11"</div></div></div>
+  <div class="ddi" onclick="setPaperSize('legal')"><span class="ddc" id="dc-legal"></span><div><div style="font-weight:600;font-size:12px">Legal</div><div style="font-size:10px;color:#666">8.5" × 14"</div></div></div>
+  <div class="ddi" onclick="setPaperSize('tabloid')"><span class="ddc" id="dc-tabloid"></span><div><div style="font-weight:600;font-size:12px">Tabloid</div><div style="font-size:10px;color:#666">11" × 17"</div></div></div>
+  <div class="ddi" onclick="setPaperSize('a4')"><span class="ddc" id="dc-a4"></span><div><div style="font-weight:600;font-size:12px">A4</div><div style="font-size:10px;color:#666">8.27" × 11.69"</div></div></div>
+</div>
+<div class="dd" id="dd-watermark" style="min-width:260px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px">
+    <div onclick="quickWatermark('CONFIDENTIAL 1')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:9px;font-weight:700;color:#aaa;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span style="transform:rotate(-30deg);display:block">CONFIDENTIAL</span></div>
+    <div onclick="quickWatermark('CONFIDENTIAL 2')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:9px;font-weight:700;color:#ccc;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span>CONFIDENTIAL</span></div>
+    <div onclick="quickWatermark('DRAFT 1')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:14px;font-weight:700;color:#aaa;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span style="transform:rotate(-30deg);display:block">DRAFT</span></div>
+    <div onclick="quickWatermark('DRAFT 2')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:14px;font-weight:700;color:#ccc;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span>DRAFT</span></div>
+    <div onclick="quickWatermark('DO NOT COPY')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:8px;font-weight:700;color:#aaa;font-family:serif;text-align:center" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span style="transform:rotate(-30deg);display:block">DO NOT COPY</span></div>
+    <div onclick="quickWatermark('SAMPLE')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:12px;font-weight:700;color:#aaa;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span>SAMPLE</span></div>
+  </div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="openDlg('dlg-wm')"><span class="ddc"></span>Custom Watermark...</div>
+  <div class="ddi" onclick="removeWatermark()"><span class="ddc"></span>Remove Watermark</div>
+</div>
+<div class="dd" id="dd-header">
+  <div class="ddh">Built-In</div>
+  <div class="ddi" onclick="openHeaderDlg('header')"><span class="ddc"></span>✏️ Edit Header...</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="presetHeader('blank')"><span class="ddc"></span>Blank</div>
+  <div class="ddi" onclick="presetHeader('blank3')"><span class="ddc"></span>Blank (Three Columns)</div>
+  <div class="ddi" onclick="presetHeader('alphabet')"><span class="ddc"></span>Alphabet</div>
+  <div class="ddi" onclick="presetHeader('austin')"><span class="ddc"></span>Austin</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="removeHeader()"><span class="ddc"></span>Remove Header</div>
+</div>
+<div class="dd" id="dd-footer">
+  <div class="ddh">Built-In</div>
+  <div class="ddi" onclick="openHeaderDlg('footer')"><span class="ddc"></span>✏️ Edit Footer...</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="presetFooter('blank')"><span class="ddc"></span>Blank</div>
+  <div class="ddi" onclick="presetFooter('blank3')"><span class="ddc"></span>Blank (Three Columns)</div>
+  <div class="ddi" onclick="presetFooter('austin')"><span class="ddc"></span>Austin</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="removeFooter()"><span class="ddc"></span>Remove Footer</div>
+</div>
+<div class="dd" id="dd-pagenum">
+  <div class="ddi" onclick="addPageNum('top')">📄 Top of Page ▶</div>
+  <div class="ddi" onclick="addPageNum('bottom')">📄 Bottom of Page ▶</div>
+  <div class="ddi">📄 Page Margins ▶</div>
+  <div class="ddi">📄 Current Position ▶</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="removePageNum()">Remove Page Numbers</div>
+</div>
+<div class="dd" id="dd-themes" style="min-width:220px">
+  <div class="ddh">Office Themes</div>
+  <div class="ddi" onclick="applyTheme('office')"><span style="display:inline-block;width:14px;height:14px;background:linear-gradient(135deg,#217346,#6dbf87);border-radius:2px;margin-right:6px"></span>Office</div>
+  <div class="ddi" onclick="applyTheme('office2013')"><span style="display:inline-block;width:14px;height:14px;background:linear-gradient(135deg,#217346,#9DC3E6);border-radius:2px;margin-right:6px"></span>Office 2013–2022 Theme</div>
+  <div class="ddi" onclick="applyTheme('colorful')"><span style="display:inline-block;width:14px;height:14px;background:linear-gradient(135deg,#D64937,#F4A460);border-radius:2px;margin-right:6px"></span>Colorful</div>
+  <div class="ddi" onclick="applyTheme('dark')"><span style="display:inline-block;width:14px;height:14px;background:#555;border-radius:2px;margin-right:6px"></span>Dark Gray</div>
+  <div class="ddi" onclick="applyTheme('black')"><span style="display:inline-block;width:14px;height:14px;background:#111;border-radius:2px;margin-right:6px"></span>Black</div>
+  <div class="ddi" onclick="applyTheme('white')"><span style="display:inline-block;width:14px;height:14px;background:white;border:1px solid #ddd;border-radius:2px;margin-right:6px"></span>White</div>
+</div>
+<div class="dd" id="dd-breaks" style="min-width:240px">
+  <div class="ddh">Page Breaks</div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Page</div><div style="font-size:10px;color:#666">Mark the point at which one page ends and the next begins.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Column</div><div style="font-size:10px;color:#666">Text following the break will begin in the next column.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Text Wrapping</div><div style="font-size:10px;color:#666">Separate text around objects on web pages.</div></div></div>
+  <div class="ddh">Section Breaks</div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Next Page</div><div style="font-size:10px;color:#666">Insert a section break and start the new section on the next page.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Continuous</div><div style="font-size:10px;color:#666">Insert a section break on the same page.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Even Page</div><div style="font-size:10px;color:#666">Start the new section on the next even-numbered page.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Odd Page</div><div style="font-size:10px;color:#666">Start the new section on the next odd-numbered page.</div></div></div>
+</div>
+<div class="dd" id="dd-columns">
+  <div class="ddi"><span class="ddc" id="dc-col1">✓</span>One</div>
+  <div class="ddi"><span class="ddc" id="dc-col2"></span>Two</div>
+  <div class="ddi"><span class="ddc" id="dc-col3"></span>Three</div>
+  <div class="ddi"><span class="ddc"></span>Left</div>
+  <div class="ddi"><span class="ddc"></span>Right</div>
+  <div class="ddsep"></div>
+  <div class="ddi"><span class="ddc"></span>More Columns...</div>
+</div>
+<div class="dd" id="dd-saveas">
+  <div class="ddh">Save As Format</div>
+  <div class="ddi" onclick="doSaveAs('docx')"><span class="ddc"></span>Word Document (.docx)</div>
+  <div class="ddi" onclick="doSaveAs('doc')"><span class="ddc"></span>Word 97-2003 (.doc)</div>
+  <div class="ddi" onclick="doSaveAs('pdf')"><span class="ddc"></span>PDF (*.pdf)</div>
+  <div class="ddi" onclick="doSaveAs('odt')"><span class="ddc"></span>OpenDocument Text (.odt)</div>
+  <div class="ddi" onclick="doSaveAs('txt')"><span class="ddc"></span>Plain Text (.txt)</div>
+</div>
+
+
+<div id="ov" onclick="closeAll()"></div>
+<div class="dlg" id="dlg-margins" style="display:none;top:110px;left:50%;transform:translateX(-50%)">
+  <div class="dlg-hdr"><h3>Page Setup</h3><span class="dlg-x" onclick="closeDlg('dlg-margins')">✕</span></div>
+  <div class="dlg-body">
+    <div class="fsect"><div class="fsect-t">Margins</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fr"><label class="fl">Top:</label><input class="fi" id="m-top" value='1"' style="width:60px"></div>
+        <div class="fr"><label class="fl">Bottom:</label><input class="fi" id="m-bot" value='1"' style="width:60px"></div>
+        <div class="fr"><label class="fl">Left:</label><input class="fi" id="m-left" value='1"' style="width:60px"></div>
+        <div class="fr"><label class="fl">Right:</label><input class="fi" id="m-right" value='1"' style="width:60px"></div>
+      </div>
+    </div>
+    <div class="fsect"><div class="fsect-t">Orientation</div>
+      <div style="display:flex;gap:16px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="radio" name="orient" value="portrait" checked> Portrait</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="radio" name="orient" value="landscape"> Landscape</label>
+      </div>
+    </div>
+    <div class="fr"><label class="fl">Apply to:</label><select class="fsel"><option>Whole document</option><option>This section</option></select></div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-margins')">Cancel</button><button class="dbtn p" onclick="applyMargins()">OK</button></div>
+</div>
+<div class="dlg" id="dlg-props" style="display:none;top:110px;left:50%;transform:translateX(-50%)">
+  <div class="dlg-hdr"><h3>Document Properties</h3><span class="dlg-x" onclick="closeDlg('dlg-props')">✕</span></div>
+  <div class="dlg-body">
+    <div class="fr"><label class="fl">Title:</label><input class="fi" id="p-title" placeholder="Enter document title"></div>
+    <div class="fr"><label class="fl">Subject:</label><input class="fi" id="p-subject" placeholder="Enter subject"></div>
+    <div class="fr"><label class="fl">Author:</label><input class="fi" id="p-author" placeholder="Enter author name"></div>
+    <div class="fr"><label class="fl">Company:</label><input class="fi" id="p-company" placeholder="Enter company name"></div>
+    <div class="fr"><label class="fl">Keywords:</label><input class="fi" id="p-keywords" placeholder="Enter keywords"></div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-props')">Cancel</button><button class="dbtn p" onclick="applyProps()">OK</button></div>
+</div>
+<div class="dlg" id="dlg-wm" style="display:none;top:110px;left:50%;transform:translateX(-50%)">
+  <div class="dlg-hdr"><h3>Printed Watermark</h3><span class="dlg-x" onclick="closeDlg('dlg-wm')">✕</span></div>
+  <div class="dlg-body">
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px"><input type="radio" name="wm" value="none"> No watermark</label>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px"><input type="radio" name="wm" value="text" checked> Text watermark</label>
+    <div style="padding-left:20px">
+      <div class="fr"><label class="fl">Text:</label><select class="fsel" id="wm-preset"><option>DRAFT</option><option>CONFIDENTIAL</option><option>DO NOT COPY</option><option>SAMPLE</option><option>URGENT</option></select></div>
+      <div class="fr"><label class="fl">Font:</label><select class="fsel"><option>Calibri</option><option>Times New Roman</option><option>Arial</option></select></div>
+      <div class="fr"><label class="fl">Color:</label><select class="fsel"><option>Automatic</option><option>Gray</option><option>Light Blue</option><option>Red</option></select></div>
+      <div class="fr"><label class="fl">Layout:</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="radio" name="wml" value="diagonal" checked> Diagonal</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;margin-left:10px"><input type="radio" name="wml" value="horizontal"> Horizontal</label>
+      </div>
+    </div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-wm')">Cancel</button><button class="dbtn p" onclick="applyWatermark()">Apply</button></div>
+</div>
+<div class="dlg" id="dlg-hf" style="display:none;top:110px;left:50%;transform:translateX(-50%);min-width:480px">
+  <div class="dlg-hdr"><h3 id="dlg-hdr-title">Edit Header</h3><span class="dlg-x" onclick="closeDlg('dlg-hf')">✕</span></div>
+  <div class="dlg-body">
+    <div style="font-size:11px;color:#666;margin-bottom:10px">Content appears on every page. Tab between left, center, and right sections.</div>
+    <div style="border:1px solid #bbb;border-radius:3px;padding:8px;margin-bottom:10px">
+      <div style="font-size:10px;color:#888;margin-bottom:6px;text-align:center">— Header —</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        <input class="fi" id="hdr-l" placeholder="Left section">
+        <input class="fi" id="hdr-c" placeholder="Center section" style="text-align:center">
+        <input class="fi" id="hdr-r" placeholder="Right section" style="text-align:right">
+      </div>
+    </div>
+    <div style="border:1px solid #bbb;border-radius:3px;padding:8px">
+      <div style="font-size:10px;color:#888;margin-bottom:6px;text-align:center">— Footer —</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        <input class="fi" id="ftr-l" placeholder="Left section">
+        <input class="fi" id="ftr-c" placeholder="Center section" style="text-align:center">
+        <input class="fi" id="ftr-r" placeholder="Right section" style="text-align:right">
+      </div>
+    </div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-hf')">Cancel</button><button class="dbtn p" onclick="applyHdrFtr()">OK</button></div>
+</div>
+
+
+<div id="bs">
+  <div id="bs-nav">
+    <div class="bsi" style="font-size:14px;padding:12px 16px" onclick="hideBackstage()">← Back</div>
+    <div style="height:1px;background:rgba(255,255,255,.2);margin:4px 0"></div>
+    <div class="bsi on">🏠 Home</div>
+    <div class="bsi">📄 New</div>
+    <div class="bsi">📂 Open</div>
+    <div class="bsi" onclick="bsInfo()">ℹ️ Info</div>
+    <div class="bsi">💾 Save</div>
+    <div class="bsi" onclick="bsSaveAs()">📋 Save As</div>
+    <div class="bsi">📜 Print</div>
+    <div class="bsi" onclick="bsShare()">↗️ Share</div>
+    <div class="bsi" onclick="bsExport()">📤 Export</div>
+    <div class="bsi">🔒 Account</div>
+    <div class="bsi">⚙️ Options</div>
+  </div>
+  <div id="bs-content">
+    <h2 style="font-size:22px;font-weight:300;margin-bottom:20px;color:#217346">Info</h2>
+    <div style="font-size:13px;color:#333;margin-bottom:4px;font-weight:600">Nevada Valley Healthcare — Data.xlsx</div>
+    <div style="font-size:11px;color:#666;margin-bottom:20px">Desktop › IS101 Projects</div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="dbtn p" onclick="bsShare()">↗ Share</button>
+      <button class="dbtn" onclick="bsInfo()">ℹ Edit Properties</button>
+      <button class="dbtn" onclick="bsInspect()">🔍 Check for Issues ▾</button>
+      <button class="dbtn" onclick="bsCompat()">⚠ Check Compatibility</button>
+      <button class="dbtn" onclick="bsExport()">📕 Export as PDF</button>
+    </div>
+    <div style="background:white;border:1px solid #e0e0e0;border-radius:4px;padding:16px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#333">Properties</div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:5px;font-size:12px">
+        <span style="color:#666">Size</span><span>42.8 KB</span>
+        <span style="color:#666">Pages</span><span>3</span>
+        <span style="color:#666">Words</span><span>1,247</span>
+        <span style="color:#666">Total Editing Time</span><span>24 min</span>
+        <span style="color:#666">Title</span><span id="bs-title" style="color:#217346;cursor:pointer" onclick="bsInfo()">Add a title</span>
+        <span style="color:#666">Tags</span><span style="color:#217346;cursor:pointer">Add a tag</span>
+        <span style="color:#666">Last Modified</span><span>Today, 7:21 PM</span>
+        <span style="color:#666">Created</span><span>6/11/2026, 6:00 AM</span>
+        <span style="color:#666">Last Modified By</span><span>Dr. Mark Taormino</span>
+        <span style="color:#666">Author</span><span>Dr. Mark Taormino</span>
+      </div>
+    </div>
+  </div>
+  <span id="bs-close" onclick="hideBackstage()">✕</span>
+</div>
+
+
+<script>
+const TABS={
+  home:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg-split" id="rb-paste" data-tt="Paste" data-tt-desc="Paste the contents of the Clipboard."><div class="rib-lg-split-top"><svg width="28" height="28" viewBox="0 0 26 26" style="display:block;flex-shrink:0"><rect x="7" y="7" width="12" height="16" rx="1" fill="#c0e0c8" stroke="#217346" stroke-width="1"/><rect x="11" y="4" width="7" height="5" rx="1" fill="#217346"/><rect x="4" y="1" width="13" height="16" rx="1" fill="white" stroke="#666" stroke-width="1"/><rect x="8" y="4" width="8" height="4" rx="1" fill="#ccc"/><line x1="7" y1="9" x2="16" y2="9" stroke="#aaa" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="12" x2="16" y2="12" stroke="#aaa" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="15" x2="13" y2="15" stroke="#aaa" stroke-width="1" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Paste</span></div><div class="rib-lg-split-arr">▾</div></div>
+<div class="rib-col"><div class="rib-sm" data-tt="Cut" data-tt-key="Ctrl+X" data-tt-desc="Remove the selection and put it on the Clipboard."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="4" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="8" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Cut</span></div>
+<div class="rib-sm" data-tt="Copy" data-tt-key="Ctrl+C" data-tt-desc="Copy the selection and put it on the Clipboard."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="5" y="5" width="9" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="2" width="9" height="10" rx="1" fill="white" stroke="currentColor" stroke-width="1.4"/></svg><span class="rib-sm-lbl">Copy</span></div>
+<div class="rib-sm" id="rb-format-painter" data-tt="Format Painter" data-tt-desc="Copy formatting from one place and apply it to another."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="2" width="7" height="5" rx="1" fill="currentColor" opacity=".75"/><rect x="1" y="9" width="7" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.5 L13 4.5 L13 8 L11 8 L11 15" fill="none" stroke="#faa619" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Format Painter</span></div></div>
+</div><div class="rib-group-label">Clipboard<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body"><div class="rib-col">
+<div class="rib-row"><div class="rib-fontbox" style="width:168px" data-tt="Font" data-tt-desc="Change the font face."><span class="rib-fontbox-txt">Calibri</span><span class="rib-fontbox-arr">▾</span></div><div class="rib-fontbox" style="width:42px" data-tt="Font Size" data-tt-desc="Change the font size."><span class="rib-fontbox-txt">11</span><span class="rib-fontbox-arr">▾</span></div></div>
+<div class="rib-row">
+<div class="rib-ic" data-tt="Bold" data-tt-key="Ctrl+B" data-tt-desc="Make the selected text bold."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M4 2h5.5a3 3 0 0 1 0 6H4zm0 6h6a3.5 3.5 0 0 1 0 7H4z" fill="currentColor"/></svg></div>
+<div class="rib-ic" data-tt="Italic" data-tt-key="Ctrl+I" data-tt-desc="Italicize the selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="7" y1="2" x2="12" y2="2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="4" y1="14" x2="9" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="10" y1="2" x2="6" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+<div class="rib-ic" data-tt="Underline" data-tt-key="Ctrl+U" data-tt-desc="Underline the selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M3 2v6a5 5 0 0 0 10 0V2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="1" y1="15" x2="15" y2="15" stroke="#217346" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+<div class="rib-sep"></div>
+<div class="rib-ic" data-tt="Borders" data-tt-desc="Add borders to the selected cells."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="1" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/><line x1="1" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/><line x1="5.5" y1="1" x2="5.5" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/><line x1="10" y1="1" x2="10" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/></svg></div>
+<div class="rib-ic" data-tt="Fill Color" data-tt-desc="Color the background of the selected cells."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="10" rx="1" fill="#FFD700" opacity=".7"/><rect x="1" y="12" width="14" height="3" rx="1" fill="#FFD700"/></svg></div>
+<div class="rib-ic" data-tt="Font Color" data-tt-desc="Change the color of the text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="10" font-family="Calibri,Arial" font-weight="700" fill="currentColor">A</text><rect x="1" y="12.5" width="12" height="2.5" rx=".8" fill="#ED3E3E"/></svg></div>
+</div></div></div><div class="rib-group-label">Font<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body"><div class="rib-col">
+<div class="rib-row">
+<div class="rib-ic" data-tt="Align Left" data-tt-key="Ctrl+L" data-tt-desc="Align the contents to the left."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+<div class="rib-ic" data-tt="Center" data-tt-key="Ctrl+E" data-tt-desc="Center the contents in the cell."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+<div class="rib-ic" data-tt="Align Right" data-tt-key="Ctrl+R" data-tt-desc="Align the contents to the right."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+<div class="rib-sep"></div>
+<div class="rib-ic" id="rb-merge-unmerge" data-tt="Merge & Center" data-tt-desc="Merge the selected cells into one larger cell and center the contents."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="8" y1="1" x2="8" y2="15" stroke="currentColor" stroke-width=".7" stroke-dasharray="2,1"/><polyline points="5,6 2,8 5,10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><polyline points="11,6 14,8 11,10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="rib-ic" id="rb-wrap-text-xl" data-tt="Wrap Text" data-tt-desc="Make all content visible within a cell by displaying it on multiple lines."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M1 8 h10 a3 3 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="8,11 11,14 8,17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+<div class="rib-row">
+<div class="rib-ic" data-tt="Top Align" data-tt-desc="Align the contents to the top of the cell."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="2" x2="15" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="5" x2="5" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="5" x2="11" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2,1.5"/></svg></div>
+<div class="rib-ic" data-tt="Middle Align" data-tt-desc="Align the contents to the middle of the cell."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="2" x2="5" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="2" x2="11" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+<div class="rib-ic" data-tt="Bottom Align" data-tt-desc="Align the contents to the bottom of the cell."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="14" x2="15" y2="14" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="2" x2="5" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="2" x2="11" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+<div class="rib-sep"></div>
+<div class="rib-ic" id="rb-cell-alignment" data-tt="Increase Indent" data-tt-desc="Increase the indent of the cell contents."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="2,3 6,7 2,11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="8" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="8" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+<div class="rib-ic" data-tt="Decrease Indent" data-tt-desc="Decrease the indent of the cell contents."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="7,3 3,7 7,11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+</div></div></div><div class="rib-group-label">Alignment<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-fontbox" style="width:120px" data-tt="Number Format" data-tt-desc="Choose how cell values are displayed: number, currency, date, etc."><span class="rib-fontbox-txt">General</span><span class="rib-fontbox-arr">▾</span></div>
+<div class="rib-col" style="margin-top:2px">
+<div class="rib-row">
+<div class="rib-ic" data-tt="Accounting Number Format" data-tt-desc="Format the selected cells with the currency symbol."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="3" y="12" font-size="12" font-family="Calibri,Arial" font-weight="700" fill="#217346">$</text></svg></div>
+<div class="rib-ic" data-tt="Percent Style" data-tt-desc="Format the selected cells as a percentage."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="2" y="12" font-size="11" font-family="Calibri,Arial" fill="currentColor">%</text></svg></div>
+<div class="rib-ic" data-tt="Comma Style" data-tt-desc="Format the selected cells with a thousand separator."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="3" y="11" font-size="10" font-family="Calibri,Arial" fill="currentColor">,</text></svg></div>
+</div>
+<div class="rib-row">
+<div class="rib-ic" data-tt="Increase Decimal" data-tt-desc="Show more decimal places."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="7" font-family="Calibri,Arial" fill="currentColor">.00</text><polyline points="12,10 14,7 12,4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="rib-ic" data-tt="Decrease Decimal" data-tt-desc="Show fewer decimal places."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="7" font-family="Calibri,Arial" fill="currentColor">.0</text><polyline points="12,4 14,7 12,10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div></div>
+</div><div class="rib-group-label">Number<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-conditional-formatting" data-tt="Conditional Formatting" data-tt-desc="Highlight interesting cells, emphasize unusual values, and visualize data using Data Bars, Color Scales, and Icon Sets."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="3" y="3" width="26" height="26" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="18" width="5" height="9" fill="#c42b1c"/><rect x="13" y="12" width="5" height="15" fill="#faa619"/><rect x="20" y="6" width="5" height="21" fill="#217346"/></svg><span class="rib-lg-lbl">Conditional Formatting</span></div>
+<div class="rib-lg" id="rb-format-cells" data-tt="Format as Table" data-tt-desc="Quickly format a range of cells and convert it to a Table."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="10" x2="30" y2="10" stroke="currentColor" stroke-width="2"/><line x1="11" y1="10" x2="11" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="21" y1="10" x2="21" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="28" height="8" rx="2" fill="#217346" opacity=".8"/></svg><span class="rib-lg-lbl">Format as Table</span></div>
+<div class="rib-lg" id="rb-name-ranges" data-tt="Cell Styles" data-tt-desc="Quickly format a cell using built-in cell styles."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="12" height="10" rx="1" fill="#217346" opacity=".7"/><rect x="16" y="4" width="14" height="10" rx="1" fill="#faa619" opacity=".7"/><rect x="2" y="17" width="12" height="10" rx="1" fill="#2b579a" opacity=".7"/><rect x="16" y="17" width="14" height="10" rx="1" fill="#c42b1c" opacity=".7"/></svg><span class="rib-lg-lbl">Cell Styles</span></div>
+</div><div class="rib-group-label">Styles<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-col">
+<div class="rib-sm" id="rb-insert-delete-cols-rows" data-tt="Insert Cells" data-tt-desc="Insert cells, rows, or columns into the sheet."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="8" y1="4" x2="8" y2="12" stroke="#217346" stroke-width="1.6" stroke-linecap="round"/><line x1="4" y1="8" x2="12" y2="8" stroke="#217346" stroke-width="1.6" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert</span><span class="rib-arr">▾</span></div>
+<div class="rib-sm" id="rb-insert-delete-cells" data-tt="Delete Cells" data-tt-desc="Delete cells, rows, or columns from the sheet."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="4" y1="8" x2="12" y2="8" stroke="#c42b1c" stroke-width="1.6" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Delete</span><span class="rib-arr">▾</span></div>
+<div class="rib-sm" data-tt="Format" data-tt-desc="Change the row height or column width, organize sheets, or protect cells."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="6" x2="15" y2="6" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2,1"/><line x1="6" y1="1" x2="6" y2="15" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2,1"/></svg><span class="rib-sm-lbl">Format</span><span class="rib-arr">▾</span></div>
+</div></div><div class="rib-group-label">Cells<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-col">
+<div class="rib-sm" id="rb-autofill" data-tt="AutoSum" data-tt-desc="Automatically add up cells. Click the arrow to choose Sum, Average, Count, Max, or Min."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="2" y="12" font-size="12" font-family="Calibri,Arial" fill="#217346">Σ</text></svg><span class="rib-sm-lbl">AutoSum</span><span class="rib-arr">▾</span></div>
+<div class="rib-sm" data-tt="Fill" data-tt-desc="Fill cells in any direction using AutoFill or Flash Fill."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="3" rx="1" fill="#217346" opacity=".8"/><rect x="1" y="5" width="14" height="3" rx="1" fill="#217346" opacity=".5"/><rect x="1" y="9" width="14" height="3" rx="1" fill="#217346" opacity=".3"/><rect x="1" y="13" width="14" height="2" rx="1" fill="#217346" opacity=".15"/></svg><span class="rib-sm-lbl">Fill</span><span class="rib-arr">▾</span></div>
+<div class="rib-sm" data-tt="Clear" data-tt-desc="Remove everything from the cell, or selectively remove formatting, content, or comments."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M2 12 L6 2 L14 10 L10 14 Q7 16 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="6" y1="2" x2="14" y2="10" stroke="currentColor" stroke-width="1"/><line x1="1" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Clear</span><span class="rib-arr">▾</span></div>
+</div></div><div class="rib-group-label">Editing<span class="rib-launcher">⬘</span></div></div>`,
+  insert:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-create-table-xl" data-tt="Table" data-tt-key="Ctrl+T" data-tt-desc="Create an Excel Table to organize and analyze related data."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="10" x2="30" y2="10" stroke="currentColor" stroke-width="2"/><line x1="11" y1="10" x2="11" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="21" y1="10" x2="21" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="28" height="8" rx="2" fill="#217346" opacity=".8"/></svg><span class="rib-lg-lbl">Table</span></div>
+<div class="rib-lg" data-tt="PivotTable" data-tt-desc="Summarize data using a PivotTable to see patterns and trends."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="13" height="13" rx="1" fill="#217346" opacity=".7"/><rect x="17" y="2" width="13" height="13" rx="1" fill="#217346" opacity=".4"/><rect x="2" y="17" width="13" height="13" rx="1" fill="#217346" opacity=".4"/><rect x="17" y="17" width="13" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="rib-lg-lbl">PivotTable</span></div>
+</div><div class="rib-group-label">Tables<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-create-chart" data-tt="Insert Column or Bar Chart" data-tt-desc="Insert a column or bar chart. Use this chart type to compare values across categories."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="20" width="6" height="10" fill="#217346" opacity=".8"/><rect x="11" y="12" width="6" height="18" fill="#217346"/><rect x="20" y="5" width="6" height="25" fill="#217346" opacity=".8"/><line x1="2" y1="30" x2="30" y2="30" stroke="currentColor" stroke-width="2"/><line x1="2" y1="2" x2="2" y2="30" stroke="currentColor" stroke-width="2"/></svg><span class="rib-lg-lbl">Column/Bar Chart</span></div>
+<div class="rib-lg" id="rb-create-chart-sheet" data-tt="Insert Line Chart" data-tt-desc="Insert a line chart. Use line charts to display trends over time."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><polyline points="2,26 8,18 14,22 20,10 28,6" fill="none" stroke="#217346" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="2" y1="30" x2="30" y2="30" stroke="currentColor" stroke-width="2"/><line x1="2" y1="2" x2="2" y2="30" stroke="currentColor" stroke-width="2"/></svg><span class="rib-lg-lbl">Line Chart</span></div>
+<div class="rib-lg" data-tt="Insert Pie or Doughnut Chart" data-tt-desc="Insert a pie or doughnut chart. Use this chart type to show proportional parts of a whole."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16 L16 3 A13 13 0 0 1 29 16 Z" fill="#217346" opacity=".8"/><path d="M16 16 L29 16 A13 13 0 0 1 8 27 Z" fill="#faa619" opacity=".8"/><path d="M16 16 L8 27 A13 13 0 0 1 3 10 Z" fill="#2b579a" opacity=".8"/></svg><span class="rib-lg-lbl">Pie Chart</span></div>
+</div><div class="rib-group-label">Charts<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="Sparklines" data-tt-desc="Insert tiny charts that fit in a cell to show data trends."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><polyline points="4,10 8,6 12,8 16,4 20,7 24,5 28,8" fill="none" stroke="#217346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="18" width="28" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="rib-lg-lbl">Sparklines</span></div>
+</div><div class="rib-group-label">Sparklines<span class="rib-launcher">⬘</span></div></div>`,
+  pagelayout:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-workbook-themes" data-tt="Themes" data-tt-desc="Change the overall design of the document, including colors, fonts, and effects."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="10" cy="10" r="8" fill="#217346" opacity=".9"/><circle cx="22" cy="10" r="8" fill="#107c10" opacity=".9"/><circle cx="10" cy="22" r="8" fill="#c42b1c" opacity=".9"/><circle cx="22" cy="22" r="8" fill="#faa619" opacity=".9"/></svg><span class="rib-lg-lbl">Themes</span></div>
+</div><div class="rib-group-label">Themes<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-print-settings" data-tt="Margins" data-tt-desc="Select the margin sizes for the printed page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="3" width="24" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="8" width="14" height="16" fill="none" stroke="#217346" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="4" y1="8" x2="9" y2="8" stroke="#217346" stroke-width="1.5"/><line x1="4" y1="24" x2="9" y2="24" stroke="#217346" stroke-width="1.5"/><line x1="9" y1="3" x2="9" y2="8" stroke="#217346" stroke-width="1.5"/><line x1="23" y1="3" x2="23" y2="8" stroke="#217346" stroke-width="1.5"/></svg><span class="rib-lg-lbl">Margins</span></div>
+<div class="rib-lg" data-tt="Orientation" data-tt-desc="Switch the pages between portrait and landscape layouts."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="7" y="2" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="18" y="14" width="11" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"/><line x1="10" y1="8" x2="19" y2="8" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Orientation</span></div>
+<div class="rib-lg" data-tt="Size" data-tt-desc="Choose a paper size for the printed page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="5" y="2" width="18" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="9" y1="9" x2="19" y2="9" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="19" y2="14" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="19" x2="14" y2="19" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Size</span></div>
+<div class="rib-lg" id="rb-configure-rows-cols" data-tt="Print Area" data-tt-desc="Set or clear the print area."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/><rect x="6" y="6" width="20" height="20" rx="1" fill="#217346" opacity=".2" stroke="#217346" stroke-width="2"/></svg><span class="rib-lg-lbl">Print Area</span></div>
+</div><div class="rib-group-label">Page Setup<span class="rib-launcher">⬘</span></div></div>`,
+  formulas:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="Insert Function" data-tt-key="Shift+F3" data-tt-desc="Edit the formula in the current cell by choosing functions and editing arguments."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="6" y="24" font-size="22" font-family="Calibri,Arial" font-weight="700" fill="#217346">ƒx</text></svg><span class="rib-lg-lbl">Insert Function</span></div>
+</div><div class="rib-group-label">Function Library<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-sum" data-tt="AutoSum" data-tt-desc="Sum, Average, Count, Max, or Min of the selected cells."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="4" y="25" font-size="24" font-family="Calibri,Arial" font-weight="700" fill="#217346">Σ</text></svg><span class="rib-lg-lbl">AutoSum</span></div>
+<div class="rib-lg" id="rb-if-function" data-tt="Logical" data-tt-desc="Browse and insert Logical functions like IF, AND, OR, NOT."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="4" y="22" font-size="16" font-family="Calibri,Arial" fill="currentColor">IF</text><line x1="4" y1="26" x2="20" y2="26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Logical</span></div>
+<div class="rib-lg" id="rb-left-right-mid" data-tt="Text" data-tt-desc="Browse and insert Text functions like LEFT, RIGHT, MID, CONCAT, TEXTJOIN."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="4" y="22" font-size="14" font-family="Calibri,Arial" fill="currentColor">AΩ</text><line x1="4" y1="26" x2="24" y2="26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Text</span></div>
+<div class="rib-lg" id="rb-today-now" data-tt="Date & Time" data-tt-desc="Browse and insert Date & Time functions like TODAY, NOW, YEAR, MONTH, DAY."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="4" width="24" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="4" y1="11" x2="28" y2="11" stroke="currentColor" stroke-width="1.8"/><line x1="10" y1="2" x2="10" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="2" x2="22" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><text x="14" y="24" font-size="10" font-family="Calibri,Arial" fill="currentColor">15</text></svg><span class="rib-lg-lbl">Date &amp; Time</span></div>
+<div class="rib-lg" id="rb-vlookup" data-tt="Lookup & Reference" data-tt-desc="Browse and insert Lookup functions like VLOOKUP, XLOOKUP, INDEX, MATCH."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="22" height="24" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="11" x2="24" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="18" x2="24" y2="18" stroke="currentColor" stroke-width="1.5"/><polyline points="22,16 28,22 22,28" fill="none" stroke="#217346" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-lg-lbl">Lookup &amp; Reference</span></div>
+<div class="rib-lg" id="rb-min-max" data-tt="More Functions" data-tt-desc="Browse and insert Statistical, Math & Trig, and other functions."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="3" y="20" font-size="16" font-family="Calibri,Arial" fill="currentColor">⋯</text></svg><span class="rib-lg-lbl">More Functions</span></div>
+</div><div class="rib-group-label">Function Library<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-col">
+<div class="rib-sm" id="rb-name-ranges" data-tt="Name Manager" data-tt-key="Ctrl+F3" data-tt-desc="Create, edit, delete, and find all the names used in the workbook."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="3" width="14" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1"/><line x1="5" y1="3" x2="5" y2="13" stroke="currentColor" stroke-width="1"/></svg><span class="rib-sm-lbl">Name Manager</span></div>
+<div class="rib-sm" data-tt="Define Name" data-tt-desc="Name a cell or range of cells so you can refer to them in formulas by name."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="4" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="13" y1="4" x2="13" y2="12" stroke="#217346" stroke-width="1.6" stroke-linecap="round"/><line x1="11" y1="8" x2="15" y2="8" stroke="#217346" stroke-width="1.6" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Define Name</span></div>
+<div class="rib-sm" data-tt="Use in Formula" data-tt-desc="Choose a name used in this workbook and insert it into the current formula."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="7,5 10,8 7,11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><text x="11" y="11" font-size="5" fill="#217346">f</text></svg><span class="rib-sm-lbl">Use in Formula</span></div>
+</div></div><div class="rib-group-label">Defined Names<span class="rib-launcher">⬘</span></div></div>`,
+  data:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="From Text/CSV" data-tt-desc="Import data from a text or CSV file."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="2" width="16" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="18,18 26,18 26,30 18,30" fill="none" stroke="#217346" stroke-width="2"/><line x1="20" y1="22" x2="24" y2="22" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="26" x2="24" y2="26" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">From Text/CSV</span></div>
+<div class="rib-lg" data-tt="From Web" data-tt-desc="Import data from a web page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="16" cy="16" rx="6" ry="13" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="11" x2="29" y2="11" stroke="currentColor" stroke-width="1.3"/><line x1="3" y1="21" x2="29" y2="21" stroke="currentColor" stroke-width="1.3"/></svg><span class="rib-lg-lbl">From Web</span></div>
+</div><div class="rib-group-label">Get &amp; Transform Data<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-col">
+<div class="rib-sm" id="rb-filter-sort-table" data-tt="Sort A to Z" data-tt-desc="Sort the selection so that the lowest values are at the top of the column."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="9" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="8" x2="7" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="12" y1="2" x2="12" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="9,10 12,13 15,10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Sort A to Z</span></div>
+<div class="rib-sm" data-tt="Sort Z to A" data-tt-desc="Sort the selection so that the highest values are at the top of the column."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="5" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="8" x2="7" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="12" y1="2" x2="12" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="9,5 12,2 15,5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Sort Z to A</span></div>
+<div class="rib-sm" data-tt="Custom Sort" data-tt-desc="Sort data by multiple criteria at once."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="7" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="13" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Sort</span></div>
+</div></div><div class="rib-group-label">Sort &amp; Filter<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" id="rb-remove-duplicates" data-tt="Remove Duplicates" data-tt-desc="Remove duplicate rows from a sheet."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="22" height="24" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="4" width="22" height="24" rx="1" fill="none" stroke="currentColor" stroke-width="2" opacity=".4"/><line x1="6" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="21" x2="14" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="24" y1="22" x2="30" y2="28" stroke="#c42b1c" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="22" x2="24" y2="28" stroke="#c42b1c" stroke-width="2.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Remove Duplicates</span></div>
+</div><div class="rib-group-label">Data Tools<span class="rib-launcher">⬘</span></div></div>`,
+  review:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="Spelling" data-tt-key="F7" data-tt-desc="Check spelling in the sheet."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="4" y="20" font-size="18" font-family="Calibri,Arial" font-weight="700" fill="currentColor">AB</text><path d="M4 26 Q9 21 14 26 Q19 21 24 26" fill="none" stroke="#c42b1c" stroke-width="2.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Spelling</span></div>
+</div><div class="rib-group-label">Proofing<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="New Comment" data-tt-desc="Add a comment to the selected cell."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><path d="M4 4 h22 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H14 L8 28 8 22 H4 a2 2 0 0 1-2-2 V6 a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16" y1="9" x2="16" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">New Comment</span></div>
+</div><div class="rib-group-label">Comments<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="Protect Sheet" data-tt-desc="Prevent unwanted changes to data in a sheet by specifying what can be changed."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="8" y="14" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 14 V10 A6 6 0 0 1 22 10 V14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="21" r="2.5" fill="currentColor"/></svg><span class="rib-lg-lbl">Protect Sheet</span></div>
+<div class="rib-lg" id="rb-workbook-properties" data-tt="Protect Workbook" data-tt-desc="Lock the structure of the workbook to prevent changes to sheets."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="10" y="14" width="12" height="10" rx="1" fill="none" stroke="#217346" stroke-width="2"/><path d="M12 14 V11 A4 4 0 0 1 20 11 V14" fill="none" stroke="#217346" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Protect Workbook</span></div>
+</div><div class="rib-group-label">Protect<span class="rib-launcher">⬘</span></div></div>`,
+  view:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="Normal" data-tt-desc="View the document in Normal view."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="9" x2="30" y2="9" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="2" x2="8" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1"/><line x1="2" y1="23" x2="30" y2="23" stroke="currentColor" stroke-width="1"/><line x1="16" y1="2" x2="16" y2="30" stroke="currentColor" stroke-width="1"/><line x1="24" y1="2" x2="24" y2="30" stroke="currentColor" stroke-width="1"/></svg><span class="rib-lg-lbl">Normal</span></div>
+<div class="rib-lg" data-tt="Page Layout" data-tt-desc="View the document as it will appear on the printed page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="6" y="2" width="20" height="28" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="9" y1="8" x2="23" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="13" x2="23" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="18" x2="23" y2="18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="23" x2="19" y2="23" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Page Layout</span></div>
+<div class="rib-lg" data-tt="Page Break Preview" data-tt-desc="View where pages will break when this document is printed."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="16" x2="30" y2="16" stroke="#2b579a" stroke-width="2.5" stroke-dasharray="5,3"/></svg><span class="rib-lg-lbl">Page Break Preview</span></div>
+</div><div class="rib-group-label">Workbook Views<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-col">
+<div class="rib-sm" id="rb-freeze-panes" data-tt="Freeze Panes" data-tt-desc="Keep rows and columns visible while the rest of the worksheet scrolls."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="5" y1="1" x2="5" y2="15" stroke="#217346" stroke-width="1.8"/><line x1="1" y1="5" x2="15" y2="5" stroke="#217346" stroke-width="1.8"/></svg><span class="rib-sm-lbl">Freeze Panes</span><span class="rib-arr">▾</span></div>
+<div class="rib-sm" data-tt="Split" data-tt-desc="Split the window into multiple resizable panes."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="1" x2="8" y2="15" stroke="currentColor" stroke-width="1.5"/></svg><span class="rib-sm-lbl">Split</span></div>
+</div></div><div class="rib-group-label">Window<span class="rib-launcher">⬘</span></div></div>
+
+<div class="rib-group"><div class="rib-group-body">
+<div class="rib-col">
+<div class="rib-sm" id="rb-workbook-themes" data-tt="Ruler" data-tt-desc="Show or hide the ruler."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="5" width="14" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="4" y1="5" x2="4" y2="8" stroke="currentColor" stroke-width="1"/><line x1="7" y1="5" x2="7" y2="8" stroke="currentColor" stroke-width="1"/><line x1="10" y1="5" x2="10" y2="8" stroke="currentColor" stroke-width="1"/><line x1="13" y1="5" x2="13" y2="8" stroke="currentColor" stroke-width="1"/></svg><span class="rib-sm-lbl">Ruler</span></div>
+<div class="rib-sm" data-tt="Gridlines" data-tt-desc="Show or hide the gridlines between cells."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="5" y1="1" x2="5" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/><line x1="10" y1="1" x2="10" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/><line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/><line x1="1" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/></svg><span class="rib-sm-lbl">Gridlines</span></div>
+<div class="rib-sm" data-tt="Headings" data-tt-desc="Show or hide the row and column headings."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="3" height="14" rx="1" fill="#217346" opacity=".5"/><rect x="1" y="1" width="14" height="3" rx="1" fill="#217346" opacity=".5"/></svg><span class="rib-sm-lbl">Headings</span></div>
+</div></div><div class="rib-group-label">Show<span class="rib-launcher">⬘</span></div></div>`,
+  help:`<div class="rib-group"><div class="rib-group-body">
+<div class="rib-lg" data-tt="Help" data-tt-key="F1" data-tt-desc="Open the Help pane."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="22" font-size="18" font-family="Calibri,Arial" font-weight="700" fill="currentColor">?</text></svg><span class="rib-lg-lbl">Help</span></div>
+</div><div class="rib-group-label">Help<span class="rib-launcher">⬘</span></div></div>`,
+};
+
+const S={tab:'home',skill:null,done:new Set(),
+  marginPreset:'normal',orientation:'portrait',paperSize:'letter',
+  hdrL:'',hdrR:'',ftrC:'',pageNums:false,wm:'',wmVis:false,
+  docTitle:'',docAuthor:'',
+  accessChecked:false,savedPDF:false,shared:false,inspected:false,compatChecked:false,searched:false};
+
+const SKILLS=[
+  {id:'autofill',n:1,name:'Fill Cells Using AutoFill',
+   scenario:'The month column only has January and February filled in. Use AutoFill to complete the remaining 10 months.',
+   instr:'Use AutoFill to extend the month series from January through December.',
+   hint:'Select the cells containing January and February → hover over the bottom-right corner until you see the fill handle (+) → drag down to complete the series.',
+   tab:'home',btn:'',check:()=>S.done.has('autofill')},
+  {id:'insert-delete-cols-rows',n:2,name:'Insert and Delete Columns/Rows',
+   scenario:'Insert a new "Department" column between columns B and C, and delete the duplicate row 14.',
+   instr:'Insert a column between B and C, then delete row 14.',
+   hint:'Right-click column C header → Insert (column inserts to the left). To delete a row: right-click row 14 header → Delete.',
+   tab:'home',btn:'',check:()=>S.done.has('insert-delete-cols-rows')},
+  {id:'insert-delete-cells',n:3,name:'Insert and Delete Cells',
+   scenario:'Insert a cell in B5 and shift existing cells down to make room for missing data.',
+   instr:'Insert a cell at B5 and shift cells down.',
+   hint:'Right-click cell B5 → Insert → Shift cells down → OK.',
+   tab:'home',btn:'',check:()=>S.done.has('insert-delete-cells')},
+  {id:'format-cells',n:4,name:'Format Cells',
+   scenario:'Format the salary column as Currency with 2 decimal places and the date column as "MM/DD/YYYY".',
+   instr:'Apply Currency format to the salary column and Date format to the date column.',
+   hint:'Select the salary cells → Home tab → Number group → $ dropdown → Currency. Select date cells → Number group → Short Date.',
+   tab:'home',btn:'',check:()=>S.done.has('format-cells')},
+  {id:'merge-unmerge',n:5,name:'Merge and Unmerge Cells',
+   scenario:'Merge cells A1:F1 to create a centered title spanning all columns.',
+   instr:'Merge cells A1 through F1 and center the title.',
+   hint:'Select A1:F1 → Home tab → Alignment group → Merge & Center button.',
+   tab:'home',btn:'',check:()=>S.done.has('merge-unmerge')},
+  {id:'cell-alignment',n:6,name:'Modify Cell Alignment',
+   scenario:'Center the column headers horizontally and vertically, and right-align the numeric data columns.',
+   instr:'Center-align the header row and right-align the numeric columns.',
+   hint:'Select the header row → Home tab → Alignment group → Center (horizontal) and Middle Align (vertical). Select number columns → Align Right.',
+   tab:'home',btn:'',check:()=>S.done.has('cell-alignment')},
+  {id:'format-painter-xl',n:7,name:'Format Cells Using Format Painter',
+   scenario:'Copy the formatting from the styled header row and apply it to the totals row at the bottom.',
+   instr:'Use Format Painter to copy the header row formatting to the totals row.',
+   hint:'Click a formatted header cell → Home tab → Clipboard group → Format Painter → click the totals row.',
+   tab:'home',btn:'format-painter',check:()=>S.done.has('format-painter-xl')},
+  {id:'wrap-text-xl',n:8,name:'Wrap Text Within Cells',
+   scenario:'The long department names in column A are being cut off. Enable text wrapping.',
+   instr:'Enable text wrapping for column A so long text displays on multiple lines.',
+   hint:'Select column A cells → Home tab → Alignment group → Wrap Text button.',
+   tab:'home',btn:'',check:()=>S.done.has('wrap-text-xl')},
+  {id:'conditional-formatting',n:9,name:'Apply Conditional Formatting',
+   scenario:'Highlight all salary values above $75,000 in green and below $40,000 in red.',
+   instr:'Apply conditional formatting to highlight high and low salary values.',
+   hint:'Select the salary cells → Home tab → Styles group → Conditional Formatting → Highlight Cells Rules → Greater Than → enter 75000 → choose Green fill.',
+   tab:'home',btn:'',check:()=>S.done.has('conditional-formatting')},
+  {id:'name-ranges',n:10,name:'Name Cell Ranges',
+   scenario:'Name the range B2:B25 as "Salaries" so it can be used in formulas by name.',
+   instr:'Define the name "Salaries" for the range B2:B25.',
+   hint:'Select B2:B25 → click the Name Box (top-left, shows cell address) → type "Salaries" → press Enter.',
+   tab:'home',btn:'',check:()=>S.done.has('name-ranges')},
+];
+
+function switchTab(el,name){
+  S.tab=name;
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ribbon').innerHTML=TABS[name]||TABS.home;
+  hlBtn();closeAll();
+}
+function hlBtn(){
+  document.querySelectorAll('.rib-hl').forEach(e=>e.classList.remove('rib-hl'));
+  if(S.skill&&S.skill.btn){const e=document.getElementById('rb-'+S.skill.btn);if(e)e.classList.add('rib-hl');}
+}
+function renderSkills(){
+  const list=document.getElementById('sklist');list.innerHTML='';
+  SKILLS.forEach(sk=>{
+    const d=document.createElement('div');
+    d.className='ski'+(S.skill?.id===sk.id?' active':'')+(S.done.has(sk.id)?' done':'');
+    d.innerHTML=`<span class="sn">${sk.n}.</span><span style="flex:1">${sk.name}</span>${S.done.has(sk.id)?'<span class="sc">✓</span>':''}`;
+    d.onclick=()=>selectSkill(sk);list.appendChild(d);
+  });
+}
+function selectSkill(sk){
+  S.skill=sk;renderSkills();
+  if(sk.tab&&sk.tab!=='file'){
+    const te=document.querySelector(`.rtab[data-tab="${sk.tab}"]`);
+    if(te){document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));te.classList.add('active');
+      document.getElementById('ribbon').innerHTML=TABS[sk.tab]||TABS.home;S.tab=sk.tab;}
+  } else if(sk.tab==='file'){
+    // File-tab skills show a hint in the task panel — backstage opens when student clicks File
+    document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  }
+  hlBtn();
+  // Pulse the File tab if this is a file-based skill
+  document.querySelectorAll('.rtab').forEach(t=>t.style.fontWeight='');
+  if(sk.tab==='file'){
+    const ft=document.querySelector('.rtab[onclick="showBackstage()"]');
+    if(ft)ft.style.fontWeight='700';
+  }
+  document.getElementById('tscen').textContent=sk.scenario;
+  document.getElementById('tinstr').textContent=sk.instr;
+  const h=document.getElementById('thint');h.textContent=sk.hint;h.classList.remove('show');
+  document.getElementById('bhint').style.display='inline-block';
+  document.getElementById('bnext').style.display='none';
+  const fb=document.getElementById('tfb');fb.className='';fb.textContent='';
+  updProg();
+}
+function showHint(){document.getElementById('thint').classList.add('show');}
+function nextSkill(){const i=SKILLS.findIndex(s=>s.id===S.skill?.id);if(i<SKILLS.length-1)selectSkill(SKILLS[i+1]);}
+function updProg(){document.getElementById('pfill').style.width=(S.done.size/SKILLS.length*100)+'%';}
+
+function handleBtn(id){
+  switch(id){
+    case 'margins':toggleDD('dd-margins',document.getElementById('rb-margins'));break;
+    case 'orientation':toggleDD('dd-orient',document.getElementById('rb-orientation'));break;
+    case 'size':toggleDD('dd-size',document.getElementById('rb-size'));break;
+    case 'header':toggleDD('dd-header',document.getElementById('rb-header'));break;
+    case 'footer':toggleDD('dd-footer',document.getElementById('rb-footer'));break;
+    case 'page-number':toggleDD('dd-pagenum',document.getElementById('rb-page-number'));break;
+    case 'watermark':toggleDD('dd-watermark',document.getElementById('rb-watermark'));break;
+    case 'themes':toggleDD('dd-themes',document.getElementById('rb-themes'));break;
+    case 'breaks':toggleDD('dd-breaks',document.getElementById('rb-breaks'));break;
+    case 'columns':toggleDD('dd-columns',document.getElementById('rb-columns'));break;
+    case 'check-accessibility':S.accessChecked=true;showFb(true,'Accessibility Checker opened. No major issues found in this document. ✓');complete('check-accessibility');break;
+    case 'find':S.searched=true;showFb(true,'"DSC" found 8 times in the document. Navigation Pane is now open. ✓');complete('search-text');break;
+    case 'replace':showFb(true,'Find and Replace dialog opened.');break;
+    default:break;
+  }
+}
+
+function quickMargin(preset){
+  closeAll();S.marginPreset=preset;
+  const px={normal:96,narrow:48,moderate:72,wide:192,mirrored:120,office2003:120};
+  const pg=document.getElementById('docpage');
+  const p=px[preset]||96;pg.style.paddingLeft=pg.style.paddingRight=p+'px';
+  document.querySelectorAll('[id^="dc-"]').forEach(e=>e.textContent='');
+  const c=document.getElementById('dc-'+preset);if(c)c.textContent='✓';
+  showFb(true,preset.charAt(0).toUpperCase()+preset.slice(1)+' margins applied. ✓');complete('set-margins');
+}
+function applyMargins(){
+  const t=document.getElementById('m-top').value,l=document.getElementById('m-left').value;
+  S.marginPreset='custom';const pg=document.getElementById('docpage');
+  pg.style.padding=`${parseFloat(t)*96||96}px ${parseFloat(l)*96||96}px`;
+  closeDlg('dlg-margins');showFb(true,'Custom margins applied. ✓');complete('set-margins');
+}
+function setOrientation(val){
+  closeAll();S.orientation=val;
+  ['portrait','landscape'].forEach(v=>{const e=document.getElementById('dc-'+v);if(e)e.textContent=v===val?'✓':'';});
+  const pg=document.getElementById('docpage');
+  if(val==='landscape'){pg.style.width='1056px';pg.style.minHeight='816px';}
+  else{pg.style.width='816px';pg.style.minHeight='1056px';}
+  showFb(true,`Page orientation set to ${val.charAt(0).toUpperCase()+val.slice(1)}. ✓`);complete('set-orientation');
+}
+function setPaperSize(val){
+  closeAll();S.paperSize=val;
+  ['letter','legal','tabloid','a4','a3'].forEach(v=>{const e=document.getElementById('dc-'+v);if(e)e.textContent=v===val?'✓':'';});
+  showFb(true,`Paper size set to ${val.toUpperCase()}. ✓`);complete('set-paper-size');
+}
+function applyHdrFtr(){
+  const hl=document.getElementById('hdr-l').value,hr=document.getElementById('hdr-r').value,fc=document.getElementById('ftr-c').value;
+  S.hdrL=hl;S.hdrR=hr;S.ftrC=fc;
+  document.getElementById('doc-hdr-l').textContent=hl;
+  document.getElementById('doc-hdr-r').textContent=hr;
+  document.getElementById('doc-ftr').textContent=fc;
+  closeDlg('dlg-hf');
+  if(hl||hr){showFb(true,'Header applied to all pages. ✓');complete('insert-header');}
+  if(fc){showFb(true,'Footer applied to all pages. ✓');complete('insert-footer');}
+}
+function addPageNum(pos){
+  closeAll();S.pageNums=true;
+  const el=document.getElementById('doc-pnum');el.style.display='block';
+  el.style.cssText=pos==='top'?
+    'position:absolute;top:48px;right:96px;font-size:9pt;color:#333;display:block;font-family:Segoe UI,sans-serif':
+    'position:absolute;bottom:48px;right:96px;font-size:9pt;color:#333;display:block;font-family:Segoe UI,sans-serif';
+  showFb(true,'Page numbers inserted. ✓');complete('insert-page-numbers');
+}
+function removePageNum(){closeAll();S.pageNums=false;document.getElementById('doc-pnum').style.display='none';}
+function quickWatermark(text){
+  closeAll();S.wm=text;S.wmVis=true;
+  document.getElementById('doc-wmt').textContent=text.replace(/ [12]$/,'');
+  document.getElementById('doc-wm').classList.add('show');
+  showFb(true,`"${text.replace(/ [12]$/,'')}" watermark applied to all pages. ✓`);complete('add-watermark');
+}
+function applyWatermark(){quickWatermark(document.getElementById('wm-preset').value);closeDlg('dlg-wm');}
+function removeWatermark(){closeAll();S.wmVis=false;document.getElementById('doc-wm').classList.remove('show');}
+function presetHeader(){}; function presetFooter(){};
+function removeHeader(){closeAll();S.hdrL='';S.hdrR='';document.getElementById('doc-hdr-l').textContent='';document.getElementById('doc-hdr-r').textContent='';}
+function removeFooter(){closeAll();S.ftrC='';document.getElementById('doc-ftr').textContent='';}
+function openHeaderDlg(type){document.getElementById('dlg-hdr-title').textContent=type==='header'?'Edit Header':'Edit Footer';openDlg('dlg-hf');}
+function applyProps(){
+  S.docTitle=document.getElementById('p-title').value;
+  S.docAuthor=document.getElementById('p-author').value;
+  closeDlg('dlg-props');
+  if(S.docTitle&&S.docAuthor){showFb(true,`Properties saved. Title: "${S.docTitle}", Author: "${S.docAuthor}". ✓`);complete('modify-doc-properties');}
+  else showFb(false,'Please enter both a Title and Author.');
+}
+function doSaveAs(fmt){
+  closeAll();hideBackstage();
+  if(fmt==='pdf'){S.savedPDF=true;showFb(true,'Document saved as PDF. ✓');complete('save-as-format');}
+  else showFb(true,`Document saved as .${fmt}. ✓`);
+}
+function applyTheme(t){closeAll();showFb(true,`${t.charAt(0).toUpperCase()+t.slice(1)} theme applied. ✓`);}
+function showBackstage(){closeAll();document.getElementById('bs').classList.add('show');}
+function hideBackstage(){document.getElementById('bs').classList.remove('show');}
+function bsInfo(){openDlg('dlg-props');hideBackstage();}
+function bsSaveAs(){hideBackstage();const dd=document.getElementById('dd-saveas');dd.style.left='50%';dd.style.top='180px';dd.classList.add('show');}
+function bsExport(){hideBackstage();doSaveAs('pdf');}
+function bsShare(){hideBackstage();S.shared=true;showFb(true,'Document shared with colleague. ✓');complete('share-document');}
+function bsInspect(){hideBackstage();S.inspected=true;showFb(true,'Hidden properties and personal information removed. ✓');complete('remove-hidden-properties');}
+function bsCompat(){hideBackstage();S.compatChecked=true;showFb(true,'Compatibility check complete. No issues found with Word 97-2019. ✓');complete('check-compatibility');}
+
+function openDlg(id){document.getElementById(id).style.display='block';document.getElementById('ov').classList.add('show');}
+function closeDlg(id){document.getElementById(id).style.display='none';document.getElementById('ov').classList.remove('show');}
+function closeAll(){
+  document.querySelectorAll('.dlg').forEach(d=>d.style.display='none');
+  document.querySelectorAll('.dd').forEach(d=>d.classList.remove('show'));
+  document.getElementById('ov').classList.remove('show');
+}
+function toggleDD(id,anchor,x,y){
+  const dd=document.getElementById(id);const wasOpen=dd.classList.contains('show');
+  closeAll();
+  if(!wasOpen){
+    if(anchor){const r=anchor.getBoundingClientRect();dd.style.left=r.left+'px';dd.style.top=(r.bottom+2)+'px';}
+    else if(x!==undefined){dd.style.left=x+'px';dd.style.top=y+'px';}
+    dd.classList.add('show');
+  }
+}
+function showFb(ok,msg){
+  const el=document.getElementById('tfb');el.textContent=msg;el.className=ok?'ok':'err';
+  if(ok)document.getElementById('bnext').style.display='inline-block';
+}
+function complete(id){S.done.add(id);renderSkills();updProg();}
+
+// Screentips
+const STEL=document.getElementById('screentip');let TTT=null;
+document.addEventListener('mouseover',e=>{
+  const el=e.target.closest('[data-tt]');
+  if(el){clearTimeout(TTT);TTT=setTimeout(()=>{
+    document.getElementById('st-title').textContent=el.getAttribute('data-tt')||'';
+    const k=el.getAttribute('data-tt-key');
+    document.getElementById('st-key').textContent=k?'Keyboard shortcut: '+k:'';
+    document.getElementById('st-desc').textContent=el.getAttribute('data-tt-desc')||'';
+    STEL.style.left=Math.min(e.clientX+12,window.innerWidth-280)+'px';
+    STEL.style.top=(e.clientY+20)+'px';STEL.classList.add('show');
+  },500);}
+});
+document.addEventListener('mouseout',e=>{if(e.target.closest('[data-tt]')){clearTimeout(TTT);STEL.classList.remove('show');}});
+document.addEventListener('mousemove',e=>{
+  if(STEL.classList.contains('show')){
+    STEL.style.left=Math.min(e.clientX+12,window.innerWidth-280)+'px';
+    STEL.style.top=(e.clientY+20)+'px';}
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.dd')&&!e.target.closest('.rib-ic')&&!e.target.closest('.rib-lg')&&
+     !e.target.closest('.rib-sm')&&!e.target.closest('.rib-lg-split')&&!e.target.closest('.qat-b'))
+    document.querySelectorAll('.dd').forEach(d=>d.classList.remove('show'));
+});
+
+document.getElementById('ribbon').innerHTML=TABS['home']||TABS.home;
+renderSkills();selectSkill(SKILLS[0]);
+
+</script>
+</body>
+</html>

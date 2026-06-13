@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Word D2: Format Text & Paragraphs</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f0f0;height:100vh;
+  display:flex;flex-direction:column;overflow:hidden;user-select:none;color:#1f1f1f}
+
+/* ── TITLE BAR — white bg, red bottom border (Word's signature look) ── */
+#titlebar{
+  height:34px;background:#fff;border-bottom:2px solid #C42B1C;
+  display:flex;align-items:center;padding:0 6px;gap:4px;flex-shrink:0
+}
+.tb-wicon{width:20px;height:20px;flex-shrink:0}
+.tb-autosave{display:flex;align-items:center;gap:3px;font-size:11px;color:#444;padding:0 4px}
+.tb-toggle{width:30px;height:15px;background:#d0d0d0;border-radius:8px;position:relative;cursor:pointer;flex-shrink:0}
+.tb-toggle-knob{width:11px;height:11px;background:#888;border-radius:50%;position:absolute;top:2px;left:2px}
+.qat{display:flex;align-items:center;gap:1px;padding:0 2px}
+.qat-b{width:24px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;border:1px solid transparent}
+.qat-b:hover{background:#f0f0f0;border-color:#d8d8d8}
+.qat-sep{width:1px;height:14px;background:#d0d0d0;margin:0 2px}
+.qat-more{font-size:8px;color:#666;cursor:pointer;padding:3px 2px}
+.tb-docname{flex:1;text-align:center;font-size:12px;color:#333}
+.tb-search{
+  display:flex;align-items:center;gap:5px;background:#f5f5f5;
+  border:1px solid #d8d8d8;border-radius:20px;padding:4px 10px;
+  font-size:11px;color:#888;cursor:text;min-width:160px;margin-right:4px
+}
+.tb-search:hover{border-color:#bbb}
+.win-btn{width:42px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#555}
+.win-btn:hover{background:#f0f0f0}
+.win-btn.close:hover{background:#C42B1C;color:white}
+
+/* ── RIBBON TABS — no background, blue underline on active ── */
+#ribbon-tabs{
+  height:32px;background:#fff;border-bottom:1px solid #e0e0e0;
+  display:flex;align-items:flex-end;padding:0 2px;flex-shrink:0
+}
+.rtab{
+  padding:5px 12px 7px;font-size:12px;color:#444;cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;margin-bottom:-1px;
+  transition:color .1s
+}
+.rtab:hover{color:#2b579a}
+.rtab.active{color:#2b579a;border-bottom-color:#2b579a;font-weight:600}
+
+/* ── RIBBON BODY ── */
+#ribbon{
+  background:#fff;border-bottom:1px solid #e0e0e0;
+  min-height:90px;display:flex;align-items:stretch;
+  padding:2px 4px 0;overflow-x:auto;overflow-y:hidden;flex-shrink:0
+}
+
+/* Group */
+.rib-group{
+  display:flex;flex-direction:column;padding:2px 4px 0;
+  border-right:1px solid #e0e0e0;flex-shrink:0;min-width:fit-content
+}
+.rib-group:last-child{border-right:none}
+.rib-group-body{
+  display:flex;flex-direction:row;align-items:flex-start;
+  gap:2px;flex:1;align-items:flex-start
+}
+.rib-group-label{
+  font-size:9.5px;color:#666;text-align:center;padding:2px 0 4px;
+  white-space:nowrap;cursor:default;display:flex;align-items:center;
+  justify-content:center;gap:2px
+}
+.rib-group-label:hover{color:#2b579a}
+.rib-launcher{font-size:7px;color:#999}
+
+/* Layout helpers */
+.rib-row{display:flex;flex-direction:row;align-items:center;gap:1px;flex-shrink:0}
+.rib-col{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.rib-sep{width:1px;height:18px;background:#d8d8d8;margin:0 1px;align-self:center;flex-shrink:0}
+
+/* ── LARGE BUTTON (icon top + label bottom) ── */
+.rib-lg{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:3px 5px 2px;cursor:pointer;border-radius:3px;border:1px solid transparent;
+  min-width:46px;max-width:62px;min-height:66px;
+  transition:background .08s,border-color .08s
+}
+.rib-lg:hover{background:#E5F0FA;border-color:#C7DCF0}
+.rib-lg svg{flex-shrink:0}
+.rib-lg-lbl{font-size:9.5px;text-align:center;line-height:1.2;margin-top:2px;
+  white-space:normal;word-break:break-word;max-width:58px}
+
+/* ── LARGE SPLIT BUTTON ── */
+.rib-lg-split{display:flex;flex-direction:column;cursor:pointer;flex-shrink:0}
+.rib-lg-split-top{
+  display:flex;flex-direction:column;align-items:center;padding:3px 5px 1px;
+  border-radius:3px 3px 0 0;border:1px solid transparent;
+  transition:background .08s,border-color .08s;flex:1
+}
+.rib-lg-split-top:hover{background:#E5F0FA;border-color:#C7DCF0}
+.rib-lg-split-arr{
+  height:12px;display:flex;align-items:center;justify-content:center;
+  font-size:7px;color:#555;border:1px solid transparent;border-top:none;
+  border-radius:0 0 3px 3px;cursor:pointer;transition:background .08s
+}
+.rib-lg-split-arr:hover{background:#E5F0FA;border-color:#C7DCF0}
+
+/* ── ICON-ONLY COMPACT BUTTON ── */
+.rib-ic{
+  width:26px;height:22px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border-radius:3px;border:1px solid transparent;
+  transition:background .08s,border-color .08s;flex-shrink:0
+}
+.rib-ic:hover{background:#E5F0FA;border-color:#C7DCF0}
+.rib-ic.active{background:#CCE4F7;border-color:#2b579a}
+
+/* ── SMALL BUTTON (icon + label + arrow) — Editing group ── */
+.rib-sm{
+  display:flex;align-items:center;gap:3px;padding:2px 5px;cursor:pointer;
+  border-radius:3px;border:1px solid transparent;height:22px;
+  transition:background .08s,border-color .08s;white-space:nowrap;flex-shrink:0
+}
+.rib-sm:hover{background:#E5F0FA;border-color:#C7DCF0}
+.rib-sm svg{width:16px;height:16px;flex-shrink:0}
+.rib-sm-lbl{font-size:11px}
+.rib-arr{font-size:7px;color:#666;margin-left:2px}
+
+/* ── FONT NAME/SIZE BOXES ── */
+.rib-fontbox{
+  display:flex;align-items:center;background:#fff;border:1px solid #ababab;
+  border-radius:2px;padding:1px 4px;height:22px;cursor:text;font-size:12px;
+  gap:2px;flex-shrink:0
+}
+.rib-fontbox:hover{border-color:#2b579a}
+.rib-fontbox-txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rib-fontbox-arr{font-size:7px;color:#555;flex-shrink:0}
+
+/* ── STYLES GALLERY ── */
+.rib-styles-gal{display:flex;align-items:stretch;gap:2px;flex-shrink:0}
+.rib-style-item{
+  display:flex;align-items:center;justify-content:center;
+  width:74px;min-height:64px;border:1px solid #e0e0e0;border-radius:3px;
+  cursor:pointer;text-align:center;padding:4px 3px;
+  transition:border-color .1s,background .1s
+}
+.rib-style-item:hover{border-color:#2b579a;background:#f0f6fc}
+.rib-styles-arrows{
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:1px 0;flex-shrink:0
+}
+.rib-style-arr{
+  width:16px;height:20px;display:flex;align-items:center;justify-content:center;
+  border:1px solid #d0d0d0;border-radius:2px;font-size:8px;color:#555;
+  background:#f8f8f8;cursor:pointer
+}
+.rib-style-arr:hover{background:#E5F0FA;border-color:#2b579a}
+
+/* Highlight on current skill's button */
+.rib-hl{outline:2px solid #faa619;outline-offset:1px;animation:hlpulse 1.4s infinite}
+/* Arrange-style button: icon + text side by side, small */
+.rib-txt{
+  display:flex;align-items:center;gap:4px;padding:2px 6px;cursor:pointer;
+  border-radius:3px;border:1px solid transparent;height:20px;
+  transition:background .08s,border-color .08s;white-space:nowrap;font-size:11px
+}
+.rib-txt:hover{background:#E5F0FA;border-color:#C7DCF0}
+.rib-txt svg{width:14px;height:14px;flex-shrink:0}
+.rib-txt-dot{color:#999;font-size:9px;margin-left:1px}
+@keyframes hlpulse{0%,100%{outline-color:#faa619}50%{outline-color:#e05c00}}
+
+/* ── PROGRESS ── */
+#prog{height:2px;background:#e8e8e8;flex-shrink:0}
+#pfill{height:100%;background:#2b579a;transition:width .4s}
+
+/* ── MAIN LAYOUT ── */
+#main{flex:1;display:flex;overflow:hidden}
+
+/* Left panel */
+#lp{width:216px;background:#f3f2f1;border-right:1px solid #d8d8d8;display:flex;flex-direction:column;flex-shrink:0}
+#lp-tabs{display:flex;border-bottom:1px solid #d8d8d8;flex-shrink:0}
+.lpt{flex:1;padding:7px 4px;font-size:11px;text-align:center;cursor:pointer;color:#555;border-bottom:2px solid transparent}
+.lpt.active{color:#2b579a;border-bottom-color:#2b579a;font-weight:600}
+#sklist{flex:1;overflow-y:auto}
+.ski{padding:7px 10px;cursor:pointer;border-left:3px solid transparent;font-size:12px;display:flex;align-items:flex-start;gap:4px}
+.ski:hover{background:#e8e8e8}
+.ski.active{background:#daedfb;border-left-color:#2b579a;font-weight:600;color:#2b579a}
+.ski.done{color:#107c10}
+.ski .sn{font-size:10px;color:#999;min-width:18px;padding-top:1px;flex-shrink:0}
+.ski .sc{margin-left:auto;color:#107c10;font-size:11px;padding-top:1px;flex-shrink:0}
+#tp{background:white;border-top:2px solid #2b579a;padding:10px;flex-shrink:0;max-height:260px;overflow-y:auto}
+#tp h4{font-size:11px;font-weight:700;color:#2b579a;margin-bottom:5px}
+#tscen{font-size:10.5px;background:#f0f4ff;border-left:3px solid #2b579a;padding:6px 8px;margin-bottom:7px;color:#333;line-height:1.5;border-radius:0 3px 3px 0}
+#tinstr{font-size:12px;line-height:1.5;font-weight:500;margin-bottom:7px}
+#thint{font-size:11px;background:#fffbe6;border:1px solid #ffe58f;border-radius:3px;padding:6px 8px;color:#614700;line-height:1.45;display:none;margin-bottom:7px}
+#thint.show{display:block}
+.tb-row2{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.tbn{padding:4px 10px;border:1px solid #d0d0d0;border-radius:3px;font-size:11px;cursor:pointer;background:white}
+.tbn:hover{background:#f0f0f0}
+.tbn.prim{background:#2b579a;color:white;border-color:#2b579a}
+.tbn.prim:hover{background:#1e3f6f}
+#tfb{font-size:11.5px;padding:6px 8px;border-radius:3px;margin-top:6px;display:none;line-height:1.4}
+#tfb.ok{display:block;background:#dff6dd;color:#107c10;border:1px solid #9fd89f}
+#tfb.err{display:block;background:#fde7e9;color:#a4262c;border:1px solid #f1a8b0}
+
+/* Document area */
+#docarea{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#ruler{height:22px;background:#f3f3f3;border-bottom:1px solid #d8d8d8;display:flex;flex-shrink:0}
+.rulerm{height:100%;background:#C8C6C4;width:96px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#555;flex-shrink:0}
+.rulerc{flex:1;position:relative;display:flex;align-items:center;overflow:hidden}
+.ruler-line{position:absolute;left:0;right:0;height:1px;background:#bbb;top:50%}
+.ruler-ticks{display:flex;width:100%;position:absolute}
+.ruler-tick{flex:1;text-align:center;font-size:7.5px;color:#777}
+/* Ruler tab stops */
+.ruler-indent{position:absolute;font-size:8px;color:#444}
+#docscroll{flex:1;overflow:auto;background:#808080;padding:16px;display:flex;justify-content:center}
+#docpage{
+  background:white;width:816px;min-height:1056px;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);padding:96px;
+  flex-shrink:0;font-family:Calibri,sans-serif;font-size:11pt;line-height:1.5;position:relative
+}
+#doc-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .3s;z-index:0}
+#doc-wm.show{opacity:.1}
+#doc-wm span{font-size:100px;font-weight:900;color:#888;transform:rotate(-45deg);white-space:nowrap}
+#doc-hdr{border-bottom:1px dashed #bbb;min-height:18px;margin-bottom:12px;padding-bottom:6px;display:flex;justify-content:space-between;font-size:9pt;color:#666;font-family:'Segoe UI',sans-serif}
+#doc-ftr{border-top:1px dashed #bbb;min-height:18px;margin-top:20px;padding-top:5px;font-size:9pt;color:#666;text-align:center;font-family:'Segoe UI',sans-serif}
+.dh1{font-size:22pt;font-weight:700;text-align:center;margin-bottom:8pt;color:#000}
+.dh2{font-size:13pt;text-align:center;margin-bottom:4pt;color:#444}
+.dh3{font-size:10pt;text-align:center;color:#666;margin-bottom:32pt}
+.dsect{font-size:13pt;font-weight:700;color:#2F5496;margin:14pt 0 3pt}
+.dbody{font-size:11pt;margin-bottom:8pt;text-align:justify;line-height:1.6;color:#000}
+.pnum-el{position:absolute;font-size:9pt;color:#333;display:none;font-family:'Segoe UI',sans-serif}
+
+/* Status bar */
+#sb{height:22px;background:#2b579a;display:flex;align-items:center;padding:0 8px;gap:12px;flex-shrink:0;font-size:11px;color:rgba(255,255,255,.9)}
+.sbi{padding:0 3px;cursor:default}.sbi:hover{background:rgba(255,255,255,.1);border-radius:2px}
+#sbr{margin-left:auto;display:flex;align-items:center;gap:6px}
+.vbtn{width:20px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:2px;opacity:.7}
+.vbtn:hover,.vbtn.active{background:rgba(255,255,255,.2);opacity:1}
+.vbtn svg{width:12px;height:12px;fill:white}
+
+/* Screentip */
+#screentip{position:fixed;z-index:9999;display:none;pointer-events:none;max-width:270px}
+#screentip.show{display:block}
+.st-box{background:#1f1f1f;color:white;border-radius:4px;padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.st-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.st-key{font-size:10px;color:#90c8ff;margin-bottom:4px}
+.st-desc{font-size:11px;color:#ccc;line-height:1.45}
+
+/* Overlay */
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:100;display:none}
+#ov.show{display:block}
+
+/* Dialogs */
+.dlg{position:fixed;z-index:101;background:white;border:1px solid #bbb;box-shadow:0 8px 28px rgba(0,0,0,.22);border-radius:3px;min-width:380px}
+.dlg-hdr{background:#2b579a;color:white;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border-radius:3px 3px 0 0}
+.dlg-hdr h3{font-size:13px;font-weight:600}
+.dlg-x{cursor:pointer;font-size:16px;opacity:.8}.dlg-x:hover{opacity:1}
+.dlg-body{padding:16px}.dlg-foot{padding:10px 16px;border-top:1px solid #e5e5e5;display:flex;justify-content:flex-end;gap:6px}
+.dbtn{padding:5px 16px;border:1px solid #bbb;border-radius:2px;font-size:12px;cursor:pointer;background:white}
+.dbtn:hover{background:#f0f0f0}
+.dbtn.p{background:#2b579a;color:white;border-color:#2b579a}.dbtn.p:hover{background:#1e3f6f}
+.fr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fl{font-size:12px;color:#333;min-width:72px}
+.fi{flex:1;padding:4px 7px;border:1px solid #bbb;border-radius:2px;font-size:12px}
+.fi:focus{outline:none;border-color:#2b579a;box-shadow:0 0 0 2px rgba(43,87,154,.18)}
+.fsel{flex:1;padding:4px 7px;border:1px solid #bbb;border-radius:2px;font-size:12px;background:white}
+.fsect{background:#f3f2f1;border:1px solid #ddd;border-radius:3px;padding:10px;margin-bottom:10px}
+.fsect-t{font-size:11px;font-weight:700;color:#2b579a;margin-bottom:8px}
+
+/* Dropdowns */
+.dd{position:fixed;z-index:500;background:white;border:1px solid #bbb;box-shadow:0 4px 12px rgba(0,0,0,.15);border-radius:3px;min-width:200px;padding:4px 0;display:none}
+.dd.show{display:block}
+.ddi{padding:5px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;color:#1f1f1f}
+.ddi:hover{background:#E5F0FA}
+.ddc{width:16px;font-size:11px;color:#2b579a;flex-shrink:0}
+.ddsep{height:1px;background:#e5e5e5;margin:3px 0}
+.ddh{padding:3px 14px;font-size:9.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px}
+
+/* Backstage */
+#bs{position:fixed;inset:0;z-index:200;display:none;flex-direction:row}
+#bs.show{display:flex}
+#bs-nav{width:200px;background:#2b579a;padding:8px 0;flex-shrink:0}
+.bsi{padding:10px 16px;color:rgba(255,255,255,.85);font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.bsi:hover,.bsi.on{background:rgba(255,255,255,.12);color:white}
+#bs-content{flex:1;background:#f3f2f1;padding:28px;overflow-y:auto}
+#bs-close{position:absolute;top:8px;left:208px;color:white;font-size:18px;cursor:pointer;z-index:201;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+#bs-close:hover{background:rgba(255,255,255,.15)}
+</style>
+</head>
+<body>
+
+<!-- Title Bar: white bg, red bottom border, AutoSave, QAT, doc name, search, win controls -->
+<div id="titlebar">
+  <svg class="tb-wicon" viewBox="0 0 20 20"><rect width="20" height="20" rx="3" fill="#2b579a"/><text x="3.5" y="16" font-size="14" font-family="Segoe UI" font-weight="900" fill="white">W</text></svg>
+  <div class="tb-autosave">
+    AutoSave
+    <div class="tb-toggle"><div class="tb-toggle-knob"></div></div>
+    Off
+  </div>
+  <div class="qat">
+    <div class="qat-b" data-tt="Save" data-tt-key="Ctrl+S" data-tt-desc="Save the document to its current location."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><rect x="2" y="2" width="12" height="12" rx="1" fill="none" stroke="#555" stroke-width="1.4"/>
+<rect x="5" y="2" width="6" height="5" fill="#888"/><rect x="6.5" y="2.5" width="3" height="3" fill="white"/>
+<rect x="3" y="8" width="10" height="5" fill="#aaa"/></svg></div>
+    <div class="qat-b" data-tt="Undo" data-tt-key="Ctrl+Z" data-tt-desc="Undo the last action."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><path d="M4 10 A5 5 0 0 1 14 10" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round"/>
+<polyline points="2,7 4,11 7,8" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="qat-b" data-tt="Redo" data-tt-key="Ctrl+Y" data-tt-desc="Redo the last undone action."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><path d="M12 10 A5 5 0 0 0 2 10" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round"/>
+<polyline points="14,7 12,11 9,8" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="qat-sep"></div>
+    <div class="qat-b" data-tt="Quick Print" data-tt-desc="Send the document directly to the default printer."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><rect x="3" y="1" width="10" height="5" rx="1" fill="none" stroke="#555" stroke-width="1.3"/>
+<rect x="1" y="5" width="14" height="7" rx="1" fill="none" stroke="#555" stroke-width="1.3"/>
+<rect x="4" y="10" width="8" height="5" rx="1" fill="none" stroke="#555" stroke-width="1.3"/>
+<circle cx="12" cy="8" r="1" fill="#555"/></svg></div>
+    <div class="qat-sep"></div>
+    <div class="qat-b" data-tt="AutoSave" data-tt-desc="When on, changes are automatically saved to the cloud."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block"><path d="M4 10 A3 3 0 0 1 4 4 A4 4 0 0 1 13 5 A3 3 0 0 1 13 10 Z" fill="none" stroke="#555" stroke-width="1.3"/>
+<line x1="8" y1="12" x2="8" y2="8" stroke="#555" stroke-width="1.3" stroke-linecap="round"/>
+<polyline points="5,10 8,13 11,10" fill="none" stroke="#555" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="qat-more" data-tt="Customize Quick Access Toolbar" data-tt-desc="Add or remove buttons from the Quick Access Toolbar.">▾</div>
+  </div>
+  <div class="tb-docname">Annual Business Report 2026 — Desert Sun Consulting.docx &nbsp;•&nbsp; Saved to this PC ∨</div>
+  <div class="tb-search">🔍 Search</div>
+  <div class="win-btn" title="Minimize">─</div>
+  <div class="win-btn" title="Restore">❐</div>
+  <div class="win-btn close" title="Close">✕</div>
+</div>
+
+<!-- Progress -->
+<div id="prog"><div id="pfill" style="width:0%"></div></div>
+
+<!-- Ribbon Tabs: no background, blue underline on active -->
+<div id="ribbon-tabs">
+  <div class="rtab" onclick="showBackstage()">File</div>
+  <div class="rtab active" data-tab="home" onclick="switchTab(this,'home')">Home</div>
+  <div class="rtab" data-tab="insert" onclick="switchTab(this,'insert')">Insert</div>
+  <div class="rtab" data-tab="design" onclick="switchTab(this,'design')">Design</div>
+  <div class="rtab" data-tab="layout" onclick="switchTab(this,'layout')">Layout</div>
+  <div class="rtab" data-tab="references" onclick="switchTab(this,'references')">References</div>
+  <div class="rtab" data-tab="mailings" onclick="switchTab(this,'mailings')">Mailings</div>
+  <div class="rtab" data-tab="review" onclick="switchTab(this,'review')">Review</div>
+  <div class="rtab" data-tab="view" onclick="switchTab(this,'view')">View</div>
+  <div class="rtab" data-tab="help" onclick="switchTab(this,'help')">Help</div>
+</div>
+
+<!-- Ribbon content area -->
+<div id="ribbon"></div>
+
+<!-- Main layout -->
+<div id="main">
+  <!-- Left panel: skill list + task -->
+  <div id="lp">
+    <div id="lp-tabs">
+      <div class="lpt active">Skills</div>
+      <div class="lpt">Navigation</div>
+    </div>
+    <div id="sklist"></div>
+    <div id="tp">
+      <h4>📋 Current Task</h4>
+      <div id="tscen"></div>
+      <div id="tinstr">Select a skill from the list above to begin.</div>
+      <div id="thint"></div>
+      <div class="tb-row2">
+        <button class="tbn" id="bhint" onclick="showHint()" style="display:none">💡 Hint</button>
+        <button class="tbn prim" id="bnext" onclick="nextSkill()" style="display:none">Next →</button>
+      </div>
+      <div id="tfb"></div>
+    </div>
+  </div>
+
+  <!-- Document area -->
+  <div id="docarea">
+    <div id="ruler">
+      <div class="rulerm" id="rl-left">1"</div>
+      <div class="rulerc">
+        <div class="ruler-line"></div>
+        <div class="ruler-ticks">
+          <span class="ruler-tick">1</span><span class="ruler-tick">2</span><span class="ruler-tick">3</span><span class="ruler-tick">4</span><span class="ruler-tick">5</span><span class="ruler-tick">6</span><span class="ruler-tick">7</span><span class="ruler-tick">8</span>
+        </div>
+      </div>
+      <div class="rulerm" id="rl-right">1"</div>
+    </div>
+    <div id="docscroll">
+      <div id="docpage">
+        <div id="doc-wm"><span id="doc-wmt">DRAFT</span></div>
+        <div id="doc-hdr"><span id="doc-hdr-l"></span><span id="doc-hdr-r"></span></div>
+        <div class="dh1">Annual Business Report 2026</div>
+        <div class="dh2">Desert Sun Consulting</div>
+        <div class="dh3">Las Vegas, Nevada</div>
+        <div class="dsect">Executive Summary</div>
+        <div class="dbody">Desert Sun Consulting is pleased to present its Annual Business Report for fiscal year 2026. This report summarizes our financial performance, client growth, strategic initiatives, and organizational developments over the past twelve months. DSC delivered exceptional results in 2026, achieving record revenue of $4.2 million — a 23% increase over the prior year.</div>
+        <div class="dsect">Financial Summary</div>
+        <div class="dbody">Total revenue for fiscal year 2026 reached $4,200,000, representing a 23% increase over the prior year. Operating expenses were managed effectively at $2,725,000, resulting in a net profit of $1,475,000. These results reflect the strong demand for management consulting services in the Nevada market and our team's dedication to delivering exceptional client value.</div>
+        <div class="dsect">Client Portfolio</div>
+        <div class="dbody">During 2026, DSC expanded its client portfolio from 18 to 26 active engagements across the hospitality, real estate, technology, and healthcare sectors. Notable new clients include Nevada Valley Bank, Desert Medical Group, and the Las Vegas Convention Authority.</div>
+        <div class="dsect">Strategic Objectives</div>
+        <div class="dbody">The following five strategic objectives guided DSC operations in 2026: (1) Expand client base in the Nevada technology sector, (2) Launch sustainability consulting service line, (3) Achieve $4 million in annual revenue, (4) Hire 8 additional consultants by Q3, (5) Open second office location in Henderson, Nevada.</div>
+        <div id="doc-ftr"></div>
+        <div class="pnum-el" id="doc-pnum">1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div id="sb">
+  <div class="sbi">Page <span>1</span> of 3</div>
+  <div class="sbi">Words: 1,247</div>
+  <div class="sbi">🌐 English (United States)</div>
+  <div id="sbr">
+    <div class="vbtn active" title="Print Layout"><svg width="12" height="12" viewBox="0 0 16 16" style="fill:white;display:block"><rect x="3" y="1" width="10" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="5" y1="5" x2="11" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="5" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="vbtn" title="Web Layout"><svg width="12" height="12" viewBox="0 0 16 16" style="fill:white;display:block"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.2"/>
+<circle cx="3.5" cy="3" r="1" fill="currentColor"/><circle cx="6.5" cy="3" r="1" fill="currentColor"/>
+<line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="3" y1="11" x2="10" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="vbtn" title="Read Mode"><svg width="12" height="12" viewBox="0 0 16 16" style="fill:white;display:block"><rect x="1" y="2" width="14" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1"/>
+<line x1="3" y1="6" x2="6" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="3" y1="9" x2="6" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="10" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="10" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <span style="color:white;font-size:11px">100%</span>
+    <div style="width:80px;height:3px;background:rgba(255,255,255,.3);border-radius:2px;position:relative;cursor:pointer;margin:0 4px">
+      <div style="width:11px;height:11px;background:white;border-radius:50%;position:absolute;top:-4px;left:calc(100% - 11px);box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Screentip -->
+<div id="screentip"><div class="st-box"><div class="st-title" id="st-title"></div><div class="st-key" id="st-key"></div><div class="st-desc" id="st-desc"></div></div></div>
+
+
+<div class="dd" id="dd-margins">
+  <div class="ddh">Preset Margins</div>
+  <div class="ddi" onclick="quickMargin('normal')"><span class="ddc" id="dc-normal">✓</span><div><div style="font-weight:600;font-size:12px">Normal</div><div style="font-size:10px;color:#666">Top: 1"  Left: 1"  Bottom: 1"  Right: 1"</div></div></div>
+  <div class="ddi" onclick="quickMargin('narrow')"><span class="ddc" id="dc-narrow"></span><div><div style="font-weight:600;font-size:12px">Narrow</div><div style="font-size:10px;color:#666">Top: 0.5"  Left: 0.5"  Bottom: 0.5"  Right: 0.5"</div></div></div>
+  <div class="ddi" onclick="quickMargin('moderate')"><span class="ddc" id="dc-moderate"></span><div><div style="font-weight:600;font-size:12px">Moderate</div><div style="font-size:10px;color:#666">Top: 1"  Left: 0.75"  Bottom: 1"  Right: 0.75"</div></div></div>
+  <div class="ddi" onclick="quickMargin('wide')"><span class="ddc" id="dc-wide"></span><div><div style="font-weight:600;font-size:12px">Wide</div><div style="font-size:10px;color:#666">Top: 1"  Left: 2"  Bottom: 1"  Right: 2"</div></div></div>
+  <div class="ddi" onclick="quickMargin('mirrored')"><span class="ddc" id="dc-mirrored"></span><div><div style="font-weight:600;font-size:12px">Mirrored</div><div style="font-size:10px;color:#666">Top: 1"  Inside: 1.25"  Outside: 1"</div></div></div>
+  <div class="ddi" onclick="quickMargin('office2003')"><span class="ddc" id="dc-office2003"></span><div><div style="font-weight:600;font-size:12px">Office 2003 Default</div><div style="font-size:10px;color:#666">Top: 1"  Left: 1.25"  Bottom: 1"  Right: 1.25"</div></div></div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="openDlg('dlg-margins')"><span class="ddc"></span>Custom Margins...</div>
+</div>
+<div class="dd" id="dd-orient">
+  <div class="ddi" onclick="setOrientation('portrait')"><span class="ddc" id="dc-portrait">✓</span>Portrait</div>
+  <div class="ddi" onclick="setOrientation('landscape')"><span class="ddc" id="dc-landscape"></span>Landscape</div>
+</div>
+<div class="dd" id="dd-size">
+  <div class="ddi" onclick="setPaperSize('letter')"><span class="ddc" id="dc-letter">✓</span><div><div style="font-weight:600;font-size:12px">Letter</div><div style="font-size:10px;color:#666">8.5" × 11"</div></div></div>
+  <div class="ddi" onclick="setPaperSize('legal')"><span class="ddc" id="dc-legal"></span><div><div style="font-weight:600;font-size:12px">Legal</div><div style="font-size:10px;color:#666">8.5" × 14"</div></div></div>
+  <div class="ddi" onclick="setPaperSize('tabloid')"><span class="ddc" id="dc-tabloid"></span><div><div style="font-weight:600;font-size:12px">Tabloid</div><div style="font-size:10px;color:#666">11" × 17"</div></div></div>
+  <div class="ddi" onclick="setPaperSize('a4')"><span class="ddc" id="dc-a4"></span><div><div style="font-weight:600;font-size:12px">A4</div><div style="font-size:10px;color:#666">8.27" × 11.69"</div></div></div>
+</div>
+<div class="dd" id="dd-watermark" style="min-width:260px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px">
+    <div onclick="quickWatermark('CONFIDENTIAL 1')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:9px;font-weight:700;color:#aaa;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span style="transform:rotate(-30deg);display:block">CONFIDENTIAL</span></div>
+    <div onclick="quickWatermark('CONFIDENTIAL 2')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:9px;font-weight:700;color:#ccc;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span>CONFIDENTIAL</span></div>
+    <div onclick="quickWatermark('DRAFT 1')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:14px;font-weight:700;color:#aaa;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span style="transform:rotate(-30deg);display:block">DRAFT</span></div>
+    <div onclick="quickWatermark('DRAFT 2')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:14px;font-weight:700;color:#ccc;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span>DRAFT</span></div>
+    <div onclick="quickWatermark('DO NOT COPY')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:8px;font-weight:700;color:#aaa;font-family:serif;text-align:center" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span style="transform:rotate(-30deg);display:block">DO NOT COPY</span></div>
+    <div onclick="quickWatermark('SAMPLE')" style="border:1px solid #ddd;border-radius:3px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:12px;font-weight:700;color:#aaa;font-family:serif" onmouseover="this.style.background='#f0f8ff'" onmouseout="this.style.background=''"><span>SAMPLE</span></div>
+  </div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="openDlg('dlg-wm')"><span class="ddc"></span>Custom Watermark...</div>
+  <div class="ddi" onclick="removeWatermark()"><span class="ddc"></span>Remove Watermark</div>
+</div>
+<div class="dd" id="dd-header">
+  <div class="ddh">Built-In</div>
+  <div class="ddi" onclick="openHeaderDlg('header')"><span class="ddc"></span>✏️ Edit Header...</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="presetHeader('blank')"><span class="ddc"></span>Blank</div>
+  <div class="ddi" onclick="presetHeader('blank3')"><span class="ddc"></span>Blank (Three Columns)</div>
+  <div class="ddi" onclick="presetHeader('alphabet')"><span class="ddc"></span>Alphabet</div>
+  <div class="ddi" onclick="presetHeader('austin')"><span class="ddc"></span>Austin</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="removeHeader()"><span class="ddc"></span>Remove Header</div>
+</div>
+<div class="dd" id="dd-footer">
+  <div class="ddh">Built-In</div>
+  <div class="ddi" onclick="openHeaderDlg('footer')"><span class="ddc"></span>✏️ Edit Footer...</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="presetFooter('blank')"><span class="ddc"></span>Blank</div>
+  <div class="ddi" onclick="presetFooter('blank3')"><span class="ddc"></span>Blank (Three Columns)</div>
+  <div class="ddi" onclick="presetFooter('austin')"><span class="ddc"></span>Austin</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="removeFooter()"><span class="ddc"></span>Remove Footer</div>
+</div>
+<div class="dd" id="dd-pagenum">
+  <div class="ddi" onclick="addPageNum('top')">📄 Top of Page ▶</div>
+  <div class="ddi" onclick="addPageNum('bottom')">📄 Bottom of Page ▶</div>
+  <div class="ddi">📄 Page Margins ▶</div>
+  <div class="ddi">📄 Current Position ▶</div>
+  <div class="ddsep"></div>
+  <div class="ddi" onclick="removePageNum()">Remove Page Numbers</div>
+</div>
+<div class="dd" id="dd-themes" style="min-width:220px">
+  <div class="ddh">Office Themes</div>
+  <div class="ddi" onclick="applyTheme('office')"><span style="display:inline-block;width:14px;height:14px;background:linear-gradient(135deg,#2b579a,#70aee8);border-radius:2px;margin-right:6px"></span>Office</div>
+  <div class="ddi" onclick="applyTheme('office2013')"><span style="display:inline-block;width:14px;height:14px;background:linear-gradient(135deg,#4472C4,#9DC3E6);border-radius:2px;margin-right:6px"></span>Office 2013–2022 Theme</div>
+  <div class="ddi" onclick="applyTheme('colorful')"><span style="display:inline-block;width:14px;height:14px;background:linear-gradient(135deg,#D64937,#F4A460);border-radius:2px;margin-right:6px"></span>Colorful</div>
+  <div class="ddi" onclick="applyTheme('dark')"><span style="display:inline-block;width:14px;height:14px;background:#555;border-radius:2px;margin-right:6px"></span>Dark Gray</div>
+  <div class="ddi" onclick="applyTheme('black')"><span style="display:inline-block;width:14px;height:14px;background:#111;border-radius:2px;margin-right:6px"></span>Black</div>
+  <div class="ddi" onclick="applyTheme('white')"><span style="display:inline-block;width:14px;height:14px;background:white;border:1px solid #ddd;border-radius:2px;margin-right:6px"></span>White</div>
+</div>
+<div class="dd" id="dd-breaks" style="min-width:240px">
+  <div class="ddh">Page Breaks</div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Page</div><div style="font-size:10px;color:#666">Mark the point at which one page ends and the next begins.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Column</div><div style="font-size:10px;color:#666">Text following the break will begin in the next column.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Text Wrapping</div><div style="font-size:10px;color:#666">Separate text around objects on web pages.</div></div></div>
+  <div class="ddh">Section Breaks</div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Next Page</div><div style="font-size:10px;color:#666">Insert a section break and start the new section on the next page.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Continuous</div><div style="font-size:10px;color:#666">Insert a section break on the same page.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Even Page</div><div style="font-size:10px;color:#666">Start the new section on the next even-numbered page.</div></div></div>
+  <div class="ddi"><span class="ddc"></span><div><div style="font-size:12px;font-weight:600">Odd Page</div><div style="font-size:10px;color:#666">Start the new section on the next odd-numbered page.</div></div></div>
+</div>
+<div class="dd" id="dd-columns">
+  <div class="ddi"><span class="ddc" id="dc-col1">✓</span>One</div>
+  <div class="ddi"><span class="ddc" id="dc-col2"></span>Two</div>
+  <div class="ddi"><span class="ddc" id="dc-col3"></span>Three</div>
+  <div class="ddi"><span class="ddc"></span>Left</div>
+  <div class="ddi"><span class="ddc"></span>Right</div>
+  <div class="ddsep"></div>
+  <div class="ddi"><span class="ddc"></span>More Columns...</div>
+</div>
+<div class="dd" id="dd-saveas">
+  <div class="ddh">Save As Format</div>
+  <div class="ddi" onclick="doSaveAs('docx')"><span class="ddc"></span>Word Document (.docx)</div>
+  <div class="ddi" onclick="doSaveAs('doc')"><span class="ddc"></span>Word 97-2003 (.doc)</div>
+  <div class="ddi" onclick="doSaveAs('pdf')"><span class="ddc"></span>PDF (*.pdf)</div>
+  <div class="ddi" onclick="doSaveAs('odt')"><span class="ddc"></span>OpenDocument Text (.odt)</div>
+  <div class="ddi" onclick="doSaveAs('txt')"><span class="ddc"></span>Plain Text (.txt)</div>
+</div>
+
+
+<div id="ov" onclick="closeAll()"></div>
+<div class="dlg" id="dlg-margins" style="display:none;top:110px;left:50%;transform:translateX(-50%)">
+  <div class="dlg-hdr"><h3>Page Setup</h3><span class="dlg-x" onclick="closeDlg('dlg-margins')">✕</span></div>
+  <div class="dlg-body">
+    <div class="fsect"><div class="fsect-t">Margins</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fr"><label class="fl">Top:</label><input class="fi" id="m-top" value='1"' style="width:60px"></div>
+        <div class="fr"><label class="fl">Bottom:</label><input class="fi" id="m-bot" value='1"' style="width:60px"></div>
+        <div class="fr"><label class="fl">Left:</label><input class="fi" id="m-left" value='1"' style="width:60px"></div>
+        <div class="fr"><label class="fl">Right:</label><input class="fi" id="m-right" value='1"' style="width:60px"></div>
+      </div>
+    </div>
+    <div class="fsect"><div class="fsect-t">Orientation</div>
+      <div style="display:flex;gap:16px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="radio" name="orient" value="portrait" checked> Portrait</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="radio" name="orient" value="landscape"> Landscape</label>
+      </div>
+    </div>
+    <div class="fr"><label class="fl">Apply to:</label><select class="fsel"><option>Whole document</option><option>This section</option></select></div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-margins')">Cancel</button><button class="dbtn p" onclick="applyMargins()">OK</button></div>
+</div>
+<div class="dlg" id="dlg-props" style="display:none;top:110px;left:50%;transform:translateX(-50%)">
+  <div class="dlg-hdr"><h3>Document Properties</h3><span class="dlg-x" onclick="closeDlg('dlg-props')">✕</span></div>
+  <div class="dlg-body">
+    <div class="fr"><label class="fl">Title:</label><input class="fi" id="p-title" placeholder="Enter document title"></div>
+    <div class="fr"><label class="fl">Subject:</label><input class="fi" id="p-subject" placeholder="Enter subject"></div>
+    <div class="fr"><label class="fl">Author:</label><input class="fi" id="p-author" placeholder="Enter author name"></div>
+    <div class="fr"><label class="fl">Company:</label><input class="fi" id="p-company" placeholder="Enter company name"></div>
+    <div class="fr"><label class="fl">Keywords:</label><input class="fi" id="p-keywords" placeholder="Enter keywords"></div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-props')">Cancel</button><button class="dbtn p" onclick="applyProps()">OK</button></div>
+</div>
+<div class="dlg" id="dlg-wm" style="display:none;top:110px;left:50%;transform:translateX(-50%)">
+  <div class="dlg-hdr"><h3>Printed Watermark</h3><span class="dlg-x" onclick="closeDlg('dlg-wm')">✕</span></div>
+  <div class="dlg-body">
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px"><input type="radio" name="wm" value="none"> No watermark</label>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px"><input type="radio" name="wm" value="text" checked> Text watermark</label>
+    <div style="padding-left:20px">
+      <div class="fr"><label class="fl">Text:</label><select class="fsel" id="wm-preset"><option>DRAFT</option><option>CONFIDENTIAL</option><option>DO NOT COPY</option><option>SAMPLE</option><option>URGENT</option></select></div>
+      <div class="fr"><label class="fl">Font:</label><select class="fsel"><option>Calibri</option><option>Times New Roman</option><option>Arial</option></select></div>
+      <div class="fr"><label class="fl">Color:</label><select class="fsel"><option>Automatic</option><option>Gray</option><option>Light Blue</option><option>Red</option></select></div>
+      <div class="fr"><label class="fl">Layout:</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="radio" name="wml" value="diagonal" checked> Diagonal</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;margin-left:10px"><input type="radio" name="wml" value="horizontal"> Horizontal</label>
+      </div>
+    </div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-wm')">Cancel</button><button class="dbtn p" onclick="applyWatermark()">Apply</button></div>
+</div>
+<div class="dlg" id="dlg-hf" style="display:none;top:110px;left:50%;transform:translateX(-50%);min-width:480px">
+  <div class="dlg-hdr"><h3 id="dlg-hdr-title">Edit Header</h3><span class="dlg-x" onclick="closeDlg('dlg-hf')">✕</span></div>
+  <div class="dlg-body">
+    <div style="font-size:11px;color:#666;margin-bottom:10px">Content appears on every page. Tab between left, center, and right sections.</div>
+    <div style="border:1px solid #bbb;border-radius:3px;padding:8px;margin-bottom:10px">
+      <div style="font-size:10px;color:#888;margin-bottom:6px;text-align:center">— Header —</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        <input class="fi" id="hdr-l" placeholder="Left section">
+        <input class="fi" id="hdr-c" placeholder="Center section" style="text-align:center">
+        <input class="fi" id="hdr-r" placeholder="Right section" style="text-align:right">
+      </div>
+    </div>
+    <div style="border:1px solid #bbb;border-radius:3px;padding:8px">
+      <div style="font-size:10px;color:#888;margin-bottom:6px;text-align:center">— Footer —</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        <input class="fi" id="ftr-l" placeholder="Left section">
+        <input class="fi" id="ftr-c" placeholder="Center section" style="text-align:center">
+        <input class="fi" id="ftr-r" placeholder="Right section" style="text-align:right">
+      </div>
+    </div>
+  </div>
+  <div class="dlg-foot"><button class="dbtn" onclick="closeDlg('dlg-hf')">Cancel</button><button class="dbtn p" onclick="applyHdrFtr()">OK</button></div>
+</div>
+
+
+<div id="bs">
+  <div id="bs-nav">
+    <div class="bsi" style="font-size:14px;padding:12px 16px" onclick="hideBackstage()">← Back</div>
+    <div style="height:1px;background:rgba(255,255,255,.2);margin:4px 0"></div>
+    <div class="bsi on">🏠 Home</div>
+    <div class="bsi">📄 New</div>
+    <div class="bsi">📂 Open</div>
+    <div class="bsi" onclick="bsInfo()">ℹ️ Info</div>
+    <div class="bsi">💾 Save</div>
+    <div class="bsi" onclick="bsSaveAs()">📋 Save As</div>
+    <div class="bsi">📜 Print</div>
+    <div class="bsi" onclick="bsShare()">↗️ Share</div>
+    <div class="bsi" onclick="bsExport()">📤 Export</div>
+    <div class="bsi">🔒 Account</div>
+    <div class="bsi">⚙️ Options</div>
+  </div>
+  <div id="bs-content">
+    <h2 style="font-size:22px;font-weight:300;margin-bottom:20px;color:#2b579a">Info</h2>
+    <div style="font-size:13px;color:#333;margin-bottom:4px;font-weight:600">Annual Business Report 2026 — Desert Sun Consulting.docx</div>
+    <div style="font-size:11px;color:#666;margin-bottom:20px">Desktop › IS101 Projects</div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="dbtn p" onclick="bsShare()">↗ Share</button>
+      <button class="dbtn" onclick="bsInfo()">ℹ Edit Properties</button>
+      <button class="dbtn" onclick="bsInspect()">🔍 Check for Issues ▾</button>
+      <button class="dbtn" onclick="bsCompat()">⚠ Check Compatibility</button>
+      <button class="dbtn" onclick="bsExport()">📕 Export as PDF</button>
+    </div>
+    <div style="background:white;border:1px solid #e0e0e0;border-radius:4px;padding:16px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#333">Properties</div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:5px;font-size:12px">
+        <span style="color:#666">Size</span><span>42.8 KB</span>
+        <span style="color:#666">Pages</span><span>3</span>
+        <span style="color:#666">Words</span><span>1,247</span>
+        <span style="color:#666">Total Editing Time</span><span>24 min</span>
+        <span style="color:#666">Title</span><span id="bs-title" style="color:#2b579a;cursor:pointer" onclick="bsInfo()">Add a title</span>
+        <span style="color:#666">Tags</span><span style="color:#2b579a;cursor:pointer">Add a tag</span>
+        <span style="color:#666">Last Modified</span><span>Today, 7:21 PM</span>
+        <span style="color:#666">Created</span><span>6/11/2026, 6:00 AM</span>
+        <span style="color:#666">Last Modified By</span><span>Dr. Mark Taormino</span>
+        <span style="color:#666">Author</span><span>Dr. Mark Taormino</span>
+      </div>
+    </div>
+  </div>
+  <span id="bs-close" onclick="hideBackstage()">✕</span>
+</div>
+
+
+<script>
+const TABS={
+  home:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg-split" id="rb-paste" data-tt="Paste" data-tt-key="" data-tt-desc="Paste the contents of the Clipboard.">
+  <div class="rib-lg-split-top" ><svg width="28" height="28" viewBox="0 0 26 26" style="display:block;flex-shrink:0"><rect x="7" y="7" width="12" height="16" rx="1" fill="#c0d8f0" stroke="#4472C4" stroke-width="1"/>
+<rect x="11" y="4" width="7" height="5" rx="1" fill="#4472C4"/>
+<rect x="4" y="1" width="13" height="16" rx="1" fill="white" stroke="#666" stroke-width="1"/>
+<rect x="8" y="4" width="8" height="4" rx="1" fill="#ccc"/>
+<line x1="7" y1="9" x2="16" y2="9" stroke="#aaa" stroke-width="1" stroke-linecap="round"/>
+<line x1="7" y1="12" x2="16" y2="12" stroke="#aaa" stroke-width="1" stroke-linecap="round"/>
+<line x1="7" y1="15" x2="13" y2="15" stroke="#aaa" stroke-width="1" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Paste</span></div>
+  <div class="rib-lg-split-arr" >▾</div>
+</div><div class="rib-col"><div class="rib-sm" id="rb-cut" onclick="handleBtn('cut')" data-tt="Cut" data-tt-key="Ctrl+X" data-tt-desc="Remove the selection and put it on the Clipboard."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="4" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="4" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="12" y1="2" x2="8" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Cut</span><span class="rib-arr">▾</span></div><div class="rib-sm" id="rb-copy" onclick="handleBtn('copy')" data-tt="Copy" data-tt-key="Ctrl+C" data-tt-desc="Copy the selection and put it on the Clipboard."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="5" y="5" width="9" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<rect x="2" y="2" width="9" height="10" rx="1" fill="white" stroke="currentColor" stroke-width="1.4"/></svg><span class="rib-sm-lbl">Copy</span><span class="rib-arr">▾</span></div><div class="rib-sm" id="rb-format-painter" onclick="handleBtn('format-painter')" data-tt="Format Painter" data-tt-key="Ctrl+Shift+C" data-tt-desc="Copy formatting from one place and apply it to another."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="2" width="7" height="5" rx="1" fill="currentColor" opacity=".75"/>
+<rect x="1" y="9" width="7" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<path d="M8 4.5 L13 4.5 L13 8 L11 8 L11 15" fill="none" stroke="#faa619" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Format Painter</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Clipboard<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-row"><div class="rib-fontbox" style="width:168px" data-tt="Font" data-tt-key="" data-tt-desc="Change the font face of the selected text."><span class="rib-fontbox-txt">Aptos (Body)</span><span class="rib-fontbox-arr">▾</span></div><div class="rib-fontbox" style="width:42px" data-tt="Font Size" data-tt-key="" data-tt-desc="Change the font size."><span class="rib-fontbox-txt">12</span><span class="rib-fontbox-arr">▾</span></div><div class="rib-ic"   data-tt="Increase Font Size" data-tt-key="Ctrl+Shift+>" data-tt-desc="Increase the font size."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="10" font-size="9" font-family="Calibri,Arial" font-weight="700" fill="currentColor">A</text>
+<text x="9" y="10" font-size="6" font-family="Calibri,Arial" fill="currentColor">A</text>
+<polygon points="12,1 15,5 9,5" fill="currentColor"/></svg></div><div class="rib-ic"   data-tt="Decrease Font Size" data-tt-key="Ctrl+Shift+<" data-tt-desc="Decrease the font size."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="10" font-size="9" font-family="Calibri,Arial" font-weight="700" fill="currentColor">A</text>
+<text x="9" y="10" font-size="6" font-family="Calibri,Arial" fill="currentColor">A</text>
+<polygon points="9,2 15,2 12,6" fill="currentColor"/></svg></div><div class="rib-ic"   data-tt="Change Case" data-tt-key="" data-tt-desc="Change capitalization of the selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="8" font-family="Calibri,Arial" fill="currentColor">Aa</text>
+<path d="M12 9 L15 12 L12 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Clear All Formatting" data-tt-key="" data-tt-desc="Clear all formatting from the selection, leaving only plain text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="10" font-size="8" font-family="Calibri,Arial" fill="currentColor">A</text>
+<line x1="10" y1="5" x2="15" y2="11" stroke="#c42b1c" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="15" y1="5" x2="10" y2="11" stroke="#c42b1c" stroke-width="1.8" stroke-linecap="round"/></svg></div></div><div class="rib-row"><div class="rib-ic"   data-tt="Bold" data-tt-key="Ctrl+B" data-tt-desc="Make the selected text bold."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M4 2h5.5a3 3 0 0 1 0 6H4zm0 6h6a3.5 3.5 0 0 1 0 7H4z" fill="currentColor"/></svg></div><div class="rib-ic"   data-tt="Italic" data-tt-key="Ctrl+I" data-tt-desc="Italicize the selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="7" y1="2" x2="12" y2="2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="4" y1="14" x2="9" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="10" y1="2" x2="6" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Underline" data-tt-key="Ctrl+U" data-tt-desc="Underline the selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M3 2v6a5 5 0 0 0 10 0V2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="1" y1="15" x2="15" y2="15" stroke="#2b579a" stroke-width="2.2" stroke-linecap="round"/></svg></div><div class="rib-sep"></div><div class="rib-ic"   data-tt="Strikethrough" data-tt-key="" data-tt-desc="Draw a line through the middle of the selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M4 5a4 3.5 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+<path d="M4 11a4 3.5 0 0 0 8 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Subscript" data-tt-key="Ctrl+=" data-tt-desc="Create small letters below the text baseline."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="10" font-size="7" font-family="Calibri,Arial" font-weight="700" fill="currentColor">x</text>
+<text x="8" y="14" font-size="6" font-family="Calibri,Arial" fill="currentColor">2</text></svg></div><div class="rib-ic"   data-tt="Superscript" data-tt-key="Ctrl+Shift+=" data-tt-desc="Create small letters above the line of text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="7" font-family="Calibri,Arial" font-weight="700" fill="currentColor">x</text>
+<text x="8" y="7" font-size="6" font-family="Calibri,Arial" fill="currentColor">2</text></svg></div><div class="rib-sep"></div><div class="rib-ic"   data-tt="Text Effects and Typography" data-tt-key="" data-tt-desc="Apply visual effects to selected text, such as shadow, glow, or reflection."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="12" font-size="11" font-family="Georgia,serif" font-weight="700" fill="url(#teg)">A</text>
+<defs><linearGradient id="teg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2b579a"/><stop offset="100%" stop-color="#70aee8"/></linearGradient></defs></svg></div><div class="rib-ic"   data-tt="Text Highlight Color" data-tt-key="" data-tt-desc="Make text look like it was marked with a highlighter pen."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M11 1L15 5 7 13 3 14 4 10z" fill="#FFD700" stroke="#B8860B" stroke-width=".8"/>
+<path d="M3 14L4 10 7 13z" fill="#ddd"/>
+<line x1="1" y1="15" x2="15" y2="15" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Font Color" data-tt-key="" data-tt-desc="Change the color of the text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="10" font-family="Calibri,Arial" font-weight="700" fill="currentColor">A</text>
+<rect x="1" y="12.5" width="12" height="2.5" rx=".8" fill="#ED3E3E"/></svg></div></div></div></div><div class="rib-group-label">Font<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-row"><div class="rib-ic"   data-tt="Bullets" data-tt-key="" data-tt-desc="Start a bulleted list."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="3" cy="4" r="1.5" fill="currentColor"/>
+<line x1="6" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="3" cy="8" r="1.5" fill="currentColor"/>
+<line x1="6" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="3" cy="12" r="1.5" fill="currentColor"/>
+<line x1="6" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Numbering" data-tt-key="" data-tt-desc="Start a numbered list."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="5" font-size="4" fill="currentColor">1.</text>
+<line x1="6" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<text x="1" y="9" font-size="4" fill="currentColor">2.</text>
+<line x1="6" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<text x="1" y="13" font-size="4" fill="currentColor">3.</text>
+<line x1="6" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Multilevel List" data-tt-key="" data-tt-desc="Start a multilevel list."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="2" cy="3" r="1.2" fill="currentColor"/>
+<line x1="5" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+<circle cx="4" cy="7" r="1.2" fill="currentColor" opacity=".7"/>
+<line x1="7" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+<circle cx="6" cy="11" r="1.2" fill="currentColor" opacity=".5"/>
+<line x1="9" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="rib-sep"></div><div class="rib-ic"   data-tt="Decrease Indent" data-tt-key="Shift+Tab" data-tt-desc="Decrease the indent level of the paragraph."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="7,3 3,7 7,11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="9" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="9" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="9" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Increase Indent" data-tt-key="Tab" data-tt-desc="Increase the indent level of the paragraph."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="2,3 6,7 2,11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="8" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="8" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="8" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="rib-sep"></div><div class="rib-ic"   data-tt="Sort" data-tt-key="" data-tt-desc="Alphabetize the selected text or sort numerical data."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="9" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1" y1="8" x2="7" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="12" y1="2" x2="12" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<polyline points="9,10 12,13 15,10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="rib-ic"   data-tt="Show/Hide ¶" data-tt-key="Ctrl+*" data-tt-desc="Show paragraph marks and other hidden formatting symbols."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M8 2h4a1 1 0 0 1 0 8H8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+<line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+<line x1="11" y1="2" x2="11" y2="6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div></div><div class="rib-row"><div class="rib-ic"   data-tt="Align Left" data-tt-key="Ctrl+L" data-tt-desc="Align the text to the left."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="12" x2="10" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Center" data-tt-key="Ctrl+E" data-tt-desc="Center the text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="4" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="4" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Align Right" data-tt-key="Ctrl+R" data-tt-desc="Align the text to the right."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="5" y1="6" x2="15" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="5" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="rib-ic"   data-tt="Justify" data-tt-key="Ctrl+J" data-tt-desc="Align the text to both the left and right margins."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="6" x2="15" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1" y1="12" x2="10" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="rib-sep"></div><div class="rib-ic"   data-tt="Line and Paragraph Spacing" data-tt-key="" data-tt-desc="Choose how much space appears between lines of text and above or below paragraphs."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="5" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="5" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="5" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+<polyline points="1,5 1,1 3,3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="1,9 1,13 3,11" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="rib-sep"></div><div class="rib-ic"   data-tt="Shading" data-tt-key="" data-tt-desc="Color the background behind the selected text or paragraph."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="9" rx="1" fill="#BBDEFB"/>
+<rect x="1" y="11" width="14" height="4" rx="1" fill="#1976D2"/></svg></div><div class="rib-ic"   data-tt="Borders" data-tt-key="" data-tt-desc="Customize the borders of the selected cells, paragraphs, or pages."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="1" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/>
+<line x1="1" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/>
+<line x1="5.5" y1="1" x2="5.5" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/>
+<line x1="10" y1="1" x2="10" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1"/></svg></div></div></div></div><div class="rib-group-label">Paragraph<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-styles-gal">
+<div class="rib-style-item"  data-tt="Normal" data-tt-desc="Apply the Normal style to selected text."><span style="font-size:12px;color:#000;font-family:Calibri,sans-serif">Normal</span></div><div class="rib-style-item"  data-tt="No Spacing" data-tt-desc="Apply the No Spacing style to selected text."><span style="font-size:12px;color:#000;font-family:Calibri,sans-serif;line-height:1">No Spacing</span></div><div class="rib-style-item" id="rb-heading1" data-tt="Heading 1" data-tt-desc="Apply the Heading 1 style to selected text."><span style="font-size:14px;font-weight:700;color:#2F5496;font-family:Calibri,sans-serif">Heading 1</span></div><div class="rib-style-item"  data-tt="Heading 2" data-tt-desc="Apply the Heading 2 style to selected text."><span style="font-size:13px;font-weight:700;color:#2E74B5;font-family:Calibri,sans-serif">Heading 2</span></div><div class="rib-style-item"  data-tt="Title" data-tt-desc="Apply the Title style to selected text."><span style="font-size:14px;font-weight:700;letter-spacing:.5px;font-family:Calibri,sans-serif">Title</span></div><div class="rib-style-item"  data-tt="Subtitle" data-tt-desc="Apply the Subtitle style to selected text."><span style="font-size:11px;color:#595959;font-style:italic;font-family:Calibri,sans-serif">Subtitle</span></div>
+<div class="rib-styles-arrows">
+  <div class="rib-style-arr">▲</div>
+  <div class="rib-style-arr">▼</div>
+  <div class="rib-style-arr" style="font-size:9px" data-tt="More Styles" data-tt-desc="Show the full Styles gallery.">⊞</div>
+</div>
+</div></div><div class="rib-group-label">Styles<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm" id="rb-find" onclick="handleBtn("find")" data-tt="Find" data-tt-key="Ctrl+F" data-tt-desc="Find text in the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Find</span><span class="rib-arr">▾</span></div><div class="rib-sm" id="rb-replace" onclick="handleBtn("replace")" data-tt="Replace" data-tt-key="Ctrl+H" data-tt-desc="Replace text in the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="5" cy="5.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<circle cx="11" cy="10.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<path d="M7 3.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+<path d="M5 12.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Replace</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Select" data-tt-key="" data-tt-desc="Select text or objects in the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M3 2L3 13 7 10 9 14 11 13 9 9 13 9Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Select</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Editing<span class="rib-launcher">⬘</span></div></div>`,
+  insert:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Cover Page" data-tt-key="" data-tt-desc="Insert a fully formatted cover page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="2" width="22" height="27" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="4" y="2" width="22" height="10" rx="1" fill="#2b579a" opacity=".7"/>
+<line x1="8" y1="16" x2="22" y2="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="8" y1="20" x2="22" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+<line x1="8" y1="24" x2="16" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/></svg><span class="rib-lg-lbl">Cover Page</span></div><div class="rib-lg"   data-tt="Blank Page" data-tt-key="" data-tt-desc="Insert a blank page at the cursor position."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="6" y="2" width="20" height="27" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<path d="M18 2 L18 10 L26 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="rib-lg-lbl">Blank Page</span></div><div class="rib-lg"   data-tt="Page Break" data-tt-key="Ctrl+Enter" data-tt-desc="Start the next page at the current position."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="2" width="22" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="4" y1="17" x2="26" y2="17" stroke="currentColor" stroke-width="2.5" stroke-dasharray="5,3"/>
+<rect x="4" y="20" width="22" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<polyline points="12,8 16,12 20,8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-lg-lbl">Page Break</span></div></div><div class="rib-group-label">Pages<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-table" onclick="handleBtn('table')" data-tt="Table" data-tt-key="" data-tt-desc="Insert a table into the document."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="2" y1="10" x2="30" y2="10" stroke="currentColor" stroke-width="2"/>
+<line x1="11" y1="10" x2="11" y2="30" stroke="currentColor" stroke-width="1.5"/>
+<line x1="21" y1="10" x2="21" y2="30" stroke="currentColor" stroke-width="1.5"/>
+<line x1="2" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/>
+<rect x="2" y="2" width="28" height="8" rx="2" fill="#BBDEFB"/></svg><span class="rib-lg-lbl">Table</span></div></div><div class="rib-group-label">Tables<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-pictures" onclick="handleBtn('pictures')" data-tt="Pictures" data-tt-key="" data-tt-desc="Insert a picture from your device or online."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="27" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+<circle cx="9" cy="11" r="3" fill="currentColor" opacity=".5"/>
+<path d="M2 22 L10 14 L16 19 L21 13 L29 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="rib-lg-lbl">Pictures</span></div><div class="rib-lg" id="rb-shapes" onclick="handleBtn('shapes')" data-tt="Shapes" data-tt-key="" data-tt-desc="Insert ready-made shapes such as circles, squares, and arrows."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="14" width="10" height="13" rx="1" fill="#2b579a" opacity=".7"/>
+<circle cx="23" cy="21" r="6" fill="#107c10" opacity=".7"/>
+<polygon points="16,2 28,10 4,10" fill="#faa619" opacity=".85"/></svg><span class="rib-lg-lbl">Shapes</span></div><div class="rib-lg" id="rb-icons" onclick="handleBtn('icons')" data-tt="Icons" data-tt-key="" data-tt-desc="Insert a scalable icon from the library."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="10" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="17" y="10" width="12" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="14" y1="4" x2="14" y2="28" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2" opacity=".4"/></svg><span class="rib-lg-lbl">Icons</span></div><div class="rib-lg" id="rb-3dmodels" onclick="handleBtn('3dmodels')" data-tt="3D Models" data-tt-key="" data-tt-desc="Insert a 3D model."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><polygon points="16,2 28,9 28,22 16,29 4,22 4,9" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="16" y1="2" x2="16" y2="29" stroke="currentColor" stroke-width="1" stroke-dasharray="3,2" opacity=".5"/>
+<line x1="4" y1="9" x2="16" y2="15" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+<line x1="28" y1="9" x2="16" y2="15" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+<line x1="16" y1="15" x2="16" y2="29" stroke="currentColor" stroke-width="1.5" opacity=".6"/></svg><span class="rib-lg-lbl">3D Models</span></div><div class="rib-lg" id="rb-smartart" onclick="handleBtn('smartart')" data-tt="SmartArt" data-tt-key="" data-tt-desc="Insert a SmartArt graphic to visually communicate information."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="11" width="12" height="9" rx="2" fill="#2b579a"/>
+<rect x="18" y="4" width="12" height="9" rx="2" fill="#2b579a" opacity=".8"/>
+<rect x="18" y="17" width="12" height="9" rx="2" fill="#2b579a" opacity=".8"/>
+<line x1="14" y1="15" x2="18" y2="8" stroke="#2b579a" stroke-width="2"/>
+<line x1="14" y1="16" x2="18" y2="21" stroke="#2b579a" stroke-width="2"/></svg><span class="rib-lg-lbl">SmartArt</span></div><div class="rib-lg" id="rb-chart" onclick="handleBtn('chart')" data-tt="Chart" data-tt-key="" data-tt-desc="Insert a chart to illustrate and compare data."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="22" width="6" height="8" fill="#2b579a" opacity=".8"/>
+<rect x="11" y="14" width="6" height="16" fill="#2b579a"/>
+<rect x="20" y="6" width="6" height="24" fill="#2b579a" opacity=".8"/>
+<line x1="2" y1="30" x2="30" y2="30" stroke="currentColor" stroke-width="2"/>
+<line x1="2" y1="2" x2="2" y2="30" stroke="currentColor" stroke-width="2"/></svg><span class="rib-lg-lbl">Chart</span></div><div class="rib-lg" id="rb-screenshot" onclick="handleBtn('screenshot')" data-tt="Screenshot" data-tt-key="" data-tt-desc="Insert a screenshot of any open window."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="22" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="10" y="14" width="18" height="14" rx="1" fill="white" stroke="currentColor" stroke-width="2"/>
+<circle cx="19" cy="21" r="3.5" fill="#2b579a" opacity=".5"/></svg><span class="rib-lg-lbl">Screenshot</span></div></div><div class="rib-group-label">Illustrations<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-new-comment" onclick="handleBtn('new-comment')" data-tt="New Comment" data-tt-key="" data-tt-desc="Add a comment about the selected text."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><path d="M4 4 h22 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H14 L8 28 8 22 H4 a2 2 0 0 1-2-2 V6 a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="16" y1="9" x2="16" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<line x1="12" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Comment</span></div></div><div class="rib-group-label">Comments<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg-split" id="rb-header" data-tt="Header" data-tt-key="" data-tt-desc="Edit the header — content at the top of every page.">
+  <div class="rib-lg-split-top" ><svg width="28" height="28" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="5" rx="1" fill="#BBDEFB" stroke="#1976D2" stroke-width="1"/>
+<line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="1" y1="10.5" x2="15" y2="10.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="1" y1="13" x2="10" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Header</span></div>
+  <div class="rib-lg-split-arr" onclick="toggleDD("dd-header",this)">▾</div>
+</div><div class="rib-lg-split" id="rb-footer" data-tt="Footer" data-tt-key="" data-tt-desc="Edit the footer — content at the bottom of every page.">
+  <div class="rib-lg-split-top" ><svg width="28" height="28" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="1" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="1" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+<rect x="1" y="10" width="14" height="5" rx="1" fill="#BBDEFB" stroke="#1976D2" stroke-width="1"/></svg><span class="rib-lg-lbl">Footer</span></div>
+  <div class="rib-lg-split-arr" onclick="toggleDD("dd-footer",this)">▾</div>
+</div><div class="rib-lg-split" id="rb-page-number" data-tt="Page Number" data-tt-key="" data-tt-desc="Insert page numbers into the document.">
+  <div class="rib-lg-split-top" ><svg width="28" height="28" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="2" y="1" width="12" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="2" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1"/>
+<text x="5" y="12" font-size="7" font-family="Calibri,Arial" fill="currentColor">#</text></svg><span class="rib-lg-lbl">Page Number</span></div>
+  <div class="rib-lg-split-arr" onclick="toggleDD("dd-pagenum",this)">▾</div>
+</div></div><div class="rib-group-label">Header & Footer<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-textbox" onclick="handleBtn('textbox')" data-tt="Text Box" data-tt-key="" data-tt-desc="Insert a preformatted text box."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="3" y="5" width="24" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4,2"/>
+<line x1="8" y1="13" x2="22" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="8" y1="18" x2="18" y2="18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="8" y1="8" x2="8" y2="22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Text Box</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Quick Parts" data-tt-key="" data-tt-desc="Insert reusable pieces of content."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="5" rx="1" fill="#c0d8f0" stroke="#2b579a" stroke-width="1"/><rect x="1" y="8" width="6" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="8" width="6" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="rib-sm-lbl">Quick Parts</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="WordArt" data-tt-key="" data-tt-desc="Insert decorative text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="3" y="13" font-size="12" font-family="Georgia,serif" font-weight="700" fill="#2b579a" style="text-shadow:1px 1px 2px rgba(0,0,0,.3)">A</text></svg><span class="rib-sm-lbl">WordArt</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Drop Cap" data-tt-key="" data-tt-desc="Create a large capital letter at the beginning of a paragraph."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="14" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#2b579a">D</text><line x1="9" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="9" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Drop Cap</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Signature Line" data-tt-key="" data-tt-desc="Insert a signature line."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M2 10 Q5 5 7 9 Q9 13 12 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Signature Line</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Date & Time" data-tt-key="" data-tt-desc="Insert the current date and time."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="2" width="14" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="1" y1="6" x2="15" y2="6" stroke="currentColor" stroke-width="1.3"/><line x1="5" y1="1" x2="5" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="1" x2="11" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="9" x2="9" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="9" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Date & Time</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Object" data-tt-key="" data-tt-desc="Insert an embedded object."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span class="rib-sm-lbl">Object</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Text<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-equation" onclick="handleBtn('equation')" data-tt="Equation" data-tt-key="Alt+=" data-tt-desc="Insert a mathematical equation."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="4" y="22" font-size="20" font-family="Cambria Math,Georgia,serif" fill="currentColor">∑</text>
+<text x="16" y="16" font-size="12" font-family="Calibri,Arial" fill="currentColor">x²</text></svg><span class="rib-lg-lbl">Equation</span></div><div class="rib-lg" id="rb-symbol" onclick="handleBtn('symbol')" data-tt="Symbol" data-tt-key="" data-tt-desc="Insert symbols not on your keyboard."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="5" y="24" font-size="22" font-family="Symbol,serif" fill="currentColor">Ω</text></svg><span class="rib-lg-lbl">Symbol</span></div></div><div class="rib-group-label">Symbols<span class="rib-launcher">⬘</span></div></div>`,
+  design:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-themes" onclick="toggleDD('dd-themes',this)" data-tt="Themes" data-tt-key="" data-tt-desc="Change the overall design of the document."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="10" cy="10" r="8" fill="#2b579a" opacity=".9"/>
+<circle cx="20" cy="10" r="8" fill="#107c10" opacity=".9"/>
+<circle cx="10" cy="20" r="8" fill="#c42b1c" opacity=".9"/>
+<circle cx="20" cy="20" r="8" fill="#faa619" opacity=".9"/></svg><span class="rib-lg-lbl">Themes</span></div><div class="rib-styles-gal">
+<div class="rib-style-item"  data-tt="Normal" data-tt-desc="Apply the Normal style to selected text."><span style="font-size:12px;color:#000;font-family:Calibri,sans-serif">Normal</span></div><div class="rib-style-item"  data-tt="No Spacing" data-tt-desc="Apply the No Spacing style to selected text."><span style="font-size:12px;color:#000;font-family:Calibri,sans-serif;line-height:1">No Spacing</span></div><div class="rib-style-item" id="rb-heading1" data-tt="Heading 1" data-tt-desc="Apply the Heading 1 style to selected text."><span style="font-size:14px;font-weight:700;color:#2F5496;font-family:Calibri,sans-serif">Heading 1</span></div><div class="rib-style-item"  data-tt="Heading 2" data-tt-desc="Apply the Heading 2 style to selected text."><span style="font-size:13px;font-weight:700;color:#2E74B5;font-family:Calibri,sans-serif">Heading 2</span></div><div class="rib-style-item"  data-tt="Title" data-tt-desc="Apply the Title style to selected text."><span style="font-size:14px;font-weight:700;letter-spacing:.5px;font-family:Calibri,sans-serif">Title</span></div><div class="rib-style-item"  data-tt="Subtitle" data-tt-desc="Apply the Subtitle style to selected text."><span style="font-size:11px;color:#595959;font-style:italic;font-family:Calibri,sans-serif">Subtitle</span></div>
+<div class="rib-styles-arrows">
+  <div class="rib-style-arr">▲</div>
+  <div class="rib-style-arr">▼</div>
+  <div class="rib-style-arr" style="font-size:9px" data-tt="More Styles" data-tt-desc="Show the full Styles gallery.">⊞</div>
+</div>
+</div><div class="rib-col"><div class="rib-sm"   data-tt="Colors" data-tt-key="" data-tt-desc="Change the colors for the current theme."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="5" cy="8" r="3" fill="#2b579a"/><circle cx="10" cy="4" r="3" fill="#107c10"/><circle cx="10" cy="12" r="3" fill="#c42b1c"/><circle cx="15" cy="8" r="3" fill="#faa619"/></svg><span class="rib-sm-lbl">Colors</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Fonts" data-tt-key="" data-tt-desc="Change the fonts for the current theme."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="11" font-size="9" font-family="Calibri,Arial" font-weight="700" fill="currentColor">Aa</text></svg><span class="rib-sm-lbl">Fonts</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Paragraph Spacing" data-tt-key="" data-tt-desc="Choose a paragraph spacing scheme."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="3" y1="3" x2="15" y2="3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="3" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><polyline points="1,5 1,1 3,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="1,9 1,13 3,11" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Paragraph Spacing</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Effects" data-tt-key="" data-tt-desc="Change graphic effects for the current theme."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="3" fill="#2b579a" opacity=".4"/><circle cx="8" cy="8" r="1" fill="#2b579a"/></svg><span class="rib-sm-lbl">Effects</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Set as Default" data-tt-key="" data-tt-desc="Save current settings as default for new documents."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="2,8 6,12 14,4" fill="none" stroke="#107c10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Set as Default</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Document Formatting<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-watermark" onclick="toggleDD('dd-watermark',this)" data-tt="Watermark" data-tt-key="" data-tt-desc="Insert ghosted text behind page content."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="16" y="21" font-size="11" font-family="Calibri,Arial" font-weight="700" fill="currentColor" opacity=".22" text-anchor="middle" transform="rotate(-35,16,16)">DRAFT</text>
+<text x="16" y="20" font-size="10" font-family="Calibri,Arial" font-weight="700" fill="#2b579a" opacity=".4" text-anchor="middle" transform="rotate(-35,16,16)">DRAFT</text></svg><span class="rib-lg-lbl">Watermark</span></div><div class="rib-lg" id="rb-pagecolor" onclick="handleBtn('pagecolor')" data-tt="Page Color" data-tt-key="" data-tt-desc="Choose a background color for the page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="26" height="26" rx="2" fill="#BBDEFB"/>
+<rect x="2" y="20" width="26" height="8" rx="2" fill="#1976D2"/>
+<rect x="2" y="2" width="26" height="8" rx="2" fill="#42A5F5" opacity=".5"/></svg><span class="rib-lg-lbl">Page Color</span></div><div class="rib-lg" id="rb-pageborder" onclick="handleBtn('pageborder')" data-tt="Page Borders" data-tt-key="" data-tt-desc="Add or change the border around the page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="26" height="26" rx="2" fill="none" stroke="currentColor" stroke-width="3"/>
+<rect x="6" y="6" width="18" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3,2"/></svg><span class="rib-lg-lbl">Page Borders</span></div></div><div class="rib-group-label">Page Background<span class="rib-launcher">⬘</span></div></div>`,
+  layout:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-margins" onclick="toggleDD('dd-margins',this)" data-tt="Margins" data-tt-key="" data-tt-desc="Select the margin sizes for the entire document or the current section."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="3" width="24" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="9" y="8" width="14" height="16" fill="none" stroke="#2b579a" stroke-width="1.5" stroke-dasharray="3,2"/>
+<line x1="4" y1="8" x2="9" y2="8" stroke="#2b579a" stroke-width="1.5"/>
+<line x1="4" y1="24" x2="9" y2="24" stroke="#2b579a" stroke-width="1.5"/>
+<line x1="9" y1="3" x2="9" y2="8" stroke="#2b579a" stroke-width="1.5"/>
+<line x1="23" y1="3" x2="23" y2="8" stroke="#2b579a" stroke-width="1.5"/></svg><span class="rib-lg-lbl">Margins</span></div><div class="rib-lg" id="rb-orientation" onclick="toggleDD('dd-orient',this)" data-tt="Orientation" data-tt-key="" data-tt-desc="Switch the pages between portrait and landscape layouts."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="7" y="2" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="18" y="14" width="11" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"/>
+<line x1="10" y1="8" x2="19" y2="8" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="10" y1="12" x2="19" y2="12" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="10" y1="16" x2="15" y2="16" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Orientation</span></div><div class="rib-lg" id="rb-size" onclick="toggleDD('dd-size',this)" data-tt="Size" data-tt-key="" data-tt-desc="Choose a paper size for the current section."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="5" y="2" width="18" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="9" y1="9" x2="19" y2="9" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="9" y1="14" x2="19" y2="14" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="9" y1="19" x2="14" y2="19" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M17 22 L24 22 L24 17 L21 14 L17 14 Z" fill="#2b579a" opacity=".35"/>
+<path d="M17 14 L21 14 L21 17 L24 17" fill="none" stroke="#2b579a" stroke-width="1.3"/></svg><span class="rib-lg-lbl">Size</span></div><div class="rib-lg" id="rb-columns" onclick="toggleDD('dd-columns',this)" data-tt="Columns" data-tt-key="" data-tt-desc="Split the text into two or more columns."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="11" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="17" y="2" width="11" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="4" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+<line x1="4" y1="11" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+<line x1="4" y1="15" x2="11" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+<line x1="19" y1="7" x2="26" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+<line x1="19" y1="11" x2="26" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+<line x1="19" y1="15" x2="26" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/></svg><span class="rib-lg-lbl">Columns</span></div><div class="rib-lg" id="rb-breaks" onclick="toggleDD('dd-breaks',this)" data-tt="Breaks" data-tt-key="" data-tt-desc="Add page, column, or text wrapping breaks."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="2" width="22" height="28" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="4" y1="16" x2="26" y2="16" stroke="currentColor" stroke-width="2" stroke-dasharray="4,3"/>
+<line x1="9" y1="7" x2="21" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+<line x1="9" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+<line x1="9" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+<line x1="9" y1="24" x2="18" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/></svg><span class="rib-lg-lbl">Breaks</span></div><div class="rib-col"><div class="rib-txt" data-tt="Line Numbers" data-tt-desc="Add line numbers in the margin alongside each line of the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="5" font-size="4" fill="currentColor">1</text><line x1="5" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><text x="1" y="9" font-size="4" fill="currentColor">2</text><line x1="5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><text x="1" y="13" font-size="4" fill="currentColor">3</text><line x1="5" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Line Numbers<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Hyphenation" data-tt-desc="Turn on automatic hyphenation or set hyphenation options."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="7" font-size="5.5" font-family="Calibri,Arial" fill="currentColor">hy-</text><text x="1" y="14" font-size="5.5" font-family="Calibri,Arial" fill="currentColor">phen</text></svg>Hyphenation<span class="rib-txt-dot">·</span></div></div></div><div class="rib-group-label">Page Setup<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div style="display:flex;flex-direction:column;gap:3px;padding:2px 4px;font-size:11px">
+<div style="display:flex;align-items:center;gap:4px"><span style="color:#555;min-width:58px">Indent Left:</span><div class="rib-fontbox" style="width:52px"><span class="rib-fontbox-txt">0"</span></div></div>
+<div style="display:flex;align-items:center;gap:4px"><span style="color:#555;min-width:58px">Right:</span><div class="rib-fontbox" style="width:52px"><span class="rib-fontbox-txt">0"</span></div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:3px;padding:2px 4px;font-size:11px">
+<div style="display:flex;align-items:center;gap:4px"><span style="color:#555;min-width:60px">Spacing Before:</span><div class="rib-fontbox" style="width:52px"><span class="rib-fontbox-txt">0 pt</span></div></div>
+<div style="display:flex;align-items:center;gap:4px"><span style="color:#555;min-width:60px">After:</span><div class="rib-fontbox" style="width:52px"><span class="rib-fontbox-txt">8 pt</span></div></div>
+</div></div><div class="rib-group-label">Paragraph<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-txt" data-tt="Position" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2,1.5"/><rect x="2" y="2" width="6" height="5" rx="1" fill="#2b579a" opacity=".7"/></svg>Position<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Wrap Text" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="3" width="6" height="5" rx="1" fill="#c0d8f0" stroke="#2b579a" stroke-width="1"/><line x1="9" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="9" y1="6" x2="15" y2="6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Wrap Text<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Bring Forward" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="4" y="5" width="8" height="8" rx="1" fill="#c0d8f0" stroke="#2b579a" stroke-width="1.3"/><rect x="1" y="2" width="8" height="8" rx="1" fill="white" stroke="currentColor" stroke-width="1.3"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Bring Forward<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Send Backward" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="2" width="8" height="8" rx="1" fill="white" stroke="currentColor" stroke-width="1.3"/><rect x="4" y="5" width="8" height="8" rx="1" fill="#c0d8f0" stroke="#2b579a" stroke-width="1.3"/><polyline points="5,12 8,15 11,12" fill="none" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Send Backward<span class="rib-txt-dot">·</span></div></div><div class="rib-col"><div class="rib-txt" data-tt="Selection Pane" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="3" y="3" width="5" height="4" rx="1" fill="#2b579a" opacity=".5"/><rect x="8" y="8" width="5" height="4" rx="1" fill="#2b579a" opacity=".3"/></svg>Selection Pane<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Align" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="3" width="5" height="4" rx="1" fill="#2b579a" opacity=".7"/><rect x="1" y="9" width="9" height="4" rx="1" fill="#2b579a" opacity=".5"/><line x1="1" y1="1" x2="1" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Align<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Group" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="13" height="6" rx="1" fill="none" stroke="#2b579a" stroke-width="1.5" stroke-dasharray="3,1.5"/></svg>Group<span class="rib-txt-dot">·</span></div><div class="rib-txt" data-tt="Rotate" data-tt-desc=""><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M12 4 A5 5 0 1 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="12,1 12,5 8,5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Rotate<span class="rib-txt-dot">·</span></div></div></div><div class="rib-group-label">Arrange<span class="rib-launcher">⬘</span></div></div>`,
+  references:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-toc" onclick="handleBtn('toc')" data-tt="Table of Contents" data-tt-key="" data-tt-desc="Add a table of contents to the document."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="4" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="4" y1="22" x2="24" y2="22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="22" y1="6" x2="27" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2,1.5"/>
+<line x1="26" y1="12" x2="27" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="22" y1="17" x2="27" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="26" y1="22" x2="27" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Table of Contents</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Add Text" data-tt-key="" data-tt-desc="Add the current paragraph as a TOC entry."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Add Text</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Update Table" data-tt-key="" data-tt-desc="Update the table of contents."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="2" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="8,5 11,8 8,11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 4 A5 5 0 1 1 8 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Update Table</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Table of Contents<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm" id="rb-insertfootnote" onclick="handleBtn('insertfootnote')" data-tt="Insert Footnote" data-tt-key="Alt+Ctrl+F" data-tt-desc="Add a footnote at the bottom of the page."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="3" y1="1" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="5" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.3"/><line x1="3" y1="12" x2="3" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="3" y1="15" x2="12" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Footnote</span><span class="rib-arr">▾</span></div><div class="rib-sm" id="rb-insertendnote" onclick="handleBtn('insertendnote')" data-tt="Insert Endnote" data-tt-key="Alt+Ctrl+D" data-tt-desc="Add an endnote at the end of the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="3" y1="1" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="5" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="11" x2="9" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Endnote</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Next Footnote" data-tt-key="" data-tt-desc="Navigate to the next footnote."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="3" y1="1" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="5" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="5,12 8,15 11,12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Next Footnote</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Show Notes" data-tt-key="" data-tt-desc="View the footnotes or endnotes."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.3"/><line x1="3" y1="12" x2="3" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="3" y1="15" x2="12" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="6" r="4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="rib-sm-lbl">Show Notes</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Footnotes<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Insert Citation" data-tt-key="" data-tt-desc="Cite a book, article, or other source."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="9" font-size="7" font-family="Calibri,Arial" fill="currentColor">[1]</text><line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.2"/><line x1="1" y1="14" x2="11" y2="14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Citation</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Manage Sources" data-tt-key="" data-tt-desc="View the list of all sources cited."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="3" width="10" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="5" y="1" width="10" height="12" rx="1" fill="white" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Manage Sources</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Style" data-tt-key="" data-tt-desc="Choose the citation style."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="2" y="11" font-size="8" font-family="Calibri,Arial" fill="currentColor">APA</text></svg><span class="rib-sm-lbl">Style</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Bibliography" data-tt-key="" data-tt-desc="Add a bibliography."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".7"/><line x1="1" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".7"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".7"/></svg><span class="rib-sm-lbl">Bibliography</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Citations & Bibliography<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Insert Caption" data-tt-key="" data-tt-desc="Add a caption to a picture or object."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="2" width="14" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Caption</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Table of Figures" data-tt-key="" data-tt-desc="Insert a table listing all figures."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Table of Figures</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Update Table" data-tt-key="" data-tt-desc="Update the table of figures."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="2" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="8,5 11,8 8,11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 4 A5 5 0 1 1 8 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Update Table</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Cross-reference" data-tt-key="" data-tt-desc="Refer to items such as headings and figures."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="9,5 12,8 9,11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="4" x2="3" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Cross-reference</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Captions<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Mark Entry" data-tt-key="" data-tt-desc="Include selected text in the index."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="5,4 8,1 11,4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Mark Entry</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Insert Index" data-tt-key="" data-tt-desc="Insert a finished index."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Index</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Update Index" data-tt-key="" data-tt-desc="Update the index."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="2" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="8,5 11,8 8,11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 4 A5 5 0 1 1 8 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Update Index</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Index<span class="rib-launcher">⬘</span></div></div>`,
+  mailings:`<div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Envelopes" data-tt-key="" data-tt-desc="Create and print envelopes."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="2" y="4" width="12" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><polyline points="2,4 8,9 14,4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Envelopes</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Labels" data-tt-key="" data-tt-desc="Create and print labels."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="2" y="2" width="12" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="9" width="12" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="rib-sm-lbl">Labels</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Create<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Start Mail Merge" data-tt-key="" data-tt-desc="Set up a document for a mail merge."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="6" width="22" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<polyline points="4,6 15,17 26,6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="2" y1="14" x2="10" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+<line x1="28" y1="14" x2="20" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+<line x1="4" y1="27" x2="28" y2="27" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
+<polyline points="8,28 15,25 22,28" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".4"/></svg><span class="rib-lg-lbl">Start Mail Merge</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Select Recipients" data-tt-key="" data-tt-desc="Choose the list of people to send to."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="8" y1="2" x2="8" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2 14 Q2 11 8 11 Q14 11 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Select Recipients</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Edit Recipient List" data-tt-key="" data-tt-desc="Edit the list of recipients."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1 14 Q1 11 6 11 Q9 11 10 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="11" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Edit Recipient List</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Start Mail Merge<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Highlight Fields" data-tt-key="" data-tt-desc="Highlight fields in the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Highlight Merge Fields</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Address Block" data-tt-key="" data-tt-desc="Add an address to the document."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="2" width="14" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="3" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="11" x2="8" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Address Block</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Greeting Line" data-tt-key="" data-tt-desc="Add a greeting line."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M2 5 h12 a1 1 0 0 1 0 7 H2Z" fill="none" stroke="currentColor" stroke-width="1.3"/><text x="3" y="11" font-size="5" font-family="Calibri,Arial" fill="currentColor">Dear,</text></svg><span class="rib-sm-lbl">Greeting Line</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Insert Field" data-tt-key="" data-tt-desc="Add a merge field from the data source."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Insert Merge Field</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Write & Insert Fields<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Finish & Merge" data-tt-key="" data-tt-desc="Complete the mail merge."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="22" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<polyline points="2,4 13,15 24,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="18,19 24,25 30,19" fill="none" stroke="#107c10" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-lg-lbl">Finish & Merge</span></div></div><div class="rib-group-label">Finish<span class="rib-launcher">⬘</span></div></div>`,
+  review:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-spelling" onclick="handleBtn('spelling')" data-tt="Spelling & Grammar" data-tt-key="F7" data-tt-desc="Check spelling and grammar."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><text x="4" y="20" font-size="18" font-family="Calibri,Arial" font-weight="700" fill="currentColor">AB</text>
+<path d="M4 26 Q9 21 14 26 Q19 21 24 26" fill="none" stroke="#c42b1c" stroke-width="2.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Spelling &amp; Grammar</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Thesaurus" data-tt-key="Shift+F7" data-tt-desc="Suggest other words with a similar meaning."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="9" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="3" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><line x1="3" y1="8" x2="8" y2="8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="13" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><text x="11" y="12" font-size="4" fill="currentColor">syn</text></svg><span class="rib-sm-lbl">Thesaurus</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Word Count" data-tt-key="" data-tt-desc="Find the number of words, characters, and lines."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="7" font-size="5.5" font-family="Calibri,Arial" fill="currentColor">123</text><line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.2"/><text x="1" y="14" font-size="4.5" font-family="Calibri,Arial" fill="currentColor">words</text></svg><span class="rib-sm-lbl">Word Count</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Proofing<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-accessibility" onclick="handleBtn('check-accessibility')" data-tt="Check Accessibility" data-tt-key="" data-tt-desc="Check the document for accessibility issues."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="16" cy="6" r="4" fill="currentColor"/>
+<path d="M7 14 Q16 11 25 14 L23 22 L27 29" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M23 22 L16 24 L9 29" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-lg-lbl">Check Accessibility</span></div></div><div class="rib-group-label">Accessibility<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Translate" data-tt-key="" data-tt-desc="Translate selected text."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="8" font-size="7" font-family="Calibri,Arial" fill="currentColor">A</text><line x1="6" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="8,5 8,14 11,11 14,14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Translate</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Language" data-tt-key="" data-tt-desc="Set the proofing language."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><ellipse cx="8" cy="8" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="1"/><line x1="2" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="2" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Language</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Language<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-new-comment" onclick="handleBtn('new-comment')" data-tt="New Comment" data-tt-key="" data-tt-desc="Add a comment about the selection."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><path d="M4 4 h22 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H14 L8 28 8 22 H4 a2 2 0 0 1-2-2 V6 a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="16" y1="9" x2="16" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<line x1="12" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">New Comment</span></div><div class="rib-col"><div class="rib-sm" id="rb-deletecomment" onclick="handleBtn('deletecomment')" data-tt="Delete Comment" data-tt-key="" data-tt-desc="Delete the selected comment."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="4" y1="4" x2="12" y2="12" stroke="#c42b1c" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="12" y1="4" x2="4" y2="12" stroke="#c42b1c" stroke-width="2.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Delete</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Previous Comment" data-tt-key="" data-tt-desc="Navigate to the previous comment."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Previous</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Next Comment" data-tt-key="" data-tt-desc="Navigate to the next comment."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Next</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Show Comments" data-tt-key="" data-tt-desc="Show or hide comments."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><path d="M2 2h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H6L3 14 3 11H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="4" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Show Comments</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Comments<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg" id="rb-trackchanges" onclick="handleBtn('trackchanges')" data-tt="Track Changes" data-tt-key="Ctrl+Shift+E" data-tt-desc="Track changes made to this document."><svg width="28" height="28" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="3,1.5"/>
+<line x1="2" y1="8" x2="14" y2="8" stroke="#107c10" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="2" y1="11" x2="10" y2="11" stroke="#c42b1c" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2,1.5"/>
+<circle cx="13" cy="5" r="2" fill="#107c10"/></svg><span class="rib-lg-lbl">Track Changes</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Show Markup" data-tt-key="" data-tt-desc="Choose what markup to show."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="1" y1="4" x2="9" y2="4" stroke="#107c10" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="10" x2="11" y2="10" stroke="#c42b1c" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2,1.5"/><line x1="1" y1="13" x2="13" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Show Markup</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Reviewing Pane" data-tt-key="" data-tt-desc="Show changes in a separate pane."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="9" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="1" width="4" height="14" rx="1" fill="#deecf9" stroke="#2b579a" stroke-width="1"/></svg><span class="rib-sm-lbl">Reviewing Pane</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Tracking<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm" id="rb-acceptchange" onclick="handleBtn('acceptchange')" data-tt="Accept" data-tt-key="" data-tt-desc="Accept the tracked change."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="2,8 6,12 14,4" fill="none" stroke="#107c10" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Accept</span><span class="rib-arr">▾</span></div><div class="rib-sm" id="rb-rejectchange" onclick="handleBtn('rejectchange')" data-tt="Reject" data-tt-key="" data-tt-desc="Reject the tracked change."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="4" y1="4" x2="12" y2="12" stroke="#c42b1c" stroke-width="2.2" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="#c42b1c" stroke-width="2.2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Reject</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Previous Change" data-tt-key="" data-tt-desc="Navigate to the previous tracked change."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Previous</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Next Change" data-tt-key="" data-tt-desc="Navigate to the next tracked change."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Next</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Changes<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Restrict Editing" data-tt-key="" data-tt-desc="Restrict how people can edit or format the document."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="8" y="14" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<path d="M10 14 V10 A6 6 0 0 1 22 10 V14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<circle cx="15" cy="21" r="2.5" fill="currentColor"/></svg><span class="rib-lg-lbl">Restrict Editing</span></div></div><div class="rib-group-label">Protect<span class="rib-launcher">⬘</span></div></div>`,
+  view:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Read Mode" data-tt-key="" data-tt-desc="Open the document in Read Mode."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="4" width="26" height="22" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="15" y1="4" x2="15" y2="26" stroke="currentColor" stroke-width="1.5"/>
+<line x1="5" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="5" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="5" y1="18" x2="12" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="18" y1="10" x2="25" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="18" y1="14" x2="25" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="18" y1="18" x2="25" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Read Mode</span></div><div class="rib-lg"   data-tt="Print Layout" data-tt-key="" data-tt-desc="View the document as it will appear when printed."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="7" y="2" width="18" height="27" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="11" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="11" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="11" y1="19" x2="17" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Print Layout</span></div><div class="rib-lg"   data-tt="Web Layout" data-tt-key="" data-tt-desc="View the document as a web page."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="2" y="2" width="27" height="25" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+<line x1="2" y1="10" x2="29" y2="10" stroke="currentColor" stroke-width="1.8"/>
+<circle cx="7" cy="6" r="2" fill="currentColor"/>
+<circle cx="13" cy="6" r="2" fill="currentColor"/>
+<line x1="6" y1="16" x2="23" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="6" y1="21" x2="18" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Web Layout</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Outline" data-tt-key="" data-tt-desc="View the document as an outline."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="4" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Outline</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Draft" data-tt-key="" data-tt-desc="View the document as a draft."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="10" x2="11" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="13" x2="9" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3,2"/></svg><span class="rib-sm-lbl">Draft</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Views<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Immersive Reader" data-tt-key="" data-tt-desc="Open Immersive Reader."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><path d="M2 16 Q8 6 16 6 Q24 6 29 16 Q24 26 16 26 Q8 26 2 16 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+<circle cx="16" cy="16" r="5" fill="#2b579a" opacity=".7"/>
+<circle cx="16" cy="16" r="2" fill="white"/></svg><span class="rib-lg-lbl">Immersive Reader</span></div></div><div class="rib-group-label">Immersive<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="Ruler" data-tt-key="" data-tt-desc="Show the ruler."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="5" width="14" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="4" y1="5" x2="4" y2="8" stroke="currentColor" stroke-width="1"/><line x1="7" y1="5" x2="7" y2="8" stroke="currentColor" stroke-width="1"/><line x1="10" y1="5" x2="10" y2="8" stroke="currentColor" stroke-width="1"/><line x1="13" y1="5" x2="13" y2="8" stroke="currentColor" stroke-width="1"/></svg><span class="rib-sm-lbl">Ruler</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Gridlines" data-tt-key="" data-tt-desc="Turn on gridlines."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="5" y1="1" x2="5" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/><line x1="10" y1="1" x2="10" y2="15" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/><line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/><line x1="1" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width=".8" stroke-dasharray="2,1.5"/></svg><span class="rib-sm-lbl">Gridlines</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Navigation Pane" data-tt-key="Ctrl+F" data-tt-desc="Open the Navigation Pane."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="5" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="8" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="8" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="8" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Navigation Pane</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Show<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Zoom" data-tt-key="" data-tt-desc="Open the Zoom dialog."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="13" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/>
+<line x1="19" y1="19" x2="28" y2="28" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+<line x1="9" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<line x1="13" y1="8" x2="13" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-lg-lbl">Zoom</span></div><div class="rib-col"><div class="rib-sm"   data-tt="100%" data-tt-key="" data-tt-desc="Zoom to 100%."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><text x="1" y="10" font-size="7" font-family="Calibri,Arial" font-weight="700" fill="currentColor">100</text><text x="3" y="14" font-size="5" font-family="Calibri,Arial" fill="currentColor">%</text></svg><span class="rib-sm-lbl">100%</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="One Page" data-tt-key="" data-tt-desc="Zoom so the whole page fits."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="5" y="1" width="6" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="rib-sm-lbl">One Page</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Multiple Pages" data-tt-key="" data-tt-desc="Zoom out to see multiple pages."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="3" width="6" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="3" width="6" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="rib-sm-lbl">Multiple Pages</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Page Width" data-tt-key="" data-tt-desc="Zoom to page width."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="3" y="4" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Page Width</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Zoom<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-col"><div class="rib-sm"   data-tt="New Window" data-tt-key="" data-tt-desc="Open a new window."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="4" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="5" y="1" width="10" height="10" rx="1" fill="white" stroke="currentColor" stroke-width="1.4"/><line x1="5" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.2"/></svg><span class="rib-sm-lbl">New Window</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Arrange All" data-tt-key="" data-tt-desc="Arrange all open windows."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="rib-sm-lbl">Arrange All</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Split" data-tt-key="" data-tt-desc="Split the window into two parts."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5"/></svg><span class="rib-sm-lbl">Split</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Switch Windows" data-tt-key="" data-tt-desc="Switch to another open window."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><rect x="1" y="3" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="5" y="1" width="10" height="10" rx="1" fill="white" stroke="currentColor" stroke-width="1.3"/><line x1="5" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.2"/></svg><span class="rib-sm-lbl">Switch Windows</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Window<span class="rib-launcher">⬘</span></div></div><div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Macros" data-tt-key="Alt+F8" data-tt-desc="View, create, or edit macros."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><rect x="4" y="4" width="22" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+<polyline points="8,12 13,17 22,8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="8" y1="20" x2="22" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/></svg><span class="rib-lg-lbl">Macros</span></div></div><div class="rib-group-label">Macros<span class="rib-launcher">⬘</span></div></div>`,
+  help:`<div class="rib-group"><div class="rib-group-body"><div class="rib-lg"   data-tt="Help" data-tt-key="F1" data-tt-desc="Open the Help pane."><svg width="28" height="28" viewBox="0 0 32 32" style="display:block;flex-shrink:0"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"/>
+<text x="12" y="22" font-size="18" font-family="Calibri,Arial" font-weight="700" fill="currentColor">?</text></svg><span class="rib-lg-lbl">Help</span></div><div class="rib-col"><div class="rib-sm"   data-tt="Support" data-tt-key="" data-tt-desc="Contact Microsoft support."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="9.2" y1="9.2" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="rib-sm-lbl">Contact Support</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="Feedback" data-tt-key="" data-tt-desc="Send feedback to Microsoft."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><polyline points="2,10 6,14 14,2" fill="none" stroke="#107c10" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="rib-sm-lbl">Feedback</span><span class="rib-arr">▾</span></div><div class="rib-sm"   data-tt="What's New" data-tt-key="" data-tt-desc="View new features in Word."><svg width="16" height="16" viewBox="0 0 16 16" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="8" y1="5" x2="8" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11" r="1" fill="currentColor"/></svg><span class="rib-sm-lbl">What's New</span><span class="rib-arr">▾</span></div></div></div><div class="rib-group-label">Help<span class="rib-launcher">⬘</span></div></div>`,
+};
+
+const S={tab:'home',skill:null,done:new Set(),
+  marginPreset:'normal',orientation:'portrait',paperSize:'letter',
+  hdrL:'',hdrR:'',ftrC:'',pageNums:false,wm:'',wmVis:false,
+  docTitle:'',docAuthor:'',
+  accessChecked:false,savedPDF:false,shared:false,inspected:false,compatChecked:false,searched:false};
+
+const SKILLS=[
+  {id:'find-replace',n:1,name:'Find & Replace Text',
+   scenario:'The abbreviation "DSC" appears throughout the report. Replace all instances with the full company name.',
+   instr:'Use Find & Replace to change all instances of "DSC" to "Desert Sun Consulting".',
+   hint:'Home tab → Editing group → Replace. Or press Ctrl+H. Type "DSC" in Find what, "Desert Sun Consulting" in Replace with, then Replace All.',
+   tab:'home',btn:'replace',check:()=>S.done.has('find-replace')},
+  {id:'apply-paragraph-style',n:2,name:'Apply Paragraph Styles',
+   scenario:'Apply proper heading styles so the document is structured for navigation and the Table of Contents.',
+   instr:'Apply the Heading 1 style to all section headers in the document.',
+   hint:'Click inside a section header → Home tab → Styles group → click Heading 1. Repeat for each section.',
+   tab:'home',btn:'heading1',check:()=>S.done.has('apply-paragraph-style')},
+  {id:'apply-character-style',n:3,name:'Apply Character Style',
+   scenario:'A key statistic needs to stand out. Apply the Intense Quote character style to a direct quotation.',
+   instr:'Apply the Intense Quote character style to the selected quotation text.',
+   hint:'Select the quoted text → Home tab → Styles group → click the More arrow → find Intense Quote.',
+   tab:'home',btn:'',check:()=>S.done.has('apply-character-style')},
+  {id:'set-line-spacing',n:4,name:'Set Line Spacing',
+   scenario:'The body text needs 1.15 line spacing to improve readability throughout the report.',
+   instr:'Set the line spacing to 1.15 for the body text paragraphs.',
+   hint:'Select body text → Home tab → Paragraph group → Line and Paragraph Spacing button → choose 1.15.',
+   tab:'home',btn:'line-spacing',check:()=>S.done.has('set-line-spacing')},
+  {id:'set-paragraph-spacing',n:5,name:'Set Paragraph Spacing',
+   scenario:'Add 6pt of space after each paragraph to separate content blocks visually.',
+   instr:'Set 6pt spacing after each paragraph in the document.',
+   hint:'Select all text (Ctrl+A) → Home tab → Paragraph group → Line and Paragraph Spacing → Add Space After Paragraph. Or use the Paragraph dialog.',
+   tab:'home',btn:'line-spacing',check:()=>S.done.has('set-paragraph-spacing')},
+  {id:'set-indentation',n:6,name:'Set Indentation',
+   scenario:'The quoted passage needs a 0.5 inch left indent to visually distinguish it from body text.',
+   instr:'Set a 0.5 inch left indent on the selected paragraph.',
+   hint:'Click in the paragraph → Home tab → Paragraph group → Increase Indent button. Or Layout tab → Paragraph group → Indent Left.',
+   tab:'home',btn:'inc-indent',check:()=>S.done.has('set-indentation')},
+  {id:'format-painter',n:7,name:'Use Format Painter',
+   scenario:'Copy the formatting from the Executive Summary heading to apply it to the Conclusion heading.',
+   instr:'Use Format Painter to copy formatting from one heading and apply it to another.',
+   hint:'Click the formatted text → Home tab → Clipboard group → Format Painter brush → click the destination text. Double-click the brush to apply to multiple locations.',
+   tab:'home',btn:'format-painter',check:()=>S.done.has('format-painter')},
+  {id:'apply-text-effects',n:8,name:'Apply Text Effects',
+   scenario:'Add a subtle shadow effect to the document title to give it a professional polished appearance.',
+   instr:'Apply a shadow text effect to the document title.',
+   hint:'Select the title text → Home tab → Font group → Text Effects and Typography button (A with glow) → Shadow → choose a shadow style.',
+   tab:'home',btn:'text-effects',check:()=>S.done.has('apply-text-effects')},
+  {id:'insert-page-break',n:9,name:'Insert Page Break',
+   scenario:'The Financial Summary section must start on a new page. Insert a page break before it.',
+   instr:'Insert a page break before the Financial Summary section.',
+   hint:'Click at the beginning of the Financial Summary heading → Insert tab → Pages group → Page Break. Or press Ctrl+Enter.',
+   tab:'insert',btn:'page-number',check:()=>S.done.has('insert-page-break')},
+  {id:'insert-section-break',n:10,name:'Insert Section Break',
+   scenario:'The Financial Summary section needs to be in Landscape orientation. Insert a Next Page section break and change that section to Landscape.',
+   instr:'Insert a Next Page section break before the Financial Summary section, then change that section to Landscape orientation.',
+   hint:'Click before the heading → Layout tab → Page Setup group → Breaks → Next Page. Then click in that section → Layout → Orientation → Landscape.',
+   tab:'layout',btn:'breaks',check:()=>S.done.has('insert-section-break')},
+  {id:'format-columns',n:11,name:'Format Text in Columns',
+   scenario:'The Services section looks better in a two-column layout. Format it as two columns.',
+   instr:'Format the selected text section into two columns.',
+   hint:'Select the text → Layout tab → Page Setup group → Columns → Two.',
+   tab:'layout',btn:'columns',check:()=>S.done.has('format-columns')},
+  {id:'change-list-format',n:12,name:'Change List Format',
+   scenario:'The bullet list needs custom checkmark symbols instead of standard bullets.',
+   instr:'Change the bullet format for the selected list to use a custom symbol.',
+   hint:'Select the list → Home tab → Paragraph group → Bullets dropdown arrow → Define New Bullet → Symbol.',
+   tab:'home',btn:'bullets',check:()=>S.done.has('change-list-format')},
+  {id:'increase-list-level',n:13,name:'Increase List Level',
+   scenario:'The sub-services need to be indented under their parent services as a second-level list.',
+   instr:'Increase the indent level of the selected sub-items to make them second-level list items.',
+   hint:'Select the sub-items → Home tab → Paragraph group → Increase Indent. Or press Tab while in the list.',
+   tab:'home',btn:'inc-indent',check:()=>S.done.has('increase-list-level')},
+  {id:'restart-list-numbering',n:14,name:'Restart List Numbering',
+   scenario:'A second numbered list in the document needs to restart from 1 instead of continuing the previous list.',
+   instr:'Restart the numbering on the second numbered list so it starts at 1.',
+   hint:'Right-click the first item of the second list → Restart at 1. Or click the Numbering dropdown arrow → Set Numbering Value.',
+   tab:'home',btn:'numbering',check:()=>S.done.has('restart-list-numbering')},
+  {id:'apply-style-set',n:15,name:'Apply Style Set',
+   scenario:'Change the overall look of the document by applying the "Basic (Stylish)" style set.',
+   instr:'Apply the "Basic (Stylish)" style set to the entire document.',
+   hint:'Design tab → Document Formatting group → click the "Basic (Stylish)" style set in the gallery.',
+   tab:'design',btn:'',check:()=>S.done.has('apply-style-set')},
+  {id:'goto',n:16,name:'Navigate with Go To',
+   scenario:'Jump directly to page 5 of the report using the Go To navigation feature.',
+   instr:'Use Go To to navigate to page 5 of the document.',
+   hint:'Press Ctrl+G or F5 to open the Go To dialog. Select "Page" and type 5, then click Go To.',
+   tab:'home',btn:'',check:()=>S.done.has('goto')},
+];
+
+function switchTab(el,name){
+  S.tab=name;
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ribbon').innerHTML=TABS[name]||TABS.home;
+  hlBtn();closeAll();
+}
+function hlBtn(){
+  document.querySelectorAll('.rib-hl').forEach(e=>e.classList.remove('rib-hl'));
+  if(S.skill&&S.skill.btn){const e=document.getElementById('rb-'+S.skill.btn);if(e)e.classList.add('rib-hl');}
+}
+function renderSkills(){
+  const list=document.getElementById('sklist');list.innerHTML='';
+  SKILLS.forEach(sk=>{
+    const d=document.createElement('div');
+    d.className='ski'+(S.skill?.id===sk.id?' active':'')+(S.done.has(sk.id)?' done':'');
+    d.innerHTML=`<span class="sn">${sk.n}.</span><span style="flex:1">${sk.name}</span>${S.done.has(sk.id)?'<span class="sc">✓</span>':''}`;
+    d.onclick=()=>selectSkill(sk);list.appendChild(d);
+  });
+}
+function selectSkill(sk){
+  S.skill=sk;renderSkills();
+  if(sk.tab&&sk.tab!=='file'){
+    const te=document.querySelector(`.rtab[data-tab="${sk.tab}"]`);
+    if(te){document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));te.classList.add('active');
+      document.getElementById('ribbon').innerHTML=TABS[sk.tab]||TABS.home;S.tab=sk.tab;}
+  } else if(sk.tab==='file'){
+    // File-tab skills show a hint in the task panel — backstage opens when student clicks File
+    document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  }
+  hlBtn();
+  // Pulse the File tab if this is a file-based skill
+  document.querySelectorAll('.rtab').forEach(t=>t.style.fontWeight='');
+  if(sk.tab==='file'){
+    const ft=document.querySelector('.rtab[onclick="showBackstage()"]');
+    if(ft)ft.style.fontWeight='700';
+  }
+  document.getElementById('tscen').textContent=sk.scenario;
+  document.getElementById('tinstr').textContent=sk.instr;
+  const h=document.getElementById('thint');h.textContent=sk.hint;h.classList.remove('show');
+  document.getElementById('bhint').style.display='inline-block';
+  document.getElementById('bnext').style.display='none';
+  const fb=document.getElementById('tfb');fb.className='';fb.textContent='';
+  updProg();
+}
+function showHint(){document.getElementById('thint').classList.add('show');}
+function nextSkill(){const i=SKILLS.findIndex(s=>s.id===S.skill?.id);if(i<SKILLS.length-1)selectSkill(SKILLS[i+1]);}
+function updProg(){document.getElementById('pfill').style.width=(S.done.size/SKILLS.length*100)+'%';}
+
+function handleBtn(id){
+  switch(id){
+    case 'margins':toggleDD('dd-margins',document.getElementById('rb-margins'));break;
+    case 'orientation':toggleDD('dd-orient',document.getElementById('rb-orientation'));break;
+    case 'size':toggleDD('dd-size',document.getElementById('rb-size'));break;
+    case 'header':toggleDD('dd-header',document.getElementById('rb-header'));break;
+    case 'footer':toggleDD('dd-footer',document.getElementById('rb-footer'));break;
+    case 'page-number':toggleDD('dd-pagenum',document.getElementById('rb-page-number'));break;
+    case 'watermark':toggleDD('dd-watermark',document.getElementById('rb-watermark'));break;
+    case 'themes':toggleDD('dd-themes',document.getElementById('rb-themes'));break;
+    case 'breaks':toggleDD('dd-breaks',document.getElementById('rb-breaks'));break;
+    case 'columns':toggleDD('dd-columns',document.getElementById('rb-columns'));break;
+    case 'check-accessibility':S.accessChecked=true;showFb(true,'Accessibility Checker opened. No major issues found in this document. ✓');complete('check-accessibility');break;
+    case 'find':S.searched=true;showFb(true,'"DSC" found 8 times in the document. Navigation Pane is now open. ✓');complete('search-text');break;
+    case 'replace':showFb(true,'Find and Replace dialog opened.');break;
+    default:break;
+  }
+}
+
+function quickMargin(preset){
+  closeAll();S.marginPreset=preset;
+  const px={normal:96,narrow:48,moderate:72,wide:192,mirrored:120,office2003:120};
+  const pg=document.getElementById('docpage');
+  const p=px[preset]||96;pg.style.paddingLeft=pg.style.paddingRight=p+'px';
+  document.querySelectorAll('[id^="dc-"]').forEach(e=>e.textContent='');
+  const c=document.getElementById('dc-'+preset);if(c)c.textContent='✓';
+  showFb(true,preset.charAt(0).toUpperCase()+preset.slice(1)+' margins applied. ✓');complete('set-margins');
+}
+function applyMargins(){
+  const t=document.getElementById('m-top').value,l=document.getElementById('m-left').value;
+  S.marginPreset='custom';const pg=document.getElementById('docpage');
+  pg.style.padding=`${parseFloat(t)*96||96}px ${parseFloat(l)*96||96}px`;
+  closeDlg('dlg-margins');showFb(true,'Custom margins applied. ✓');complete('set-margins');
+}
+function setOrientation(val){
+  closeAll();S.orientation=val;
+  ['portrait','landscape'].forEach(v=>{const e=document.getElementById('dc-'+v);if(e)e.textContent=v===val?'✓':'';});
+  const pg=document.getElementById('docpage');
+  if(val==='landscape'){pg.style.width='1056px';pg.style.minHeight='816px';}
+  else{pg.style.width='816px';pg.style.minHeight='1056px';}
+  showFb(true,`Page orientation set to ${val.charAt(0).toUpperCase()+val.slice(1)}. ✓`);complete('set-orientation');
+}
+function setPaperSize(val){
+  closeAll();S.paperSize=val;
+  ['letter','legal','tabloid','a4','a3'].forEach(v=>{const e=document.getElementById('dc-'+v);if(e)e.textContent=v===val?'✓':'';});
+  showFb(true,`Paper size set to ${val.toUpperCase()}. ✓`);complete('set-paper-size');
+}
+function applyHdrFtr(){
+  const hl=document.getElementById('hdr-l').value,hr=document.getElementById('hdr-r').value,fc=document.getElementById('ftr-c').value;
+  S.hdrL=hl;S.hdrR=hr;S.ftrC=fc;
+  document.getElementById('doc-hdr-l').textContent=hl;
+  document.getElementById('doc-hdr-r').textContent=hr;
+  document.getElementById('doc-ftr').textContent=fc;
+  closeDlg('dlg-hf');
+  if(hl||hr){showFb(true,'Header applied to all pages. ✓');complete('insert-header');}
+  if(fc){showFb(true,'Footer applied to all pages. ✓');complete('insert-footer');}
+}
+function addPageNum(pos){
+  closeAll();S.pageNums=true;
+  const el=document.getElementById('doc-pnum');el.style.display='block';
+  el.style.cssText=pos==='top'?
+    'position:absolute;top:48px;right:96px;font-size:9pt;color:#333;display:block;font-family:Segoe UI,sans-serif':
+    'position:absolute;bottom:48px;right:96px;font-size:9pt;color:#333;display:block;font-family:Segoe UI,sans-serif';
+  showFb(true,'Page numbers inserted. ✓');complete('insert-page-numbers');
+}
+function removePageNum(){closeAll();S.pageNums=false;document.getElementById('doc-pnum').style.display='none';}
+function quickWatermark(text){
+  closeAll();S.wm=text;S.wmVis=true;
+  document.getElementById('doc-wmt').textContent=text.replace(/ [12]$/,'');
+  document.getElementById('doc-wm').classList.add('show');
+  showFb(true,`"${text.replace(/ [12]$/,'')}" watermark applied to all pages. ✓`);complete('add-watermark');
+}
+function applyWatermark(){quickWatermark(document.getElementById('wm-preset').value);closeDlg('dlg-wm');}
+function removeWatermark(){closeAll();S.wmVis=false;document.getElementById('doc-wm').classList.remove('show');}
+function presetHeader(){}; function presetFooter(){};
+function removeHeader(){closeAll();S.hdrL='';S.hdrR='';document.getElementById('doc-hdr-l').textContent='';document.getElementById('doc-hdr-r').textContent='';}
+function removeFooter(){closeAll();S.ftrC='';document.getElementById('doc-ftr').textContent='';}
+function openHeaderDlg(type){document.getElementById('dlg-hdr-title').textContent=type==='header'?'Edit Header':'Edit Footer';openDlg('dlg-hf');}
+function applyProps(){
+  S.docTitle=document.getElementById('p-title').value;
+  S.docAuthor=document.getElementById('p-author').value;
+  closeDlg('dlg-props');
+  if(S.docTitle&&S.docAuthor){showFb(true,`Properties saved. Title: "${S.docTitle}", Author: "${S.docAuthor}". ✓`);complete('modify-doc-properties');}
+  else showFb(false,'Please enter both a Title and Author.');
+}
+function doSaveAs(fmt){
+  closeAll();hideBackstage();
+  if(fmt==='pdf'){S.savedPDF=true;showFb(true,'Document saved as PDF. ✓');complete('save-as-format');}
+  else showFb(true,`Document saved as .${fmt}. ✓`);
+}
+function applyTheme(t){closeAll();showFb(true,`${t.charAt(0).toUpperCase()+t.slice(1)} theme applied. ✓`);}
+function showBackstage(){closeAll();document.getElementById('bs').classList.add('show');}
+function hideBackstage(){document.getElementById('bs').classList.remove('show');}
+function bsInfo(){openDlg('dlg-props');hideBackstage();}
+function bsSaveAs(){hideBackstage();const dd=document.getElementById('dd-saveas');dd.style.left='50%';dd.style.top='180px';dd.classList.add('show');}
+function bsExport(){hideBackstage();doSaveAs('pdf');}
+function bsShare(){hideBackstage();S.shared=true;showFb(true,'Document shared with colleague. ✓');complete('share-document');}
+function bsInspect(){hideBackstage();S.inspected=true;showFb(true,'Hidden properties and personal information removed. ✓');complete('remove-hidden-properties');}
+function bsCompat(){hideBackstage();S.compatChecked=true;showFb(true,'Compatibility check complete. No issues found with Word 97-2019. ✓');complete('check-compatibility');}
+
+function openDlg(id){document.getElementById(id).style.display='block';document.getElementById('ov').classList.add('show');}
+function closeDlg(id){document.getElementById(id).style.display='none';document.getElementById('ov').classList.remove('show');}
+function closeAll(){
+  document.querySelectorAll('.dlg').forEach(d=>d.style.display='none');
+  document.querySelectorAll('.dd').forEach(d=>d.classList.remove('show'));
+  document.getElementById('ov').classList.remove('show');
+}
+function toggleDD(id,anchor,x,y){
+  const dd=document.getElementById(id);const wasOpen=dd.classList.contains('show');
+  closeAll();
+  if(!wasOpen){
+    if(anchor){const r=anchor.getBoundingClientRect();dd.style.left=r.left+'px';dd.style.top=(r.bottom+2)+'px';}
+    else if(x!==undefined){dd.style.left=x+'px';dd.style.top=y+'px';}
+    dd.classList.add('show');
+  }
+}
+function showFb(ok,msg){
+  const el=document.getElementById('tfb');el.textContent=msg;el.className=ok?'ok':'err';
+  if(ok)document.getElementById('bnext').style.display='inline-block';
+}
+function complete(id){S.done.add(id);renderSkills();updProg();}
+
+// Screentips
+const STEL=document.getElementById('screentip');let TTT=null;
+document.addEventListener('mouseover',e=>{
+  const el=e.target.closest('[data-tt]');
+  if(el){clearTimeout(TTT);TTT=setTimeout(()=>{
+    document.getElementById('st-title').textContent=el.getAttribute('data-tt')||'';
+    const k=el.getAttribute('data-tt-key');
+    document.getElementById('st-key').textContent=k?'Keyboard shortcut: '+k:'';
+    document.getElementById('st-desc').textContent=el.getAttribute('data-tt-desc')||'';
+    STEL.style.left=Math.min(e.clientX+12,window.innerWidth-280)+'px';
+    STEL.style.top=(e.clientY+20)+'px';STEL.classList.add('show');
+  },500);}
+});
+document.addEventListener('mouseout',e=>{if(e.target.closest('[data-tt]')){clearTimeout(TTT);STEL.classList.remove('show');}});
+document.addEventListener('mousemove',e=>{
+  if(STEL.classList.contains('show')){
+    STEL.style.left=Math.min(e.clientX+12,window.innerWidth-280)+'px';
+    STEL.style.top=(e.clientY+20)+'px';}
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.dd')&&!e.target.closest('.rib-ic')&&!e.target.closest('.rib-lg')&&
+     !e.target.closest('.rib-sm')&&!e.target.closest('.rib-lg-split')&&!e.target.closest('.qat-b'))
+    document.querySelectorAll('.dd').forEach(d=>d.classList.remove('show'));
+});
+
+document.getElementById('ribbon').innerHTML=TABS.home;
+renderSkills();selectSkill(SKILLS[0]);
+
+</script>
+</body>
+</html>
