@@ -1868,9 +1868,7 @@ function goToStep(stepId, href) {
 
 function openTwoPath(skillId, skillName, groupName) {
   selectedSkill = skillId;
-  document.getElementById('modalSkillName').textContent = skillName;
-  document.getElementById('modalSkillGroup').textContent = 'Unit ' + currentUnit + ' · ' + groupName;
-  document.getElementById('twoPathModal').classList.add('open');
+  goPractice();
 }
 
 function closeModal() {
