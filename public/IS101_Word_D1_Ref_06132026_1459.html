@@ -2,559 +2,198 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IS101 — Word D1: Manage Documents</title>
 <style>
-/* ── Reset & Base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #f7f8fa;
-  color: #1a1a2e;
-  line-height: 1.6;
-  min-height: 100vh;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#2b579a;--blue-lt:#e8f0fb;--blue-dk:#1e3f6f;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
 }
 
-/* ── Variables ── */
-:root {
-  --blue:    #2b579a;
-  --blue-lt: #e8f0fb;
-  --blue-dk: #1e3f6f;
-  --green:   #107c10;
-  --green-lt:#e6f4e6;
-  --gray:    #f0f2f5;
-  --border:  #dde1e9;
-  --text:    #1a1a2e;
-  --muted:   #6b7280;
-  --white:   #ffffff;
-  --radius:  10px;
-  --shadow:  0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
-}
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.brand .unit{opacity:.7;font-weight:400}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.primary{background:white;color:var(--blue);border-color:white}
+.nav-btn.primary:hover{background:#f0f4ff}
 
-/* ── Top Bar ── */
-#topbar {
-  background: var(--blue);
-  color: white;
-  padding: 0 24px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,.2);
-}
-#topbar .brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 600;
-}
-#topbar .brand .unit {
-  opacity: .7;
-  font-weight: 400;
-}
-#topbar .nav-btns {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.nav-btn {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid rgba(255,255,255,.3);
-  color: white;
-  background: rgba(255,255,255,.1);
-  text-decoration: none;
-  transition: background .15s;
-}
-.nav-btn:hover { background: rgba(255,255,255,.2); }
-.nav-btn.primary {
-  background: white;
-  color: var(--blue);
-  border-color: white;
-}
-.nav-btn.primary:hover { background: #f0f4ff; }
+/* Hero */
+#hero{background:white;border-bottom:1px solid var(--border);padding:28px 24px 24px}
+#hero-inner{max-width:860px;margin:0 auto}
+#hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:4px}
+#hero .subtitle{font-size:15px;color:var(--muted);margin-bottom:20px}
 
-/* ── Hero / Page Header ── */
-#hero {
-  background: white;
-  border-bottom: 1px solid var(--border);
-  padding: 28px 24px 24px;
-}
-#hero-inner {
-  max-width: 860px;
-  margin: 0 auto;
-}
-#hero h1 {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--blue);
-  margin-bottom: 4px;
-}
-#hero .subtitle {
-  font-size: 15px;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
+/* Reminder */
+.reminder{background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--radius);
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.reminder-icon{font-size:20px;flex-shrink:0}
+.reminder-text{font-size:14px;color:#92400e;line-height:1.5}
+.reminder-text strong{color:#78350f}
 
-/* ── Starter file reminder ── */
-#starter-reminder {
-  background: #fffbeb;
-  border: 1px solid #f59e0b;
-  border-radius: var(--radius);
-  padding: 14px 18px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-#starter-reminder .icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-#starter-reminder .text { font-size: 14px; color: #92400e; line-height: 1.5; }
-#starter-reminder .text strong { color: #78350f; }
+/* Download buttons */
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;
+  font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s}
+.dl-btn.word{background:#2b579a;color:white}
+.dl-btn.word:hover{background:#1e3f6f}
+.dl-btn.pdf{background:#c42b1c;color:white}
+.dl-btn.pdf:hover{background:#a02315}
 
-/* ── Download buttons ── */
-.dl-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-.dl-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  border-radius: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  border: none;
-  transition: all .15s;
-}
-.dl-btn.word {
-  background: #2b579a;
-  color: white;
-}
-.dl-btn.word:hover { background: #1e3f6f; }
-.dl-btn.pdf {
-  background: #c42b1c;
-  color: white;
-}
-.dl-btn.pdf:hover { background: #a02315; }
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:14px}
+.progress-label{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;width:0%}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap;min-width:36px;text-align:right}
 
-/* ── Progress bar ── */
-#progress-section {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-#progress-label {
-  font-size: 13px;
-  color: var(--muted);
-  white-space: nowrap;
-}
-#progress-bar-wrap {
-  flex: 1;
-  height: 8px;
-  background: var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-#progress-bar-fill {
-  height: 100%;
-  background: var(--green);
-  border-radius: 4px;
-  transition: width .4s ease;
-  width: 0%;
-}
-#progress-pct {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--green);
-  white-space: nowrap;
-  min-width: 36px;
-  text-align: right;
-}
+/* Main */
+#main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
 
-/* ── Main content ── */
-#main {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 28px 24px 80px;
-}
+/* Skill card */
+.skill-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.skill-card.completed{border-color:var(--green)}
+.skill-card.completed .skill-header{background:var(--green-lt)}
 
-/* ── Skill card ── */
-.skill-card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 16px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  transition: box-shadow .15s;
-}
-.skill-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1), 0 8px 24px rgba(0,0,0,.06); }
-.skill-card.completed { border-color: var(--green); }
-.skill-card.completed .skill-header { background: var(--green-lt); }
+/* Header — NO onclick here, handled by JS */
+.skill-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  user-select:none;background:var(--gray);border-bottom:1px solid var(--border);transition:background .15s}
+.skill-header:hover{background:#e0e5ee}
+.skill-card.completed .skill-header:hover{background:#d0edcf}
+.skill-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.skill-card.completed .skill-num{background:var(--green)}
+.skill-title{flex:1;font-size:15.5px;font-weight:600}
+.skill-badge{font-size:11.5px;color:var(--blue);background:var(--blue-lt);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:500}
+.skill-card.completed .skill-badge{color:var(--green);background:var(--green-lt)}
+.expand-icon{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.skill-card.open .expand-icon{transform:rotate(180deg)}
 
-/* Card header */
-.skill-header {
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  user-select: none;
-  background: var(--gray);
-  border-bottom: 1px solid var(--border);
-  transition: background .15s;
-}
-.skill-header:hover { background: #e8edf5; }
-.skill-num {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--blue);
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.skill-card.completed .skill-num {
-  background: var(--green);
-}
-.skill-title {
-  flex: 1;
-  font-size: 15.5px;
-  font-weight: 600;
-  color: var(--text);
-}
-.skill-where-badge {
-  font-size: 11.5px;
-  color: var(--blue);
-  background: var(--blue-lt);
-  padding: 3px 9px;
-  border-radius: 20px;
-  white-space: nowrap;
-  font-weight: 500;
-}
-.skill-card.completed .skill-where-badge {
-  color: var(--green);
-  background: var(--green-lt);
-}
-.expand-icon {
-  font-size: 12px;
-  color: var(--muted);
-  transition: transform .2s;
-  flex-shrink: 0;
-}
-.skill-card.open .expand-icon { transform: rotate(180deg); }
+/* Body — hidden by default */
+.skill-body{display:none;padding:20px;border-top:1px solid var(--border)}
+.skill-card.open .skill-body{display:block}
 
-/* Card body */
-.skill-body {
-  display: none;
-  padding: 20px;
-  border-top: 1px solid var(--border);
-}
-.skill-card.open .skill-body { display: block; }
+/* Body content */
+.section{margin-bottom:18px}
+.section:last-child{margin-bottom:0}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.section-text{font-size:14px;color:#1a1a2e;line-height:1.65}
+.ribbon-path{display:inline-flex;align-items:center;gap:4px;background:var(--blue-lt);
+  border:1px solid #c5d8f7;border-radius:6px;padding:6px 12px;font-size:13.5px;
+  color:var(--blue-dk);font-weight:500}
+.ribbon-path .arr{color:var(--muted);font-size:11px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check-box{background:#f0faf0;border:1px solid #b7e0b7;border-radius:7px;
+  padding:10px 14px;font-size:13.5px;color:#1a4a1a;line-height:1.55}
+.check-box::before{content:'✓ ';font-weight:700;color:var(--green)}
 
-/* Body sections */
-.body-section {
-  margin-bottom: 18px;
-}
-.body-section:last-child { margin-bottom: 0; }
-.body-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .8px;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.body-text {
-  font-size: 14px;
-  color: var(--text);
-  line-height: 1.65;
-}
-
-/* Steps list */
-.steps-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.steps-list li {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  font-size: 14px;
-  color: var(--text);
-  line-height: 1.55;
-}
-.step-num {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--blue-lt);
-  color: var(--blue);
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-/* Where to find */
-.ribbon-path {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--blue-lt);
-  border: 1px solid #c5d8f7;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 13.5px;
-  color: var(--blue-dk);
-  font-weight: 500;
-}
-.ribbon-path .arrow {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-/* Check box */
-.check-box {
-  background: #f0faf0;
-  border: 1px solid #b7e0b7;
-  border-radius: 7px;
-  padding: 10px 14px;
-  font-size: 13.5px;
-  color: #1a4a1a;
-  line-height: 1.55;
-}
-.check-box::before {
-  content: '✓ ';
-  font-weight: 700;
-  color: var(--green);
-}
-
-/* Video placeholder */
-.video-placeholder {
-  background: #f7f8fa;
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.video-placeholder .play-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
+/* Resources */
+.resources{display:flex;gap:8px;flex-wrap:wrap}
+.res-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;
+  transition:all .15s;border:1px solid var(--border);color:#1a1a2e;background:white}
+.res-btn.li-active{color:#0a66c2}
+.res-btn.li-active:hover{background:#e8f0fb;border-color:#0a66c2}
+.res-btn.li-soon{color:var(--muted);background:var(--gray);cursor:default}
+.res-btn.yt{color:#c42b1c}
+.res-btn.yt:hover{background:#fff0f0;border-color:#c42b1c}
+.res-btn.px{color:var(--blue)}
+.res-btn.px:hover{background:var(--blue-lt);border-color:var(--blue)}
+.res-btn.ms{color:var(--green)}
+.res-btn.ms:hover{background:var(--green-lt);border-color:var(--green)}
 
 /* Complete button */
-.complete-btn {
-  margin-top: 18px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-.btn-complete {
-  padding: 9px 20px;
-  border-radius: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 2px solid var(--green);
-  color: var(--green);
-  background: white;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-complete:hover {
-  background: var(--green);
-  color: white;
-}
-.btn-complete.done {
-  background: var(--green);
-  color: white;
-}
-.btn-complete.done:hover {
-  background: #0a5e0a;
-  border-color: #0a5e0a;
-}
-.btn-saving {
-  font-size: 12px;
-  color: var(--muted);
-  display: none;
-}
+.complete-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;
+  padding-top:16px;border-top:1px solid var(--border);margin-top:18px}
+.saving-txt{font-size:12px;color:var(--muted);display:none}
+.btn-complete{padding:9px 20px;border-radius:7px;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:2px solid var(--green);color:var(--green);background:white;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
+.btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
 
-/* ── Login prompt ── */
-#login-prompt {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-#login-prompt.hidden { display: none; }
-.login-card {
-  background: white;
-  border-radius: 14px;
-  padding: 36px 40px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.3);
-}
-.login-card h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--blue);
-  margin-bottom: 8px;
-}
-.login-card p {
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-.login-card input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  font-size: 15px;
-  text-align: center;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-  outline: none;
-  font-family: inherit;
-}
-.login-card input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(43,87,154,.15); }
-.login-card .login-btn {
-  width: 100%;
-  padding: 11px;
-  background: var(--blue);
-  color: white;
-  border: none;
-  border-radius: 7px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-}
-.login-card .login-btn:hover { background: var(--blue-dk); }
-.login-error {
-  font-size: 12px;
-  color: #c42b1c;
-  margin-top: 8px;
-  min-height: 18px;
-}
+/* Submit section */
+#submit-section{max-width:860px;margin:0 auto 80px;padding:0 24px}
+.submit-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden}
+.submit-header{background:var(--gray);border-bottom:1px solid var(--border);
+  padding:18px 24px;display:flex;align-items:center;gap:12px}
+.submit-icon{width:36px;height:36px;background:var(--blue);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.submit-body{padding:24px}
+.already-sub{background:var(--green-lt);border:1px solid #b7e0b7;border-radius:8px;
+  padding:14px 18px;margin-bottom:18px;font-size:14px;color:#1a4a1a;display:none}
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:32px 24px;
+  text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.drop-zone:hover,.drop-zone.over{border-color:var(--blue);background:var(--blue-lt)}
+.drop-text{font-size:14px;color:var(--muted);margin-top:8px}
+.drop-text span{color:var(--blue);font-weight:600}
+.file-chosen{font-size:13px;color:var(--blue);font-weight:600;margin-top:8px;display:none}
+.submit-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-submit{padding:11px 28px;background:var(--blue);color:white;border:none;
+  border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+  opacity:.4;pointer-events:none;transition:all .15s}
+.btn-submit.ready{opacity:1;pointer-events:auto}
+.btn-submit.ready:hover{background:var(--blue-dk)}
+.submit-status{font-size:13px;color:var(--muted)}
 
-/* ── Toast notification ── */
-#toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #1a1a2e;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 13.5px;
-  font-weight: 500;
-  box-shadow: 0 4px 20px rgba(0,0,0,.25);
-  transform: translateY(80px);
-  opacity: 0;
-  transition: all .3s ease;
-  z-index: 999;
-  max-width: 320px;
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;
+  max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;
+  font-size:15px;text-align:center;letter-spacing:2px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:#c42b1c;margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:#c42b1c}
+
+@media(max-width:600px){
+  #topbar,#hero,#main,#submit-section{padding-left:16px;padding-right:16px}
+  .skill-badge{display:none}
+  .dl-row{flex-direction:column}
 }
-#toast.show { transform: translateY(0); opacity: 1; }
-#toast.success { background: var(--green); }
-#toast.error { background: #c42b1c; }
-
-/* ── Responsive ── */
-@media (max-width: 600px) {
-  #topbar { padding: 0 16px; }
-  #hero, #main { padding-left: 16px; padding-right: 16px; }
-  .skill-where-badge { display: none; }
-  .dl-row { flex-direction: column; }
-  .dl-btn { justify-content: center; }
-}
-
-  /* Resource buttons */
-  .resource-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all .15s;
-    border: 1px solid var(--border);
-    color: #1a1a2e;
-    background: white;
-  }
-  .resource-btn:hover { background: var(--gray); border-color: #bbb; }
-  .resource-btn.yt  { color: #c42b1c; }
-  .resource-btn.yt:hover  { background: #fff0f0; border-color: #c42b1c; }
-  .resource-btn.px  { color: #2b579a; }
-  .resource-btn.px:hover  { background: var(--blue-lt); border-color: var(--blue); }
-  .resource-btn.ms  { color: #107c10; }
-  .resource-btn.ms:hover  { background: var(--green-lt); border-color: var(--green); }
-
-
-  .resource-btn.li  { color: #0a66c2; }
-  .resource-btn.li:hover  { background: #e8f0fb; border-color: #0a66c2; }
-  .resource-btn.li.li-placeholder { color: var(--muted); border-color: var(--border); background: var(--gray); cursor: default; }
-  .resource-btn.li.li-placeholder:hover { background: var(--gray); border-color: var(--border); }
-  .resource-btn.li.li-active { color: #0a66c2; cursor: pointer; }
-
 </style>
 </head>
 <body>
 
-<!-- Login prompt -->
-<div id="login-prompt">
+<!-- Login overlay -->
+<div id="login-overlay">
   <div class="login-card">
     <h2>Sign In to Track Progress</h2>
     <p>Enter your 10-digit NSHE ID to save your skill completions across sessions.</p>
     <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
-    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <button class="login-btn" id="login-btn">Sign In</button>
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
@@ -562,7 +201,7 @@ body {
 <!-- Top bar -->
 <div id="topbar">
   <div class="brand">
-    <svg width="22" height="22" viewBox="0 0 22 22" style="flex-shrink:0">
+    <svg width="22" height="22" viewBox="0 0 22 22">
       <rect width="22" height="22" rx="4" fill="white" opacity=".15"/>
       <text x="4" y="17" font-size="14" font-family="Segoe UI" font-weight="900" fill="white">W</text>
     </svg>
@@ -576,40 +215,26 @@ body {
   </div>
 </div>
 
-<!-- Hero / page header -->
+<!-- Hero -->
 <div id="hero">
   <div id="hero-inner">
     <h1>D1 — Manage Documents</h1>
-    <p class="subtitle">14 skills · Work through these in order, then use your completed file for the project.</p>
-
-    <!-- Starter file reminder -->
-    <div id="starter-reminder">
-      <div class="icon">📄</div>
-      <div class="text">
+    <p class="subtitle">14 skills · Work through these in order using your starter file.</p>
+    <div class="reminder">
+      <div class="reminder-icon">📄</div>
+      <div class="reminder-text">
         <strong>Before you begin:</strong> Download and open the starter file below in Microsoft Word.
         Complete each skill directly in that document. Keep it open as you work through this page.
       </div>
     </div>
-
-    <!-- Download buttons -->
     <div class="dl-row">
-      <a href="Word_D1_Starter.docx" download class="dl-btn word">
-        <svg width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="1" width="10" height="14" rx="1" fill="none" stroke="white" stroke-width="1.4"/><line x1="4" y1="5" x2="10" y2="5" stroke="white" stroke-width="1.2"/><line x1="4" y1="8" x2="10" y2="8" stroke="white" stroke-width="1.2"/><line x1="4" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.2"/></svg>
-        Download Starter File (.docx)
-      </a>
-      <a href="Word_D1_Instructions.pdf" download class="dl-btn pdf">
-        <svg width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="1" width="10" height="14" rx="1" fill="none" stroke="white" stroke-width="1.4"/><line x1="4" y1="5" x2="10" y2="5" stroke="white" stroke-width="1.2"/><line x1="4" y1="8" x2="10" y2="8" stroke="white" stroke-width="1.2"/><line x1="4" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.2"/></svg>
-        Download Instructions (.pdf)
-      </a>
+      <a href="Word_D1_Starter.docx" download class="dl-btn word">⬇ Download Starter File (.docx)</a>
+      <a href="Word_D1_Instructions.pdf" download class="dl-btn pdf">⬇ Download Instructions (.pdf)</a>
     </div>
-
-    <!-- Progress -->
-    <div id="progress-section">
-      <span id="progress-label">0 of 14 skills completed</span>
-      <div id="progress-bar-wrap">
-        <div id="progress-bar-fill"></div>
-      </div>
-      <span id="progress-pct">0%</span>
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">0 of 14 skills completed</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="progress-pct" id="prog-pct">0%</span>
     </div>
   </div>
 </div>
@@ -618,1060 +243,780 @@ body {
 <div id="main">
 
   <div class="skill-card" id="card-set-margins" data-skill="set-margins">
-    <div class="skill-header" data-toggle="set-margins">
+    <div class="skill-header" data-card="set-margins">
       <div class="skill-num">1</div>
       <div class="skill-title">Set Page Margins</div>
-      <div class="skill-where-badge">Layout tab → Page Setup group</div>
+      <div class="skill-badge">Layout tab → Page Setup group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Professional documents use consistent margins. Most business reports require 1-inch margins on all sides — the default in Word.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Professional documents use consistent margins. Most business reports require 1-inch margins on all sides — the default in Word.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Layout tab</span> <span class="arrow">→</span> <span>Page Setup group</span> <span class="arrow">→</span> <span>Margins</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Layout tab</span> <span class="arr">→</span> <span>Page Setup group</span> <span class="arr">→</span> <span>Margins</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Layout</strong> tab on the ribbon.</span></li>
-<li><span class="step-num">2</span><span>In the <strong>Page Setup</strong> group, click <strong>Margins</strong>.</span></li>
-<li><span class="step-num">3</span><span>Choose <strong>Normal</strong> (1" all sides) from the dropdown, or click <strong>Custom Margins</strong> to enter exact values.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Layout</strong> tab on the ribbon.</span></li>
+<li><span class="step-n">2</span><span>In the <strong>Page Setup</strong> group, click <strong>Margins</strong>.</span></li>
+<li><span class="step-n">3</span><span>Choose <strong>Normal</strong> (1" all sides) from the dropdown, or click <strong>Custom Margins</strong> to enter exact values.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">The ruler at the top of the document shows the margin boundaries. File → Print preview shows the correct white space around the text.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">The ruler at the top shows the margin boundaries. File → Print preview shows the correct white space around the text.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-set-margins" onclick="openLinkedIn('set-margins');return false;" data-skill-id="set-margins"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+set+margins+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-set-margins" data-skill="set-margins">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+set+margins+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+set+page+margins+in+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+set+page+margins+in+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/change-margins-in-word-9e5b5282-c367-49b9-a597-7b57bb8b8f27" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/change-margins-in-word-9e5b5282-c367-49b9-a597-7b57bb8b8f27" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-set-margins">Saving...</span>
-        <button class="btn-complete" id="btn-set-margins" onclick="toggleSkill('set-margins')">
-          <span id="btn-text-set-margins">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-set-margins">Saving...</span>
+        <button class="btn-complete" id="btn-set-margins" data-skill="set-margins">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-set-orientation" data-skill="set-orientation">
-    <div class="skill-header" data-toggle="set-orientation">
+    <div class="skill-header" data-card="set-orientation">
       <div class="skill-num">2</div>
       <div class="skill-title">Set Page Orientation</div>
-      <div class="skill-where-badge">Layout tab → Page Setup group</div>
+      <div class="skill-badge">Layout tab → Page Setup group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Portrait is standard for most documents. Landscape is used for wide tables or charts. Getting this right before formatting saves time.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Portrait is standard for most documents. Landscape is used for wide tables or charts.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Layout tab</span> <span class="arrow">→</span> <span>Page Setup group</span> <span class="arrow">→</span> <span>Orientation</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Layout tab</span> <span class="arr">→</span> <span>Page Setup group</span> <span class="arr">→</span> <span>Orientation</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Layout</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Orientation</strong> in the Page Setup group.</span></li>
-<li><span class="step-num">3</span><span>Choose <strong>Portrait</strong> (taller) or <strong>Landscape</strong> (wider).</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Layout</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Orientation</strong> in the Page Setup group.</span></li>
+<li><span class="step-n">3</span><span>Choose <strong>Portrait</strong> (taller) or <strong>Landscape</strong> (wider).</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
         <div class="check-box">The document page visually changes shape. The ruler adjusts to reflect the new width.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-set-orientation" onclick="openLinkedIn('set-orientation');return false;" data-skill-id="set-orientation"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+change+page+orientation+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-set-orientation" data-skill="set-orientation">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+change+page+orientation+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+change+page+orientation+portrait+landscape+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+change+page+orientation+portrait+landscape+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/change-page-orientation-to-landscape-or-portrait-9b5ac1af-9998-4a37-962b-a82b689572a9" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/change-page-orientation-to-landscape-or-portrait-9b5ac1af-9998-4a37-962b-a82b689572a9" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-set-orientation">Saving...</span>
-        <button class="btn-complete" id="btn-set-orientation" onclick="toggleSkill('set-orientation')">
-          <span id="btn-text-set-orientation">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-set-orientation">Saving...</span>
+        <button class="btn-complete" id="btn-set-orientation" data-skill="set-orientation">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-set-paper-size" data-skill="set-paper-size">
-    <div class="skill-header" data-toggle="set-paper-size">
+    <div class="skill-header" data-card="set-paper-size">
       <div class="skill-num">3</div>
       <div class="skill-title">Set Paper Size</div>
-      <div class="skill-where-badge">Layout tab → Page Setup group</div>
+      <div class="skill-badge">Layout tab → Page Setup group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">US documents use Letter (8.5" × 11"). Setting this ensures the document prints correctly on standard paper.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">US documents use Letter (8.5" × 11"). Setting this ensures the document prints correctly.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Layout tab</span> <span class="arrow">→</span> <span>Page Setup group</span> <span class="arrow">→</span> <span>Size</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Layout tab</span> <span class="arr">→</span> <span>Page Setup group</span> <span class="arr">→</span> <span>Size</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Layout</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Size</strong> in the Page Setup group.</span></li>
-<li><span class="step-num">3</span><span>Choose <strong>Letter (8.5" × 11")</strong> from the list.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Layout</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Size</strong> in the Page Setup group.</span></li>
+<li><span class="step-n">3</span><span>Choose <strong>Letter (8.5" × 11")</strong> from the list.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
         <div class="check-box">The document proportions reflect letter-size paper. Visible in Print Preview under File.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-set-paper-size" onclick="openLinkedIn('set-paper-size');return false;" data-skill-id="set-paper-size"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+change+paper+size+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-set-paper-size" data-skill="set-paper-size">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+change+paper+size+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+set+paper+size+letter+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+set+paper+size+letter+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/change-the-paper-size-in-word-a2042571-d94e-45a5-a73f-39bae6b7aec8" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/change-the-paper-size-in-word-a2042571-d94e-45a5-a73f-39bae6b7aec8" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-set-paper-size">Saving...</span>
-        <button class="btn-complete" id="btn-set-paper-size" onclick="toggleSkill('set-paper-size')">
-          <span id="btn-text-set-paper-size">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-set-paper-size">Saving...</span>
+        <button class="btn-complete" id="btn-set-paper-size" data-skill="set-paper-size">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-insert-header" data-skill="insert-header">
-    <div class="skill-header" data-toggle="insert-header">
+    <div class="skill-header" data-card="insert-header">
       <div class="skill-num">4</div>
       <div class="skill-title">Insert Header</div>
-      <div class="skill-where-badge">Insert tab → Header & Footer group</div>
+      <div class="skill-badge">Insert tab → Header & Footer group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Headers appear at the top of every page. Business reports commonly show the company name on the left and the date on the right.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Headers appear at the top of every page. Business reports commonly show the company name and date.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Insert tab</span> <span class="arrow">→</span> <span>Header & Footer group</span> <span class="arrow">→</span> <span>Header</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Insert tab</span> <span class="arr">→</span> <span>Header & Footer group</span> <span class="arr">→</span> <span>Header</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Insert</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Header</strong> in the Header & Footer group.</span></li>
-<li><span class="step-num">3</span><span>Choose a style from the dropdown, or click <strong>Edit Header</strong> to type directly.</span></li>
-<li><span class="step-num">4</span><span>Press <strong>Tab</strong> to move between left, center, and right sections of the header.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Insert</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Header</strong> in the Header & Footer group.</span></li>
+<li><span class="step-n">3</span><span>Choose a style or click <strong>Edit Header</strong> to type directly.</span></li>
+<li><span class="step-n">4</span><span>Press <strong>Tab</strong> to move between left, center, and right sections.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">A dashed border appears at the top of the document. Your header text is visible on every page. Double-click the body text to exit header editing.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">A dashed border appears at the top. Your header text shows on every page. Double-click the body to exit.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-insert-header" onclick="openLinkedIn('insert-header');return false;" data-skill-id="insert-header"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+insert+header+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-header" data-skill="insert-header">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+insert+header+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+add+a+header+in+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+add+a+header+in+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/insert-a-header-or-footer-b87ee4df-abc1-41f8-995b-b39f6d99c7ed" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/insert-a-header-or-footer-b87ee4df-abc1-41f8-995b-b39f6d99c7ed" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-insert-header">Saving...</span>
-        <button class="btn-complete" id="btn-insert-header" onclick="toggleSkill('insert-header')">
-          <span id="btn-text-insert-header">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-header">Saving...</span>
+        <button class="btn-complete" id="btn-insert-header" data-skill="insert-header">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-insert-footer" data-skill="insert-footer">
-    <div class="skill-header" data-toggle="insert-footer">
+    <div class="skill-header" data-card="insert-footer">
       <div class="skill-num">5</div>
       <div class="skill-title">Insert Footer</div>
-      <div class="skill-where-badge">Insert tab → Header & Footer group</div>
+      <div class="skill-badge">Insert tab → Header & Footer group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Footers appear at the bottom of every page. Common uses include "Confidential," department names, or document identifiers.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Footers appear at the bottom of every page. Common uses include "Confidential" or document identifiers.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Insert tab</span> <span class="arrow">→</span> <span>Header & Footer group</span> <span class="arrow">→</span> <span>Footer</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Insert tab</span> <span class="arr">→</span> <span>Header & Footer group</span> <span class="arr">→</span> <span>Footer</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Insert</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Footer</strong> in the Header & Footer group.</span></li>
-<li><span class="step-num">3</span><span>Choose a style or click <strong>Edit Footer</strong>.</span></li>
-<li><span class="step-num">4</span><span>Type your footer content. Press <strong>Tab</strong> to move between sections.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Insert</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Footer</strong> in the Header & Footer group.</span></li>
+<li><span class="step-n">3</span><span>Choose a style or click <strong>Edit Footer</strong>.</span></li>
+<li><span class="step-n">4</span><span>Type your content. Press <strong>Tab</strong> to move between sections.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">A dashed border appears at the bottom of the document. Footer text is visible on every page.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">A dashed border appears at the bottom. Footer text is visible on every page.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-insert-footer" onclick="openLinkedIn('insert-footer');return false;" data-skill-id="insert-footer"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+insert+footer+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-footer" data-skill="insert-footer">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+insert+footer+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+add+a+footer+in+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+add+a+footer+in+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/insert-a-header-or-footer-b87ee4df-abc1-41f8-995b-b39f6d99c7ed" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/insert-a-header-or-footer-b87ee4df-abc1-41f8-995b-b39f6d99c7ed" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-insert-footer">Saving...</span>
-        <button class="btn-complete" id="btn-insert-footer" onclick="toggleSkill('insert-footer')">
-          <span id="btn-text-insert-footer">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-footer">Saving...</span>
+        <button class="btn-complete" id="btn-insert-footer" data-skill="insert-footer">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-insert-page-numbers" data-skill="insert-page-numbers">
-    <div class="skill-header" data-toggle="insert-page-numbers">
+    <div class="skill-header" data-card="insert-page-numbers">
       <div class="skill-num">6</div>
       <div class="skill-title">Insert Page Numbers</div>
-      <div class="skill-where-badge">Insert tab → Header & Footer group</div>
+      <div class="skill-badge">Insert tab → Header & Footer group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Multi-page documents need page numbers so readers can navigate and reference specific sections.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Multi-page documents need page numbers so readers can navigate and reference specific sections.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Insert tab</span> <span class="arrow">→</span> <span>Header & Footer group</span> <span class="arrow">→</span> <span>Page Number</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Insert tab</span> <span class="arr">→</span> <span>Header & Footer group</span> <span class="arr">→</span> <span>Page Number</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Insert</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Page Number</strong> in the Header & Footer group.</span></li>
-<li><span class="step-num">3</span><span>Choose a position: <strong>Top of Page</strong> or <strong>Bottom of Page</strong>.</span></li>
-<li><span class="step-num">4</span><span>Select a style from the submenu (e.g., Plain Number 3 for bottom-right).</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Insert</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Page Number</strong> in the Header & Footer group.</span></li>
+<li><span class="step-n">3</span><span>Choose a position: <strong>Top of Page</strong> or <strong>Bottom of Page</strong>.</span></li>
+<li><span class="step-n">4</span><span>Select a style from the submenu (e.g., Plain Number 3 for bottom-right).</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
         <div class="check-box">Page numbers appear on every page. Scroll through the document to confirm.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-insert-page-numbers" onclick="openLinkedIn('insert-page-numbers');return false;" data-skill-id="insert-page-numbers"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+insert+page+numbers+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-page-numbers" data-skill="insert-page-numbers">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+insert+page+numbers+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+add+page+numbers+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+add+page+numbers+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/insert-page-numbers-9f366518-0500-4b45-903d-987d3827c007" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/insert-page-numbers-9f366518-0500-4b45-903d-987d3827c007" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-insert-page-numbers">Saving...</span>
-        <button class="btn-complete" id="btn-insert-page-numbers" onclick="toggleSkill('insert-page-numbers')">
-          <span id="btn-text-insert-page-numbers">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-page-numbers">Saving...</span>
+        <button class="btn-complete" id="btn-insert-page-numbers" data-skill="insert-page-numbers">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-add-watermark" data-skill="add-watermark">
-    <div class="skill-header" data-toggle="add-watermark">
+    <div class="skill-header" data-card="add-watermark">
       <div class="skill-num">7</div>
       <div class="skill-title">Add a Watermark</div>
-      <div class="skill-where-badge">Design tab → Page Background group</div>
+      <div class="skill-badge">Design tab → Page Background group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Watermarks like DRAFT or CONFIDENTIAL alert readers to the document's status without changing the main content.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Watermarks like DRAFT or CONFIDENTIAL alert readers to the document's status without changing content.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Design tab</span> <span class="arrow">→</span> <span>Page Background group</span> <span class="arrow">→</span> <span>Watermark</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Design tab</span> <span class="arr">→</span> <span>Page Background group</span> <span class="arr">→</span> <span>Watermark</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Design</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Watermark</strong> in the Page Background group.</span></li>
-<li><span class="step-num">3</span><span>Choose a preset like <strong>DRAFT 1</strong> or <strong>CONFIDENTIAL 1</strong>.</span></li>
-<li><span class="step-num">4</span><span>To customize, click <strong>Custom Watermark</strong> at the bottom of the gallery.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Design</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Watermark</strong> in the Page Background group.</span></li>
+<li><span class="step-n">3</span><span>Choose a preset like <strong>DRAFT 1</strong> or <strong>CONFIDENTIAL 1</strong>.</span></li>
+<li><span class="step-n">4</span><span>To customize, click <strong>Custom Watermark</strong> at the bottom.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">Faint diagonal text appears behind the content on every page. It will not print as prominently as regular text.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">Faint diagonal text appears behind the content on every page.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-add-watermark" onclick="openLinkedIn('add-watermark');return false;" data-skill-id="add-watermark"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+add+watermark+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-add-watermark" data-skill="add-watermark">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+add+watermark+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+add+DRAFT+watermark+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+add+DRAFT+watermark+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/insert-a-watermark-7b858461-f2de-4d75-9021-79f39e2b6a6a" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/insert-a-watermark-7b858461-f2de-4d75-9021-79f39e2b6a6a" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-add-watermark">Saving...</span>
-        <button class="btn-complete" id="btn-add-watermark" onclick="toggleSkill('add-watermark')">
-          <span id="btn-text-add-watermark">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-add-watermark">Saving...</span>
+        <button class="btn-complete" id="btn-add-watermark" data-skill="add-watermark">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-modify-doc-properties" data-skill="modify-doc-properties">
-    <div class="skill-header" data-toggle="modify-doc-properties">
+    <div class="skill-header" data-card="modify-doc-properties">
       <div class="skill-num">8</div>
       <div class="skill-title">Modify Document Properties</div>
-      <div class="skill-where-badge">File tab → Info</div>
+      <div class="skill-badge">File tab → Info</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Document properties (Title, Author, Company) are embedded in the file and appear in Windows Explorer and file management systems. They help identify and organize documents.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Document properties (Title, Author, Company) are embedded in the file and help identify and organize documents.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>File tab</span> <span class="arrow">→</span> <span>Info</span> <span class="arrow">→</span> <span>Properties panel</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Properties panel</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>File</strong> tab to open the backstage view.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Info</strong> in the left menu.</span></li>
-<li><span class="step-num">3</span><span>On the right side, find the <strong>Properties</strong> panel.</span></li>
-<li><span class="step-num">4</span><span>Click each field (Title, Author, Company) to type your information.</span></li>
-<li><span class="step-num">5</span><span>Press <strong>Esc</strong> or click the back arrow to return to the document.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>File</strong> tab to open the backstage view.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Info</strong> in the left menu.</span></li>
+<li><span class="step-n">3</span><span>On the right side, find the <strong>Properties</strong> panel.</span></li>
+<li><span class="step-n">4</span><span>Click each field (Title, Author, Company) to type your information.</span></li>
+<li><span class="step-n">5</span><span>Press <strong>Esc</strong> or the back arrow to return to the document.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">Right-click the saved file in Windows Explorer → Properties → Details tab to confirm the fields are saved.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">Right-click the saved file in Windows Explorer → Properties → Details tab to confirm.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-modify-doc-properties" onclick="openLinkedIn('modify-doc-properties');return false;" data-skill-id="modify-doc-properties"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+edit+document+properties+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-modify-doc-properties" data-skill="modify-doc-properties">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+edit+document+properties+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+change+document+properties+title+author+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+change+document+properties+title+author+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/view-or-change-the-properties-for-an-office-file-21d604c2-481e-4379-8e54-1dd4622c6b75" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/view-or-change-the-properties-for-an-office-file-21d604c2-481e-4379-8e54-1dd4622c6b75" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-modify-doc-properties">Saving...</span>
-        <button class="btn-complete" id="btn-modify-doc-properties" onclick="toggleSkill('modify-doc-properties')">
-          <span id="btn-text-modify-doc-properties">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-modify-doc-properties">Saving...</span>
+        <button class="btn-complete" id="btn-modify-doc-properties" data-skill="modify-doc-properties">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-check-accessibility" data-skill="check-accessibility">
-    <div class="skill-header" data-toggle="check-accessibility">
+    <div class="skill-header" data-card="check-accessibility">
       <div class="skill-num">9</div>
       <div class="skill-title">Check Accessibility</div>
-      <div class="skill-where-badge">Review tab → Accessibility group</div>
+      <div class="skill-badge">Review tab → Accessibility group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Accessibility checking ensures the document can be read by people using screen readers. Required for ADA compliance in educational and professional settings.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Accessibility checking ensures the document can be read by screen readers. Required for ADA compliance.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Review tab</span> <span class="arrow">→</span> <span>Accessibility group</span> <span class="arrow">→</span> <span>Check Accessibility</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Accessibility group</span> <span class="arr">→</span> <span>Check Accessibility</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>Review</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Check Accessibility</strong> in the Accessibility group.</span></li>
-<li><span class="step-num">3</span><span>An Accessibility pane opens on the right showing any errors or warnings.</span></li>
-<li><span class="step-num">4</span><span>Click each issue to see what needs to be fixed and why.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>Review</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Check Accessibility</strong> in the Accessibility group.</span></li>
+<li><span class="step-n">3</span><span>An Accessibility pane opens on the right showing any errors or warnings.</span></li>
+<li><span class="step-n">4</span><span>Click each issue to see what needs to be fixed and why.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
         <div class="check-box">The Accessibility pane shows "No accessibility issues found" or lists specific items to address.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-check-accessibility" onclick="openLinkedIn('check-accessibility');return false;" data-skill-id="check-accessibility"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+check+accessibility+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-check-accessibility" data-skill="check-accessibility">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+check+accessibility+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+run+accessibility+checker+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+run+accessibility+checker+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/improve-accessibility-with-the-accessibility-checker-a16f6de0-2f39-4a2b-8bd8-5ad801426c7f" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/improve-accessibility-with-the-accessibility-checker-a16f6de0-2f39-4a2b-8bd8-5ad801426c7f" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-check-accessibility">Saving...</span>
-        <button class="btn-complete" id="btn-check-accessibility" onclick="toggleSkill('check-accessibility')">
-          <span id="btn-text-check-accessibility">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-check-accessibility">Saving...</span>
+        <button class="btn-complete" id="btn-check-accessibility" data-skill="check-accessibility">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-save-as-format" data-skill="save-as-format">
-    <div class="skill-header" data-toggle="save-as-format">
+    <div class="skill-header" data-card="save-as-format">
       <div class="skill-num">10</div>
       <div class="skill-title">Save As PDF</div>
-      <div class="skill-where-badge">File tab → Export</div>
+      <div class="skill-badge">File tab → Export</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">PDFs preserve formatting across all devices and operating systems. Stakeholders who don't have Word can still read the document exactly as intended.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">PDFs preserve formatting across all devices. Stakeholders without Word can still read the document.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>File tab</span> <span class="arrow">→</span> <span>Export</span> <span class="arrow">→</span> <span>Create PDF/XPS</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Export</span> <span class="arr">→</span> <span>Create PDF/XPS</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>File</strong> tab.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Export</strong> in the left menu.</span></li>
-<li><span class="step-num">3</span><span>Click <strong>Create PDF/XPS</strong>.</span></li>
-<li><span class="step-num">4</span><span>Choose a save location, confirm the filename, and click <strong>Publish</strong>.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>File</strong> tab.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Export</strong> in the left menu.</span></li>
+<li><span class="step-n">3</span><span>Click <strong>Create PDF/XPS</strong>.</span></li>
+<li><span class="step-n">4</span><span>Choose a save location and click <strong>Publish</strong>.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
         <div class="check-box">A PDF file appears in the chosen location. Open it to confirm it looks correct.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-save-as-format" onclick="openLinkedIn('save-as-format');return false;" data-skill-id="save-as-format"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+save+word+document+as+pdf+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-save-as-format" data-skill="save-as-format">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+save+word+document+as+pdf+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+save+Word+document+as+PDF+Microsoft+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+save+Word+document+as+PDF+Microsoft+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/save-or-convert-to-pdf-or-xps-format-in-office-desktop-apps-d85416c5-7d77-4fd6-a216-6f4bf7c7c110" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/save-or-convert-to-pdf-or-xps-format-in-office-desktop-apps-d85416c5-7d77-4fd6-a216-6f4bf7c7c110" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-save-as-format">Saving...</span>
-        <button class="btn-complete" id="btn-save-as-format" onclick="toggleSkill('save-as-format')">
-          <span id="btn-text-save-as-format">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-save-as-format">Saving...</span>
+        <button class="btn-complete" id="btn-save-as-format" data-skill="save-as-format">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-share-document" data-skill="share-document">
-    <div class="skill-header" data-toggle="share-document">
+    <div class="skill-header" data-card="share-document">
       <div class="skill-num">11</div>
       <div class="skill-title">Share a Document</div>
-      <div class="skill-where-badge">File tab → Share</div>
+      <div class="skill-badge">File tab → Share</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Word's Share feature sends a link to a OneDrive-saved document so collaborators can view or edit it without emailing large file attachments.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Word's Share feature sends a link so collaborators can view or edit without emailing large attachments.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>File tab</span> <span class="arrow">→</span> <span>Share</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Share</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Save the document to <strong>OneDrive</strong> first (required for sharing).</span></li>
-<li><span class="step-num">2</span><span>Click the <strong>File</strong> tab, then click <strong>Share</strong>.</span></li>
-<li><span class="step-num">3</span><span>Enter the recipient's email address.</span></li>
-<li><span class="step-num">4</span><span>Set permission to <strong>Can edit</strong> or <strong>Can view</strong>.</span></li>
-<li><span class="step-num">5</span><span>Click <strong>Send</strong>.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Save the document to <strong>OneDrive</strong> first (required for sharing).</span></li>
+<li><span class="step-n">2</span><span>Click the <strong>File</strong> tab, then click <strong>Share</strong>.</span></li>
+<li><span class="step-n">3</span><span>Enter the recipient's email address.</span></li>
+<li><span class="step-n">4</span><span>Set permission to <strong>Can edit</strong> or <strong>Can view</strong>.</span></li>
+<li><span class="step-n">5</span><span>Click <strong>Send</strong>.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">The recipient receives an email with a link to the document. The Share button in the top-right of Word shows active collaborators.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">The recipient receives an email with a link. The Share button shows active collaborators.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-share-document" onclick="openLinkedIn('share-document');return false;" data-skill-id="share-document"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+share+word+document+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-share-document" data-skill="share-document">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+share+word+document+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+share+a+Word+document+Microsoft+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+share+a+Word+document+Microsoft+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/share-a-document-in-word-d39f3cd8-0aa0-412f-9a35-1abba926d354" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/share-a-document-in-word-d39f3cd8-0aa0-412f-9a35-1abba926d354" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-share-document">Saving...</span>
-        <button class="btn-complete" id="btn-share-document" onclick="toggleSkill('share-document')">
-          <span id="btn-text-share-document">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-share-document">Saving...</span>
+        <button class="btn-complete" id="btn-share-document" data-skill="share-document">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-remove-hidden-properties" data-skill="remove-hidden-properties">
-    <div class="skill-header" data-toggle="remove-hidden-properties">
+    <div class="skill-header" data-card="remove-hidden-properties">
       <div class="skill-num">12</div>
       <div class="skill-title">Remove Hidden Properties</div>
-      <div class="skill-where-badge">File tab → Info</div>
+      <div class="skill-badge">File tab → Info</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Word documents store hidden metadata — edit history, author names, comments — that should be removed before sharing externally for privacy and professionalism.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Word documents store hidden metadata — edit history, author names, comments — that should be removed before sharing.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>File tab</span> <span class="arrow">→</span> <span>Info</span> <span class="arrow">→</span> <span>Check for Issues</span> <span class="arrow">→</span> <span>Inspect Document</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Check for Issues</span> <span class="arr">→</span> <span>Inspect Document</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>File</strong> tab → <strong>Info</strong>.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Check for Issues</strong> → <strong>Inspect Document</strong>.</span></li>
-<li><span class="step-num">3</span><span>Click <strong>Inspect</strong> to run the check.</span></li>
-<li><span class="step-num">4</span><span>Click <strong>Remove All</strong> next to <strong>Document Properties and Personal Information</strong>.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>File</strong> tab → <strong>Info</strong>.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Check for Issues</strong> → <strong>Inspect Document</strong>.</span></li>
+<li><span class="step-n">3</span><span>Click <strong>Inspect</strong> to run the check.</span></li>
+<li><span class="step-n">4</span><span>Click <strong>Remove All</strong> next to Document Properties and Personal Information.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">Re-run the inspection. The Document Properties section should now show a green checkmark.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">Re-run the inspection. The Document Properties section shows a green checkmark.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-remove-hidden-properties" onclick="openLinkedIn('remove-hidden-properties');return false;" data-skill-id="remove-hidden-properties"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+remove+hidden+properties+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-remove-hidden-properties" data-skill="remove-hidden-properties">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+remove+hidden+properties+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+remove+hidden+metadata+personal+information+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+remove+hidden+metadata+personal+information+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/remove-hidden-data-and-personal-information-by-inspecting-documents-presentations-or-workbooks-356b7b5d-77af-44fe-a07f-9aa4d085966f" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/remove-hidden-data-and-personal-information-by-inspecting-documents-presentations-or-workbooks-356b7b5d-77af-44fe-a07f-9aa4d085966f" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-remove-hidden-properties">Saving...</span>
-        <button class="btn-complete" id="btn-remove-hidden-properties" onclick="toggleSkill('remove-hidden-properties')">
-          <span id="btn-text-remove-hidden-properties">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-remove-hidden-properties">Saving...</span>
+        <button class="btn-complete" id="btn-remove-hidden-properties" data-skill="remove-hidden-properties">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-check-compatibility" data-skill="check-compatibility">
-    <div class="skill-header" data-toggle="check-compatibility">
+    <div class="skill-header" data-card="check-compatibility">
       <div class="skill-num">13</div>
       <div class="skill-title">Check Compatibility</div>
-      <div class="skill-where-badge">File tab → Info</div>
+      <div class="skill-badge">File tab → Info</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">Some features in Word 365 don't exist in older versions. Running a compatibility check prevents formatting issues when recipients use Word 2016 or earlier.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">Some features in Word 365 don't exist in older versions. This prevents formatting issues for recipients.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>File tab</span> <span class="arrow">→</span> <span>Info</span> <span class="arrow">→</span> <span>Check for Issues</span> <span class="arrow">→</span> <span>Check Compatibility</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Check for Issues</span> <span class="arr">→</span> <span>Check Compatibility</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Click the <strong>File</strong> tab → <strong>Info</strong>.</span></li>
-<li><span class="step-num">2</span><span>Click <strong>Check for Issues</strong> → <strong>Check Compatibility</strong>.</span></li>
-<li><span class="step-num">3</span><span>Review any listed issues — Word will tell you which features won't work in older versions.</span></li>
-<li><span class="step-num">4</span><span>Decide whether to fix the issues or proceed.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Click the <strong>File</strong> tab → <strong>Info</strong>.</span></li>
+<li><span class="step-n">2</span><span>Click <strong>Check for Issues</strong> → <strong>Check Compatibility</strong>.</span></li>
+<li><span class="step-n">3</span><span>Review any listed issues.</span></li>
+<li><span class="step-n">4</span><span>Decide whether to fix the issues or proceed.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">The Compatibility Checker dialog either shows "No compatibility issues found" or lists specific items to review.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">The Compatibility Checker shows "No compatibility issues found" or lists specific items.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-check-compatibility" onclick="openLinkedIn('check-compatibility');return false;" data-skill-id="check-compatibility"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+check+compatibility+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-check-compatibility" data-skill="check-compatibility">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+check+compatibility+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+run+compatibility+checker+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+run+compatibility+checker+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/use-the-compatibility-checker-in-word-2016-for-mac-to-find-compatibility-issues-bf0e9f0c-c0e4-4a1c-9e09-7d9c0c2e6c12" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/use-the-compatibility-checker-in-word-2016-for-mac-to-find-compatibility-issues-bf0e9f0c-c0e4-4a1c-9e09-7d9c0c2e6c12" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-check-compatibility">Saving...</span>
-        <button class="btn-complete" id="btn-check-compatibility" onclick="toggleSkill('check-compatibility')">
-          <span id="btn-text-check-compatibility">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-check-compatibility">Saving...</span>
+        <button class="btn-complete" id="btn-check-compatibility" data-skill="check-compatibility">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
   <div class="skill-card" id="card-search-text" data-skill="search-text">
-    <div class="skill-header" data-toggle="search-text">
+    <div class="skill-header" data-card="search-text">
       <div class="skill-num">14</div>
       <div class="skill-title">Find Text</div>
-      <div class="skill-where-badge">Home tab → Editing group</div>
+      <div class="skill-badge">Home tab → Editing group</div>
       <div class="expand-icon">▾</div>
     </div>
-    <div class="skill-body" onclick="event.stopPropagation()">
-
-      <div class="body-section">
-        <div class="body-label">Why This Matters</div>
-        <div class="body-text">The Navigation Pane's Find feature locates every instance of a word or phrase instantly — essential before doing a Find & Replace.</div>
+    <div class="skill-body">
+      <div class="section">
+        <div class="section-label">Why This Matters</div>
+        <div class="section-text">The Navigation Pane's Find feature locates every instance of a word or phrase instantly.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Where to Find It</div>
-        <div class="ribbon-path"><span>Home tab</span> <span class="arrow">→</span> <span>Editing group</span> <span class="arrow">→</span> <span>Find  (or Ctrl+F)</span></div>
+      <div class="section">
+        <div class="section-label">Where to Find It</div>
+        <div class="ribbon-path"><span>Home tab</span> <span class="arr">→</span> <span>Editing group</span> <span class="arr">→</span> <span>Find  (or Ctrl+F)</span></div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How to Do It</div>
-        <ul class="steps-list"><li><span class="step-num">1</span><span>Press <strong>Ctrl+F</strong> to open the Navigation Pane, or click the <strong>Home</strong> tab → <strong>Find</strong>.</span></li>
-<li><span class="step-num">2</span><span>Type the word or phrase in the search box.</span></li>
-<li><span class="step-num">3</span><span>Word highlights all matches and shows a count. Click the arrows to jump between them.</span></li></ul>
+      <div class="section">
+        <div class="section-label">How to Do It</div>
+        <ul class="steps"><li><span class="step-n">1</span><span>Press <strong>Ctrl+F</strong> to open the Navigation Pane, or click <strong>Home</strong> → <strong>Find</strong>.</span></li>
+<li><span class="step-n">2</span><span>Type the word or phrase in the search box.</span></li>
+<li><span class="step-n">3</span><span>Word highlights all matches and shows a count. Click the arrows to jump between them.</span></li></ul>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">How You'll Know It Worked</div>
-        <div class="check-box">All instances are highlighted in yellow in the document. The Navigation Pane shows the total count found.</div>
+      <div class="section">
+        <div class="section-label">How You'll Know It Worked</div>
+        <div class="check-box">All instances are highlighted in yellow. The Navigation Pane shows the total count found.</div>
       </div>
-
-      <div class="body-section">
-        <div class="body-label">Learning Resources</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="#" class="resource-btn li li-placeholder" id="li-btn-search-text" onclick="openLinkedIn('search-text');return false;" data-skill-id="search-text"><svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg> LinkedIn Learning</a>
-          <a href="https://www.youtube.com/results?search_query=how+to+find+text+word+365" target="_blank" rel="noopener" class="resource-btn yt">
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-search-text" data-skill="search-text">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.youtube.com/results?search_query=how+to+find+text+word+365" target="_blank" rel="noopener" class="res-btn yt">
             <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.8 4.8s-.2-1.3-.7-1.9c-.7-.7-1.4-.7-1.8-.8C11.1 2 8 2 8 2s-3.1 0-5.3.1c-.4.1-1.1.1-1.8.8C.4 3.5.2 4.8.2 4.8S0 6.3 0 7.8v1.4c0 1.5.2 3 .2 3s.2 1.3.7 1.9c.7.7 1.6.7 2 .7C4.2 15 8 15 8 15s3.1 0 5.3-.2c.4-.1 1.1-.1 1.8-.8.5-.6.7-1.9.7-1.9S16 10.7 16 9.2V7.8c0-1.5-.2-3-.2-3zm-9.4 6V5.2l4.9 2.8-4.9 2.8z" fill="currentColor"/></svg>
             YouTube
           </a>
-          <a href="https://www.perplexity.ai/search?q=how+to+use+Find+feature+search+text+Microsoft+Word+365" target="_blank" rel="noopener" class="resource-btn px">
+          <a href="https://www.perplexity.ai/search?q=how+to+use+Find+feature+search+text+Microsoft+Word+365" target="_blank" rel="noopener" class="res-btn px">
             <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             Perplexity
           </a>
-          <a href="https://support.microsoft.com/en-us/office/find-and-replace-text-c6728c16-469e-43cd-afe4-7708c6c779b7" target="_blank" rel="noopener" class="resource-btn ms">
+          <a href="https://support.microsoft.com/en-us/office/find-and-replace-text-c6728c16-469e-43cd-afe4-7708c6c779b7" target="_blank" rel="noopener" class="res-btn ms">
             <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
             Microsoft Support
           </a>
         </div>
       </div>
-
-      <div class="complete-btn">
-        <span class="btn-saving" id="saving-search-text">Saving...</span>
-        <button class="btn-complete" id="btn-search-text" onclick="toggleSkill('search-text')">
-          <span id="btn-text-search-text">Mark Complete</span>
-        </button>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-search-text">Saving...</span>
+        <button class="btn-complete" id="btn-search-text" data-skill="search-text">Mark Complete</button>
       </div>
-
     </div>
   </div>
 
-</div><!-- end #main -->
+</div>
 
-<!-- Toast -->
-<div id="toast"></div>
-
-<script>
-// ── Config ────────────────────────────────────────────────────────────────────
-const DOMAIN   = 'D1';
-const TOTAL    = 14;
-const API_BASE = '';  // same origin
-
-// ── State ─────────────────────────────────────────────────────────────────────
-let sessionToken = localStorage.getItem('is101_token') || null;
-let nsheId       = localStorage.getItem('is101_nshe')  || null;
-let completed    = new Set();
-
-// ── Init ──────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  if (sessionToken && nsheId) {
-    document.getElementById('login-prompt').classList.add('hidden');
-    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
-    loadProgress();
-  }
-});
-
-// ── Login ─────────────────────────────────────────────────────────────────────
-async function doLogin() {
-  const input = document.getElementById('nshe-input').value.trim();
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-
-  if (!/^\d{10}$/.test(input)) {
-    errEl.textContent = 'Please enter your 10-digit NSHE ID.';
-    return;
-  }
-
-  try {
-    const res  = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nsheId: input })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Login failed');
-
-    sessionToken = data.token;
-    nsheId       = data.nsheId;
-    localStorage.setItem('is101_token', sessionToken);
-    localStorage.setItem('is101_nshe', nsheId);
-
-    document.getElementById('login-prompt').classList.add('hidden');
-    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
-    loadProgress();
-    showToast('Signed in successfully', 'success');
-  } catch (err) {
-    document.getElementById('login-error').textContent = err.message;
-  }
-}
-
-document.getElementById('nshe-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-
-// ── Load progress from server ─────────────────────────────────────────────────
-async function loadProgress() {
-  try {
-    const res  = await fetch('/api/progress/skills/' + DOMAIN, {
-      headers: { 'x-session-token': sessionToken }
-    });
-    if (res.status === 401) { handleSessionExpired(); return; }
-    const data = await res.json();
-    completed  = new Set(data.skills.map(s => s.skill_id));
-    renderAllCards();
-    updateProgress();
-  } catch (err) {
-    // Offline fallback — use localStorage
-    const stored = localStorage.getItem('is101_skills_' + DOMAIN);
-    if (stored) {
-      completed = new Set(JSON.parse(stored));
-      renderAllCards();
-      updateProgress();
-    }
-  }
-}
-
-// ── Toggle skill complete ─────────────────────────────────────────────────────
-async function toggleSkill(skillId) {
-  const isNowComplete = !completed.has(skillId);
-
-  // Optimistic UI update
-  if (isNowComplete) { completed.add(skillId); }
-  else               { completed.delete(skillId); }
-  renderCard(skillId);
-  updateProgress();
-
-  // Local backup
-  localStorage.setItem('is101_skills_' + DOMAIN, JSON.stringify([...completed]));
-
-  // Show saving indicator
-  document.getElementById('saving-' + skillId).style.display = 'inline';
-
-  try {
-    const res = await fetch('/api/progress/skill', {
-      method: 'POST',
-      headers: {
-        'Content-Type':    'application/json',
-        'x-session-token': sessionToken
-      },
-      body: JSON.stringify({ domain: DOMAIN, skillId, completed: isNowComplete })
-    });
-    if (res.status === 401) { handleSessionExpired(); return; }
-    if (!res.ok) throw new Error('Save failed');
-    showToast(isNowComplete ? '✓ Skill marked complete' : 'Skill unchecked', isNowComplete ? 'success' : '');
-  } catch (err) {
-    showToast('Saved locally — will sync when online', '');
-  } finally {
-    document.getElementById('saving-' + skillId).style.display = 'none';
-  }
-}
-
-// ── Render helpers ────────────────────────────────────────────────────────────
-function renderCard(skillId) {
-  const card    = document.getElementById('card-' + skillId);
-  const btn     = document.getElementById('btn-' + skillId);
-  const btnText = document.getElementById('btn-text-' + skillId);
-  const isDone  = completed.has(skillId);
-
-  if (!card || !btn) return;
-
-  if (isDone) {
-    card.classList.add('completed');
-    btn.classList.add('done');
-    btnText.textContent = '✓ Completed — click to undo';
-  } else {
-    card.classList.remove('completed');
-    btn.classList.remove('done');
-    btnText.textContent = 'Mark Complete';
-  }
-}
-
-function renderAllCards() {
-  document.querySelectorAll('.skill-card').forEach(card => {
-    renderCard(card.dataset.skill);
-  });
-}
-
-function updateProgress() {
-  const done = completed.size;
-  const pct  = Math.round(done / TOTAL * 100);
-  document.getElementById('progress-label').textContent = done + ' of ' + TOTAL + ' skills completed';
-  document.getElementById('progress-bar-fill').style.width = pct + '%';
-  document.getElementById('progress-pct').textContent = pct + '%';
-}
-
-// ── Accordion ─────────────────────────────────────────────────────────────────
-function toggleCard(skillId) {
-  const card = document.getElementById('card-' + skillId);
-  if (!card) return;
-  if (card.classList.contains('open')) {
-    card.classList.remove('open');
-  } else {
-    document.querySelectorAll('.skill-card.open').forEach(c => c.classList.remove('open'));
-    card.classList.add('open');
-  }
-}
-
-// Wire up accordion via event delegation — avoids onclick attribute issues
-document.addEventListener('click', function(e) {
-  const header = e.target.closest('[data-toggle]');
-  if (!header) return;
-  e.stopPropagation();
-  toggleCard(header.getAttribute('data-toggle'));
-});
-
-// ── Session expired ───────────────────────────────────────────────────────────
-function handleSessionExpired() {
-  sessionToken = null;
-  localStorage.removeItem('is101_token');
-  document.getElementById('login-prompt').classList.remove('hidden');
-  showToast('Session expired — please sign in again', 'error');
-}
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
-let toastTimer = null;
-function showToast(msg, type = '') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show' + (type ? ' ' + type : '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = ''; }, 3000);
-}
-</script>
-
-<!-- ── PRACTICE GRADING SUBMISSION ── -->
-<div id="submit-section" style="max-width:860px;margin:0 auto 80px;padding:0 24px">
-  <div style="background:white;border:1px solid #dde1e9;border-radius:10px;
-              box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden">
-
-    <!-- Header -->
-    <div style="background:#f0f2f5;border-bottom:1px solid #dde1e9;padding:18px 24px;
-                display:flex;align-items:center;gap:12px">
-      <div style="width:36px;height:36px;background:#2b579a;border-radius:50%;
-                  display:flex;align-items:center;justify-content:center;flex-shrink:0">
+<!-- Submit section -->
+<div id="submit-section">
+  <div class="submit-card">
+    <div class="submit-header">
+      <div class="submit-icon">
         <svg width="18" height="18" viewBox="0 0 16 16">
           <polyline points="2,10 2,14 14,14 14,10" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           <line x1="8" y1="2" x2="8" y2="11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
@@ -1680,207 +1025,289 @@ function showToast(msg, type = '') {
       </div>
       <div>
         <div style="font-size:16px;font-weight:700;color:#1a1a2e">Submit for Practice Grading</div>
-        <div style="font-size:13px;color:#6b7280;margin-top:1px">
-          Upload your completed starter file when you're done with all 14 skills.
-        </div>
+        <div style="font-size:13px;color:#6b7280;margin-top:1px">Upload your completed starter file when you are done with all 14 skills.</div>
       </div>
     </div>
-
-    <div style="padding:24px">
-
-      <!-- Already submitted notice (hidden by default) -->
-      <div id="already-submitted" style="display:none;background:#e6f4e6;border:1px solid #b7e0b7;
-           border-radius:8px;padding:14px 18px;margin-bottom:18px;font-size:14px;color:#1a4a1a">
-        <strong>✓ Already submitted</strong> — <span id="submitted-info"></span>
-        <br><span style="font-size:12px;color:#2e7a2e">You can re-submit to replace your previous file.</span>
-      </div>
-
-      <!-- Grade notice (hidden by default) -->
-      <div id="grade-notice" style="display:none;background:#fff8e1;border:1px solid #ffe082;
-           border-radius:8px;padding:14px 18px;margin-bottom:18px;font-size:14px;color:#5d4037">
-        <strong>Grade on file:</strong> <span id="grade-score"></span>
-        <br><span id="grade-feedback" style="font-size:13px;color:#6d4c41"></span>
-      </div>
-
-      <!-- Instructions -->
+    <div class="submit-body">
+      <div class="already-sub" id="already-sub"></div>
       <div style="font-size:14px;color:#374151;margin-bottom:20px;line-height:1.6">
         <strong>How to submit:</strong><br>
         1. Save your Word document (Ctrl+S).<br>
-        2. Click <strong>Choose File</strong> below and select your saved
-           <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px;font-size:13px">Word_D1_Starter.docx</code> file.<br>
-        3. Click <strong>Submit for Grading</strong>. Your instructor will review and grade your work.
+        2. Click Choose File and select your saved <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px;font-size:13px">Word_D1_Starter.docx</code>.<br>
+        3. Click Submit for Grading. Your instructor will review and grade your work.
       </div>
-
-      <!-- Drop zone -->
-      <div id="drop-zone" style="border:2px dashed #dde1e9;border-radius:10px;padding:32px 24px;
-           text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px"
-           onclick="document.getElementById('file-input').click()"
-           ondragover="event.preventDefault();this.style.borderColor='#2b579a';this.style.background='#e8f0fb'"
-           ondragleave="this.style.borderColor='#dde1e9';this.style.background=''"
-           ondrop="handleDrop(event)">
-        <div id="drop-icon" style="font-size:32px;margin-bottom:8px">📄</div>
-        <div id="drop-text" style="font-size:14px;color:#6b7280">
-          Drag your .docx file here, or <span style="color:#2b579a;font-weight:600">click to browse</span>
-        </div>
-        <div id="file-chosen" style="font-size:13px;color:#2b579a;font-weight:600;
-             margin-top:8px;display:none"></div>
+      <div class="drop-zone" id="drop-zone">
+        <div style="font-size:32px" id="drop-icon">📄</div>
+        <div class="drop-text" id="drop-text">Drag your .docx file here, or <span>click to browse</span></div>
+        <div class="file-chosen" id="file-chosen"></div>
       </div>
-      <input type="file" id="file-input" accept=".docx,.doc" style="display:none"
-             onchange="handleFileSelect(this.files[0])">
-
-      <!-- Submit button -->
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <button id="submit-btn" onclick="submitFile()"
-          style="padding:11px 28px;background:#2b579a;color:white;border:none;border-radius:8px;
-                 font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
-                 opacity:.4;pointer-events:none;transition:all .15s"
-          disabled>
-          Submit for Grading
-        </button>
-        <span id="submit-status" style="font-size:13px;color:#6b7280"></span>
+      <input type="file" id="file-input" accept=".docx,.doc" style="display:none">
+      <div class="submit-row">
+        <button class="btn-submit" id="submit-btn">Submit for Grading</button>
+        <span class="submit-status" id="submit-status"></span>
       </div>
-
     </div>
   </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
-// ── File upload state ─────────────────────────────────────────────────────────
+'use strict';
+const DOMAIN = 'D1';
+const TOTAL  = 14;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let token  = localStorage.getItem('is101_token') || null;
+let nsheId = localStorage.getItem('is101_nshe')  || null;
+let done   = new Set();
 let selectedFile = null;
 
-function handleFileSelect(file) {
-  if (!file) return;
-  selectedFile = file;
-  document.getElementById('file-chosen').textContent = '✓ ' + file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
-  document.getElementById('file-chosen').style.display = 'block';
-  document.getElementById('drop-text').style.display = 'none';
-  document.getElementById('drop-icon').textContent = '✅';
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = false;
-  btn.style.opacity = '1';
-  btn.style.pointerEvents = 'auto';
-}
+// ── Accordion — single event listener, no onclick attributes ─────────────────
+document.getElementById('main').addEventListener('click', function(e) {
+  const header = e.target.closest('.skill-header');
+  if (!header) return;
+  const skillId = header.getAttribute('data-card');
+  const card    = document.getElementById('card-' + skillId);
+  if (!card) return;
+  const isOpen  = card.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.skill-card.open').forEach(c => c.classList.remove('open'));
+  // Open this one if it was closed
+  if (!isOpen) card.classList.add('open');
+});
 
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').style.borderColor = '#dde1e9';
-  document.getElementById('drop-zone').style.background = '';
-  const file = e.dataTransfer.files[0];
-  if (file) handleFileSelect(file);
-}
+// ── Complete buttons — event delegation ──────────────────────────────────────
+document.getElementById('main').addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-complete');
+  if (!btn) return;
+  e.stopPropagation(); // don't bubble to skill-header handler
+  toggleSkill(btn.getAttribute('data-skill'));
+});
 
-async function submitFile() {
-  if (!selectedFile) return;
-  if (!sessionToken) {
-    showToast('Please sign in first.', 'error');
-    document.getElementById('login-prompt').classList.remove('hidden');
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  if (token && nsheId) {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
+    loadProgress();
+    checkSubmitStatus();
+    loadLinkedInLinks();
+  }
+});
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('nshe-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const input = document.getElementById('nshe-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!/^\d{10}$/.test(input)) {
+    errEl.textContent = 'Please enter your 10-digit NSHE ID.';
     return;
   }
-
-  const btn = document.getElementById('submit-btn');
-  const status = document.getElementById('submit-status');
-  btn.disabled = true;
-  btn.textContent = 'Uploading...';
-  status.textContent = 'Please wait...';
-
   try {
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('domain', DOMAIN);
-    formData.append('skillsDone', completed.size);
-    formData.append('totalSkills', TOTAL);
-
-    const res  = await fetch('/api/submit', {
+    const res  = await fetch('/api/login', {
       method: 'POST',
-      headers: { 'x-session-token': sessionToken },
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nsheId: input })
     });
     const data = await res.json();
-
-    if (!res.ok) throw new Error(data.error || 'Upload failed');
-
-    btn.textContent = '✓ Submitted';
-    btn.style.background = '#107c10';
-    status.textContent = 'File received. Your instructor will grade it soon.';
-    showToast('✓ File submitted for grading!', 'success');
-    checkSubmissionStatus();
-
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Submit for Grading';
-    status.textContent = '';
-    showToast('Upload failed: ' + err.message, 'error');
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    token  = data.token;
+    nsheId = data.nsheId;
+    localStorage.setItem('is101_token', token);
+    localStorage.setItem('is101_nshe',  nsheId);
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
+    loadProgress();
+    checkSubmitStatus();
+    loadLinkedInLinks();
+    toast('Signed in successfully', 'success');
+  } catch(err) {
+    document.getElementById('login-error').textContent = err.message;
   }
 }
 
-async function checkSubmissionStatus() {
-  if (!sessionToken) return;
-  try {
-    const res  = await fetch('/api/submit/status/' + DOMAIN, {
-      headers: { 'x-session-token': sessionToken }
-    });
-    const data = await res.json();
-    if (data.submitted && data.submission) {
-      const sub = data.submission;
-      const dt  = new Date(sub.submitted_at).toLocaleDateString('en-US', {
-        month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-      document.getElementById('already-submitted').style.display = 'block';
-      document.getElementById('submitted-info').textContent =
-        `"${sub.original_name}" submitted on ${dt} (${sub.skills_done} of ${sub.total_skills} skills checked off)`;
-    }
-  } catch(e) {}
-}
-
-// Check status after login loads progress
-const _origLoadProgress = loadProgress;
+// ── Progress ──────────────────────────────────────────────────────────────────
 async function loadProgress() {
-  await _origLoadProgress();
-  checkSubmissionStatus();
+  try {
+    const res  = await fetch('/api/progress/skills/' + DOMAIN, {
+      headers: { 'x-session-token': token }
+    });
+    if (res.status === 401) { handleExpired(); return; }
+    const data = await res.json();
+    done = new Set(data.skills.map(s => s.skill_id));
+  } catch(e) {
+    const stored = localStorage.getItem('is101_skills_' + DOMAIN);
+    if (stored) done = new Set(JSON.parse(stored));
+  }
+  renderAll();
+  updateProgress();
 }
 
-// ── LinkedIn Learning Links ───────────────────────────────────────────────────
-const linkedInLinks = {};
+function renderAll() {
+  document.querySelectorAll('.skill-card[data-skill]').forEach(card => {
+    renderCard(card.getAttribute('data-skill'));
+  });
+}
 
+function renderCard(skillId) {
+  const card = document.getElementById('card-' + skillId);
+  const btn  = document.getElementById('btn-' + skillId);
+  if (!card || !btn) return;
+  const isDone = done.has(skillId);
+  card.classList.toggle('completed', isDone);
+  btn.classList.toggle('done', isDone);
+  btn.textContent = isDone ? '✓ Completed — click to undo' : 'Mark Complete';
+}
+
+function updateProgress() {
+  const n   = done.size;
+  const pct = Math.round(n / TOTAL * 100);
+  document.getElementById('prog-label').textContent = n + ' of ' + TOTAL + ' skills completed';
+  document.getElementById('prog-fill').style.width  = pct + '%';
+  document.getElementById('prog-pct').textContent   = pct + '%';
+}
+
+async function toggleSkill(skillId) {
+  const nowDone = !done.has(skillId);
+  if (nowDone) done.add(skillId);
+  else         done.delete(skillId);
+  renderCard(skillId);
+  updateProgress();
+  localStorage.setItem('is101_skills_' + DOMAIN, JSON.stringify([...done]));
+  document.getElementById('saving-' + skillId).style.display = 'inline';
+  try {
+    const res = await fetch('/api/progress/skill', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-session-token': token },
+      body: JSON.stringify({ domain: DOMAIN, skillId, completed: nowDone })
+    });
+    if (res.status === 401) { handleExpired(); return; }
+    toast(nowDone ? '✓ Skill marked complete' : 'Skill unchecked', nowDone ? 'success' : '');
+  } catch(e) {
+    toast('Saved locally — will sync when online', '');
+  } finally {
+    document.getElementById('saving-' + skillId).style.display = 'none';
+  }
+}
+
+// ── LinkedIn links ────────────────────────────────────────────────────────────
 async function loadLinkedInLinks() {
   try {
     const res  = await fetch('/api/linkedin/' + DOMAIN);
     const data = await res.json();
-    Object.assign(linkedInLinks, data);
-    applyLinkedInLinks();
-  } catch(e) {
-    // Silently fail — buttons stay as Coming Soon
+    Object.entries(data).forEach(([skillId, url]) => {
+      if (!url) return;
+      const btn = document.getElementById('li-' + skillId);
+      if (!btn) return;
+      btn.href      = url;
+      btn.target    = '_blank';
+      btn.rel       = 'noopener';
+      btn.className = btn.className.replace('li-soon', 'li-active');
+    });
+  } catch(e) { /* stay as Coming Soon */ }
+}
+
+// ── File upload ───────────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const submitBtn = document.getElementById('submit-btn');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) setFile(fileInput.files[0]);
+});
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('drop-icon').textContent   = '✅';
+  document.getElementById('drop-text').style.display = 'none';
+  document.getElementById('file-chosen').style.display = 'block';
+  document.getElementById('file-chosen').textContent = '✓ ' + f.name + ' (' + (f.size/1024).toFixed(0) + ' KB)';
+  submitBtn.classList.add('ready');
+}
+
+submitBtn.addEventListener('click', async function() {
+  if (!selectedFile) return;
+  if (!token) { toast('Please sign in first.', 'error'); return; }
+  submitBtn.disabled    = true;
+  submitBtn.textContent = 'Uploading...';
+  document.getElementById('submit-status').textContent = 'Please wait...';
+  try {
+    const fd = new FormData();
+    fd.append('file',         selectedFile);
+    fd.append('domain',       DOMAIN);
+    fd.append('skillsDone',   done.size);
+    fd.append('totalSkills',  TOTAL);
+    const res  = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'x-session-token': token },
+      body: fd
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+    submitBtn.textContent = '✓ Submitted';
+    submitBtn.style.background = 'var(--green)';
+    document.getElementById('submit-status').textContent = 'Received. Your instructor will grade it soon.';
+    toast('✓ File submitted for grading!', 'success');
+    checkSubmitStatus();
+  } catch(err) {
+    submitBtn.disabled    = false;
+    submitBtn.textContent = 'Submit for Grading';
+    document.getElementById('submit-status').textContent = '';
+    toast('Upload failed: ' + err.message, 'error');
   }
-}
+});
 
-function applyLinkedInLinks() {
-  document.querySelectorAll('[data-skill-id]').forEach(btn => {
-    const skillId = btn.getAttribute('data-skill-id');
-    const url     = linkedInLinks[skillId];
-    if (url) {
-      btn.href    = url;
-      btn.target  = '_blank';
-      btn.rel     = 'noopener';
-      btn.onclick = null;
-      btn.classList.remove('li-placeholder');
-      btn.classList.add('li-active');
-      btn.title   = 'Open in LinkedIn Learning';
-    } else {
-      btn.title = 'LinkedIn Learning link coming soon';
+async function checkSubmitStatus() {
+  if (!token) return;
+  try {
+    const res  = await fetch('/api/submit/status/' + DOMAIN, { headers: { 'x-session-token': token } });
+    const data = await res.json();
+    if (data.submitted && data.submission) {
+      const s  = data.submission;
+      const dt = new Date(s.submitted_at).toLocaleDateString('en-US', {
+        month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'
+      });
+      const el = document.getElementById('already-sub');
+      el.style.display = 'block';
+      el.innerHTML = '<strong>✓ Already submitted</strong> — "' + s.original_name +
+        '" on ' + dt + ' (' + s.skills_done + '/' + s.total_skills +
+        ' skills checked off). <span style="font-size:12px;color:#2e7a2e">You can re-submit to replace.</span>';
     }
-  });
+  } catch(e) {}
 }
 
-function openLinkedIn(skillId) {
-  const url = linkedInLinks[skillId];
-  if (url) window.open(url, '_blank', 'noopener');
-  else showToast('LinkedIn Learning link coming soon for this skill.', '');
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function handleExpired() {
+  token = null;
+  localStorage.removeItem('is101_token');
+  document.getElementById('login-overlay').classList.remove('hidden');
+  toast('Session expired — please sign in again', 'error');
 }
 
-// Load on page init
-loadLinkedInLinks();
-
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3200);
+}
 </script>
-
 </body>
 </html>
