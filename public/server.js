@@ -19,21 +19,6 @@ const NSHE_ID_PATTERN     = /^\d{10}$/;
 // ── MIDDLEWARE ────────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Override CSP so inline scripts in courseware HTML files are allowed
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; " +
-    "script-src 'self' 'unsafe-inline'; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https:; " +
-    "connect-src 'self';"
-  );
-  next();
-});
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ── AUTH HELPERS ──────────────────────────────────────────────────────────────
@@ -58,7 +43,7 @@ function requireInstructor(req, res, next) {
 // STUDENT API
 // ─────────────────────────────────────────────────────────────────────────────
 
-// POST /api/login
+// POST /api/login — student logs in with NSHE ID
 app.post('/api/login', (req, res) => {
   const { nsheId } = req.body;
   if (!nsheId || !NSHE_ID_PATTERN.test(String(nsheId).trim())) {
@@ -78,17 +63,18 @@ app.post('/api/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// GET /api/progress
+// GET /api/progress — load all student progress
 app.get('/api/progress', requireStudent, (req, res) => {
-  const id = req.nsheId;
+  const id        = req.nsheId;
   const steps     = stmts.getStepProgress.all(id);
   const labs      = stmts.getLabAnswers.all(id);
   const exams     = stmts.getExamAttempts.all(id);
   const checklist = stmts.getChecklistProgress.all(id);
-  res.json({ nsheId: id, steps, labs, exams, checklist });
+  const skills    = stmts.getSkillCompletions.all(id);
+  res.json({ nsheId: id, steps, labs, exams, checklist, skills });
 });
 
-// POST /api/progress/step
+// POST /api/progress/step — mark a step complete
 app.post('/api/progress/step', requireStudent, (req, res) => {
   const { unitId, topicId, stepIdx } = req.body;
   if (!unitId || !topicId || stepIdx === undefined) {
@@ -98,7 +84,7 @@ app.post('/api/progress/step', requireStudent, (req, res) => {
   res.json({ success: true });
 });
 
-// POST /api/progress/lab
+// POST /api/progress/lab — save a lab answer
 app.post('/api/progress/lab', requireStudent, (req, res) => {
   const { labId, questionIdx, answerIdx, correct } = req.body;
   if (!labId || questionIdx === undefined || answerIdx === undefined) {
@@ -108,7 +94,7 @@ app.post('/api/progress/lab', requireStudent, (req, res) => {
   res.json({ success: true });
 });
 
-// POST /api/progress/exam
+// POST /api/progress/exam — save exam attempt
 app.post('/api/progress/exam', requireStudent, (req, res) => {
   const { examId, score, total, passed } = req.body;
   if (!examId || score === undefined || total === undefined) {
@@ -118,7 +104,7 @@ app.post('/api/progress/exam', requireStudent, (req, res) => {
   res.json({ success: true });
 });
 
-// POST /api/progress/checklist
+// POST /api/progress/checklist — toggle a checklist step
 app.post('/api/progress/checklist', requireStudent, (req, res) => {
   const { stepId, checked } = req.body;
   if (!stepId) return res.status(400).json({ error: 'Missing stepId' });
@@ -128,6 +114,37 @@ app.post('/api/progress/checklist', requireStudent, (req, res) => {
     stmts.uncheckChecklistStep.run(req.nsheId, stepId);
   }
   res.json({ success: true });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SKILL COMPLETIONS API  (new — June 13, 2026)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// POST /api/progress/skill — mark a skill complete or incomplete
+// Body: { domain: 'D1', skillId: 'set-margins', completed: true }
+app.post('/api/progress/skill', requireStudent, (req, res) => {
+  const { domain, skillId, completed } = req.body;
+  if (!domain || !skillId) {
+    return res.status(400).json({ error: 'Missing domain or skillId' });
+  }
+  if (completed) {
+    stmts.markSkillComplete.run(req.nsheId, domain, skillId);
+  } else {
+    stmts.unmarkSkillComplete.run(req.nsheId, domain, skillId);
+  }
+  res.json({ success: true });
+});
+
+// GET /api/progress/skills — get all skill completions for logged-in student
+app.get('/api/progress/skills', requireStudent, (req, res) => {
+  const skills = stmts.getSkillCompletions.all(req.nsheId);
+  res.json({ nsheId: req.nsheId, skills });
+});
+
+// GET /api/progress/skills/:domain — get skill completions for one domain
+app.get('/api/progress/skills/:domain', requireStudent, (req, res) => {
+  const skills = stmts.getSkillCompletionsByDomain.all(req.nsheId, req.params.domain);
+  res.json({ nsheId: req.nsheId, domain: req.params.domain, skills });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -144,13 +161,13 @@ app.post('/api/instructor/login', (req, res) => {
   res.json({ success: true, token });
 });
 
-// GET /api/instructor/students
+// GET /api/instructor/students — all students summary
 app.get('/api/instructor/students', requireInstructor, (req, res) => {
   const students = stmts.allStudents.all();
   res.json(students);
 });
 
-// GET /api/instructor/student/:id
+// GET /api/instructor/student/:id — one student's full detail
 app.get('/api/instructor/student/:id', requireInstructor, (req, res) => {
   const id = req.params.id;
   const student   = stmts.studentDetail.get(id);
@@ -159,10 +176,17 @@ app.get('/api/instructor/student/:id', requireInstructor, (req, res) => {
   const labs      = stmts.getLabAnswers.all(id);
   const exams     = stmts.getExamAttempts.all(id);
   const checklist = stmts.getChecklistProgress.all(id);
-  res.json({ student, steps, labs, exams, checklist });
+  const skills    = stmts.getSkillCompletions.all(id);
+  res.json({ student, steps, labs, exams, checklist, skills });
 });
 
-// POST /api/instructor/roster
+// GET /api/instructor/skills — all students' skill completion summary
+app.get('/api/instructor/skills', requireInstructor, (req, res) => {
+  const summary = stmts.allSkillCompletions.all();
+  res.json(summary);
+});
+
+// POST /api/instructor/roster — upload CSV roster
 app.post('/api/instructor/roster', requireInstructor, (req, res) => {
   const { students, replace } = req.body;
   if (!Array.isArray(students)) return res.status(400).json({ error: 'Expected array of students' });
@@ -178,27 +202,46 @@ app.post('/api/instructor/roster', requireInstructor, (req, res) => {
   res.json({ success: true, imported: count });
 });
 
-// GET /api/instructor/export
+// GET /api/instructor/export — export progress as CSV
 app.get('/api/instructor/export', requireInstructor, (req, res) => {
   const students = stmts.allStudents.all();
-  const rows = ['NSHE ID,Name,Section,Steps Done,Exam Passed,First Seen,Last Seen'];
+  const rows = ['NSHE ID,Name,Section,Steps Done,Skills Done,Exam Passed,First Seen,Last Seen'];
   students.forEach(s => {
+    const skillsDone = stmts.getSkillCompletions.all(s.nshe_id).length;
     rows.push([
       s.nshe_id,
       `"${(s.name||'').replace(/"/g,'""')}"`,
       `"${(s.section||'').replace(/"/g,'""')}"`,
       s.steps_done || 0,
+      skillsDone,
       s.exam_passed ? 'Yes' : 'No',
       s.first_seen,
       s.last_seen
     ].join(','));
   });
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="is101-progress.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="IS101_Progress_Export.csv"');
   res.send(rows.join('\n'));
+});
+
+// ── CATCH-ALL ─────────────────────────────────────────────────────────────────
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ── START ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`IS101 Courseware running on port ${PORT}`);
+  console.log('');
+  console.log('  IS101 Courseware Server');
+  console.log('  College of Southern Nevada');
+  console.log('  © Dr. Mark Taormino · All Rights Reserved');
+  console.log('');
+  console.log(`  Running at: http://localhost:${PORT}`);
+  console.log(`  Instructor dashboard: http://localhost:${PORT}/instructor.html`);
+  console.log('');
+  console.log('  Press Ctrl+C to stop the server');
+  console.log('');
 });
