@@ -127,31 +127,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2
   transition:all .15s;display:flex;align-items:center;gap:6px}
 .btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
 .btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
-
-/* Submit section */
-#submit-section{max-width:860px;margin:0 auto 80px;padding:0 24px}
-.submit-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
-  box-shadow:var(--shadow);overflow:hidden}
-.submit-header{background:var(--gray);border-bottom:1px solid var(--border);
-  padding:18px 24px;display:flex;align-items:center;gap:12px}
-.submit-icon{width:36px;height:36px;background:var(--blue);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.submit-body{padding:24px}
-.already-sub{background:var(--green-lt);border:1px solid #b7e0b7;border-radius:8px;
-  padding:14px 18px;margin-bottom:18px;font-size:14px;color:#1a4a1a;display:none}
-.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:32px 24px;
-  text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
-.drop-zone:hover,.drop-zone.over{border-color:var(--blue);background:var(--blue-lt)}
-.drop-text{font-size:14px;color:var(--muted);margin-top:8px}
 .drop-text span{color:var(--blue);font-weight:600}
-.file-chosen{font-size:13px;color:var(--blue);font-weight:600;margin-top:8px;display:none}
-.submit-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.btn-submit{padding:11px 28px;background:var(--blue);color:white;border:none;
-  border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
-  opacity:.4;pointer-events:none;transition:all .15s}
-.btn-submit.ready{opacity:1;pointer-events:auto}
-.btn-submit.ready:hover{background:var(--blue-dk)}
-.submit-status{font-size:13px;color:var(--muted)}
 
 /* Login overlay */
 #login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
@@ -179,7 +155,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2
 #toast.error{background:#c42b1c}
 
 @media(max-width:600px){
-  #topbar,#hero,#main,#submit-section{padding-left:16px;padding-right:16px}
+  #topbar,#hero,#main{padding-left:16px;padding-right:16px}
   .skill-badge{display:none}
   .dl-row{flex-direction:column}
 }
@@ -1012,43 +988,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2
 
 </div>
 
-<!-- Submit section -->
-<div id="submit-section">
-  <div class="submit-card">
-    <div class="submit-header">
-      <div class="submit-icon">
-        <svg width="18" height="18" viewBox="0 0 16 16">
-          <polyline points="2,10 2,14 14,14 14,10" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="8" y1="2" x2="8" y2="11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
-          <polyline points="5,8 8,11 11,8" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
       <div>
         <div style="font-size:16px;font-weight:700;color:#1a1a2e">Submit for Practice Grading</div>
         <div style="font-size:13px;color:#6b7280;margin-top:1px">Upload your completed starter file when you are done with all 14 skills.</div>
       </div>
     </div>
-    <div class="submit-body">
-      <div class="already-sub" id="already-sub"></div>
-      <div style="font-size:14px;color:#374151;margin-bottom:20px;line-height:1.6">
-        <strong>How to submit:</strong><br>
-        1. Save your Word document (Ctrl+S).<br>
-        2. Click Choose File and select your saved <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px;font-size:13px">Word_D1_Starter.docx</code>.<br>
-        3. Click Submit for Grading. Your instructor will review and grade your work.
-      </div>
-      <div class="drop-zone" id="drop-zone">
-        <div style="font-size:32px" id="drop-icon">📄</div>
-        <div class="drop-text" id="drop-text">Drag your .docx file here, or <span>click to browse</span></div>
-        <div class="file-chosen" id="file-chosen"></div>
-      </div>
-      <input type="file" id="file-input" accept=".docx,.doc" style="display:none">
-      <div class="submit-row">
-        <button class="btn-submit" id="submit-btn">Submit for Grading</button>
-        <span class="submit-status" id="submit-status"></span>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div id="toast"></div>
 
@@ -1091,7 +1035,6 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-overlay').classList.add('hidden');
     document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
     loadProgress();
-    checkSubmitStatus();
     loadLinkedInLinks();
   }
 });
@@ -1125,7 +1068,6 @@ async function doLogin() {
     document.getElementById('login-overlay').classList.add('hidden');
     document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
     loadProgress();
-    checkSubmitStatus();
     loadLinkedInLinks();
     toast('Signed in successfully', 'success');
   } catch(err) {
@@ -1214,83 +1156,6 @@ async function loadLinkedInLinks() {
   } catch(e) { /* stay as Coming Soon */ }
 }
 
-// ── File upload ───────────────────────────────────────────────────────────────
-const dropZone  = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-const submitBtn = document.getElementById('submit-btn');
-
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('over');
-  const f = e.dataTransfer.files[0];
-  if (f) setFile(f);
-});
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) setFile(fileInput.files[0]);
-});
-
-function setFile(f) {
-  selectedFile = f;
-  document.getElementById('drop-icon').textContent   = '✅';
-  document.getElementById('drop-text').style.display = 'none';
-  document.getElementById('file-chosen').style.display = 'block';
-  document.getElementById('file-chosen').textContent = '✓ ' + f.name + ' (' + (f.size/1024).toFixed(0) + ' KB)';
-  submitBtn.classList.add('ready');
-}
-
-submitBtn.addEventListener('click', async function() {
-  if (!selectedFile) return;
-  if (!token) { toast('Please sign in first.', 'error'); return; }
-  submitBtn.disabled    = true;
-  submitBtn.textContent = 'Uploading...';
-  document.getElementById('submit-status').textContent = 'Please wait...';
-  try {
-    const fd = new FormData();
-    fd.append('file',         selectedFile);
-    fd.append('domain',       DOMAIN);
-    fd.append('skillsDone',   done.size);
-    fd.append('totalSkills',  TOTAL);
-    const res  = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'x-session-token': token },
-      body: fd
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Upload failed');
-    submitBtn.textContent = '✓ Submitted';
-    submitBtn.style.background = 'var(--green)';
-    document.getElementById('submit-status').textContent = 'Received. Your instructor will grade it soon.';
-    toast('✓ File submitted for grading!', 'success');
-    checkSubmitStatus();
-  } catch(err) {
-    submitBtn.disabled    = false;
-    submitBtn.textContent = 'Submit for Grading';
-    document.getElementById('submit-status').textContent = '';
-    toast('Upload failed: ' + err.message, 'error');
-  }
-});
-
-async function checkSubmitStatus() {
-  if (!token) return;
-  try {
-    const res  = await fetch('/api/submit/status/' + DOMAIN, { headers: { 'x-session-token': token } });
-    const data = await res.json();
-    if (data.submitted && data.submission) {
-      const s  = data.submission;
-      const dt = new Date(s.submitted_at).toLocaleDateString('en-US', {
-        month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'
-      });
-      const el = document.getElementById('already-sub');
-      el.style.display = 'block';
-      el.innerHTML = '<strong>✓ Already submitted</strong> — "' + s.original_name +
-        '" on ' + dt + ' (' + s.skills_done + '/' + s.total_skills +
-        ' skills checked off). <span style="font-size:12px;color:#2e7a2e">You can re-submit to replace.</span>';
-    }
-  } catch(e) {}
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function handleExpired() {
