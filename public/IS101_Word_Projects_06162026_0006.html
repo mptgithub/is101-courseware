@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Word Projects</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e}
+:root{--blue:#2b579a;--blue-lt:#e8f0fb;--blue-dk:#1e3f6f;--border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)}
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{font-size:14px;font-weight:600}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);text-decoration:none}
+#main{max-width:720px;margin:0 auto;padding:32px 24px 80px}
+.hero{text-align:center;margin-bottom:32px}
+.hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.hero p{font-size:14px;color:var(--muted)}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.project-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);cursor:pointer;text-decoration:none;color:inherit;transition:all .15s;display:block}
+.project-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(43,87,154,.15);transform:translateY(-1px)}
+.project-num{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.project-title{font-size:15px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.project-scenario{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.project-meta{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--blue-lt);color:var(--blue)}
+.note{background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:12px 16px;font-size:13px;color:#92400e;margin-bottom:24px}
+@media(max-width:580px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <div class="brand">IS101 — Word Processing Projects</div>
+  <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+</div>
+<div id="main">
+  <div class="hero">
+    <h1>Word Processing Projects</h1>
+    <p>Choose your project below. You will complete all formatting tasks in Microsoft Word, then upload your finished file for instant auto-grading.</p>
+  </div>
+
+  <div class="note">📋 <strong>Choose one Core project AND one Variation project.</strong> Each is worth 100 points. Download the starter file, complete all tasks, then upload for grading.</div>
+
+  <div class="section-label">Core Projects — Choose Core 1 OR Core 2</div>
+  <div class="grid">
+    <a href="IS101_Core1_Grader_06152026_2119.html" class="project-card">
+      <div class="project-num">Core Project 1</div>
+      <div class="project-title">Annual Business Report</div>
+      <div class="project-scenario">Desert Sun Consulting — Las Vegas management consulting firm. Prepare the company's annual business report for stakeholder distribution.</div>
+      <div class="project-meta">
+        <span class="badge">32 tasks</span>
+        <span class="badge">100 points</span>
+        <span class="badge">D1–D6</span>
+      </div>
+    </a>
+    <a href="IS101_Core2_Grader_06162026_0006.html" class="project-card">
+      <div class="project-num">Core Project 2</div>
+      <div class="project-title">Employee Training Manual</div>
+      <div class="project-scenario">Nevada Valley Healthcare — Las Vegas medical network. Create a new employee onboarding training manual for the HR department.</div>
+      <div class="project-meta">
+        <span class="badge">35 tasks</span>
+        <span class="badge">100 points</span>
+        <span class="badge">D1–D6</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-label">Variation Projects — Choose Variation 1 OR Variation 2</div>
+  <div class="grid">
+    <a href="IS101_Var1_Grader_06162026_0006.html" class="project-card">
+      <div class="project-num">Variation 1</div>
+      <div class="project-title">Academic Research Paper</div>
+      <div class="project-scenario">CSN Sociology SOC 101 — Format an APA-style research paper on "Social Media's Impact on Las Vegas Tourism."</div>
+      <div class="project-meta">
+        <span class="badge">32 tasks</span>
+        <span class="badge">100 points</span>
+        <span class="badge">D1–D6</span>
+      </div>
+    </a>
+    <a href="IS101_Var2_Grader_06162026_0006.html" class="project-card">
+      <div class="project-num">Variation 2</div>
+      <div class="project-title">Event Planning Proposal</div>
+      <div class="project-scenario">Oasis Events Banquet — Las Vegas event planning company. Create a formal event proposal for a corporate gala client.</div>
+      <div class="project-meta">
+        <span class="badge">33 tasks</span>
+        <span class="badge">100 points</span>
+        <span class="badge">D1–D6</span>
+      </div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

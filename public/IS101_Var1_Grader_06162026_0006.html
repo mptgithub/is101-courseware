@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Variation 1 — Academic Research Paper Grader</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#2b579a;--blue-lt:#e8f0fb;--blue-dk:#1e3f6f;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --red:#c42b1c;--red-lt:#fde8e8;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
+}
+
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{font-size:14px;font-weight:600}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+
+/* Main */
+#main{max-width:800px;margin:0 auto;padding:32px 24px 80px}
+
+/* Hero */
+.hero{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;margin-bottom:24px;box-shadow:var(--shadow)}
+.hero h1{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.hero p{font-size:14px;color:var(--muted);margin-bottom:20px}
+.project-info{display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  background:var(--gray);border-radius:8px;padding:16px;margin-bottom:20px}
+.info-item{font-size:13px}
+.info-label{font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:2px}
+.info-value{color:#1a1a2e}
+
+/* Upload zone */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:36px 24px;
+  text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.upload-zone:hover,.upload-zone.over{border-color:var(--blue);background:var(--blue-lt)}
+.upload-icon{font-size:36px;margin-bottom:10px}
+.upload-text{font-size:14px;color:var(--muted)}
+.upload-text span{color:var(--blue);font-weight:600}
+.file-chosen{font-size:13px;color:var(--blue);font-weight:600;margin-top:8px;display:none}
+.submit-row{display:flex;align-items:center;gap:12px}
+.btn-grade{padding:12px 32px;background:var(--blue);color:white;border:none;
+  border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
+  opacity:.4;pointer-events:none;transition:all .15s}
+.btn-grade.ready{opacity:1;pointer-events:auto}
+.btn-grade.ready:hover{background:var(--blue-dk)}
+.grade-status{font-size:13px;color:var(--muted)}
+
+/* Score card */
+#score-card{display:none;background:white;border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-top:24px;box-shadow:var(--shadow)}
+.score-header{display:flex;align-items:center;gap:20px;margin-bottom:20px;
+  padding-bottom:20px;border-bottom:1px solid var(--border)}
+.score-circle{width:90px;height:90px;border-radius:50%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;flex-shrink:0;font-weight:700}
+.score-circle.pass{background:var(--green-lt);border:3px solid var(--green);color:var(--green)}
+.score-circle.fail{background:var(--red-lt);border:3px solid var(--red);color:var(--red)}
+.score-num{font-size:26px;line-height:1}
+.score-denom{font-size:12px;opacity:.8}
+.score-details h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.score-meta{font-size:13px;color:var(--muted)}
+.score-bar-wrap{height:8px;background:var(--border);border-radius:4px;margin-top:10px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .6s}
+
+/* Task results */
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--muted);margin:20px 0 10px}
+.task-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;
+  border-bottom:1px solid #f0f2f5}
+.task-row:last-child{border-bottom:none}
+.task-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.task-icon.pass{background:var(--green-lt);color:var(--green)}
+.task-icon.fail{background:var(--red-lt);color:var(--red)}
+.task-content{flex:1}
+.task-name{font-size:13.5px;font-weight:600;color:#1a1a2e}
+.task-pts{font-size:11px;color:var(--muted);margin-left:6px}
+.task-feedback{font-size:12.5px;margin-top:3px;line-height:1.5}
+.task-feedback.pass{color:var(--green)}
+.task-feedback.fail{color:var(--red)}
+
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;
+  align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;max-width:400px;
+  width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);
+  border-radius:7px;font-size:15px;text-align:center;letter-spacing:2px;
+  margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:var(--red);margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:var(--red)}
+
+@media(max-width:600px){
+  #topbar,#main{padding-left:16px;padding-right:16px}
+  .project-info{grid-template-columns:1fr}
+  .score-header{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>Sign In</h2>
+    <p>Enter your 10-digit NSHE ID to submit your project for grading.</p>
+    <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="brand">IS101 — Project Grader</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="user-label" style="font-size:12px;opacity:.7"></span>
+    <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+  </div>
+</div>
+
+<div id="main">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Variation 1 — Academic Research Paper</h1>
+    <p>CSN Sociology · SOC 101 · Word Processing · 32 tasks · 100 points</p>
+
+    <div class="project-info">
+      <div class="info-item">
+        <div class="info-label">Project</div>
+        <div class="info-value">Variation 1 — Academic Research Paper</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Company</div>
+        <div class="info-value">CSN Sociology · SOC 101</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">File Type</div>
+        <div class="info-value">.docx (Word document)</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Points</div>
+        <div class="info-value">100 points · 40 tasks</div>
+      </div>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="drop-zone">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text" id="drop-text">
+        Drag your completed <strong>Word_Var1_Starter.docx</strong> here,<br>
+        or <span>click to browse</span>
+      </div>
+      <div class="file-chosen" id="file-chosen"></div>
+    </div>
+    <input type="file" id="file-input" accept=".docx" style="display:none">
+
+    <div class="dl-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <a href="Word_Var1_Starter.docx" download
+         style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;
+                border-radius:7px;font-size:13.5px;font-weight:600;text-decoration:none;
+                background:#2b579a;color:white;border:none;transition:all .15s">
+        ⬇ Download Starter File (.docx)
+      </a>
+      <a href="Word_Var1_Instructions.pdf" download
+         style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;
+                border-radius:7px;font-size:13.5px;font-weight:600;text-decoration:none;
+                background:#c42b1c;color:white;border:none;transition:all .15s">
+        ⬇ Download Instructions (.pdf)
+      </a>
+    </div>
+
+    <div class="submit-row">
+      <button class="btn-grade" id="btn-grade">Grade My Project</button>
+      <span class="grade-status" id="grade-status"></span>
+    </div>
+  </div>
+
+  <!-- Score card (shown after grading) -->
+  <div id="score-card">
+    <div class="score-header">
+      <div class="score-circle" id="score-circle">
+        <div class="score-num" id="score-num">--</div>
+        <div class="score-denom" id="score-denom">/ 100</div>
+      </div>
+      <div class="score-details">
+        <h2 id="score-title">Grading Complete</h2>
+        <div class="score-meta" id="score-meta"></div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-fill" id="score-bar" style="width:0%;background:var(--green)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task results by domain -->
+    <div id="task-results"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+let token  = localStorage.getItem('is101_token') || null;
+let nsheId = localStorage.getItem('is101_nshe')  || null;
+let selectedFile = null;
+
+const DOMAINS = {
+  1:'D1 — Manage Documents', 2:'D1 — Manage Documents', 3:'D1 — Manage Documents',
+  4:'D1 — Manage Documents', 5:'D1 — Manage Documents', 6:'D1 — Manage Documents',
+  7:'D1 — Manage Documents', 8:'D1 — Manage Documents', 9:'D1 — Manage Documents',
+  10:'D1 — Manage Documents',
+  11:'D2 — Format Text & Paragraphs', 12:'D2 — Format Text & Paragraphs',
+  13:'D2 — Format Text & Paragraphs', 14:'D2 — Format Text & Paragraphs',
+  15:'D2 — Format Text & Paragraphs', 16:'D2 — Format Text & Paragraphs',
+  17:'D2 — Format Text & Paragraphs', 18:'D2 — Format Text & Paragraphs',
+  19:'D3 — Tables & Lists', 20:'D3 — Tables & Lists', 21:'D3 — Tables & Lists',
+  22:'D3 — Tables & Lists', 23:'D3 — Tables & Lists', 24:'D3 — Tables & Lists',
+  25:'D4 — References', 26:'D4 — References', 27:'D4 — References',
+  28:'D5 — Graphic Elements', 29:'D5 — Graphic Elements', 30:'D5 — Graphic Elements',
+  31:'D5 — Graphic Elements', 32:'D5 — Graphic Elements', 33:'D5 — Graphic Elements',
+  34:'D5 — Graphic Elements',
+  35:'D6 — Collaboration', 36:'D6 — Collaboration', 37:'D6 — Collaboration',
+  38:'D6 — Collaboration', 39:'D6 — Collaboration', 40:'D6 — Collaboration',
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (token && nsheId) {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
+  }
+});
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('nshe-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const input = document.getElementById('nshe-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!/^\d{10}$/.test(input)) {
+    errEl.textContent = 'Please enter your 10-digit NSHE ID.';
+    return;
+  }
+  try {
+    const res  = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nsheId: input })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    token  = data.token;
+    nsheId = data.nsheId;
+    localStorage.setItem('is101_token', token);
+    localStorage.setItem('is101_nshe',  nsheId);
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
+    toast('Signed in!', 'success');
+  } catch(err) {
+    document.getElementById('login-error').textContent = err.message;
+  }
+}
+
+// ── File upload ───────────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const btnGrade  = document.getElementById('btn-grade');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) setFile(fileInput.files[0]);
+});
+
+function setFile(f) {
+  if (!f.name.endsWith('.docx')) {
+    toast('Please upload a .docx file.', 'error');
+    return;
+  }
+  selectedFile = f;
+  document.getElementById('drop-text').style.display = 'none';
+  const fc = document.getElementById('file-chosen');
+  fc.style.display = 'block';
+  fc.textContent = '✓ ' + f.name + ' (' + (f.size/1024).toFixed(0) + ' KB)';
+  document.getElementById('drop-zone').style.setProperty('--upload-icon','✅');
+  document.querySelector('.upload-icon').textContent = '✅';
+  btnGrade.classList.add('ready');
+}
+
+// ── Grade ─────────────────────────────────────────────────────────────────────
+btnGrade.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  if (!token) {
+    toast('Please sign in first.', 'error');
+    document.getElementById('login-overlay').classList.remove('hidden');
+    return;
+  }
+
+  btnGrade.disabled = true;
+  btnGrade.textContent = 'Grading...';
+  document.getElementById('grade-status').textContent = 'Analyzing your document — this takes about 10 seconds...';
+  document.getElementById('score-card').style.display = 'none';
+
+  try {
+    const fd = new FormData();
+    fd.append('file', selectedFile);
+
+    let res = await fetch('/api/grade/var1', {
+      method: 'POST',
+      headers: { 'x-session-token': token },
+      body: fd
+    });
+
+    // If session expired, re-login automatically and retry
+    if (res.status === 401 && nsheId) {
+      document.getElementById('grade-status').textContent = 'Re-authenticating...';
+      const loginRes  = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nsheId })
+      });
+      const loginData = await loginRes.json();
+      if (loginRes.ok) {
+        token = loginData.token;
+        localStorage.setItem('is101_token', token);
+        // Retry with new token — need to re-create FormData since it was consumed
+        const fd2 = new FormData();
+        fd2.append('file', selectedFile);
+        res = await fetch('/api/grade/var1', {
+          method: 'POST',
+          headers: { 'x-session-token': token },
+          body: fd2
+        });
+      }
+    }
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Grading failed');
+
+    showResults(data);
+    document.getElementById('grade-status').textContent = '';
+    btnGrade.textContent = 'Grade My Project';
+    btnGrade.disabled = false;
+
+  } catch(err) {
+    document.getElementById('grade-status').textContent = '';
+    btnGrade.textContent = 'Grade My Project';
+    btnGrade.disabled = false;
+    toast('Grading failed: ' + err.message, 'error');
+  }
+});
+
+// ── Show Results ──────────────────────────────────────────────────────────────
+function showResults(data) {
+  const card   = document.getElementById('score-card');
+  const circle = document.getElementById('score-circle');
+  const pct    = data.pct;
+  const pass   = pct >= 70;
+
+  document.getElementById('score-num').textContent  = data.score;
+  document.getElementById('score-denom').textContent = '/ ' + data.total;
+  circle.className = 'score-circle ' + (pass ? 'pass' : 'fail');
+
+  document.getElementById('score-title').textContent =
+    pass ? '✓ Project Passed!' : '✗ Project Needs Revision';
+  document.getElementById('score-meta').textContent =
+    `${pct}% · ${data.passed} of 40 tasks correct · ${data.failed} task(s) need attention`;
+
+  const bar = document.getElementById('score-bar');
+  bar.style.width   = pct + '%';
+  bar.style.background = pass ? 'var(--green)' : 'var(--red)';
+
+  // Group tasks by domain
+  const byDomain = {};
+  data.results.forEach(r => {
+    const domain = DOMAINS[r.task] || 'Other';
+    if (!byDomain[domain]) byDomain[domain] = [];
+    byDomain[domain].push(r);
+  });
+
+  let html = '';
+  Object.entries(byDomain).forEach(([domain, tasks]) => {
+    const domainPts = tasks.reduce((s,t) => s + t.pts_earned, 0);
+    const domainMax = tasks.reduce((s,t) => s + t.pts_possible, 0);
+    html += `<div class="section-label">${domain} — ${domainPts}/${domainMax} pts</div>`;
+    tasks.forEach(t => {
+      html += `<div class="task-row">
+        <div class="task-icon ${t.passed ? 'pass' : 'fail'}">${t.passed ? '✓' : '✗'}</div>
+        <div class="task-content">
+          <div class="task-name">Task ${t.task}: ${t.description}
+            <span class="task-pts">${t.pts_earned}/${t.pts_possible} pts</span>
+          </div>
+          <div class="task-feedback ${t.passed ? 'pass' : 'fail'}">${t.feedback}</div>
+        </div>
+      </div>`;
+    });
+  });
+
+  document.getElementById('task-results').innerHTML = html;
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  toast(pass ? `✓ Score: ${data.score}/100` : `Score: ${data.score}/100 — review failed tasks`, pass ? 'success' : 'error');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3500);
+}
+</script>
+</body>
+</html>
