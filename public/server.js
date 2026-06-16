@@ -339,8 +339,13 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
   }
 
   try {
-    const AdmZip = require('adm-zip');
-    const zip    = new AdmZip(req.file.path);
+    let AdmZip;
+    try {
+      AdmZip = require('adm-zip');
+    } catch(e) {
+      return res.status(500).json({ error: 'adm-zip module not installed. Add "adm-zip":"^0.5.10" to package.json and redeploy.' });
+    }
+    const zip = new AdmZip(req.file.path);
 
     // Read key XML files from the docx
     const getXml = (name) => {
@@ -411,7 +416,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
                        /January|February|March|April|May|June|July|August|September|October|November|December/.test(headerXml);
     check(4,3,'Insert header: company name left-aligned, date right-aligned', hasCompany && hasDate,
       '✓ Header contains company name and date.',
-      '✗ Header missing company name or date. Fix: Insert → Header → add "Desert Sun Consulting" and today's date.');
+      '✗ Header missing company name or date. Fix: Insert tab → Header → add Desert Sun Consulting and the date.');
 
     // Task 5: Footer with Confidential
     const footerLower = footerXml.toLowerCase();
@@ -608,9 +613,9 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     res.json(output);
 
   } catch(err) {
-    console.error('Grading error:', err);
+    console.error('Grading error full:', err.stack || err);
     try { fs.unlinkSync(req.file.path); } catch(e) {}
-    res.status(500).json({ error: 'Grading failed: ' + err.message });
+    res.status(500).json({ error: 'Grading failed: ' + (err.message || String(err)) });
   }
 });
 
