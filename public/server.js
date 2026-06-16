@@ -512,20 +512,21 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
       '✓ Multiple tables found (sort verified by content).',
       '✗ Second table not found. Fix: Add client table → Table Layout → Sort → Ascending.');
 
-    // Task 22: Numbered list (at least 5)
-    const numListCount = (docXml.match(/w:numId w:val="[^0]/g)||[]).length;
+    // Task 22: Numbered list (at least 5) — check for any numId usage
+    const numIdMatches = (docXml.match(/w:numId/g)||[]).length;
+    const numListCount = numIdMatches;
     check(22,2,'Create numbered list of 5 strategic objectives', numListCount>=5,
-      '✓ Numbered list items found ('+numListCount+').',
+      '✓ Numbered list items found ('+numListCount+' list references).',
       '✗ Numbered list not found or too few items. Fix: Select 5 objectives → Home → Numbering.');
 
-    // Task 23: Bulleted list
-    const hasBullets = docXml.includes('w:numId') && numListCount > 0;
+    // Task 23: Bulleted list — any list formatting present
+    const hasBullets = numListCount > 0 || docXml.includes('<w:numPr>');
     check(23,2,'Create bulleted list of services', hasBullets,
       '✓ List formatting found in document.',
       '✗ No bulleted list found. Fix: Select services → Home → Bullets.');
 
-    // Task 24: Sub-level list items
-    const hasSubLevel = docXml.includes('w:ilvl w:val="1"') || docXml.includes('w:ilvl w:val=\"1\"');
+    // Task 24: Sub-level list items — check for ilvl val > 0
+    const hasSubLevel = /w:ilvl w:val="[1-9]/.test(docXml) || docXml.includes('<w:ilvl w:val="1"') || docXml.includes('<w:ilvl w:val="2"');
     check(24,3,'Increase list level for sub-items', hasSubLevel,
       '✓ Sub-level list items found.',
       '✗ No sub-level list items found. Fix: Select sub-items → Home → Increase Indent (or Tab).');
@@ -541,7 +542,8 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
       '✗ TOC not found. Fix: References → Custom Table of Contents → Show levels: 2.');
 
     // Task 27: Footnote
-    const hasFootnote = fnXml.length > 200 || allXml.includes('w:footnoteRef');
+    const hasFootnote = fnXml.length > 300 || allXml.includes('w:footnoteRef') || 
+                        allXml.includes('w:footnote w:') || docXml.includes('w:footnoteReference');
     check(27,4,'Insert footnote on revenue figure', hasFootnote,
       '✓ Footnote found.',
       '✗ No footnote found. Fix: Click after revenue figure → References → Insert Footnote.');
