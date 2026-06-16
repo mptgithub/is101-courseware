@@ -352,7 +352,22 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
       }
 
       try {
-        const result = JSON.parse(stdout);
+        // Extract the last valid JSON object from stdout
+        // (guards against any warning text before the JSON)
+        const lines = stdout.trim().split('\n');
+        let jsonStr = '';
+        for (let i = lines.length - 1; i >= 0; i--) {
+          const line = lines[i].trim();
+          if (line.startsWith('{') && line.endsWith('}')) {
+            jsonStr = line;
+            break;
+          }
+        }
+        if (!jsonStr) {
+          // Try treating the whole stdout as JSON
+          jsonStr = stdout.trim();
+        }
+        const result = JSON.parse(jsonStr);
         // Save grade to database
         stmts.savePracticeGrade.run(
           req.nsheId, 'Core1', null,
@@ -360,7 +375,9 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
         );
         res.json(result);
       } catch(e) {
-        res.status(500).json({ error: 'Could not parse grading results.' });
+        console.error('JSON parse error:', e.message);
+        console.error('stdout was:', stdout.substring(0, 500));
+        res.status(500).json({ error: 'Could not parse grading results. Raw: ' + stdout.substring(0, 200) });
       }
     });
   } catch(err) {

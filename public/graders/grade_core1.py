@@ -4,6 +4,10 @@ IS101 — Core 1 Grading Engine
 Annual Business Report — Desert Sun Consulting
 40 tasks · 100 points
 """
+import warnings
+warnings.filterwarnings('ignore')
+import logging
+logging.disable(logging.CRITICAL)
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_LINE_SPACING
@@ -435,6 +439,11 @@ def grade_core1(filepath):
     }
 
 if __name__ == '__main__':
+    import os
+    import sys as _sys
+    # Redirect stderr to devnull so warnings don't contaminate stdout
+    _devnull = open(os.devnull, 'w')
+    _sys.stderr = _devnull
     path = sys.argv[1] if len(sys.argv) > 1 else '/mnt/user-data/outputs/Word_Core1_Solution.docx'
     result = grade_core1(path)
     # Always output pure JSON — server parses this
