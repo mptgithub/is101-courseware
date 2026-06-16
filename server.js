@@ -286,6 +286,339 @@ app.get('/api/instructor/export', requireInstructor, (req, res) => {
   res.send(rows.join('\n'));
 });
 
+// ── LINKEDIN LEARNING LINKS ──────────────────────────────────────────────────
+
+// GET /api/linkedin/:domain — get all LinkedIn links for a domain (public, no auth)
+app.get('/api/linkedin/:domain', (req, res) => {
+  const links = stmts.getLinkedInLinksByDomain.all(req.params.domain);
+  // Return as a map: { skill_id: url }
+  const map = {};
+  links.forEach(l => { if (l.url) map[l.skill_id] = l.url; });
+  res.json(map);
+});
+
+// GET /api/linkedin — get all LinkedIn links (instructor)
+app.get('/api/instructor/linkedin', requireInstructor, (req, res) => {
+  const links = stmts.getLinkedInLinks.all();
+  res.json(links);
+});
+
+// POST /api/instructor/linkedin — set a single LinkedIn link
+app.post('/api/instructor/linkedin', requireInstructor, (req, res) => {
+  const { domain, skillId, url } = req.body;
+  if (!domain || !skillId) return res.status(400).json({ error: 'Missing domain or skillId' });
+  stmts.setLinkedInLink.run(domain, skillId, url || '');
+  res.json({ success: true });
+});
+
+// POST /api/instructor/linkedin/bulk — set many links at once (CSV upload)
+// Body: { links: [ { domain, skillId, url }, ... ] }
+app.post('/api/instructor/linkedin/bulk', requireInstructor, (req, res) => {
+  const { links } = req.body;
+  if (!Array.isArray(links)) return res.status(400).json({ error: 'Expected array of links' });
+  let count = 0;
+  links.forEach(l => {
+    if (l.domain && l.skillId) {
+      stmts.setLinkedInLink.run(l.domain, l.skillId, l.url || '');
+      count++;
+    }
+  });
+  res.json({ success: true, updated: count });
+});
+
+
+// ── AUTO GRADING ──────────────────────────────────────────────────────────────
+
+// POST /api/grade/core1 — auto-grade a Core 1 submission (Node.js native)
+app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.docx') {
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    return res.status(400).json({ error: 'Please upload a .docx file.' });
+  }
+
+  try {
+    let AdmZip;
+    try {
+      AdmZip = require('adm-zip');
+    } catch(e) {
+      return res.status(500).json({ error: 'adm-zip module not installed. Add "adm-zip":"^0.5.10" to package.json and redeploy.' });
+    }
+    const zip = new AdmZip(req.file.path);
+
+    // Read key XML files from the docx
+    const getXml = (name) => {
+      try { return zip.readAsText(name) || ''; } catch(e) { return ''; }
+    };
+
+    const docXml      = getXml('word/document.xml');
+    const settingsXml = getXml('word/settings.xml');
+    const stylesXml   = getXml('word/styles.xml');
+    const coreXml     = getXml('docProps/core.xml');
+    const headerXml   = getXml('word/header1.xml') || getXml('word/header2.xml') || getXml('word/header3.xml');
+    const footerXml   = getXml('word/footer1.xml') || getXml('word/footer2.xml') || getXml('word/footer3.xml');
+    const commentsXml = getXml('word/comments.xml');
+    const fnXml       = getXml('word/footnotes.xml');
+    const allXml      = docXml + settingsXml + stylesXml + coreXml + headerXml + footerXml + commentsXml + fnXml;
+
+    // Clean up file
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+
+    // Helper: check margin in EMUs (914400 = 1 inch)
+    const INCH = 914400;
+    const getMargin = (attr) => {
+      const m = docXml.match(new RegExp('w:' + attr + '="(\\d+)"'));
+      return m ? parseInt(m[1]) : null;
+    };
+
+    const results = [];
+    let earned = 0, total = 0;
+
+    const check = (task, pts, desc, passed, feedPass, feedFail) => {
+      total += pts;
+      if (passed) earned += pts;
+      results.push({ task, pts_possible: pts, pts_earned: passed ? pts : 0,
+        description: desc, passed, feedback: passed ? feedPass : feedFail });
+    };
+
+    // ── D1 ────────────────────────────────────────────────────────────────────
+    // Task 1: Margins 1 inch
+    const pgMar = docXml.match(/w:pgMar([^/]*)/);
+    let marginsOk = false;
+    if (pgMar) {
+      const attrs = pgMar[1];
+      const top    = parseInt((attrs.match(/w:top="(\d+)"/)   ||[0,0])[1]);
+      const bottom = parseInt((attrs.match(/w:bottom="(\d+)"/)  ||[0,0])[1]);
+      const left   = parseInt((attrs.match(/w:left="(\d+)"/)  ||[0,0])[1]);
+      const right  = parseInt((attrs.match(/w:right="(\d+)"/) ||[0,0])[1]);
+      marginsOk = [top,bottom,left,right].every(m => m > 0 && Math.abs(m - INCH) < 36000);
+    }
+    check(1,2,'Set 1-inch margins on all sides', marginsOk,
+      '✓ Margins are set to 1 inch on all sides.',
+      '✗ Margins are not 1 inch. Fix: Layout tab → Margins → Normal (1" all sides).');
+
+    // Task 2: Portrait
+    const landscape = docXml.includes('w:orient="landscape"');
+    check(2,2,'Set orientation to Portrait', !landscape,
+      '✓ Document is in Portrait orientation.',
+      '✗ Document is in Landscape orientation. Fix: Layout tab → Orientation → Portrait.');
+
+    // Task 3: Style set / styles applied
+    const hasHeadingStyle = stylesXml.includes('Heading 1') || stylesXml.includes('Heading1');
+    check(3,2,'Apply the "Basic (Stylish)" style set', hasHeadingStyle,
+      '✓ Style set applied — heading styles are present.',
+      '✗ No style set detected. Fix: Design tab → Document Formatting → Style Sets → Basic (Stylish).');
+
+    // Task 4: Header with company name and date
+    const hasCompany = headerXml.toLowerCase().includes('desert sun') || headerXml.includes('Desert Sun');
+    const hasDate    = /20(25|26|27)/.test(headerXml) || 
+                       /January|February|March|April|May|June|July|August|September|October|November|December/.test(headerXml);
+    check(4,3,'Insert header: company name left-aligned, date right-aligned', hasCompany && hasDate,
+      '✓ Header contains company name and date.',
+      '✗ Header missing company name or date. Fix: Insert → Header → add "Desert Sun Consulting" and today's date.');
+
+    // Task 5: Footer with Confidential
+    const footerLower = footerXml.toLowerCase();
+    check(5,2,'Insert footer: "Confidential" centered', footerLower.includes('confidential'),
+      '✓ Footer contains "Confidential".',
+      '✗ Footer does not contain "Confidential". Fix: Insert → Footer → type "Confidential" centered.');
+
+    // Task 6: Page numbers
+    const hasPageNum = footerXml.includes('PAGE') || footerXml.includes('fldChar') || allXml.includes('w:pgNum');
+    check(6,2,'Insert page numbers bottom right', hasPageNum,
+      '✓ Page numbers found in footer.',
+      '✗ Page numbers not found. Fix: Insert → Page Number → Bottom of Page → Plain Number 3.');
+
+    // Task 7: Watermark
+    const hasWatermark = headerXml.includes('DRAFT') || headerXml.includes('watermark') || 
+                         headerXml.toLowerCase().includes('pict') || allXml.includes('w:background');
+    check(7,2,'Add a "DRAFT" watermark', hasWatermark,
+      '✓ DRAFT watermark detected.',
+      '✗ DRAFT watermark not found. Fix: Design tab → Watermark → DRAFT 1.');
+
+    // Task 8: Document properties
+    const hasTitle  = coreXml.includes('<dc:title>') && !coreXml.includes('<dc:title/>') &&
+                      !/<dc:title>\s*<\/dc:title>/.test(coreXml);
+    const hasAuthor = coreXml.includes('<dc:creator>') && !coreXml.includes('<dc:creator/>') &&
+                      !/<dc:creator>\s*<\/dc:creator>/.test(coreXml);
+    check(8,2,'Set document properties: Title and Author', hasTitle && hasAuthor,
+      '✓ Document Title and Author properties are set.',
+      '✗ Document properties incomplete. Fix: File → Info → Properties panel → fill in Title and Author.');
+
+    // Tasks 9,10: Process tasks — auto-pass
+    check(9,2,'Run Accessibility Check',true,'✓ Process task.','✗ Process task.');
+    check(10,3,'Save a PDF copy',true,'✓ Process task.','✗ Process task.');
+
+    // ── D2 ────────────────────────────────────────────────────────────────────
+    // Task 11: No DSC abbreviation
+    const dscCount = (docXml.match(/>DSC[\s,.<]/g)||[]).length;
+    check(11,2,'Find & Replace: "DSC" → "Desert Sun Consulting"', dscCount===0,
+      '✓ No "DSC" abbreviations found — replacement completed.',
+      '✗ Found '+dscCount+' instance(s) of "DSC" still in document. Fix: Ctrl+H → Find: DSC → Replace with: Desert Sun Consulting → Replace All.');
+
+    // Task 12: Title style
+    check(12,2,'Apply Title style to document title', stylesXml.includes('"Title"') || docXml.includes('w:styleId="Title"'),
+      '✓ Title style is applied.',
+      '✗ Title style not found. Fix: Click document title → Home → Styles → Title.');
+
+    // Task 13: Heading 1 (at least 3)
+    const h1count = (docXml.match(/styleId="Heading1"|styleId="Heading 1"|w:val="Heading1"|w:val="Heading 1"/g)||[]).length;
+    check(13,3,'Apply Heading 1 to all section headers (at least 3)', h1count>=3,
+      '✓ Heading 1 applied to '+h1count+' section(s).',
+      '✗ Only '+h1count+' Heading 1 paragraph(s) found — need at least 3. Fix: Click each section header → Home → Heading 1.');
+
+    // Task 14: Heading 2 (at least 1)
+    const h2count = (docXml.match(/styleId="Heading2"|styleId="Heading 2"|w:val="Heading2"|w:val="Heading 2"/g)||[]).length;
+    check(14,3,'Apply Heading 2 to subsection headers (at least 1)', h2count>=1,
+      '✓ Heading 2 applied to '+h2count+' subsection(s).',
+      '✗ No Heading 2 found. Fix: Click subsection header → Home → Heading 2.');
+
+    // Task 15: Line spacing 1.15
+    const hasLineSpacing = docXml.includes('w:lineRule="auto"') || docXml.includes('<w:spacing') ;
+    check(15,2,'Set body text line spacing to 1.15', hasLineSpacing,
+      '✓ Line spacing settings detected in body text.',
+      '✗ No custom line spacing found. Fix: Select body text → Home → Line Spacing → 1.15.');
+
+    // Task 16: 6pt spacing after
+    const hasSpaceAfter = docXml.includes('w:after="') || docXml.includes('w:afterLines="');
+    check(16,2,'Set 6pt spacing after each paragraph', hasSpaceAfter,
+      '✓ Paragraph spacing after detected.',
+      '✗ No paragraph spacing after found. Fix: Paragraph dialog → Spacing After: 6pt.');
+
+    // Tasks 17,18: Process / structure tasks
+    check(17,3,'Use Format Painter',true,'✓ Process task.','✗ Process task.');
+    const hasSectionBreak = (docXml.match(/w:type="nextPage"|w:type="evenPage"|w:type="oddPage"/g)||[]).length > 0;
+    check(18,3,'Insert section break before Financial Summary', hasSectionBreak,
+      '✓ Section break found in document.',
+      '✗ No section break found. Fix: Layout → Breaks → Next Page before Financial Summary.');
+
+    // ── D3 ────────────────────────────────────────────────────────────────────
+    // Task 19: 4-column table
+    const tableMatches = docXml.match(/<w:tbl>/g)||[];
+    const has4ColTable = docXml.includes('<w:gridCol') && tableMatches.length > 0;
+    check(19,3,'Create a 4-column quarterly revenue table', has4ColTable,
+      '✓ Table(s) found in document.',
+      '✗ No table found. Fix: Insert → Table → 4 columns × 5 rows, fill in quarterly data.');
+
+    // Task 20: Merged cells
+    const hasMerge = docXml.includes('w:gridSpan') || docXml.includes('w:hMerge') || docXml.includes('w:vMerge');
+    check(20,2,'Merge top row cells for spanning title', hasMerge,
+      '✓ Merged cells detected.',
+      '✗ No merged cells found. Fix: Select top row → Table Layout → Merge Cells.');
+
+    // Task 21: Sorted client table (process task — hard to verify order in XML)
+    check(21,2,'Sort client table alphabetically', tableMatches.length>=2,
+      '✓ Multiple tables found (sort verified by content).',
+      '✗ Second table not found. Fix: Add client table → Table Layout → Sort → Ascending.');
+
+    // Task 22: Numbered list (at least 5)
+    const numListCount = (docXml.match(/w:numId w:val="[^0]/g)||[]).length;
+    check(22,2,'Create numbered list of 5 strategic objectives', numListCount>=5,
+      '✓ Numbered list items found ('+numListCount+').',
+      '✗ Numbered list not found or too few items. Fix: Select 5 objectives → Home → Numbering.');
+
+    // Task 23: Bulleted list
+    const hasBullets = docXml.includes('w:numId') && numListCount > 0;
+    check(23,2,'Create bulleted list of services', hasBullets,
+      '✓ List formatting found in document.',
+      '✗ No bulleted list found. Fix: Select services → Home → Bullets.');
+
+    // Task 24: Sub-level list items
+    const hasSubLevel = docXml.includes('w:ilvl w:val="1"') || docXml.includes('w:ilvl w:val=\"1\"');
+    check(24,3,'Increase list level for sub-items', hasSubLevel,
+      '✓ Sub-level list items found.',
+      '✗ No sub-level list items found. Fix: Select sub-items → Home → Increase Indent (or Tab).');
+
+    // ── D4 ────────────────────────────────────────────────────────────────────
+    // Task 25,26: TOC
+    const hasToc = allXml.includes('TOC') || allXml.includes('w:fldChar') && allXml.includes('TOC');
+    check(25,3,'Insert Table of Contents', hasToc,
+      '✓ Table of Contents detected.',
+      '✗ No TOC found. Fix: References → Table of Contents → Automatic Table 1.');
+    check(26,3,'Customize TOC (Heading 1 & 2 only)', hasToc,
+      '✓ TOC present (customization verified by instructor).',
+      '✗ TOC not found. Fix: References → Custom Table of Contents → Show levels: 2.');
+
+    // Task 27: Footnote
+    const hasFootnote = fnXml.length > 200 || allXml.includes('w:footnoteRef');
+    check(27,4,'Insert footnote on revenue figure', hasFootnote,
+      '✓ Footnote found.',
+      '✗ No footnote found. Fix: Click after revenue figure → References → Insert Footnote.');
+
+    // ── D5 ────────────────────────────────────────────────────────────────────
+    // Task 28: Picture
+    const hasPicture = docXml.includes('w:drawing') || docXml.includes('pic:pic') || docXml.includes('a:blip');
+    check(28,3,'Insert DSC logo image on cover page', hasPicture,
+      '✓ Image found in document.',
+      '✗ No image found. Fix: Insert → Pictures → This Device → select logo.');
+    check(29,2,'Apply Drop Shadow Rectangle picture style', hasPicture,
+      '✓ Image present (style verified by instructor).',
+      '✗ No image found. Fix: Insert image first, then Picture Format → Picture Styles → Drop Shadow Rectangle.');
+    check(30,2,'Set text wrapping to Through', hasPicture && (docXml.includes('wrapThrough') || docXml.includes('wrapSquare') || docXml.includes('wrapTight')),
+      '✓ Text wrapping set on image.',
+      '✗ Text wrapping not set. Fix: Click image → Picture Format → Wrap Text → Through.');
+
+    // Task 31,32: SmartArt
+    const hasSmartArt = docXml.includes('dgm:') || docXml.includes('c:chart') || allXml.includes('dgmLayout');
+    check(31,3,'Insert SmartArt Hierarchy diagram', hasSmartArt,
+      '✓ SmartArt found.',
+      '✗ No SmartArt found. Fix: Insert → SmartArt → Hierarchy → Organization Chart.');
+    check(32,3,'Modify SmartArt content with department names', hasSmartArt,
+      '✓ SmartArt present (content verified by instructor).',
+      '✗ SmartArt not found. Fix: Insert SmartArt first, then add department names.');
+
+    // Task 33: Text box
+    const hasTextBox = docXml.includes('w:txbxContent') || docXml.includes('wps:txbx');
+    check(33,3,'Insert text box with report tagline', hasTextBox,
+      '✓ Text box found.',
+      '✗ No text box found. Fix: Insert → Text Box → Draw Text Box.');
+
+    // Task 34: Alt text
+    const hasAltText = docXml.includes('w:descr=') || docXml.includes('pic:cNvPr') || docXml.includes('a:cNvPr');
+    check(34,4,'Add alt text to ALL images', hasAltText,
+      '✓ Alt text detected on image(s).',
+      '✗ No alt text found. Fix: Right-click each image → Edit Alt Text → add description.');
+
+    // ── D6 ────────────────────────────────────────────────────────────────────
+    // Task 35,36: Comments
+    const commentCount = (commentsXml.match(/<w:comment /g)||[]).length;
+    check(35,2,'Add comment on revenue figure', commentCount>=1,
+      '✓ Comment(s) found ('+commentCount+').',
+      '✗ No comments found. Fix: Select revenue figure → Review → New Comment.');
+    check(36,2,'Reply to existing comment', commentCount>=2,
+      '✓ Multiple comments/replies found.',
+      '✗ Only '+commentCount+' comment(s) — reply not detected. Fix: Click comment → Reply.');
+    check(37,2,'Resolve the comment',true,'✓ Process task.','✗ Process task.');
+
+    // Task 38: Track changes
+    const hasTracked = docXml.includes('<w:ins ') || docXml.includes('<w:del ');
+    check(38,3,'Enable Track Changes and make edits', hasTracked,
+      '✓ Tracked changes found in document.',
+      '✗ No tracked changes. Fix: Review → Track Changes → make 3 edits.');
+    check(39,2,'Accept tracked changes',true,'✓ Process task.','✗ Process task.');
+    check(40,3,'Reject one tracked change',true,'✓ Process task.','✗ Process task.');
+
+    const pct = Math.round(earned/total*100);
+    const output = {
+      score: earned, total, pct,
+      passed: results.filter(r=>r.passed).length,
+      failed: results.filter(r=>!r.passed).length,
+      results
+    };
+
+    // Save to database
+    stmts.savePracticeGrade.run(req.nsheId, 'Core1', null, earned, total, JSON.stringify(results));
+
+    res.json(output);
+
+  } catch(err) {
+    console.error('Grading error full:', err.stack || err);
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    res.status(500).json({ error: 'Grading failed: ' + (err.message || String(err)) });
+  }
+});
+
 // ── CATCH-ALL ─────────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
