@@ -326,6 +326,48 @@ app.post('/api/instructor/linkedin/bulk', requireInstructor, (req, res) => {
   res.json({ success: true, updated: count });
 });
 
+
+// ── AUTO GRADING ──────────────────────────────────────────────────────────────
+
+// POST /api/grade/core1 — auto-grade a Core 1 submission
+app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.docx') {
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    return res.status(400).json({ error: 'Please upload a .docx file.' });
+  }
+
+  try {
+    const { execFile } = require('child_process');
+    const graderPath   = path.join(__dirname, 'graders', 'grade_core1.py');
+
+    execFile('python3', [graderPath, req.file.path], { timeout: 30000 }, (err, stdout, stderr) => {
+      // Clean up uploaded file
+      try { fs.unlinkSync(req.file.path); } catch(e) {}
+
+      if (err) {
+        console.error('Grader error:', stderr);
+        return res.status(500).json({ error: 'Grading failed. Please try again.' });
+      }
+
+      try {
+        const result = JSON.parse(stdout);
+        // Save grade to database
+        stmts.savePracticeGrade.run(
+          req.nsheId, 'Core1', null,
+          result.score, result.total, JSON.stringify(result.results)
+        );
+        res.json(result);
+      } catch(e) {
+        res.status(500).json({ error: 'Could not parse grading results.' });
+      }
+    });
+  } catch(err) {
+    res.status(500).json({ error: 'Grading service unavailable.' });
+  }
+});
+
 // ── CATCH-ALL ─────────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
