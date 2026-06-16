@@ -886,4 +886,188 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2
       </div>
     </div>
   </div>
-</div>>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+const DOMAIN = 'D5';
+const TOTAL  = 18;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let token  = localStorage.getItem('is101_token') || null;
+let nsheId = localStorage.getItem('is101_nshe')  || null;
+let done   = new Set();
+let selectedFile = null;
+
+// ── Accordion — single event listener, no onclick attributes ─────────────────
+document.getElementById('main').addEventListener('click', function(e) {
+  const header = e.target.closest('.skill-header');
+  if (!header) return;
+  const skillId = header.getAttribute('data-card');
+  const card    = document.getElementById('card-' + skillId);
+  if (!card) return;
+  const isOpen  = card.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.skill-card.open').forEach(c => c.classList.remove('open'));
+  // Open this one if it was closed
+  if (!isOpen) card.classList.add('open');
+});
+
+// ── Complete buttons — event delegation ──────────────────────────────────────
+document.getElementById('main').addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-complete');
+  if (!btn) return;
+  e.stopPropagation(); // don't bubble to skill-header handler
+  toggleSkill(btn.getAttribute('data-skill'));
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  if (token && nsheId) {
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
+    loadProgress();
+    loadLinkedInLinks();
+  }
+});
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('nshe-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const input = document.getElementById('nshe-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!/^\d{10}$/.test(input)) {
+    errEl.textContent = 'Please enter your 10-digit NSHE ID.';
+    return;
+  }
+  try {
+    const res  = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nsheId: input })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    token  = data.token;
+    nsheId = data.nsheId;
+    localStorage.setItem('is101_token', token);
+    localStorage.setItem('is101_nshe',  nsheId);
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('user-label').textContent = 'NSHE: ' + nsheId;
+    loadProgress();
+    loadLinkedInLinks();
+    toast('Signed in successfully', 'success');
+  } catch(err) {
+    document.getElementById('login-error').textContent = err.message;
+  }
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+async function loadProgress() {
+  try {
+    const res  = await fetch('/api/progress/skills/' + DOMAIN, {
+      headers: { 'x-session-token': token }
+    });
+    if (res.status === 401) { handleExpired(); return; }
+    const data = await res.json();
+    done = new Set(data.skills.map(s => s.skill_id));
+  } catch(e) {
+    const stored = localStorage.getItem('is101_skills_' + DOMAIN);
+    if (stored) done = new Set(JSON.parse(stored));
+  }
+  renderAll();
+  updateProgress();
+}
+
+function renderAll() {
+  document.querySelectorAll('.skill-card[data-skill]').forEach(card => {
+    renderCard(card.getAttribute('data-skill'));
+  });
+}
+
+function renderCard(skillId) {
+  const card = document.getElementById('card-' + skillId);
+  const btn  = document.getElementById('btn-' + skillId);
+  if (!card || !btn) return;
+  const isDone = done.has(skillId);
+  card.classList.toggle('completed', isDone);
+  btn.classList.toggle('done', isDone);
+  btn.textContent = isDone ? '✓ Completed — click to undo' : 'Mark Complete';
+}
+
+function updateProgress() {
+  const n   = done.size;
+  const pct = Math.round(n / TOTAL * 100);
+  document.getElementById('prog-label').textContent = n + ' of ' + TOTAL + ' skills completed';
+  document.getElementById('prog-fill').style.width  = pct + '%';
+  document.getElementById('prog-pct').textContent   = pct + '%';
+}
+
+async function toggleSkill(skillId) {
+  const nowDone = !done.has(skillId);
+  if (nowDone) done.add(skillId);
+  else         done.delete(skillId);
+  renderCard(skillId);
+  updateProgress();
+  localStorage.setItem('is101_skills_' + DOMAIN, JSON.stringify([...done]));
+  document.getElementById('saving-' + skillId).style.display = 'inline';
+  try {
+    const res = await fetch('/api/progress/skill', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-session-token': token },
+      body: JSON.stringify({ domain: DOMAIN, skillId, completed: nowDone })
+    });
+    if (res.status === 401) { handleExpired(); return; }
+    toast(nowDone ? '✓ Skill marked complete' : 'Skill unchecked', nowDone ? 'success' : '');
+  } catch(e) {
+    toast('Saved locally — will sync when online', '');
+  } finally {
+    document.getElementById('saving-' + skillId).style.display = 'none';
+  }
+}
+
+// ── LinkedIn links ────────────────────────────────────────────────────────────
+async function loadLinkedInLinks() {
+  try {
+    const res  = await fetch('/api/linkedin/' + DOMAIN);
+    const data = await res.json();
+    Object.entries(data).forEach(([skillId, url]) => {
+      if (!url) return;
+      const btn = document.getElementById('li-' + skillId);
+      if (!btn) return;
+      btn.href      = url;
+      btn.target    = '_blank';
+      btn.rel       = 'noopener';
+      btn.className = btn.className.replace('li-soon', 'li-active');
+    });
+  } catch(e) { /* stay as Coming Soon */ }
+}
+
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function handleExpired() {
+  token = null;
+  localStorage.removeItem('is101_token');
+  document.getElementById('login-overlay').classList.remove('hidden');
+  toast('Session expired — please sign in again', 'error');
+}
+
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3200);
+}
+</script>
+</body>
+</html>
