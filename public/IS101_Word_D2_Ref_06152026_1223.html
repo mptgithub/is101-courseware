@@ -987,7 +987,25 @@ async function loadLinkedInLinks() {
 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function handleExpired() {
+async function handleExpired() {
+  // Try to re-login automatically using stored NSHE ID
+  if (nsheId) {
+    try {
+      const res  = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nsheId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        token = data.token;
+        localStorage.setItem('is101_token', token);
+        loadProgress();
+        return;
+      }
+    } catch(e) {}
+  }
+  // Only show login overlay if auto re-login failed
   token = null;
   localStorage.removeItem('is101_token');
   document.getElementById('login-overlay').classList.remove('hidden');

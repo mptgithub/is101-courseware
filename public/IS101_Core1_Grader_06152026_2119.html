@@ -329,13 +329,36 @@ btnGrade.addEventListener('click', async () => {
     const fd = new FormData();
     fd.append('file', selectedFile);
 
-    const res  = await fetch('/api/grade/core1', {
+    let res = await fetch('/api/grade/core1', {
       method: 'POST',
       headers: { 'x-session-token': token },
       body: fd
     });
-    const data = await res.json();
 
+    // If session expired, re-login automatically and retry
+    if (res.status === 401 && nsheId) {
+      document.getElementById('grade-status').textContent = 'Re-authenticating...';
+      const loginRes  = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nsheId })
+      });
+      const loginData = await loginRes.json();
+      if (loginRes.ok) {
+        token = loginData.token;
+        localStorage.setItem('is101_token', token);
+        // Retry with new token — need to re-create FormData since it was consumed
+        const fd2 = new FormData();
+        fd2.append('file', selectedFile);
+        res = await fetch('/api/grade/core1', {
+          method: 'POST',
+          headers: { 'x-session-token': token },
+          body: fd2
+        });
+      }
+    }
+
+    const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Grading failed');
 
     showResults(data);
