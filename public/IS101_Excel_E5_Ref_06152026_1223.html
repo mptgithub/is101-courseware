@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Excel E5 — Manage Charts</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#217346;--blue-lt:#e8f5ec;--blue-dk:#145230;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
+}
+
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.brand .unit{opacity:.7;font-weight:400}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.primary{background:white;color:var(--blue);border-color:white}
+.nav-btn.primary:hover{background:#f0f4ff}
+
+/* Hero */
+#hero{background:white;border-bottom:1px solid var(--border);padding:28px 24px 24px}
+#hero-inner{max-width:860px;margin:0 auto}
+#hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:4px}
+#hero .subtitle{font-size:15px;color:var(--muted);margin-bottom:20px}
+
+/* Reminder */
+.reminder{background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--radius);
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.reminder-icon{font-size:20px;flex-shrink:0}
+.reminder-text{font-size:14px;color:#92400e;line-height:1.5}
+.reminder-text strong{color:#78350f}
+
+/* Download buttons */
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;
+  font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s}
+.dl-btn.word{background:#217346;color:white}
+.dl-btn.word:hover{background:#145230}
+.dl-btn.pdf{background:#c42b1c;color:white}
+.dl-btn.pdf:hover{background:#a02315}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:14px}
+.progress-label{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;width:0%}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap;min-width:36px;text-align:right}
+
+/* Main */
+#main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+
+/* Skill card */
+.skill-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.skill-card.completed{border-color:var(--green)}
+.skill-card.completed .skill-header{background:var(--green-lt)}
+
+/* Header — NO onclick here, handled by JS */
+.skill-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  user-select:none;background:var(--gray);border-bottom:1px solid var(--border);transition:background .15s}
+.skill-header:hover{background:#e0e5ee}
+.skill-card.completed .skill-header:hover{background:#d0edcf}
+.skill-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.skill-card.completed .skill-num{background:var(--green)}
+.skill-title{flex:1;font-size:15.5px;font-weight:600}
+.skill-badge{font-size:11.5px;color:var(--blue);background:var(--blue-lt);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:500}
+.skill-card.completed .skill-badge{color:var(--green);background:var(--green-lt)}
+.expand-icon{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.skill-card.open .expand-icon{transform:rotate(180deg)}
+
+/* Body — hidden by default */
+.skill-body{display:none;padding:20px;border-top:1px solid var(--border)}
+.skill-card.open .skill-body{display:block}
+
+/* Body content */
+.section{margin-bottom:18px}
+.section:last-child{margin-bottom:0}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.section-text{font-size:14px;color:#1a1a2e;line-height:1.65}
+.ribbon-path{display:inline-flex;align-items:center;gap:4px;background:var(--blue-lt);
+  border:1px solid #a8d5b5;border-radius:6px;padding:6px 12px;font-size:13.5px;
+  color:var(--blue-dk);font-weight:500}
+.ribbon-path .arr{color:var(--muted);font-size:11px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check-box{background:#f0faf0;border:1px solid #b7e0b7;border-radius:7px;
+  padding:10px 14px;font-size:13.5px;color:#1a4a1a;line-height:1.55}
+.check-box::before{content:'✓ ';font-weight:700;color:var(--green)}
+
+/* Resources */
+.resources{display:flex;gap:8px;flex-wrap:wrap}
+.res-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;
+  transition:all .15s;border:1px solid var(--border);color:#1a1a2e;background:white}
+.res-btn.li-active{color:#0a66c2}
+.res-btn.li-active:hover{background:#e8f5ec;border-color:#0a66c2}
+.res-btn.li-soon{color:var(--muted);background:var(--gray);cursor:default}
+.res-btn.yt{color:#c42b1c}
+.res-btn.yt:hover{background:#fff0f0;border-color:#c42b1c}
+.res-btn.px{color:var(--blue)}
+.res-btn.px:hover{background:var(--blue-lt);border-color:var(--blue)}
+.res-btn.ms{color:var(--green)}
+.res-btn.ms:hover{background:var(--green-lt);border-color:var(--green)}
+
+/* Complete button */
+.complete-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;
+  padding-top:16px;border-top:1px solid var(--border);margin-top:18px}
+.saving-txt{font-size:12px;color:var(--muted);display:none}
+.btn-complete{padding:9px 20px;border-radius:7px;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:2px solid var(--green);color:var(--green);background:white;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
+.btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
+.drop-text span{color:var(--blue);font-weight:600}
+
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;
+  max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;
+  font-size:15px;text-align:center;letter-spacing:2px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:#c42b1c;margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:#c42b1c}
+
+@media(max-width:600px){
+  #topbar,#hero,#main{padding-left:16px;padding-right:16px}
+  .skill-badge{display:none}
+  .dl-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>Sign In to Track Progress</h2>
+    <p>Enter your 10-digit NSHE ID to save your skill completions across sessions.</p>
+    <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 22 22">
+      <rect width="22" height="22" rx="4" fill="white" opacity=".15"/>
+      <text x="3" y="16" font-size="13" font-family="Segoe UI" font-weight="900" fill="white">X</text>
+    </svg>
+    <span>IS101</span><span style="font-size:10px;opacity:.5;margin-left:4px">v6</span>
+    <span class="unit">/ Unit 3 — Excel Spreadsheets</span>
+  </div>
+  <div class="nav-btns">
+    <span id="user-label" style="font-size:12px;opacity:.7;margin-right:4px"></span>
+    <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+    <a href="IS101_Project_Grader_06132026_0957.html" class="nav-btn primary">Go to Grader →</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<div id="hero">
+  <div id="hero-inner">
+    <h1>E5 — Manage Charts</h1>
+    <p class="subtitle">7 skills · Use your Excel_E5_Starter.xlsx file while working through these skills.</p>
+    <div class="reminder">
+      <div class="reminder-icon">📄</div>
+      <div class="reminder-text">
+        <strong>Before you begin:</strong> Download and open the starter file below in Microsoft Word.
+        Complete each skill directly in that document. Keep it open as you work through this page.
+      </div>
+    </div>
+    <div class="dl-row">
+      <a href="Excel_E5_Starter.xlsx" download class="dl-btn word">⬇ Download Starter File (.docx)</a>
+      <a href="Excel_E5_Instructions.pdf" download class="dl-btn pdf">⬇ Download Instructions (.pdf)</a>
+    </div>
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">0 of 7 skills completed</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Skill cards -->
+<div id="main">
+
+  <div class="skill-card" id="card-create-chart" data-skill="create-chart">
+    <div class="skill-header" data-card="create-chart">
+      <div class="skill-num">1</div>
+      <div class="skill-title">Create a Chart</div>
+      <div class="skill-badge">Insert tab → Charts group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Create a Column chart showing monthly headcount to visualize staffing trends.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Insert tab</span> <span class="arr">→</span> <span>Charts group</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the data range (include headers).</span></li>
+<li><span class="step-n">2</span><span>Insert tab → Charts → Insert Column or Bar Chart.</span></li>
+<li><span class="step-n">3</span><span>Choose Clustered Column from 2-D Column options.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A column chart appears. Chart Design and Format tabs appear on the ribbon.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-create-chart" data-skill="create-chart">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+create+chart+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/create-a-chart-from-start-to-finish-0baf399e-dd61-4e18-8a73-b3fd5d5680c2" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-create-chart">Saving...</span>
+        <button class="btn-complete" id="btn-create-chart" data-skill="create-chart">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-create-chart-sheet" data-skill="create-chart-sheet">
+    <div class="skill-header" data-card="create-chart-sheet">
+      <div class="skill-num">2</div>
+      <div class="skill-title">Create a Chart Sheet</div>
+      <div class="skill-badge">Chart Design tab → Location group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Move the headcount chart to its own dedicated sheet named "Headcount Chart".</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Chart Design tab</span> <span class="arr">→</span> <span>Location group</span> <span class="arr">→</span> <span>Move Chart</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the chart.</span></li>
+<li><span class="step-n">2</span><span>Chart Design tab → Location → Move Chart.</span></li>
+<li><span class="step-n">3</span><span>Choose New sheet → type: Headcount Chart → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The chart moves to its own full-page sheet tab. The original worksheet is unchanged.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-create-chart-sheet" data-skill="create-chart-sheet">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+move+chart+new+sheet+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/move-a-chart-to-a-different-worksheet-4aab00f2-0a9c-41fd-a6af-2ae38e08d9f6" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-create-chart-sheet">Saving...</span>
+        <button class="btn-complete" id="btn-create-chart-sheet" data-skill="create-chart-sheet">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-modify-charts" data-skill="modify-charts">
+    <div class="skill-header" data-card="modify-charts">
+      <div class="skill-num">3</div>
+      <div class="skill-title">Modify Chart Type and Data</div>
+      <div class="skill-badge">Chart Design tab → Type group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Change the Column chart to a Line chart to better show the trend over time.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Chart Design tab</span> <span class="arr">→</span> <span>Type group</span> <span class="arr">→</span> <span>Change Chart Type</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the chart.</span></li>
+<li><span class="step-n">2</span><span>Chart Design tab → Type → Change Chart Type.</span></li>
+<li><span class="step-n">3</span><span>Choose Line → Line with Markers → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Chart changes from columns to a line graph showing the trend direction.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-modify-charts" data-skill="modify-charts">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+change+chart+type+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/change-the-chart-type-of-an-existing-chart-7b956bec-7371-42b7-82b3-2d2f09b8d6c1" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-modify-charts">Saving...</span>
+        <button class="btn-complete" id="btn-modify-charts" data-skill="modify-charts">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-format-chart" data-skill="format-chart">
+    <div class="skill-header" data-card="format-chart">
+      <div class="skill-num">4</div>
+      <div class="skill-title">Format Chart Elements</div>
+      <div class="skill-badge">Double-click chart element → Format pane</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Apply a gradient fill to the data series bars using the company blue color scheme.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Double-click chart element</span> <span class="arr">→</span> <span>Format pane</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Double-click a data bar to open Format Data Series pane.</span></li>
+<li><span class="step-n">2</span><span>Fill & Line → Fill → Gradient fill.</span></li>
+<li><span class="step-n">3</span><span>Set gradient colors to shades of blue.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Data bars display a blue gradient fill.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-format-chart" data-skill="format-chart">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+format+chart+elements+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/change-the-format-of-data-labels-in-a-chart-b37c9c9e-a6bd-46d2-9e7e-2d71c699b08f" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-format-chart">Saving...</span>
+        <button class="btn-complete" id="btn-format-chart" data-skill="format-chart">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-chart-elements" data-skill="chart-elements">
+    <div class="skill-header" data-card="chart-elements">
+      <div class="skill-num">5</div>
+      <div class="skill-title">Add and Modify Chart Elements</div>
+      <div class="skill-badge">Chart Design tab → Add Chart Element  (or + icon)</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add data labels, a trendline, and move the legend to the bottom.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Chart Design tab</span> <span class="arr">→</span> <span>Add Chart Element  (or + icon)</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Chart Design tab → Add Chart Element → Data Labels → Above.</span></li>
+<li><span class="step-n">2</span><span>Add Chart Element → Trendline → Linear.</span></li>
+<li><span class="step-n">3</span><span>Add Chart Element → Legend → Bottom.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Data labels show exact values above each point. A trendline runs through the data. Legend is at the bottom.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-chart-elements" data-skill="chart-elements">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+add+chart+elements+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/add-or-remove-titles-in-a-chart-d82f3b83-8d9f-4f05-b7f6-cc9a60d71165" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-chart-elements">Saving...</span>
+        <button class="btn-complete" id="btn-chart-elements" data-skill="chart-elements">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-chart-styles" data-skill="chart-styles">
+    <div class="skill-header" data-card="chart-styles">
+      <div class="skill-num">6</div>
+      <div class="skill-title">Apply Chart Layouts and Styles</div>
+      <div class="skill-badge">Chart Design tab → Chart Layouts and Chart Styles groups</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Apply Quick Layout 3 and Style 8 for a professional polished chart.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Chart Design tab</span> <span class="arr">→</span> <span>Chart Layouts and Chart Styles groups</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the chart.</span></li>
+<li><span class="step-n">2</span><span>Chart Design tab → Chart Layouts → Quick Layout → Layout 3.</span></li>
+<li><span class="step-n">3</span><span>Chart Styles → Style 8.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Chart has a professional appearance with the chosen layout and style.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-chart-styles" data-skill="chart-styles">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+apply+chart+style+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/apply-a-chart-layout-or-style-56d3a16a-d5d3-4a0f-9eee-67c3ca0c1c62" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-chart-styles">Saving...</span>
+        <button class="btn-complete" id="btn-chart-styles" data-skill="chart-styles">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-chart-alt-text" data-skill="chart-alt-text">
+    <div class="skill-header" data-card="chart-alt-text">
+      <div class="skill-num">7</div>
+      <div class="skill-title">Add Alt Text to Chart</div>
+      <div class="skill-badge">Right-click chart border → Edit Alt Text</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add descriptive alt text to the headcount chart for screen reader accessibility.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Right-click chart border</span> <span class="arr">→</span> <span>Edit Alt Text</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Right-click the outer border of the chart.</span></li>
+<li><span class="step-n">2</span><span>Choose Edit Alt Text.</span></li>
+<li><span class="step-n">3</span><span>Type: Monthly headcount trend chart showing growth from 142 to 171 employees, Jan–Jun 2026.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The Alt Text pane shows the description. Screen readers can now describe the chart.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-chart-alt-text" data-skill="chart-alt-text">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+add+alt+text+chart+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-chart-alt-text">Saving...</span>
+        <button class="btn-complete" id="btn-chart-alt-text" data-skill="chart-alt-text">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>>

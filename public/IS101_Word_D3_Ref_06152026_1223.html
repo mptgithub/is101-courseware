@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Word D3 — Tables & Lists</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#2b579a;--blue-lt:#e8f0fb;--blue-dk:#1e3f6f;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
+}
+
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.brand .unit{opacity:.7;font-weight:400}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.primary{background:white;color:var(--blue);border-color:white}
+.nav-btn.primary:hover{background:#f0f4ff}
+
+/* Hero */
+#hero{background:white;border-bottom:1px solid var(--border);padding:28px 24px 24px}
+#hero-inner{max-width:860px;margin:0 auto}
+#hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:4px}
+#hero .subtitle{font-size:15px;color:var(--muted);margin-bottom:20px}
+
+/* Reminder */
+.reminder{background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--radius);
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.reminder-icon{font-size:20px;flex-shrink:0}
+.reminder-text{font-size:14px;color:#92400e;line-height:1.5}
+.reminder-text strong{color:#78350f}
+
+/* Download buttons */
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;
+  font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s}
+.dl-btn.word{background:#2b579a;color:white}
+.dl-btn.word:hover{background:#1e3f6f}
+.dl-btn.pdf{background:#c42b1c;color:white}
+.dl-btn.pdf:hover{background:#a02315}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:14px}
+.progress-label{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;width:0%}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap;min-width:36px;text-align:right}
+
+/* Main */
+#main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+
+/* Skill card */
+.skill-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.skill-card.completed{border-color:var(--green)}
+.skill-card.completed .skill-header{background:var(--green-lt)}
+
+/* Header — NO onclick here, handled by JS */
+.skill-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  user-select:none;background:var(--gray);border-bottom:1px solid var(--border);transition:background .15s}
+.skill-header:hover{background:#e0e5ee}
+.skill-card.completed .skill-header:hover{background:#d0edcf}
+.skill-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.skill-card.completed .skill-num{background:var(--green)}
+.skill-title{flex:1;font-size:15.5px;font-weight:600}
+.skill-badge{font-size:11.5px;color:var(--blue);background:var(--blue-lt);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:500}
+.skill-card.completed .skill-badge{color:var(--green);background:var(--green-lt)}
+.expand-icon{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.skill-card.open .expand-icon{transform:rotate(180deg)}
+
+/* Body — hidden by default */
+.skill-body{display:none;padding:20px;border-top:1px solid var(--border)}
+.skill-card.open .skill-body{display:block}
+
+/* Body content */
+.section{margin-bottom:18px}
+.section:last-child{margin-bottom:0}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.section-text{font-size:14px;color:#1a1a2e;line-height:1.65}
+.ribbon-path{display:inline-flex;align-items:center;gap:4px;background:var(--blue-lt);
+  border:1px solid #c5d8f7;border-radius:6px;padding:6px 12px;font-size:13.5px;
+  color:var(--blue-dk);font-weight:500}
+.ribbon-path .arr{color:var(--muted);font-size:11px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check-box{background:#f0faf0;border:1px solid #b7e0b7;border-radius:7px;
+  padding:10px 14px;font-size:13.5px;color:#1a4a1a;line-height:1.55}
+.check-box::before{content:'✓ ';font-weight:700;color:var(--green)}
+
+/* Resources */
+.resources{display:flex;gap:8px;flex-wrap:wrap}
+.res-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;
+  transition:all .15s;border:1px solid var(--border);color:#1a1a2e;background:white}
+.res-btn.li-active{color:#0a66c2}
+.res-btn.li-active:hover{background:#e8f0fb;border-color:#0a66c2}
+.res-btn.li-soon{color:var(--muted);background:var(--gray);cursor:default}
+.res-btn.yt{color:#c42b1c}
+.res-btn.yt:hover{background:#fff0f0;border-color:#c42b1c}
+.res-btn.px{color:var(--blue)}
+.res-btn.px:hover{background:var(--blue-lt);border-color:var(--blue)}
+.res-btn.ms{color:var(--green)}
+.res-btn.ms:hover{background:var(--green-lt);border-color:var(--green)}
+
+/* Complete button */
+.complete-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;
+  padding-top:16px;border-top:1px solid var(--border);margin-top:18px}
+.saving-txt{font-size:12px;color:var(--muted);display:none}
+.btn-complete{padding:9px 20px;border-radius:7px;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:2px solid var(--green);color:var(--green);background:white;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
+.btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
+.drop-text span{color:var(--blue);font-weight:600}
+
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;
+  max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;
+  font-size:15px;text-align:center;letter-spacing:2px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:#c42b1c;margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:#c42b1c}
+
+@media(max-width:600px){
+  #topbar,#hero,#main{padding-left:16px;padding-right:16px}
+  .skill-badge{display:none}
+  .dl-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>Sign In to Track Progress</h2>
+    <p>Enter your 10-digit NSHE ID to save your skill completions across sessions.</p>
+    <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 22 22">
+      <rect width="22" height="22" rx="4" fill="white" opacity=".15"/>
+      <text x="4" y="17" font-size="14" font-family="Segoe UI" font-weight="900" fill="white">W</text>
+    </svg>
+    <span>IS101</span><span style="font-size:10px;opacity:.5;margin-left:4px">v6</span>
+    <span class="unit">/ Unit 2 — Word Processing</span>
+  </div>
+  <div class="nav-btns">
+    <span id="user-label" style="font-size:12px;opacity:.7;margin-right:4px"></span>
+    <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+    <a href="IS101_Project_Grader_06132026_0957.html" class="nav-btn primary">Go to Grader →</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<div id="hero">
+  <div id="hero-inner">
+    <h1>D3 — Tables & Lists</h1>
+    <p class="subtitle">12 skills · Use your Word_D3_Starter.docx file while working through these skills.</p>
+    <div class="reminder">
+      <div class="reminder-icon">📄</div>
+      <div class="reminder-text">
+        <strong>Before you begin:</strong> Download and open the starter file below in Microsoft Word.
+        Complete each skill directly in that document. Keep it open as you work through this page.
+      </div>
+    </div>
+    <div class="dl-row">
+      <a href="Word_D3_Starter.docx" download class="dl-btn word">⬇ Download Starter File (.docx)</a>
+      <a href="Word_D3_Instructions.pdf" download class="dl-btn pdf">⬇ Download Instructions (.pdf)</a>
+    </div>
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">0 of 12 skills completed</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Skill cards -->
+<div id="main">
+
+  <div class="skill-card" id="card-create-table" data-skill="create-table">
+    <div class="skill-header" data-card="create-table">
+      <div class="skill-num">1</div>
+      <div class="skill-title">Create a Table</div>
+      <div class="skill-badge">Insert tab → Tables group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Convert the quarterly revenue plain text data into a professional 4-column table.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Insert tab</span> <span class="arr">→</span> <span>Tables group</span> <span class="arr">→</span> <span>Table</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click where you want the table.</span></li>
+<li><span class="step-n">2</span><span>Insert tab → Tables group → Table.</span></li>
+<li><span class="step-n">3</span><span>Drag to select 4 columns and the right number of rows.</span></li>
+<li><span class="step-n">4</span><span>Type data into each cell. Press Tab to move between cells.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A clean bordered table appears. Data is organized in columns: Quarter, Revenue, Expenses, Net Profit.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-create-table" data-skill="create-table">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+create+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-a-table-in-word-a138f745-73ef-4879-b99a-2f3d38be612a" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-create-table">Saving...</span>
+        <button class="btn-complete" id="btn-create-table" data-skill="create-table">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-insert-rows-cols" data-skill="insert-rows-cols">
+    <div class="skill-header" data-card="insert-rows-cols">
+      <div class="skill-num">2</div>
+      <div class="skill-title">Insert Rows and Columns</div>
+      <div class="skill-badge">Table Layout tab → Rows & Columns group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add a new row to the bottom of the revenue table for Q5 projections.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Layout tab</span> <span class="arr">→</span> <span>Rows & Columns group</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click in the last row of the table.</span></li>
+<li><span class="step-n">2</span><span>Table Layout tab → Rows & Columns → Insert Below.</span></li>
+<li><span class="step-n">3</span><span>Or right-click the row → Insert → Insert Rows Below.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A new empty row appears at the bottom ready for data entry.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-rows-cols" data-skill="insert-rows-cols">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+row+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/add-or-delete-rows-and-columns-in-a-word-table-fe4aaee1-0e9a-4017-a26f-58b6e4b4f35b" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-rows-cols">Saving...</span>
+        <button class="btn-complete" id="btn-insert-rows-cols" data-skill="insert-rows-cols">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-delete-rows-cols" data-skill="delete-rows-cols">
+    <div class="skill-header" data-card="delete-rows-cols">
+      <div class="skill-num">3</div>
+      <div class="skill-title">Delete Rows and Columns</div>
+      <div class="skill-badge">Table Layout tab → Rows & Columns</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Remove the duplicate row from the client table.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Layout tab</span> <span class="arr">→</span> <span>Rows & Columns</span> <span class="arr">→</span> <span>Delete</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the duplicate row by clicking the row selector.</span></li>
+<li><span class="step-n">2</span><span>Table Layout tab → Rows & Columns → Delete → Delete Rows.</span></li>
+<li><span class="step-n">3</span><span>Or right-click the selected row → Delete Rows.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The duplicate row is removed. The table adjusts automatically.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-delete-rows-cols" data-skill="delete-rows-cols">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+delete+row+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/add-or-delete-rows-and-columns-in-a-word-table-fe4aaee1-0e9a-4017-a26f-58b6e4b4f35b" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-delete-rows-cols">Saving...</span>
+        <button class="btn-complete" id="btn-delete-rows-cols" data-skill="delete-rows-cols">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-merge-cells" data-skill="merge-cells">
+    <div class="skill-header" data-card="merge-cells">
+      <div class="skill-num">4</div>
+      <div class="skill-title">Merge Table Cells</div>
+      <div class="skill-badge">Table Layout tab → Merge group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Merge all cells in the top row to create a single spanning title cell.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Layout tab</span> <span class="arr">→</span> <span>Merge group</span> <span class="arr">→</span> <span>Merge Cells</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select all cells in the top row.</span></li>
+<li><span class="step-n">2</span><span>Table Layout tab → Merge group → Merge Cells.</span></li>
+<li><span class="step-n">3</span><span>Type the table title in the merged cell.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The top row becomes one wide cell spanning all columns.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-merge-cells" data-skill="merge-cells">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+merge+cells+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/merge-or-split-table-cells-in-word-dc259537-d8a3-4ca4-8d9e-72561f28f2fd" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-merge-cells">Saving...</span>
+        <button class="btn-complete" id="btn-merge-cells" data-skill="merge-cells">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-split-cells" data-skill="split-cells">
+    <div class="skill-header" data-card="split-cells">
+      <div class="skill-num">5</div>
+      <div class="skill-title">Split Table Cells</div>
+      <div class="skill-badge">Table Layout tab → Merge group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Split the address cell into separate City and State cells.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Layout tab</span> <span class="arr">→</span> <span>Merge group</span> <span class="arr">→</span> <span>Split Cells</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click in the cell to split.</span></li>
+<li><span class="step-n">2</span><span>Table Layout tab → Merge group → Split Cells.</span></li>
+<li><span class="step-n">3</span><span>Set Number of columns: 2, rows: 1 → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The cell splits into two cells. Original text stays in the first cell.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-split-cells" data-skill="split-cells">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+split+cells+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/merge-or-split-table-cells-in-word-dc259537-d8a3-4ca4-8d9e-72561f28f2fd" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-split-cells">Saving...</span>
+        <button class="btn-complete" id="btn-split-cells" data-skill="split-cells">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-apply-table-style" data-skill="apply-table-style">
+    <div class="skill-header" data-card="apply-table-style">
+      <div class="skill-num">6</div>
+      <div class="skill-title">Apply Table Style</div>
+      <div class="skill-badge">Table Design tab → Table Styles group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Apply a professional grid style to the revenue table.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Design tab</span> <span class="arr">→</span> <span>Table Styles group</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click anywhere inside the table.</span></li>
+<li><span class="step-n">2</span><span>Table Design tab → Table Styles group → hover to preview.</span></li>
+<li><span class="step-n">3</span><span>Click Grid Table 4 - Accent 1 or preferred style.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The table shows colored headers, alternating row shading, and professional borders.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-apply-table-style" data-skill="apply-table-style">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+apply+table+style+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/apply-a-table-style-to-a-word-table-6d418f5a-0c52-4e11-b084-0eb0abeece74" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-apply-table-style">Saving...</span>
+        <button class="btn-complete" id="btn-apply-table-style" data-skill="apply-table-style">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-modify-table-style" data-skill="modify-table-style">
+    <div class="skill-header" data-card="modify-table-style">
+      <div class="skill-num">7</div>
+      <div class="skill-title">Modify Table Style Options</div>
+      <div class="skill-badge">Table Design tab → Table Style Options group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Enable Banded Rows and Header Row highlighting for the revenue table.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Design tab</span> <span class="arr">→</span> <span>Table Style Options group</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click anywhere inside the table.</span></li>
+<li><span class="step-n">2</span><span>Table Design tab → Table Style Options group.</span></li>
+<li><span class="step-n">3</span><span>Check Header Row.</span></li>
+<li><span class="step-n">4</span><span>Check Banded Rows.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The header row is visually distinct. Alternating rows have different background colors.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-modify-table-style" data-skill="modify-table-style">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+modify+table+style+options+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/apply-a-table-style-to-a-word-table-6d418f5a-0c52-4e11-b084-0eb0abeece74" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-modify-table-style">Saving...</span>
+        <button class="btn-complete" id="btn-modify-table-style" data-skill="modify-table-style">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-sort-table" data-skill="sort-table">
+    <div class="skill-header" data-card="sort-table">
+      <div class="skill-num">8</div>
+      <div class="skill-title">Sort Table Data</div>
+      <div class="skill-badge">Table Layout tab → Data group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Sort the client table alphabetically by the Client Name column.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Layout tab</span> <span class="arr">→</span> <span>Data group</span> <span class="arr">→</span> <span>Sort</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click anywhere inside the table.</span></li>
+<li><span class="step-n">2</span><span>Table Layout tab → Data group → Sort.</span></li>
+<li><span class="step-n">3</span><span>Sort by: Client Name column → Ascending.</span></li>
+<li><span class="step-n">4</span><span>Click OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Table rows rearrange alphabetically by client name. The header row stays in place.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-sort-table" data-skill="sort-table">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+sort+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/sort-a-table-in-word-c4f3b8c7-6f26-4f3d-abf0-c34a23f15b23" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-sort-table">Saving...</span>
+        <button class="btn-complete" id="btn-sort-table" data-skill="sort-table">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-repeat-header-row" data-skill="repeat-header-row">
+    <div class="skill-header" data-card="repeat-header-row">
+      <div class="skill-num">9</div>
+      <div class="skill-title">Repeat Header Row</div>
+      <div class="skill-badge">Table Layout tab → Data group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Make the table header row repeat at the top of every page since the table spans multiple pages.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Table Layout tab</span> <span class="arr">→</span> <span>Data group</span> <span class="arr">→</span> <span>Repeat Header Rows</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click in the header row.</span></li>
+<li><span class="step-n">2</span><span>Table Layout tab → Data group → Repeat Header Rows.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">When the table runs onto the next page the header row appears again automatically.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-repeat-header-row" data-skill="repeat-header-row">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+repeat+header+row+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/repeat-table-header-on-subsequent-pages-2ea634a0-81e0-4741-acbd-14d8f2bd8e7a" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-repeat-header-row">Saving...</span>
+        <button class="btn-complete" id="btn-repeat-header-row" data-skill="repeat-header-row">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-convert-text-to-table" data-skill="convert-text-to-table">
+    <div class="skill-header" data-card="convert-text-to-table">
+      <div class="skill-num">10</div>
+      <div class="skill-title">Convert Text to Table</div>
+      <div class="skill-badge">Insert tab → Tables group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Convert the tab-separated vendor list into a proper structured table.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Insert tab</span> <span class="arr">→</span> <span>Tables group</span> <span class="arr">→</span> <span>Table</span> <span class="arr">→</span> <span>Convert Text to Table</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the tab-separated text.</span></li>
+<li><span class="step-n">2</span><span>Insert tab → Tables group → Table → Convert Text to Table.</span></li>
+<li><span class="step-n">3</span><span>Set Separate text at: Tabs.</span></li>
+<li><span class="step-n">4</span><span>Confirm columns → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Plain text converts into a formatted table with each tab-separated value in its own cell.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-convert-text-to-table" data-skill="convert-text-to-table">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+convert+text+to+table+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/convert-text-to-a-table-or-a-table-to-text-b5c4c06e-1b14-48de-b7de-38cff4be1a9f" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-convert-text-to-table">Saving...</span>
+        <button class="btn-complete" id="btn-convert-text-to-table" data-skill="convert-text-to-table">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-numbered-list" data-skill="numbered-list">
+    <div class="skill-header" data-card="numbered-list">
+      <div class="skill-num">11</div>
+      <div class="skill-title">Create Numbered List</div>
+      <div class="skill-badge">Home tab → Paragraph group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Format the five strategic objectives as a numbered list.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Home tab</span> <span class="arr">→</span> <span>Paragraph group</span> <span class="arr">→</span> <span>Numbering</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the objectives text.</span></li>
+<li><span class="step-n">2</span><span>Home tab → Paragraph group → click the Numbering button.</span></li>
+<li><span class="step-n">3</span><span>Each item is automatically numbered.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Each objective is numbered 1 through 5. Adding or removing items renumbers automatically.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-numbered-list" data-skill="numbered-list">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+create+numbered+list+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/create-a-bulleted-or-numbered-list-9ff81241-58a8-4d88-8d8c-acab3006a23e" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-numbered-list">Saving...</span>
+        <button class="btn-complete" id="btn-numbered-list" data-skill="numbered-list">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-bulleted-list" data-skill="bulleted-list">
+    <div class="skill-header" data-card="bulleted-list">
+      <div class="skill-num">12</div>
+      <div class="skill-title">Create Bulleted List</div>
+      <div class="skill-badge">Home tab → Paragraph group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Format the services list as a bulleted list.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Home tab</span> <span class="arr">→</span> <span>Paragraph group</span> <span class="arr">→</span> <span>Bullets</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the services text.</span></li>
+<li><span class="step-n">2</span><span>Home tab → Paragraph group → click the Bullets button.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Each service item has a bullet point and is visually separated from surrounding body text.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-bulleted-list" data-skill="bulleted-list">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+create+bulleted+list+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/create-a-bulleted-or-numbered-list-9ff81241-58a8-4d88-8d8c-acab3006a23e" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-bulleted-list">Saving...</span>
+        <button class="btn-complete" id="btn-bulleted-list" data-skill="bulleted-list">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>>

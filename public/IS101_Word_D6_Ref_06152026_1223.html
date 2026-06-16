@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Word D6 — Collaboration</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#2b579a;--blue-lt:#e8f0fb;--blue-dk:#1e3f6f;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
+}
+
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.brand .unit{opacity:.7;font-weight:400}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.primary{background:white;color:var(--blue);border-color:white}
+.nav-btn.primary:hover{background:#f0f4ff}
+
+/* Hero */
+#hero{background:white;border-bottom:1px solid var(--border);padding:28px 24px 24px}
+#hero-inner{max-width:860px;margin:0 auto}
+#hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:4px}
+#hero .subtitle{font-size:15px;color:var(--muted);margin-bottom:20px}
+
+/* Reminder */
+.reminder{background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--radius);
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.reminder-icon{font-size:20px;flex-shrink:0}
+.reminder-text{font-size:14px;color:#92400e;line-height:1.5}
+.reminder-text strong{color:#78350f}
+
+/* Download buttons */
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;
+  font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s}
+.dl-btn.word{background:#2b579a;color:white}
+.dl-btn.word:hover{background:#1e3f6f}
+.dl-btn.pdf{background:#c42b1c;color:white}
+.dl-btn.pdf:hover{background:#a02315}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:14px}
+.progress-label{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;width:0%}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap;min-width:36px;text-align:right}
+
+/* Main */
+#main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+
+/* Skill card */
+.skill-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.skill-card.completed{border-color:var(--green)}
+.skill-card.completed .skill-header{background:var(--green-lt)}
+
+/* Header — NO onclick here, handled by JS */
+.skill-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  user-select:none;background:var(--gray);border-bottom:1px solid var(--border);transition:background .15s}
+.skill-header:hover{background:#e0e5ee}
+.skill-card.completed .skill-header:hover{background:#d0edcf}
+.skill-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.skill-card.completed .skill-num{background:var(--green)}
+.skill-title{flex:1;font-size:15.5px;font-weight:600}
+.skill-badge{font-size:11.5px;color:var(--blue);background:var(--blue-lt);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:500}
+.skill-card.completed .skill-badge{color:var(--green);background:var(--green-lt)}
+.expand-icon{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.skill-card.open .expand-icon{transform:rotate(180deg)}
+
+/* Body — hidden by default */
+.skill-body{display:none;padding:20px;border-top:1px solid var(--border)}
+.skill-card.open .skill-body{display:block}
+
+/* Body content */
+.section{margin-bottom:18px}
+.section:last-child{margin-bottom:0}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.section-text{font-size:14px;color:#1a1a2e;line-height:1.65}
+.ribbon-path{display:inline-flex;align-items:center;gap:4px;background:var(--blue-lt);
+  border:1px solid #c5d8f7;border-radius:6px;padding:6px 12px;font-size:13.5px;
+  color:var(--blue-dk);font-weight:500}
+.ribbon-path .arr{color:var(--muted);font-size:11px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check-box{background:#f0faf0;border:1px solid #b7e0b7;border-radius:7px;
+  padding:10px 14px;font-size:13.5px;color:#1a4a1a;line-height:1.55}
+.check-box::before{content:'✓ ';font-weight:700;color:var(--green)}
+
+/* Resources */
+.resources{display:flex;gap:8px;flex-wrap:wrap}
+.res-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;
+  transition:all .15s;border:1px solid var(--border);color:#1a1a2e;background:white}
+.res-btn.li-active{color:#0a66c2}
+.res-btn.li-active:hover{background:#e8f0fb;border-color:#0a66c2}
+.res-btn.li-soon{color:var(--muted);background:var(--gray);cursor:default}
+.res-btn.yt{color:#c42b1c}
+.res-btn.yt:hover{background:#fff0f0;border-color:#c42b1c}
+.res-btn.px{color:var(--blue)}
+.res-btn.px:hover{background:var(--blue-lt);border-color:var(--blue)}
+.res-btn.ms{color:var(--green)}
+.res-btn.ms:hover{background:var(--green-lt);border-color:var(--green)}
+
+/* Complete button */
+.complete-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;
+  padding-top:16px;border-top:1px solid var(--border);margin-top:18px}
+.saving-txt{font-size:12px;color:var(--muted);display:none}
+.btn-complete{padding:9px 20px;border-radius:7px;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:2px solid var(--green);color:var(--green);background:white;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
+.btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
+.drop-text span{color:var(--blue);font-weight:600}
+
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;
+  max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;
+  font-size:15px;text-align:center;letter-spacing:2px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:#c42b1c;margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:#c42b1c}
+
+@media(max-width:600px){
+  #topbar,#hero,#main{padding-left:16px;padding-right:16px}
+  .skill-badge{display:none}
+  .dl-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>Sign In to Track Progress</h2>
+    <p>Enter your 10-digit NSHE ID to save your skill completions across sessions.</p>
+    <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 22 22">
+      <rect width="22" height="22" rx="4" fill="white" opacity=".15"/>
+      <text x="4" y="17" font-size="14" font-family="Segoe UI" font-weight="900" fill="white">W</text>
+    </svg>
+    <span>IS101</span><span style="font-size:10px;opacity:.5;margin-left:4px">v6</span>
+    <span class="unit">/ Unit 2 — Word Processing</span>
+  </div>
+  <div class="nav-btns">
+    <span id="user-label" style="font-size:12px;opacity:.7;margin-right:4px"></span>
+    <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+    <a href="IS101_Project_Grader_06132026_0957.html" class="nav-btn primary">Go to Grader →</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<div id="hero">
+  <div id="hero-inner">
+    <h1>D6 — Collaboration</h1>
+    <p class="subtitle">17 skills · Use your Word_D6_Starter.docx file while working through these skills.</p>
+    <div class="reminder">
+      <div class="reminder-icon">📄</div>
+      <div class="reminder-text">
+        <strong>Before you begin:</strong> Download and open the starter file below in Microsoft Word.
+        Complete each skill directly in that document. Keep it open as you work through this page.
+      </div>
+    </div>
+    <div class="dl-row">
+      <a href="Word_D6_Starter.docx" download class="dl-btn word">⬇ Download Starter File (.docx)</a>
+      <a href="Word_D6_Instructions.pdf" download class="dl-btn pdf">⬇ Download Instructions (.pdf)</a>
+    </div>
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">0 of 17 skills completed</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Skill cards -->
+<div id="main">
+
+  <div class="skill-card" id="card-add-comment" data-skill="add-comment">
+    <div class="skill-header" data-card="add-comment">
+      <div class="skill-num">1</div>
+      <div class="skill-title">Add a Comment</div>
+      <div class="skill-badge">Review tab → Comments group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Flag the revenue figure by adding a comment requesting verification from the finance team.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Comments group</span> <span class="arr">→</span> <span>New Comment</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the revenue figure text.</span></li>
+<li><span class="step-n">2</span><span>Review tab → Comments → New Comment.</span></li>
+<li><span class="step-n">3</span><span>Type your comment in the comment pane.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A colored comment bubble appears in the right margin connected to the selected text.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-add-comment" data-skill="add-comment">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+add+comment+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4df2-8c68-bf96671641e2" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-add-comment">Saving...</span>
+        <button class="btn-complete" id="btn-add-comment" data-skill="add-comment">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-review-reply-comment" data-skill="review-reply-comment">
+    <div class="skill-header" data-card="review-reply-comment">
+      <div class="skill-num">2</div>
+      <div class="skill-title">Reply to a Comment</div>
+      <div class="skill-badge">Click comment → Reply button</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Reply to the finance manager's existing comment confirming the Q4 numbers are correct.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Click comment</span> <span class="arr">→</span> <span>Reply button</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the existing comment to select it.</span></li>
+<li><span class="step-n">2</span><span>Click the Reply button inside the comment bubble.</span></li>
+<li><span class="step-n">3</span><span>Type your reply.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Your reply appears threaded under the original comment with your name and timestamp.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-review-reply-comment" data-skill="review-reply-comment">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+reply+comment+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4df2-8c68-bf96671641e2" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-review-reply-comment">Saving...</span>
+        <button class="btn-complete" id="btn-review-reply-comment" data-skill="review-reply-comment">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-resolve-comment" data-skill="resolve-comment">
+    <div class="skill-header" data-card="resolve-comment">
+      <div class="skill-num">3</div>
+      <div class="skill-title">Resolve a Comment</div>
+      <div class="skill-badge">Right-click comment → Resolve Comment</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Mark the verification comment as resolved after the finance team confirmed the figures.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Right-click comment</span> <span class="arr">→</span> <span>Resolve Comment</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Right-click the comment bubble.</span></li>
+<li><span class="step-n">2</span><span>Choose Resolve Comment.</span></li>
+<li><span class="step-n">3</span><span>The comment turns gray indicating it is resolved.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The comment appears grayed out with a Resolved indicator. It can be reopened if needed.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-resolve-comment" data-skill="resolve-comment">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+resolve+comment+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4df2-8c68-bf96671641e2" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-resolve-comment">Saving...</span>
+        <button class="btn-complete" id="btn-resolve-comment" data-skill="resolve-comment">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-delete-comment" data-skill="delete-comment">
+    <div class="skill-header" data-card="delete-comment">
+      <div class="skill-num">4</div>
+      <div class="skill-title">Delete a Comment</div>
+      <div class="skill-badge">Review tab → Comments group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Delete the outdated comment that is no longer relevant.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Comments group</span> <span class="arr">→</span> <span>Delete</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the comment to select it.</span></li>
+<li><span class="step-n">2</span><span>Review tab → Comments → Delete → Delete Comment.</span></li>
+<li><span class="step-n">3</span><span>Or right-click → Delete Comment.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The comment is permanently removed. The text it was attached to returns to normal.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-delete-comment" data-skill="delete-comment">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+delete+comment+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-or-delete-a-comment-8d3f868a-867e-4df2-8c68-bf96671641e2" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-delete-comment">Saving...</span>
+        <button class="btn-complete" id="btn-delete-comment" data-skill="delete-comment">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-track-changes" data-skill="track-changes">
+    <div class="skill-header" data-card="track-changes">
+      <div class="skill-num">5</div>
+      <div class="skill-title">Enable Track Changes</div>
+      <div class="skill-badge">Review tab → Tracking group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Turn on Track Changes so your edits to the executive summary are visible for review.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Tracking group</span> <span class="arr">→</span> <span>Track Changes  (or Ctrl+Shift+E)</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Tracking group → Track Changes.</span></li>
+<li><span class="step-n">2</span><span>Or press Ctrl+Shift+E.</span></li>
+<li><span class="step-n">3</span><span>The button highlights when on.</span></li>
+<li><span class="step-n">4</span><span>Make your edits — added text shows underlined, deleted text in strikethrough.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">All edits are marked with colored text. Added text is underlined; deleted text has strikethrough.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-track-changes" data-skill="track-changes">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+track+changes+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-track-changes">Saving...</span>
+        <button class="btn-complete" id="btn-track-changes" data-skill="track-changes">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-accept-tracked-change" data-skill="accept-tracked-change">
+    <div class="skill-header" data-card="accept-tracked-change">
+      <div class="skill-num">6</div>
+      <div class="skill-title">Accept Tracked Changes</div>
+      <div class="skill-badge">Review tab → Changes group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Accept the manager's suggested edits that improve the policy language.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Changes group</span> <span class="arr">→</span> <span>Accept</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Changes → Next to navigate to a change.</span></li>
+<li><span class="step-n">2</span><span>Click Accept to accept and move to the next.</span></li>
+<li><span class="step-n">3</span><span>Or: Accept → Accept All Changes to accept everything.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Accepted changes become permanent text with no markup.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-accept-tracked-change" data-skill="accept-tracked-change">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+accept+tracked+changes+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/accept-tracked-changes-2e9d0c33-4a22-4e4a-9c37-d7f13b6f5ca4" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-accept-tracked-change">Saving...</span>
+        <button class="btn-complete" id="btn-accept-tracked-change" data-skill="accept-tracked-change">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-reject-tracked-change" data-skill="reject-tracked-change">
+    <div class="skill-header" data-card="reject-tracked-change">
+      <div class="skill-num">7</div>
+      <div class="skill-title">Reject Tracked Changes</div>
+      <div class="skill-badge">Review tab → Changes group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Reject the tracked change that incorrectly removed important revenue data.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Changes group</span> <span class="arr">→</span> <span>Reject</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Changes → Next to navigate to the change.</span></li>
+<li><span class="step-n">2</span><span>Click Reject to reject and restore the original text.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The rejected change is undone — original text is restored.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-reject-tracked-change" data-skill="reject-tracked-change">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+reject+tracked+changes+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/accept-tracked-changes-2e9d0c33-4a22-4e4a-9c37-d7f13b6f5ca4" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-reject-tracked-change">Saving...</span>
+        <button class="btn-complete" id="btn-reject-tracked-change" data-skill="reject-tracked-change">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-show-markup" data-skill="show-markup">
+    <div class="skill-header" data-card="show-markup">
+      <div class="skill-num">8</div>
+      <div class="skill-title">Show/Hide Markup</div>
+      <div class="skill-badge">Review tab → Tracking group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Toggle off markup display to preview the document as it will look when finalized.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Tracking group</span> <span class="arr">→</span> <span>Show Markup</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Tracking → Show Markup.</span></li>
+<li><span class="step-n">2</span><span>Uncheck markup types to hide, or use Display for Review dropdown → No Markup.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Document displays without colored markup. No changes are permanently accepted — markup is just hidden.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-show-markup" data-skill="show-markup">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+show+hide+markup+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/track-changes-in-word-197ba630-0f5f-4a8e-9a77-3712475e806a" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-show-markup">Saving...</span>
+        <button class="btn-complete" id="btn-show-markup" data-skill="show-markup">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-compare-documents" data-skill="compare-documents">
+    <div class="skill-header" data-card="compare-documents">
+      <div class="skill-num">9</div>
+      <div class="skill-title">Compare Documents</div>
+      <div class="skill-badge">Review tab → Compare group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Compare the original draft with the revised version to see all differences.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Compare group</span> <span class="arr">→</span> <span>Compare</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Compare → Compare.</span></li>
+<li><span class="step-n">2</span><span>Set Original document and Revised document.</span></li>
+<li><span class="step-n">3</span><span>Click OK. A new document shows all differences as tracked changes.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A new document opens showing all differences between the two versions.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-compare-documents" data-skill="compare-documents">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+compare+documents+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/compare-and-merge-two-versions-of-a-document-f5059749-a797-4db7-a8fb-b3b27eb8b87e" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-compare-documents">Saving...</span>
+        <button class="btn-complete" id="btn-compare-documents" data-skill="compare-documents">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-protect-document" data-skill="protect-document">
+    <div class="skill-header" data-card="protect-document">
+      <div class="skill-num">10</div>
+      <div class="skill-title">Restrict Editing</div>
+      <div class="skill-badge">Review tab → Protect group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Lock the final document so only comments can be added — no other editing allowed.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Protect group</span> <span class="arr">→</span> <span>Restrict Editing</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Protect → Restrict Editing.</span></li>
+<li><span class="step-n">2</span><span>Check Allow only this type of editing.</span></li>
+<li><span class="step-n">3</span><span>Choose Comments from the dropdown.</span></li>
+<li><span class="step-n">4</span><span>Click Yes, Start Enforcing Protection.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Most editing tools gray out. Reviewers can only insert comments.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-protect-document" data-skill="protect-document">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+restrict+editing+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/restrict-changes-in-word-5c2bf8f4-240f-4b36-8f58-0e0f3c44c89a" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-protect-document">Saving...</span>
+        <button class="btn-complete" id="btn-protect-document" data-skill="protect-document">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-share-document" data-skill="share-document">
+    <div class="skill-header" data-card="share-document">
+      <div class="skill-num">11</div>
+      <div class="skill-title">Share Document</div>
+      <div class="skill-badge">File tab → Share</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Share the completed report with stakeholders for final review via OneDrive link.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Share</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Save to OneDrive first.</span></li>
+<li><span class="step-n">2</span><span>File tab → Share.</span></li>
+<li><span class="step-n">3</span><span>Enter recipient email, set permission, click Send.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Recipients receive a OneDrive link. The Share button shows collaborator avatars.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-share-document" data-skill="share-document">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+share+document+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/share-a-document-in-word-d39f3cd8-0aa0-412f-9a35-1abba926d354" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-share-document">Saving...</span>
+        <button class="btn-complete" id="btn-share-document" data-skill="share-document">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-check-accessibility" data-skill="check-accessibility">
+    <div class="skill-header" data-card="check-accessibility">
+      <div class="skill-num">12</div>
+      <div class="skill-title">Check Accessibility</div>
+      <div class="skill-badge">Review tab → Accessibility group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Verify the document meets accessibility standards before sharing externally.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Review tab</span> <span class="arr">→</span> <span>Accessibility group</span> <span class="arr">→</span> <span>Check Accessibility</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Review tab → Accessibility group → Check Accessibility.</span></li>
+<li><span class="step-n">2</span><span>Review the Accessibility pane for any issues.</span></li>
+<li><span class="step-n">3</span><span>Fix issues following the recommendations.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The pane shows either no issues or a list of items with specific fix instructions.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-check-accessibility" data-skill="check-accessibility">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+check+accessibility+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/improve-accessibility-with-the-accessibility-checker-a16f6de0-2f39-4a2b-8bd8-5ad801426c7f" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-check-accessibility">Saving...</span>
+        <button class="btn-complete" id="btn-check-accessibility" data-skill="check-accessibility">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-check-compatibility" data-skill="check-compatibility">
+    <div class="skill-header" data-card="check-compatibility">
+      <div class="skill-num">13</div>
+      <div class="skill-title">Check Compatibility</div>
+      <div class="skill-badge">File tab → Info</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Run a compatibility check before sending to stakeholders who use older Word versions.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Check for Issues</span> <span class="arr">→</span> <span>Check Compatibility</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>File tab → Info → Check for Issues → Check Compatibility.</span></li>
+<li><span class="step-n">2</span><span>Review flagged items → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Shows either no issues or features that will be affected in Word 2016 or earlier.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-check-compatibility" data-skill="check-compatibility">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+check+compatibility+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/check-for-compatibility-with-earlier-versions-of-word-2e3a1cc7-9ebb-4e96-a3c2-e9a6f56c2a76" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-check-compatibility">Saving...</span>
+        <button class="btn-complete" id="btn-check-compatibility" data-skill="check-compatibility">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-inspect-document" data-skill="inspect-document">
+    <div class="skill-header" data-card="inspect-document">
+      <div class="skill-num">14</div>
+      <div class="skill-title">Inspect Document</div>
+      <div class="skill-badge">File tab → Info</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Remove all hidden personal metadata before final external distribution.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Check for Issues</span> <span class="arr">→</span> <span>Inspect Document</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>File tab → Info → Check for Issues → Inspect Document.</span></li>
+<li><span class="step-n">2</span><span>Click Inspect.</span></li>
+<li><span class="step-n">3</span><span>Click Remove All next to Document Properties and Personal Information.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Re-inspecting shows a green checkmark confirming personal information was removed.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-inspect-document" data-skill="inspect-document">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+inspect+document+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/remove-hidden-data-and-personal-information-356b7b5d-77af-44fe-a07f-9aa4d085966f" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-inspect-document">Saving...</span>
+        <button class="btn-complete" id="btn-inspect-document" data-skill="inspect-document">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-version-history" data-skill="version-history">
+    <div class="skill-header" data-card="version-history">
+      <div class="skill-num">15</div>
+      <div class="skill-title">View Version History</div>
+      <div class="skill-badge">File tab → Info</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Check who made recent changes by viewing the document version history.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Version History</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>File tab → Info → Version History (requires OneDrive).</span></li>
+<li><span class="step-n">2</span><span>A list of versions appears with timestamps.</span></li>
+<li><span class="step-n">3</span><span>Click any version to preview it.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A panel shows all saved versions with timestamps and the name of each saver.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-version-history" data-skill="version-history">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+view+version+history+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/view-the-version-history-of-an-item-or-file-53262060-5092-424d-a50b-c798b0ec32b1" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-version-history">Saving...</span>
+        <button class="btn-complete" id="btn-version-history" data-skill="version-history">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-search-text" data-skill="search-text">
+    <div class="skill-header" data-card="search-text">
+      <div class="skill-num">16</div>
+      <div class="skill-title">Find Text</div>
+      <div class="skill-badge">Home tab → Editing group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Search for every instance of "consultant" to check how the term is used.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Home tab</span> <span class="arr">→</span> <span>Editing group</span> <span class="arr">→</span> <span>Find  (or Ctrl+F)</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Press Ctrl+F to open the Navigation Pane.</span></li>
+<li><span class="step-n">2</span><span>Type consultant in the search box.</span></li>
+<li><span class="step-n">3</span><span>Click arrows to jump between matches.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">All instances are highlighted. The Navigation Pane shows the total match count.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-search-text" data-skill="search-text">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+find+text+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/find-and-replace-text-c6728c16-469e-43cd-afe4-7708c6c779b7" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-search-text">Saving...</span>
+        <button class="btn-complete" id="btn-search-text" data-skill="search-text">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-remove-hidden-properties" data-skill="remove-hidden-properties">
+    <div class="skill-header" data-card="remove-hidden-properties">
+      <div class="skill-num">17</div>
+      <div class="skill-title">Remove Hidden Properties</div>
+      <div class="skill-badge">File tab → Info</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Strip all personal metadata from the file before sharing externally.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Check for Issues</span> <span class="arr">→</span> <span>Inspect Document</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>File tab → Info → Check for Issues → Inspect Document.</span></li>
+<li><span class="step-n">2</span><span>Click Inspect → Remove All next to Document Properties.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Re-inspection shows a green checkmark for Document Properties.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-remove-hidden-properties" data-skill="remove-hidden-properties">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+remove+hidden+properties+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/remove-hidden-data-and-personal-information-356b7b5d-77af-44fe-a07f-9aa4d085966f" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-remove-hidden-properties">Saving...</span>
+        <button class="btn-complete" id="btn-remove-hidden-properties" data-skill="remove-hidden-properties">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>>

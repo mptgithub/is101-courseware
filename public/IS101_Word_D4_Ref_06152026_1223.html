@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Word D4 — References</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#2b579a;--blue-lt:#e8f0fb;--blue-dk:#1e3f6f;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
+}
+
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.brand .unit{opacity:.7;font-weight:400}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.primary{background:white;color:var(--blue);border-color:white}
+.nav-btn.primary:hover{background:#f0f4ff}
+
+/* Hero */
+#hero{background:white;border-bottom:1px solid var(--border);padding:28px 24px 24px}
+#hero-inner{max-width:860px;margin:0 auto}
+#hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:4px}
+#hero .subtitle{font-size:15px;color:var(--muted);margin-bottom:20px}
+
+/* Reminder */
+.reminder{background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--radius);
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.reminder-icon{font-size:20px;flex-shrink:0}
+.reminder-text{font-size:14px;color:#92400e;line-height:1.5}
+.reminder-text strong{color:#78350f}
+
+/* Download buttons */
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;
+  font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s}
+.dl-btn.word{background:#2b579a;color:white}
+.dl-btn.word:hover{background:#1e3f6f}
+.dl-btn.pdf{background:#c42b1c;color:white}
+.dl-btn.pdf:hover{background:#a02315}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:14px}
+.progress-label{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;width:0%}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap;min-width:36px;text-align:right}
+
+/* Main */
+#main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+
+/* Skill card */
+.skill-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.skill-card.completed{border-color:var(--green)}
+.skill-card.completed .skill-header{background:var(--green-lt)}
+
+/* Header — NO onclick here, handled by JS */
+.skill-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  user-select:none;background:var(--gray);border-bottom:1px solid var(--border);transition:background .15s}
+.skill-header:hover{background:#e0e5ee}
+.skill-card.completed .skill-header:hover{background:#d0edcf}
+.skill-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.skill-card.completed .skill-num{background:var(--green)}
+.skill-title{flex:1;font-size:15.5px;font-weight:600}
+.skill-badge{font-size:11.5px;color:var(--blue);background:var(--blue-lt);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:500}
+.skill-card.completed .skill-badge{color:var(--green);background:var(--green-lt)}
+.expand-icon{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.skill-card.open .expand-icon{transform:rotate(180deg)}
+
+/* Body — hidden by default */
+.skill-body{display:none;padding:20px;border-top:1px solid var(--border)}
+.skill-card.open .skill-body{display:block}
+
+/* Body content */
+.section{margin-bottom:18px}
+.section:last-child{margin-bottom:0}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.section-text{font-size:14px;color:#1a1a2e;line-height:1.65}
+.ribbon-path{display:inline-flex;align-items:center;gap:4px;background:var(--blue-lt);
+  border:1px solid #c5d8f7;border-radius:6px;padding:6px 12px;font-size:13.5px;
+  color:var(--blue-dk);font-weight:500}
+.ribbon-path .arr{color:var(--muted);font-size:11px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check-box{background:#f0faf0;border:1px solid #b7e0b7;border-radius:7px;
+  padding:10px 14px;font-size:13.5px;color:#1a4a1a;line-height:1.55}
+.check-box::before{content:'✓ ';font-weight:700;color:var(--green)}
+
+/* Resources */
+.resources{display:flex;gap:8px;flex-wrap:wrap}
+.res-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;
+  transition:all .15s;border:1px solid var(--border);color:#1a1a2e;background:white}
+.res-btn.li-active{color:#0a66c2}
+.res-btn.li-active:hover{background:#e8f0fb;border-color:#0a66c2}
+.res-btn.li-soon{color:var(--muted);background:var(--gray);cursor:default}
+.res-btn.yt{color:#c42b1c}
+.res-btn.yt:hover{background:#fff0f0;border-color:#c42b1c}
+.res-btn.px{color:var(--blue)}
+.res-btn.px:hover{background:var(--blue-lt);border-color:var(--blue)}
+.res-btn.ms{color:var(--green)}
+.res-btn.ms:hover{background:var(--green-lt);border-color:var(--green)}
+
+/* Complete button */
+.complete-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;
+  padding-top:16px;border-top:1px solid var(--border);margin-top:18px}
+.saving-txt{font-size:12px;color:var(--muted);display:none}
+.btn-complete{padding:9px 20px;border-radius:7px;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:2px solid var(--green);color:var(--green);background:white;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
+.btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
+.drop-text span{color:var(--blue);font-weight:600}
+
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;
+  max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;
+  font-size:15px;text-align:center;letter-spacing:2px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:#c42b1c;margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:#c42b1c}
+
+@media(max-width:600px){
+  #topbar,#hero,#main{padding-left:16px;padding-right:16px}
+  .skill-badge{display:none}
+  .dl-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>Sign In to Track Progress</h2>
+    <p>Enter your 10-digit NSHE ID to save your skill completions across sessions.</p>
+    <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 22 22">
+      <rect width="22" height="22" rx="4" fill="white" opacity=".15"/>
+      <text x="4" y="17" font-size="14" font-family="Segoe UI" font-weight="900" fill="white">W</text>
+    </svg>
+    <span>IS101</span><span style="font-size:10px;opacity:.5;margin-left:4px">v6</span>
+    <span class="unit">/ Unit 2 — Word Processing</span>
+  </div>
+  <div class="nav-btns">
+    <span id="user-label" style="font-size:12px;opacity:.7;margin-right:4px"></span>
+    <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+    <a href="IS101_Project_Grader_06132026_0957.html" class="nav-btn primary">Go to Grader →</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<div id="hero">
+  <div id="hero-inner">
+    <h1>D4 — References</h1>
+    <p class="subtitle">8 skills · Use your Word_D4_Starter.docx file while working through these skills.</p>
+    <div class="reminder">
+      <div class="reminder-icon">📄</div>
+      <div class="reminder-text">
+        <strong>Before you begin:</strong> Download and open the starter file below in Microsoft Word.
+        Complete each skill directly in that document. Keep it open as you work through this page.
+      </div>
+    </div>
+    <div class="dl-row">
+      <a href="Word_D4_Starter.docx" download class="dl-btn word">⬇ Download Starter File (.docx)</a>
+      <a href="Word_D4_Instructions.pdf" download class="dl-btn pdf">⬇ Download Instructions (.pdf)</a>
+    </div>
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">0 of 8 skills completed</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Skill cards -->
+<div id="main">
+
+  <div class="skill-card" id="card-insert-toc" data-skill="insert-toc">
+    <div class="skill-header" data-card="insert-toc">
+      <div class="skill-num">1</div>
+      <div class="skill-title">Insert Table of Contents</div>
+      <div class="skill-badge">References tab → Table of Contents group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Insert an automatic Table of Contents after the title page based on heading styles.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Table of Contents group</span> <span class="arr">→</span> <span>Table of Contents</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click after the title page.</span></li>
+<li><span class="step-n">2</span><span>References tab → Table of Contents → Table of Contents.</span></li>
+<li><span class="step-n">3</span><span>Choose Automatic Table 1 or Automatic Table 2.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A formatted TOC appears with clickable entries and page numbers. Ctrl+click any entry to jump there.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-toc" data-skill="insert-toc">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+table+of+contents+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-a-table-of-contents-882e8564-0edb-435e-84b5-1d8552ccf0c0" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-toc">Saving...</span>
+        <button class="btn-complete" id="btn-insert-toc" data-skill="insert-toc">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-customize-toc" data-skill="customize-toc">
+    <div class="skill-header" data-card="customize-toc">
+      <div class="skill-num">2</div>
+      <div class="skill-title">Customize Table of Contents</div>
+      <div class="skill-badge">References tab → Table of Contents</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Customize the TOC to show only Heading 1 and Heading 2 with dotted leaders.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Table of Contents</span> <span class="arr">→</span> <span>Custom Table of Contents</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>References tab → Table of Contents → Custom Table of Contents.</span></li>
+<li><span class="step-n">2</span><span>Set Show levels: 2.</span></li>
+<li><span class="step-n">3</span><span>Confirm Tab leader is dots (......)</span></li>
+<li><span class="step-n">4</span><span>Click OK → Yes to replace the existing TOC.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The TOC shows only two heading levels with dotted leaders connecting entries to page numbers.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-customize-toc" data-skill="customize-toc">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+customize+table+of+contents+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/format-or-customize-a-table-of-contents-9d85eb9c-0b55-4795-8abb-a49885b3a58d" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-customize-toc">Saving...</span>
+        <button class="btn-complete" id="btn-customize-toc" data-skill="customize-toc">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-update-toc" data-skill="update-toc">
+    <div class="skill-header" data-card="update-toc">
+      <div class="skill-num">3</div>
+      <div class="skill-title">Update Table of Contents</div>
+      <div class="skill-badge">References tab → Table of Contents group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Update the TOC after editing so page numbers and headings are current.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Table of Contents group</span> <span class="arr">→</span> <span>Update Table</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click anywhere inside the TOC.</span></li>
+<li><span class="step-n">2</span><span>References tab → Table of Contents group → Update Table.</span></li>
+<li><span class="step-n">3</span><span>Choose Update page numbers only or Update entire table.</span></li>
+<li><span class="step-n">4</span><span>Click OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The TOC refreshes with current page numbers and any changed headings.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-update-toc" data-skill="update-toc">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+update+table+of+contents+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/update-a-table-of-contents-97048d88-5b25-4e63-a9b6-9982f42a8607" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-update-toc">Saving...</span>
+        <button class="btn-complete" id="btn-update-toc" data-skill="update-toc">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-insert-footnote" data-skill="insert-footnote">
+    <div class="skill-header" data-card="insert-footnote">
+      <div class="skill-num">4</div>
+      <div class="skill-title">Insert Footnote</div>
+      <div class="skill-badge">References tab → Footnotes group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Insert a footnote on the revenue figure citing the data source.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Footnotes group</span> <span class="arr">→</span> <span>Insert Footnote</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click immediately after the revenue figure.</span></li>
+<li><span class="step-n">2</span><span>References tab → Footnotes group → Insert Footnote.</span></li>
+<li><span class="step-n">3</span><span>A superscript number appears; the cursor moves to the page bottom.</span></li>
+<li><span class="step-n">4</span><span>Type: Source: DSC Financial Records 2026.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A superscript number appears after the figure. The footnote text appears at the bottom of that page.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-footnote" data-skill="insert-footnote">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+footnote+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-footnotes-and-endnotes-61f3fb1a-4717-414c-9a8f-9a931edab8a8" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-footnote">Saving...</span>
+        <button class="btn-complete" id="btn-insert-footnote" data-skill="insert-footnote">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-insert-endnote" data-skill="insert-endnote">
+    <div class="skill-header" data-card="insert-endnote">
+      <div class="skill-num">5</div>
+      <div class="skill-title">Insert Endnote</div>
+      <div class="skill-badge">References tab → Footnotes group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Insert an endnote citing a regulatory source for the compliance policy section.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Footnotes group</span> <span class="arr">→</span> <span>Insert Endnote</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click at the end of the policy statement.</span></li>
+<li><span class="step-n">2</span><span>References tab → Footnotes group → Insert Endnote.</span></li>
+<li><span class="step-n">3</span><span>A superscript Roman numeral appears; cursor moves to end of document.</span></li>
+<li><span class="step-n">4</span><span>Type the regulatory citation.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A superscript Roman numeral appears in the text. The endnote appears at the very end of the document.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-endnote" data-skill="insert-endnote">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+endnote+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-footnotes-and-endnotes-61f3fb1a-4717-414c-9a8f-9a931edab8a8" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-endnote">Saving...</span>
+        <button class="btn-complete" id="btn-insert-endnote" data-skill="insert-endnote">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-insert-citation" data-skill="insert-citation">
+    <div class="skill-header" data-card="insert-citation">
+      <div class="skill-num">6</div>
+      <div class="skill-title">Insert Citation</div>
+      <div class="skill-badge">References tab → Citations & Bibliography group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add a citation for the market research data referenced in the Client Portfolio section.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Citations & Bibliography group</span> <span class="arr">→</span> <span>Insert Citation</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click after the market research reference.</span></li>
+<li><span class="step-n">2</span><span>References tab → Insert Citation → Add New Source.</span></li>
+<li><span class="step-n">3</span><span>Choose Source Type and fill in details → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A formatted citation appears in the text and is added to the source list for the bibliography.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-citation" data-skill="insert-citation">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+citation+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/add-citations-in-a-word-document-ab9322bb-a8d3-47f4-80c8-63c06779f127" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-citation">Saving...</span>
+        <button class="btn-complete" id="btn-insert-citation" data-skill="insert-citation">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-insert-bibliography" data-skill="insert-bibliography">
+    <div class="skill-header" data-card="insert-bibliography">
+      <div class="skill-num">7</div>
+      <div class="skill-title">Insert Bibliography</div>
+      <div class="skill-badge">References tab → Citations & Bibliography group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add a bibliography at the end of the document listing all cited sources.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Citations & Bibliography group</span> <span class="arr">→</span> <span>Bibliography</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click at the end of the document.</span></li>
+<li><span class="step-n">2</span><span>References tab → Citations & Bibliography → Bibliography.</span></li>
+<li><span class="step-n">3</span><span>Choose a style from the gallery.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A formatted bibliography appears listing all sources cited, in the chosen citation style.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-bibliography" data-skill="insert-bibliography">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+bibliography+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/create-a-bibliography-citations-and-references-17686589-4824-4940-9c69-342c289fa2a5" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-bibliography">Saving...</span>
+        <button class="btn-complete" id="btn-insert-bibliography" data-skill="insert-bibliography">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-insert-caption" data-skill="insert-caption">
+    <div class="skill-header" data-card="insert-caption">
+      <div class="skill-num">8</div>
+      <div class="skill-title">Insert Caption</div>
+      <div class="skill-badge">References tab → Captions group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add a figure caption below the quarterly revenue chart.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>References tab</span> <span class="arr">→</span> <span>Captions group</span> <span class="arr">→</span> <span>Insert Caption</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the chart or image to select it.</span></li>
+<li><span class="step-n">2</span><span>References tab → Captions group → Insert Caption.</span></li>
+<li><span class="step-n">3</span><span>Label: Figure, type: Quarterly Revenue 2026.</span></li>
+<li><span class="step-n">4</span><span>Position: Below selected item → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">"Figure 1: Quarterly Revenue 2026" appears below the chart. Word auto-numbers all figures.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-insert-caption" data-skill="insert-caption">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+insert+caption+Word+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/add-format-or-delete-captions-in-word-82fa82a4-f0f3-438f-a422-34bb5cef0c81" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-insert-caption">Saving...</span>
+        <button class="btn-complete" id="btn-insert-caption" data-skill="insert-caption">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>>

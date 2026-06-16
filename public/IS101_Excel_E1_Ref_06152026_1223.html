@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IS101 — Excel E1 — Manage Worksheets & Workbooks</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+:root{
+  --blue:#217346;--blue-lt:#e8f5ec;--blue-dk:#145230;
+  --green:#107c10;--green-lt:#e6f4e6;
+  --border:#dde1e9;--gray:#f0f2f5;--muted:#6b7280;
+  --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)
+}
+
+/* Top bar */
+#topbar{background:var(--blue);color:white;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.brand .unit{opacity:.7;font-weight:400}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);
+  text-decoration:none;transition:background .15s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.primary{background:white;color:var(--blue);border-color:white}
+.nav-btn.primary:hover{background:#f0f4ff}
+
+/* Hero */
+#hero{background:white;border-bottom:1px solid var(--border);padding:28px 24px 24px}
+#hero-inner{max-width:860px;margin:0 auto}
+#hero h1{font-size:24px;font-weight:700;color:var(--blue);margin-bottom:4px}
+#hero .subtitle{font-size:15px;color:var(--muted);margin-bottom:20px}
+
+/* Reminder */
+.reminder{background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--radius);
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.reminder-icon{font-size:20px;flex-shrink:0}
+.reminder-text{font-size:14px;color:#92400e;line-height:1.5}
+.reminder-text strong{color:#78350f}
+
+/* Download buttons */
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;
+  font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s}
+.dl-btn.word{background:#217346;color:white}
+.dl-btn.word:hover{background:#145230}
+.dl-btn.pdf{background:#c42b1c;color:white}
+.dl-btn.pdf:hover{background:#a02315}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:14px}
+.progress-label{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;width:0%}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap;min-width:36px;text-align:right}
+
+/* Main */
+#main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+
+/* Skill card */
+.skill-card{background:white;border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.skill-card.completed{border-color:var(--green)}
+.skill-card.completed .skill-header{background:var(--green-lt)}
+
+/* Header — NO onclick here, handled by JS */
+.skill-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  user-select:none;background:var(--gray);border-bottom:1px solid var(--border);transition:background .15s}
+.skill-header:hover{background:#e0e5ee}
+.skill-card.completed .skill-header:hover{background:#d0edcf}
+.skill-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.skill-card.completed .skill-num{background:var(--green)}
+.skill-title{flex:1;font-size:15.5px;font-weight:600}
+.skill-badge{font-size:11.5px;color:var(--blue);background:var(--blue-lt);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:500}
+.skill-card.completed .skill-badge{color:var(--green);background:var(--green-lt)}
+.expand-icon{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.skill-card.open .expand-icon{transform:rotate(180deg)}
+
+/* Body — hidden by default */
+.skill-body{display:none;padding:20px;border-top:1px solid var(--border)}
+.skill-card.open .skill-body{display:block}
+
+/* Body content */
+.section{margin-bottom:18px}
+.section:last-child{margin-bottom:0}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.section-text{font-size:14px;color:#1a1a2e;line-height:1.65}
+.ribbon-path{display:inline-flex;align-items:center;gap:4px;background:var(--blue-lt);
+  border:1px solid #a8d5b5;border-radius:6px;padding:6px 12px;font-size:13.5px;
+  color:var(--blue-dk);font-weight:500}
+.ribbon-path .arr{color:var(--muted);font-size:11px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check-box{background:#f0faf0;border:1px solid #b7e0b7;border-radius:7px;
+  padding:10px 14px;font-size:13.5px;color:#1a4a1a;line-height:1.55}
+.check-box::before{content:'✓ ';font-weight:700;color:var(--green)}
+
+/* Resources */
+.resources{display:flex;gap:8px;flex-wrap:wrap}
+.res-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;
+  transition:all .15s;border:1px solid var(--border);color:#1a1a2e;background:white}
+.res-btn.li-active{color:#0a66c2}
+.res-btn.li-active:hover{background:#e8f5ec;border-color:#0a66c2}
+.res-btn.li-soon{color:var(--muted);background:var(--gray);cursor:default}
+.res-btn.yt{color:#c42b1c}
+.res-btn.yt:hover{background:#fff0f0;border-color:#c42b1c}
+.res-btn.px{color:var(--blue)}
+.res-btn.px:hover{background:var(--blue-lt);border-color:var(--blue)}
+.res-btn.ms{color:var(--green)}
+.res-btn.ms:hover{background:var(--green-lt);border-color:var(--green)}
+
+/* Complete button */
+.complete-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;
+  padding-top:16px;border-top:1px solid var(--border);margin-top:18px}
+.saving-txt{font-size:12px;color:var(--muted);display:none}
+.btn-complete{padding:9px 20px;border-radius:7px;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:2px solid var(--green);color:var(--green);background:white;
+  transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-complete:hover,.btn-complete.done{background:var(--green);color:white}
+.btn-complete.done:hover{background:#0a5e0a;border-color:#0a5e0a}
+.drop-text span{color:var(--blue);font-weight:600}
+
+/* Login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-overlay.hidden{display:none}
+.login-card{background:white;border-radius:14px;padding:36px 40px;
+  max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.login-card input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;
+  font-size:15px;text-align:center;letter-spacing:2px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,87,154,.15)}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:white;border:none;
+  border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--blue-dk)}
+.login-error{font-size:12px;color:#c42b1c;margin-top:8px;min-height:18px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:white;
+  padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:9999;max-width:320px}
+#toast.show{opacity:1}
+#toast.success{background:var(--green)}
+#toast.error{background:#c42b1c}
+
+@media(max-width:600px){
+  #topbar,#hero,#main{padding-left:16px;padding-right:16px}
+  .skill-badge{display:none}
+  .dl-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>Sign In to Track Progress</h2>
+    <p>Enter your 10-digit NSHE ID to save your skill completions across sessions.</p>
+    <input type="text" id="nshe-input" placeholder="0000000000" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 22 22">
+      <rect width="22" height="22" rx="4" fill="white" opacity=".15"/>
+      <text x="3" y="16" font-size="13" font-family="Segoe UI" font-weight="900" fill="white">X</text>
+    </svg>
+    <span>IS101</span><span style="font-size:10px;opacity:.5;margin-left:4px">v6</span>
+    <span class="unit">/ Unit 3 — Excel Spreadsheets</span>
+  </div>
+  <div class="nav-btns">
+    <span id="user-label" style="font-size:12px;opacity:.7;margin-right:4px"></span>
+    <a href="IS101_START_HERE_06132026_0957.html" class="nav-btn">← Dashboard</a>
+    <a href="IS101_Project_Grader_06132026_0957.html" class="nav-btn primary">Go to Grader →</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<div id="hero">
+  <div id="hero-inner">
+    <h1>E1 — Manage Worksheets & Workbooks</h1>
+    <p class="subtitle">9 skills · Use your Excel_E1_Starter.xlsx file while working through these skills.</p>
+    <div class="reminder">
+      <div class="reminder-icon">📄</div>
+      <div class="reminder-text">
+        <strong>Before you begin:</strong> Download and open the starter file below in Microsoft Word.
+        Complete each skill directly in that document. Keep it open as you work through this page.
+      </div>
+    </div>
+    <div class="dl-row">
+      <a href="Excel_E1_Starter.xlsx" download class="dl-btn word">⬇ Download Starter File (.docx)</a>
+      <a href="Excel_E1_Instructions.pdf" download class="dl-btn pdf">⬇ Download Instructions (.pdf)</a>
+    </div>
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">0 of 9 skills completed</span>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Skill cards -->
+<div id="main">
+
+  <div class="skill-card" id="card-add-rename-sheet" data-skill="add-rename-sheet">
+    <div class="skill-header" data-card="add-rename-sheet">
+      <div class="skill-num">1</div>
+      <div class="skill-title">Add & Rename a Worksheet</div>
+      <div class="skill-badge">Right-click sheet tab → Insert / Rename</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add a new worksheet to the workbook and rename it "Q4 Data".</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Right-click sheet tab</span> <span class="arr">→</span> <span>Insert / Rename</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Right-click any sheet tab at the bottom.</span></li>
+<li><span class="step-n">2</span><span>Choose Insert → Worksheet → OK.</span></li>
+<li><span class="step-n">3</span><span>Double-click the new tab to rename it.</span></li>
+<li><span class="step-n">4</span><span>Type Q4 Data and press Enter.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A new sheet tab labeled "Q4 Data" appears at the bottom of the workbook.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-add-rename-sheet" data-skill="add-rename-sheet">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+add+rename+worksheet+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/insert-or-delete-a-worksheet-19d3d21e-a3b3-4e13-a422-d1f43543d2c8" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-add-rename-sheet">Saving...</span>
+        <button class="btn-complete" id="btn-add-rename-sheet" data-skill="add-rename-sheet">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-navigate-named" data-skill="navigate-named">
+    <div class="skill-header" data-card="navigate-named">
+      <div class="skill-num">2</div>
+      <div class="skill-title">Navigate to Named Cells</div>
+      <div class="skill-badge">Name Box (top-left of screen)</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Jump directly to the named range "Revenue_Total" using the Name Box.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Name Box (top-left of screen)</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the Name Box at the top-left (shows current cell address).</span></li>
+<li><span class="step-n">2</span><span>Type Revenue_Total and press Enter.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Excel navigates to and selects the named range. The Name Box displays the range name.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-navigate-named" data-skill="navigate-named">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+navigate+named+range+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-navigate-named">Saving...</span>
+        <button class="btn-complete" id="btn-navigate-named" data-skill="navigate-named">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-customize-qat" data-skill="customize-qat">
+    <div class="skill-header" data-card="customize-qat">
+      <div class="skill-num">3</div>
+      <div class="skill-title">Customize Quick Access Toolbar</div>
+      <div class="skill-badge">File → Options</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Add the Format Cells command to the Quick Access Toolbar for faster access.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File</span> <span class="arr">→</span> <span>Options</span> <span class="arr">→</span> <span>Quick Access Toolbar</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click the dropdown arrow at the right end of the QAT.</span></li>
+<li><span class="step-n">2</span><span>Choose More Commands.</span></li>
+<li><span class="step-n">3</span><span>In Choose commands from: select All Commands.</span></li>
+<li><span class="step-n">4</span><span>Find Format Cells → Add → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The Format Cells button appears in the QAT above the ribbon.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-customize-qat" data-skill="customize-qat">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+customize+Quick+Access+Toolbar+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/customize-the-quick-access-toolbar-43fff1c9-ebc4-4963-bdbd-c2b6b0739e52" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-customize-qat">Saving...</span>
+        <button class="btn-complete" id="btn-customize-qat" data-skill="customize-qat">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-print-settings" data-skill="print-settings">
+    <div class="skill-header" data-card="print-settings">
+      <div class="skill-num">4</div>
+      <div class="skill-title">Configure Print Settings</div>
+      <div class="skill-badge">Page Layout tab → Page Setup group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Set the print area to A1:F20 and add a header with the company name.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Page Layout tab</span> <span class="arr">→</span> <span>Page Setup group</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select A1:F20.</span></li>
+<li><span class="step-n">2</span><span>Page Layout tab → Print Area → Set Print Area.</span></li>
+<li><span class="step-n">3</span><span>Page Layout → Page Setup dialog (⬘) → Header/Footer tab → Custom Header.</span></li>
+<li><span class="step-n">4</span><span>Type the company name in the Center section → OK.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Print area is marked with a dashed border. Print Preview shows only A1:F20 with the header.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-print-settings" data-skill="print-settings">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+set+print+area+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/set-or-clear-a-print-area-on-a-worksheet-27048af8-a321-416d-ba1b-e99ae2182a7e" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-print-settings">Saving...</span>
+        <button class="btn-complete" id="btn-print-settings" data-skill="print-settings">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-configure-rows-cols" data-skill="configure-rows-cols">
+    <div class="skill-header" data-card="configure-rows-cols">
+      <div class="skill-num">5</div>
+      <div class="skill-title">Configure Rows and Columns</div>
+      <div class="skill-badge">Right-click row/column header</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Set data row heights to 20 pixels and auto-fit column A to its content width.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Right-click row/column header</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Select the data rows.</span></li>
+<li><span class="step-n">2</span><span>Right-click → Row Height → type 20 → OK.</span></li>
+<li><span class="step-n">3</span><span>For column A: right-click column A header → AutoFit Column Width.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Selected rows are uniform height. Column A is wide enough to show all content.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-configure-rows-cols" data-skill="configure-rows-cols">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+set+row+height+column+width+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/change-the-column-width-and-row-height-72f5e143-9780-4d74-9081-9d1233a44f98" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-configure-rows-cols">Saving...</span>
+        <button class="btn-complete" id="btn-configure-rows-cols" data-skill="configure-rows-cols">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-workbook-themes" data-skill="workbook-themes">
+    <div class="skill-header" data-card="workbook-themes">
+      <div class="skill-num">6</div>
+      <div class="skill-title">Configure Workbook Theme</div>
+      <div class="skill-badge">Page Layout tab → Themes group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Apply the Office theme for a consistent professional appearance.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>Page Layout tab</span> <span class="arr">→</span> <span>Themes group</span> <span class="arr">→</span> <span>Themes</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Page Layout tab → Themes group → Themes.</span></li>
+<li><span class="step-n">2</span><span>Choose Office from the gallery.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Colors, fonts, and effects update throughout the workbook to match the Office theme.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-workbook-themes" data-skill="workbook-themes">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+apply+theme+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/change-a-theme-and-make-it-the-default-in-word-or-excel-c846f997-968e-4daa-b2d4-42bd2afef904" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-workbook-themes">Saving...</span>
+        <button class="btn-complete" id="btn-workbook-themes" data-skill="workbook-themes">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-freeze-panes" data-skill="freeze-panes">
+    <div class="skill-header" data-card="freeze-panes">
+      <div class="skill-num">7</div>
+      <div class="skill-title">Freeze Rows and Columns</div>
+      <div class="skill-badge">View tab → Window group</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Freeze the header row and first column so they stay visible when scrolling.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>View tab</span> <span class="arr">→</span> <span>Window group</span> <span class="arr">→</span> <span>Freeze Panes</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>Click cell B2.</span></li>
+<li><span class="step-n">2</span><span>View tab → Window group → Freeze Panes → Freeze Panes.</span></li>
+<li><span class="step-n">3</span><span>A dark line appears along row 1 and column A.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">Dark freeze lines appear. Scrolling keeps the header row and first column always visible.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-freeze-panes" data-skill="freeze-panes">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+freeze+panes+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/freeze-panes-to-lock-rows-and-columns-dab2fbe9-dc2d-45ac-aaef-fc7b97aafb56" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-freeze-panes">Saving...</span>
+        <button class="btn-complete" id="btn-freeze-panes" data-skill="freeze-panes">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-workbook-properties" data-skill="workbook-properties">
+    <div class="skill-header" data-card="workbook-properties">
+      <div class="skill-num">8</div>
+      <div class="skill-title">Modify Workbook Properties</div>
+      <div class="skill-badge">File tab → Info</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Set the workbook Title to "DSC Financial Dashboard 2026" and Author to "Desert Sun Consulting".</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Info</span> <span class="arr">→</span> <span>Properties</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>File tab → Info.</span></li>
+<li><span class="step-n">2</span><span>Click the Title field → type: DSC Financial Dashboard 2026.</span></li>
+<li><span class="step-n">3</span><span>Click the Author field → update it.</span></li>
+<li><span class="step-n">4</span><span>Press Esc to return.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">The Properties panel shows the filled-in Title and Author.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-workbook-properties" data-skill="workbook-properties">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+modify+workbook+properties+Excel+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/view-or-change-the-properties-for-an-office-file-21d604c2-481e-4379-8e54-1dd4622c6b75" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-workbook-properties">Saving...</span>
+        <button class="btn-complete" id="btn-workbook-properties" data-skill="workbook-properties">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+  <div class="skill-card" id="card-save-format" data-skill="save-format">
+    <div class="skill-header" data-card="save-format">
+      <div class="skill-num">9</div>
+      <div class="skill-title">Save in Alternative Format</div>
+      <div class="skill-badge">File tab → Save As</div>
+      <div class="expand-icon">▾</div>
+    </div>
+    <div class="skill-body">
+      <div class="section"><div class="section-label">Why This Matters</div><div class="section-text">Save a copy of the workbook as a PDF for distribution to stakeholders.</div></div>
+      <div class="section"><div class="section-label">Where to Find It</div><div class="ribbon-path"><span>File tab</span> <span class="arr">→</span> <span>Save As</span></div></div>
+      <div class="section"><div class="section-label">How to Do It</div><ul class="steps"><li><span class="step-n">1</span><span>File tab → Save As.</span></li>
+<li><span class="step-n">2</span><span>In the file type dropdown choose PDF (*.pdf).</span></li>
+<li><span class="step-n">3</span><span>Click Save.</span></li></ul></div>
+      <div class="section"><div class="section-label">How You'll Know It Worked</div><div class="check-box">A PDF copy appears in the save location. The original .xlsx file is unchanged.</div></div>
+      <div class="section">
+        <div class="section-label">Learning Resources</div>
+        <div class="resources">
+          <a href="#" class="res-btn li-soon" id="li-save-format" data-skill="save-format">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#0a66c2"/><text x="3" y="12" font-size="10" font-family="Arial" font-weight="900" fill="white">in</text></svg>
+            LinkedIn Learning
+          </a>
+          <a href="https://www.perplexity.ai/search?q=how+to+save+Excel+as+PDF+365" target="_blank" rel="noopener" class="res-btn px">
+            <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Perplexity
+          </a>
+          <a href="https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6" target="_blank" rel="noopener" class="res-btn ms">
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="1" width="6.5" height="6.5" fill="#f25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7fba00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00a4ef"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#ffb900"/></svg>
+            Microsoft Support
+          </a>
+        </div>
+      </div>
+      <div class="complete-row">
+        <span class="saving-txt" id="saving-save-format">Saving...</span>
+        <button class="btn-complete" id="btn-save-format" data-skill="save-format">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>>
