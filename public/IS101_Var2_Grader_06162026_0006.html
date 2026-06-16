@@ -400,7 +400,7 @@ function showResults(data) {
   document.getElementById('score-title').textContent =
     pass ? '✓ Project Passed!' : '✗ Project Needs Revision';
   document.getElementById('score-meta').textContent =
-    `${pct}% · ${data.passed} of 40 tasks correct · ${data.failed} task(s) need attention`;
+    `${pct}% · ${data.passed} of 33 tasks correct · ${data.failed} task(s) need attention`;
 
   const bar = document.getElementById('score-bar');
   bar.style.width   = pct + '%';
