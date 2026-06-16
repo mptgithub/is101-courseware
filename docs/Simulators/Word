@@ -1,8 +1,0 @@
-The simulator consists of:
-
-1. Word Shell
-2. Task Engine
-3. Skill Definitions
-4. Progress Tracking
-
-The shell should remain independent of any individual skill.
