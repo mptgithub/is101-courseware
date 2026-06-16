@@ -416,7 +416,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
                        /January|February|March|April|May|June|July|August|September|October|November|December/.test(headerXml);
     check(4,3,'Insert header: company name left-aligned, date right-aligned', hasCompany && hasDate,
       '✓ Header contains company name and date.',
-      '✗ Header missing company name or date. Fix: Insert → Header → add "Desert Sun Consulting" and today's date.');
+      '✗ Header missing company name or date. Fix: Insert tab → Header → add Desert Sun Consulting and the date.');
 
     // Task 5: Footer with Confidential
     const footerLower = footerXml.toLowerCase();
