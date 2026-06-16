@@ -437,14 +437,5 @@ def grade_core1(filepath):
 if __name__ == '__main__':
     path = sys.argv[1] if len(sys.argv) > 1 else '/mnt/user-data/outputs/Word_Core1_Solution.docx'
     result = grade_core1(path)
-    if 'error' in result:
-        print(f"ERROR: {result['error']}")
-    else:
-        print(f"\nScore: {result['score']}/{result['total']} ({result['pct']}%)")
-        print(f"Passed: {result['passed']}/40  Failed: {result['failed']}/40\n")
-        for r in result['results']:
-            status = '✓' if r['passed'] else '✗'
-            print(f"  {status} Task {r['task']:2d} ({r['pts_earned']}/{r['pts_possible']}pts) "
-                  f"{r['description']}")
-            if not r['passed']:
-                print(f"         → {r['feedback']}")
+    # Always output pure JSON — server parses this
+    print(json.dumps(result))
