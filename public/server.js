@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// IS101 Courseware Server
+// IS101 Courseware Server — v2 (32-task grader)
 // College of Southern Nevada © Dr. Mark Taormino · All Rights Reserved
+// Updated: June 16, 2026
 // ─────────────────────────────────────────────────────────────────────────────
 'use strict';
 
