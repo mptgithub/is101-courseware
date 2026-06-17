@@ -115,13 +115,25 @@ gradeBtn.addEventListener('click', async () => {
 
   try {
     const res = await fetch('/api/grade/project5', { method: 'POST', body: formData, credentials: 'include' });
-    if (res.status === 401) { window.location.reload(); return; }
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    const rawText = await res.text();
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseErr) {
+      throw new Error(`Server returned non-JSON response (status ${res.status}). Raw response: ${rawText.substring(0, 300)}`);
+    }
+    if (res.status === 401) {
+      errorBox.textContent = 'Session expired. Click OK then try again — the page will reload your login.';
+      errorBox.style.display = 'block';
+      setTimeout(() => window.location.reload(), 2500);
+      return;
+    }
+    if (data.error) throw new Error(`Server error (status ${res.status}): ${data.error}`);
     renderResults(data);
   } catch (err) {
     errorBox.textContent = 'Error: ' + err.message;
     errorBox.style.display = 'block';
+    errorBox.scrollIntoView({ behavior: 'smooth' });
   } finally {
     gradeBtn.disabled = false;
     gradeBtn.textContent = 'Grade My Project';
