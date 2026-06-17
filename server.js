@@ -354,7 +354,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     if(pgMar){const a=pgMar[1];mT=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mB=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mL=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mR=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
     check(1,2,'Set 1-inch margins on all sides',[mT,mB,mL,mR].every(v=>Math.abs(v-INCH)<72),'Margins are 1 inch on all sides.','Margins not 1 inch. Fix: Layout > Margins > Normal.');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'Portrait orientation confirmed.','Document is Landscape. Fix: Layout > Orientation > Portrait.');
-    check(3,2,'Apply the Basic Stylish style set',stylesXml.includes('Heading 1')||stylesXml.includes('Heading1'),'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
+    check(3,2,'Apply the Basic Stylish style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
     const hC=hXml.includes('Desert Sun'); const hD=/20(25|26|27)/.test(hXml)||/January|February|March|April|May|June|July|August|September|October|November|December/.test(hXml);
     check(4,4,'Insert header: company name and date',hC&&hD,'Header has company name and date.','Header incomplete. Company:'+hC+' Date:'+hD+'. Fix: Insert > Header > add Desert Sun Consulting and date.');
     check(5,3,'Insert footer: Confidential centered',fXml.toLowerCase().includes('confidential'),'Footer has Confidential.','Footer missing Confidential. Fix: Insert > Footer > type Confidential.');
@@ -442,7 +442,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const mOk = Math.abs(mTop-INCH)<72&&Math.abs(mBot-INCH)<72&&Math.abs(mLeft-1800)<72&&Math.abs(mRight-1800)<72;
     check(1,2,'Set 1-inch top/bottom and 1.25-inch left/right margins',mOk,'✓ Margins correct.','✗ Margins incorrect. Fix: Layout → Margins → Custom → Top/Bottom 1", Left/Right 1.25".');
     check(2,2,'Set paper size to Letter',true,'✓ Paper size Letter (default).','✗ Fix: Layout → Size → Letter.');
-    check(3,2,'Apply the "Shaded" style set',stylesXml.includes('Heading 1')||stylesXml.includes('Heading1'),'✓ Style set applied.','✗ Fix: Design → Style Sets → Shaded.');
+    check(3,2,'Apply the "Shaded" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Shaded.');
     check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(hXml.includes('Nevada Valley')||hXml.includes('NVH'))&&(hXml.includes('Training')||hXml.includes('Manual')),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
     check(5,3,'Insert footer with department name and page number',fXml.length>50,'✓ Footer found.','✗ Footer empty. Fix: Insert → Footer → add department name and page number.');
     check(6,2,'Insert page numbers starting at 1 after cover page',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
@@ -517,7 +517,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
     check(1,3,'Set 1-inch margins (APA)',mOk,'✓ 1-inch margins confirmed.','✗ Fix: Layout → Margins → Normal (1" all sides).');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'✓ Portrait orientation.','✗ Fix: Layout → Orientation → Portrait.');
-    check(3,2,'Apply the "Basic (Simple)" style set',stylesXml.includes('Heading 1')||stylesXml.includes('Heading1'),'✓ Style set applied.','✗ Fix: Design → Style Sets → Basic (Simple).');
+    check(3,2,'Apply the "Basic (Simple)" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Basic (Simple).');
     const hHasTitle=/Social Media|Las Vegas|Tourism|SOC/.test(hXml)||hXml.length>100;
     const hHasPage=hXml.includes('PAGE')||hXml.includes('fldChar');
     check(4,4,'Insert running head: title left, page number right',hHasTitle&&hHasPage,'✓ Running head found.',`✗ Title:${hHasTitle} Page#:${hHasPage}. Fix: Insert → Header → title left, page # right.`);
@@ -592,7 +592,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
     check(1,2,'Set 1-inch margins',mOk,'✓ Margins confirmed.','✗ Fix: Layout → Margins → Normal.');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'✓ Portrait.','✗ Fix: Layout → Orientation → Portrait.');
-    check(3,2,'Apply the "Lines (Stylish)" style set',stylesXml.includes('Heading 1')||stylesXml.includes('Heading1'),'✓ Style set applied.','✗ Fix: Design → Style Sets → Lines (Stylish).');
+    check(3,2,'Apply the "Lines (Stylish)" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Lines (Stylish).');
     check(4,4,'Insert header with Oasis Events and proposal number',hXml.toLowerCase().includes('oasis')||hXml.includes('Proposal')||hXml.length>80,'✓ Header content found.','✗ Fix: Insert → Header → add Oasis Events and proposal number.');
     check(5,3,'Insert footer: Oasis Events · Confidential · Page X of Y',fXml.toLowerCase().includes('oasis')||fXml.toLowerCase().includes('confidential')||fXml.length>50,'✓ Footer content found.','✗ Fix: Insert → Footer → type footer text.');
     check(6,2,'Insert page numbers in footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
