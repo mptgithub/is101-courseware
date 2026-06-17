@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Project 5: IT Help Desk Knowledge Base</title>
+<style>
+  :root{--blue:#2b579a;--blue-dark:#1f3f73;--green:#2e7d32;--red:#c62828;--bg:#f3f4f6;--border:#d1d5db;--muted:#6b7280;--text:#1f2937}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text)}
+  .topbar{background:var(--blue);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+  .topbar a{color:#fff;text-decoration:none;font-size:14px;opacity:.9}
+  .topbar a:hover{opacity:1;text-decoration:underline}
+  .topbar .brand{font-weight:700;font-size:16px}
+  .container{max-width:760px;margin:0 auto;padding:32px 20px 80px}
+  .hero{background:#fff;border:1px solid var(--border);border-radius:10px;padding:28px;margin-bottom:24px}
+  .hero h1{font-size:22px;margin-bottom:6px;color:var(--blue-dark)}
+  .hero p{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .upload-box{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;background:#fafafa}
+  .upload-box input{display:none}
+  .upload-btn{display:inline-block;background:var(--blue);color:#fff;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600}
+  .upload-btn:hover{background:var(--blue-dark)}
+  #fname{margin-top:10px;font-size:13px;color:var(--muted)}
+  .grade-btn{margin-top:16px;background:var(--green);color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;display:none}
+  .grade-btn:hover{background:#256428}
+  .grade-btn:disabled{background:#9ca3af;cursor:not-allowed}
+  #results{display:none}
+  .score-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;text-align:center}
+  .score-big{font-size:42px;font-weight:800}
+  .score-card.pass .score-big{color:var(--green)}
+  .score-card.fail .score-big{color:var(--red)}
+  #score-status{font-size:16px;font-weight:700;margin-top:6px}
+  #score-meta{font-size:13px;color:var(--muted);margin-top:6px}
+  .score-bar-wrap{height:8px;background:var(--border);border-radius:4px;margin-top:14px;overflow:hidden}
+  .score-bar-fill{height:100%;border-radius:4px;transition:width .6s}
+  .task{background:#fff;border:1px solid var(--border);border-left:4px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:10px}
+  .task.pass{border-left-color:var(--green)}
+  .task.fail{border-left-color:var(--red)}
+  .task-head{display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:600}
+  .task-icon{font-size:15px;flex-shrink:0}
+  .task.pass .task-icon{color:var(--green)}
+  .task.fail .task-icon{color:var(--red)}
+  .task-pts{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+  .task-feedback{font-size:13px;color:var(--muted);margin-top:6px;margin-left:25px}
+  .error-box{background:#fef2f2;border:1px solid #fecaca;color:var(--red);padding:14px 16px;border-radius:8px;font-size:14px;display:none;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">IS101 — Project 5: IT Help Desk Knowledge Base</div>
+  <div><a href="IS101_Word_Projects_06162026_0006.html">← Word Projects</a></div>
+</div>
+<div class="container">
+  <div class="hero">
+    <h1>IT Help Desk Knowledge Base — 14 tasks · 100 points</h1>
+    <p>Complete the Word_Project5_Starter.docx using the 14 skills below, save, then upload here for instant feedback. This project covers skills not tested in Core 1, Core 2, Variation 1, or Variation 2.</p>
+    <div class="upload-box">
+      <label class="upload-btn" for="fileInput">Choose .docx File</label>
+      <input type="file" id="fileInput" accept=".docx">
+      <div id="fname">No file selected</div>
+    </div>
+    <button class="grade-btn" id="gradeBtn">Grade My Project</button>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div id="results">
+    <div class="score-card" id="scoreCard">
+      <div class="score-big" id="scoreBig">0/100</div>
+      <div id="score-status"></div>
+      <div id="score-meta"></div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" id="scoreBar"></div></div>
+    </div>
+    <div id="taskList"></div>
+  </div>
+</div>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const fname = document.getElementById('fname');
+const gradeBtn = document.getElementById('gradeBtn');
+const errorBox = document.getElementById('errorBox');
+const results = document.getElementById('results');
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) {
+    fname.textContent = fileInput.files[0].name;
+    gradeBtn.style.display = 'inline-block';
+  }
+});
+
+gradeBtn.addEventListener('click', async () => {
+  if (!fileInput.files.length) return;
+  gradeBtn.disabled = true;
+  gradeBtn.textContent = 'Grading...';
+  errorBox.style.display = 'none';
+  results.style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+
+  try {
+    const res = await fetch('/api/grade/project5', { method: 'POST', body: formData, credentials: 'include' });
+    if (res.status === 401) { window.location.reload(); return; }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    renderResults(data);
+  } catch (err) {
+    errorBox.textContent = 'Error: ' + err.message;
+    errorBox.style.display = 'block';
+  } finally {
+    gradeBtn.disabled = false;
+    gradeBtn.textContent = 'Grade My Project';
+  }
+});
+
+function renderResults(data) {
+  const pct = data.pct;
+  const card = document.getElementById('scoreCard');
+  card.className = 'score-card ' + (pct >= 70 ? 'pass' : 'fail');
+  document.getElementById('scoreBig').textContent = `${data.score}/${data.total}`;
+  document.getElementById('score-status').textContent = pct >= 70 ? '✓ Project Complete' : '✗ Project Needs Revision';
+  document.getElementById('score-meta').textContent =
+    `${pct}% · ${data.passed} of ${data.results.length} tasks correct · ${data.failed} task(s) need attention`;
+  const bar = document.getElementById('scoreBar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 70 ? '#2e7d32' : '#c62828';
+
+  const taskList = document.getElementById('taskList');
+  taskList.innerHTML = '';
+  data.results.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'task ' + (t.passed ? 'pass' : 'fail');
+    div.innerHTML = `
+      <div class="task-head">
+        <span class="task-icon">${t.passed ? '✓' : '✗'}</span>
+        <span>Task ${t.task}: ${t.description}</span>
+        <span class="task-pts">${t.pts_earned}/${t.pts_possible} pts</span>
+      </div>
+      <div class="task-feedback">${t.feedback}</div>
+    `;
+    taskList.appendChild(div);
+  });
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
