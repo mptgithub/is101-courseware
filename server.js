@@ -383,7 +383,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     // D4 - 3 tasks - 10 pts
     check(22,3,'Insert Table of Contents after title page',allXml.includes('TOC')&&allXml.includes('fldChar'),'TOC found.','No TOC. Fix: References > Table of Contents > Automatic Table 1.');
     check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',allXml.includes('TOC')&&allXml.includes('fldChar'),'TOC present with custom levels.','No TOC found to customize. Fix: Insert TOC first, then References > Custom TOC > Show levels 2.');
-    check(24,4,'Insert footnote on revenue figure',fnXml.length>300||allXml.includes('w:footnoteRef')||docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
+    check(24,4,'Insert footnote on revenue figure',/<w:footnote w:id="[1-9]/.test(fnXml)&&docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
     check(26,3,'Set text wrapping to Through for the logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Picture Format > Wrap Text > Through.');
@@ -469,7 +469,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(23,4,'Add second-level bullets under each guideline',/w:ilvl w:val="[1-9]"/.test(docXml),'✓ Sub-level items found.','✗ Fix: Select sub-items → Home → Increase Indent.');
     check(24,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
     check(25,3,'Customize TOC: dotted leaders, 3 heading levels',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
-    check(26,4,'Insert endnotes citing regulatory sources',enXml.length>300||allXml.includes('w:endnoteRef'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
+    check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(29,3,'Insert SmartArt Process diagram',true,'✓ SmartArt or drawing element present.','✗ Fix: Insert → SmartArt → Process.');
@@ -543,7 +543,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(20,2,'Restart list numbering for second set',docXml.includes('w:startOverride')||ni>5,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
     check(21,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
     check(22,4,'Customize TOC: Heading 1 and 2 only',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
-    const fnc=(fnXml.match(/<w:footnote /g)||[]).length;
+    const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
     check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
@@ -617,7 +617,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(21,3,'Change bullet format for premium services to custom symbol',ni>3||docXml.includes('numFmt'),'✓ Custom list format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol.');
     check(22,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
     check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
-    const fnc=(fnXml.match(/<w:footnote /g)||[]).length;
+    const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
     check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
