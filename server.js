@@ -347,12 +347,12 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     try { fs.unlinkSync(req.file.path); } catch(e) {}
     const results=[]; let earned=0, total=0;
     const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
-    const INCH=914400;
+    const INCH=1440;
     // D1 - 8 tasks - 22 pts
     const pgMar=docXml.match(/w:pgMar([^/]*?)\//);
     let mT=0,mB=0,mL=0,mR=0;
     if(pgMar){const a=pgMar[1];mT=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mB=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mL=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mR=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
-    check(1,2,'Set 1-inch margins on all sides',[mT,mB,mL,mR].every(v=>Math.abs(v-INCH)<36000),'Margins are 1 inch on all sides.','Margins not 1 inch. Fix: Layout > Margins > Normal.');
+    check(1,2,'Set 1-inch margins on all sides',[mT,mB,mL,mR].every(v=>Math.abs(v-INCH)<72),'Margins are 1 inch on all sides.','Margins not 1 inch. Fix: Layout > Margins > Normal.');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'Portrait orientation confirmed.','Document is Landscape. Fix: Layout > Orientation > Portrait.');
     check(3,2,'Apply the Basic Stylish style set',stylesXml.includes('Heading 1')||stylesXml.includes('Heading1'),'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
     const hC=hXml.includes('Desert Sun'); const hD=/20(25|26|27)/.test(hXml)||/January|February|March|April|May|June|July|August|September|October|November|December/.test(hXml);
@@ -382,12 +382,12 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(21,4,'Increase list level for sub-items',/w:ilvl w:val="[1-9]"/.test(docXml),'Sub-level list items found.','No sub-level items. Fix: Select sub-items > Home > Increase Indent.');
     // D4 - 3 tasks - 10 pts
     check(22,3,'Insert Table of Contents after title page',allXml.includes('TOC')&&allXml.includes('fldChar'),'TOC found.','No TOC. Fix: References > Table of Contents > Automatic Table 1.');
-    check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',allXml.includes('TOC'),'TOC present.','No TOC. Fix: References > Custom TOC > Show levels 2.');
+    check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',allXml.includes('TOC')&&allXml.includes('fldChar'),'TOC present with custom levels.','No TOC found to customize. Fix: Insert TOC first, then References > Custom TOC > Show levels 2.');
     check(24,4,'Insert footnote on revenue figure',fnXml.length>300||allXml.includes('w:footnoteRef')||docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
     check(26,3,'Set text wrapping to Through for the logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Picture Format > Wrap Text > Through.');
-    check(27,4,'Insert SmartArt Hierarchy diagram for org chart',allXml.includes('dgm:')||allXml.includes('SmartArt'),'SmartArt found.','No SmartArt. Fix: Insert > SmartArt > Hierarchy > Organization Chart.');
+    check(27,4,'Insert SmartArt Hierarchy diagram for org chart',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'SmartArt found.','No SmartArt. Fix: Insert > SmartArt > Hierarchy > Organization Chart.');
     check(28,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
     check(29,4,'Add alt text to ALL images in the document',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
     // D6 - 3 tasks - 9 pts
@@ -439,7 +439,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const pgMar = docXml.match(/w:pgMar([^/]*?)\//);
     let mTop=0,mBot=0,mLeft=0,mRight=0;
     if(pgMar){const a=pgMar[1];mTop=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mBot=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mLeft=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mRight=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
-    const mOk = Math.abs(mTop-INCH)<36000&&Math.abs(mBot-INCH)<36000&&Math.abs(mLeft-Math.round(INCH*1.25))<50000&&Math.abs(mRight-Math.round(INCH*1.25))<50000;
+    const mOk = Math.abs(mTop-INCH)<72&&Math.abs(mBot-INCH)<72&&Math.abs(mLeft-1800)<72&&Math.abs(mRight-1800)<72;
     check(1,2,'Set 1-inch top/bottom and 1.25-inch left/right margins',mOk,'✓ Margins correct.','✗ Margins incorrect. Fix: Layout → Margins → Custom → Top/Bottom 1", Left/Right 1.25".');
     check(2,2,'Set paper size to Letter',true,'✓ Paper size Letter (default).','✗ Fix: Layout → Size → Letter.');
     check(3,2,'Apply the "Shaded" style set',stylesXml.includes('Heading 1')||stylesXml.includes('Heading1'),'✓ Style set applied.','✗ Fix: Design → Style Sets → Shaded.');
@@ -468,7 +468,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(22,2,'Create bulleted list of conduct guidelines',ni>0,'✓ List formatting found.','✗ Fix: Select guidelines → Home → Bullets.');
     check(23,4,'Add second-level bullets under each guideline',/w:ilvl w:val="[1-9]"/.test(docXml),'✓ Sub-level items found.','✗ Fix: Select sub-items → Home → Increase Indent.');
     check(24,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(25,3,'Customize TOC: dotted leaders, 3 heading levels',allXml.includes('TOC'),'✓ TOC present.','✗ Fix: References → Custom TOC → Show levels: 3.');
+    check(25,3,'Customize TOC: dotted leaders, 3 heading levels',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
     check(26,4,'Insert endnotes citing regulatory sources',enXml.length>300||allXml.includes('w:endnoteRef'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
@@ -511,7 +511,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
 
     const results=[]; let earned=0,total=0;
     const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
-    const INCH=914400;
+    const INCH=1440;
     const pgMar=docXml.match(/w:pgMar([^/]*?)\//);
     let mOk=false;
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
@@ -542,7 +542,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(19,2,'Create bulleted list of key findings',ni>0,'✓ List formatting found.','✗ Fix: Select findings → Home → Bullets.');
     check(20,2,'Restart list numbering for second set',docXml.includes('w:startOverride')||ni>5,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
     check(21,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(22,4,'Customize TOC: Heading 1 and 2 only',allXml.includes('TOC'),'✓ TOC present.','✗ Fix: References → Custom TOC → Show levels: 2.');
+    check(22,4,'Customize TOC: Heading 1 and 2 only',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
     const fnc=(fnXml.match(/<w:footnote /g)||[]).length;
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
@@ -586,7 +586,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
 
     const results=[]; let earned=0,total=0;
     const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
-    const INCH=914400;
+    const INCH=1440;
     const pgMar=docXml.match(/w:pgMar([^/]*?)\//);
     let mOk=false;
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
@@ -616,7 +616,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(20,2,'Create bulleted list of services',ni>0,'✓ List found.','✗ Fix: Select services → Home → Bullets.');
     check(21,3,'Change bullet format for premium services to custom symbol',ni>3||docXml.includes('numFmt'),'✓ Custom list format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol.');
     check(22,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',allXml.includes('TOC'),'✓ TOC present.','✗ Fix: References → Custom TOC → set dot leaders.');
+    check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
     const fnc=(fnXml.match(/<w:footnote /g)||[]).length;
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
