@@ -441,7 +441,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     if(pgMar){const a=pgMar[1];mTop=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mBot=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mLeft=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mRight=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
     const mOk = Math.abs(mTop-INCH)<72&&Math.abs(mBot-INCH)<72&&Math.abs(mLeft-1800)<72&&Math.abs(mRight-1800)<72;
     check(1,2,'Set 1-inch top/bottom and 1.25-inch left/right margins',mOk,'✓ Margins correct.','✗ Margins incorrect. Fix: Layout → Margins → Custom → Top/Bottom 1", Left/Right 1.25".');
-    check(2,2,'Set paper size to Letter',true,'✓ Paper size Letter (default).','✗ Fix: Layout → Size → Letter.');
+    check(2,2,'Set paper size to Letter',docXml.includes('w:w="12240"')||!docXml.includes('w:pgSz'),'✓ Paper size is Letter.','✗ Paper size is not Letter. Fix: Layout → Size → Letter.');
     check(3,2,'Apply the "Shaded" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Shaded.');
     check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(hXml.includes('Nevada Valley')||hXml.includes('NVH'))&&(hXml.includes('Training')||hXml.includes('Manual')),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
     check(5,3,'Insert footer with department name and page number',fXml.length>50,'✓ Footer found.','✗ Footer empty. Fix: Insert → Footer → add department name and page number.');
@@ -458,8 +458,8 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(13,4,'Apply Heading 2 to all section titles',h2c>=1,`✓ Heading 2 on ${h2c} paragraph(s).`,`✗ Only ${h2c} Heading 2. Fix: Click section titles → Home → Heading 2.`);
     check(14,2,'Set body text to double-spaced (2.0)',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'✓ Line spacing found.','✗ Fix: Select text → Home → Line Spacing → 2.0.');
     check(15,2,'Set 12pt spacing before each Heading 1',docXml.includes('w:before=')||docXml.includes('w:beforeLines='),'✓ Spacing before found.','✗ Fix: Paragraph dialog → Spacing Before: 12pt.');
-    check(16,4,'Insert page break before each new chapter',true,'✓ Page break(s) found.','✗ Fix: Click before each chapter → Ctrl+Enter.');
-    check(17,2,'Format Quick Reference section in two columns',true,'✓ Column formatting found.','✗ Fix: Select text → Layout → Columns → Two.');
+    check(16,4,'Insert page break before each new chapter',docXml.includes('w:type="page"'),'✓ Page break(s) found.','✗ No page breaks found. Fix: Click before each chapter → Ctrl+Enter.');
+    check(17,2,'Format Quick Reference section in two columns',docXml.includes('<w:cols')&&docXml.includes('w:num="2"'),'✓ Two-column formatting found.','✗ No column formatting found. Fix: Select text → Layout → Columns → Two.');
     check(18,3,'Create 3-column employee benefits summary table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 3 columns.');
     check(19,2,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ Fix: Select top row → Table Layout → Merge Cells.');
     check(20,2,'Enable Repeat Header Row',docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Click header row → Table Layout → Repeat Header Rows.');
@@ -472,7 +472,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
-    check(29,3,'Insert SmartArt Process diagram',true,'✓ SmartArt or drawing element present.','✗ Fix: Insert → SmartArt → Process.');
+    check(29,3,'Insert SmartArt Process diagram',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'✓ SmartArt found.','✗ No SmartArt found. Fix: Insert → SmartArt → Process.');
     check(30,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
     check(31,4,'Add alt text to every image and SmartArt',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
@@ -547,7 +547,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
     check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
-    check(26,4,'Insert SmartArt Cycle diagram',true,'✓ SmartArt or drawing element present.','✗ Fix: Insert → SmartArt → Cycle.');
+    check(26,4,'Insert SmartArt Cycle diagram',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'✓ SmartArt found.','✗ No SmartArt found. Fix: Insert → SmartArt → Cycle.');
     check(27,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
     check(28,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
     check(29,3,'Add alt text to all figures',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
@@ -621,7 +621,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
     check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
-    check(27,4,'Insert SmartArt Process diagram',true,'✓ SmartArt or drawing element present.','✗ Fix: Insert → SmartArt → Process.');
+    check(27,4,'Insert SmartArt Process diagram',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'✓ SmartArt found.','✗ No SmartArt found. Fix: Insert → SmartArt → Process.');
     check(28,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
     check(29,4,'Add alt text to all graphics',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
