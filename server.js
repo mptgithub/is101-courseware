@@ -640,6 +640,98 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
   }
 });
 
+// ── PROJECT 5: IT Help Desk Knowledge Base (14 tasks, 40 pts) ──────────────────
+app.post('/api/grade/project5', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.docx') { try { fs.unlinkSync(req.file.path); } catch(e) {} return res.status(400).json({ error: 'Please upload a .docx file.' }); }
+  try {
+    let AdmZip; try { AdmZip = require('adm-zip'); } catch(e) { return res.status(500).json({ error: 'adm-zip module not installed.' }); }
+    const zip = new AdmZip(req.file.path);
+    const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
+    const docXml = getXml('word/document.xml');
+    const stylesXml = getXml('word/styles.xml');
+    const coreXml = getXml('docProps/core.xml');
+    let hXml=''; for(const n of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml += getXml(n);
+    let fXml=''; for(const n of ['word/footer1.xml','word/footer2.xml','word/footer3.xml']) fXml += getXml(n);
+    const cmmXml = getXml('word/comments.xml');
+    const fnXml = getXml('word/footnotes.xml');
+    const allXml = docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml;
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+
+    const results=[]; let earned=0, total=0;
+    const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
+
+    check(1,5,'Apply a light blue page color to the cover page',
+      docXml.includes('w:background')||allXml.includes('w:fill'),
+      '✓ Page color found.','✗ No page color found. Fix: Design → Page Color → choose a light blue.');
+
+    check(2,5,'Add a box border around the entire document',
+      docXml.includes('w:pgBorders'),
+      '✓ Page border found.','✗ No page border found. Fix: Design → Page Borders → Box.');
+
+    check(3,8,'Insert a hyperlink to the CSN IT Help Desk support portal',
+      docXml.includes('w:hyperlink')||allXml.includes('relationships/hyperlink'),
+      '✓ Hyperlink found.','✗ No hyperlink found. Fix: Insert → Link → paste the support portal URL.');
+
+    check(4,5,'Insert a degree symbol (°) in the Fahrenheit troubleshooting note',
+      docXml.includes('w:sym')||docXml.includes('\u00B0')||docXml.includes('&#176;')||docXml.includes('&#xB0;'),
+      '✓ Symbol found.','✗ No degree symbol found. Fix: Insert → Symbol → ° (U+00B0).');
+
+    check(5,8,'Insert a column break in the two-column FAQ section',
+      docXml.includes('w:type="column"'),
+      '✓ Column break found.','✗ No column break found. Fix: Layout → Breaks → Column.');
+
+    const sectPrCount = (docXml.match(/<w:sectPr/g)||[]).length;
+    check(6,9,"Change the FAQ section's page setup to 0.75-inch margins",
+      sectPrCount>=2 && /w:(?:left|right)="1080"/.test(docXml),
+      '✓ Section with custom page setup found.','✗ No second section with 0.75" margins found. Fix: Insert a section break before the FAQ, then Layout → Margins → Custom → 0.75".');
+
+    const tblCount = (docXml.match(/<w:tbl>/g)||[]).length;
+    check(7,9,'Convert the tab-separated ticket priority list to a table',
+      tblCount>=5,
+      '✓ Ticket priority table found.','✗ Ticket priority list is not yet a table. Fix: Select the list → Insert → Table → Convert Text to Table.');
+
+    const softwareVersionStillTable = /Microsoft Office[\s\S]{0,4000}?<\/w:tbl>/.test(docXml);
+    check(8,8,'Convert the outdated software version table back to plain text',
+      docXml.includes('Microsoft Office') && !softwareVersionStillTable,
+      '✓ Software version table converted to text.','✗ Software version table is still a table. Fix: Click in table → Layout → Convert to Text.');
+
+    const tcMarValues = [...docXml.matchAll(/<w:tcMar><w:top w:type="dxa" w:w="(\d+)"/g)].map(m=>parseInt(m[1]));
+    const hasCustomMargin = tcMarValues.some(v => v !== 80);
+    check(9,5,'Increase cell margins on the equipment table for readability',
+      hasCustomMargin,
+      '✓ Custom cell margins found.','✗ No custom cell margins found. Fix: Click in table → Layout → Cell Margins → increase values.');
+
+    check(10,8,'Split the merged header cell in the ticket table into two columns',
+      !docXml.includes('w:gridSpan'),
+      '✓ Header cell appears split.','✗ Header cell still appears merged. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
+
+    check(11,5,'Resize the equipment table columns to fit content',
+      docXml.includes('w:tblLayout'),
+      '✓ Custom column widths found.','✗ No custom column resizing detected. Fix: Drag column borders or use Layout → AutoFit → AutoFit Contents.');
+
+    check(12,9,'Split the long software inventory table into two separate tables',
+      tblCount>=5,
+      '✓ Multiple tables found (inventory table split).','✗ Software inventory table is still one table. Fix: Click in a middle row → Layout → Split Table.');
+
+    const hasWingdingsFont = docXml.includes('Wingdings');
+    const hasPUAChar = /[\uF000-\uF0FF]/.test(docXml);
+    check(13,8,'Apply a custom bullet character (checkmark) to the quick-fix list',
+      hasWingdingsFont && hasPUAChar,
+      '✓ Custom bullet character found.','✗ No custom bullet character found. Fix: Select quick-fix list → Home → Bullets → Define New Bullet → Symbol → choose a checkmark (Wingdings).');
+
+    check(14,8,'Insert a rounded rectangle shape to highlight the emergency contact box',
+      docXml.includes('wps:')||docXml.includes('roundRect')||docXml.includes('mc:AlternateContent'),
+      '✓ Shape found.','✗ No shape found. Fix: Insert → Shapes → Rounded Rectangle → draw around emergency contact text.');
+
+    res.json({ score: earned, total, pct: Math.round((earned/total)*100), passed: results.filter(r=>r.passed).length, failed: results.filter(r=>!r.passed).length, results });
+  } catch(err) {
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    res.status(500).json({ error: 'Grading error: ' + err.message });
+  }
+});
+
 // ── CATCH-ALL ─────────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
