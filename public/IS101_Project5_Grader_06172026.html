@@ -112,9 +112,14 @@ gradeBtn.addEventListener('click', async () => {
 
   const formData = new FormData();
   formData.append('file', fileInput.files[0]);
+  const token = localStorage.getItem('is101_token') || '';
 
   try {
-    const res = await fetch('/api/grade/project5', { method: 'POST', body: formData, credentials: 'include' });
+    const res = await fetch('/api/grade/project5', {
+      method: 'POST',
+      headers: { 'x-session-token': token },
+      body: formData
+    });
     const rawText = await res.text();
     let data;
     try {
