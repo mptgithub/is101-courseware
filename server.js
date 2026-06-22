@@ -371,7 +371,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(12,4,'Apply Heading 2 to all subsection headers',h2>=1,'Heading 2 on '+h2+' subsections.','No Heading 2. Fix: Click subsection headers > Home > Heading 2.');
     check(13,2,'Set body text line spacing to 1.15',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'Line spacing settings found.','No custom line spacing. Fix: Select body text > Home > Line Spacing > 1.15.');
     check(14,2,'Set 6pt spacing after each paragraph',docXml.includes('w:after='),'Paragraph spacing after found.','No spacing after. Fix: Paragraph dialog > Spacing After 6pt.');
-    check(15,4,'Insert section break before Financial Summary and change to Landscape',/w:type="nextPage"|w:type="evenPage"|w:type="oddPage"/.test(docXml),'Section break found.','No section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set Landscape.');
+    check(15,4,'Insert section break before Financial Summary and change to Landscape',/<w:type w:val="(nextPage|evenPage|oddPage|continuous)"/.test(docXml),'Section break found.','No section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set Landscape.');
     // D3 - 6 tasks - 18 pts
     check(16,4,'Create a 4-column quarterly revenue table',docXml.includes('<w:tbl>'),'Table found.','No table. Fix: Insert > Table > 4 columns x 5 rows.');
     check(17,3,'Merge top row cells for spanning title',docXml.includes('w:gridSpan')||docXml.includes('w:hMerge'),'Merged cells found.','No merged cells. Fix: Select top row > Table Layout > Merge Cells.');
@@ -387,14 +387,13 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
     check(26,3,'Set text wrapping to Through for the logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Picture Format > Wrap Text > Through.');
-    check(27,4,'Insert SmartArt Hierarchy diagram for org chart',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'SmartArt found.','No SmartArt. Fix: Insert > SmartArt > Hierarchy > Organization Chart.');
-    check(28,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
-    check(29,4,'Add alt text to ALL images in the document',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
+    check(27,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
+    check(28,8,'Add alt text to ALL images in the document',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
     // D6 - 3 tasks - 9 pts
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
-    check(30,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
-    check(31,2,'Reply to existing comment in the document',cc>=2,'Reply found ('+cc+' total).','Only '+cc+' comment - reply not found. Fix: Click comment > Reply.');
-    check(32,4,'Enable Track Changes and make 3 edits to executive summary',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'Tracked changes found.','No tracked changes. Fix: Review > Track Changes > make 3 edits.');
+    check(29,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
+    check(30,2,'Reply to existing comment in the document',cc>=2,'Reply found ('+cc+' total).','Only '+cc+' comment - reply not found. Fix: Click comment > Reply.');
+    check(31,4,'Enable Track Changes and make 3 edits to executive summary',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'Tracked changes found.','No tracked changes. Fix: Review > Track Changes > make 3 edits.');
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Core1',null,earned,total,JSON.stringify(results));
@@ -423,6 +422,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const docXml = getXml('word/document.xml');
     const stylesXml = getXml('word/styles.xml');
     const coreXml = getXml('docProps/core.xml');
+    const cstmXml = getXml('docProps/custom.xml');
     const hXml = getXml('word/header1.xml') || getXml('word/header2.xml') || getXml('word/header3.xml');
     const fXml = getXml('word/footer1.xml') || getXml('word/footer2.xml') || getXml('word/footer3.xml');
     const cmmXml = getXml('word/comments.xml');
@@ -448,7 +448,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(6,2,'Insert page numbers starting at 1 after cover page',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
     check(7,3,'Add a "CONFIDENTIAL" watermark',hXml.toUpperCase().includes('CONFIDENTIAL')||hXml.toLowerCase().includes('pict'),'✓ Watermark detected.','✗ Fix: Design → Watermark → type CONFIDENTIAL.');
     check(8,3,'Set document properties: Title, Author, Subject, Keywords',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'✓ Properties set.','✗ Fix: File → Info → Properties panel.');
-    check(9,2,'Remove hidden properties and personal information',true,'✓ Process task verified.','✗ Process task verified.');
+    check(9,2,'Add custom document property: Department = Human Resources',/name="Department"/.test(cstmXml)&&cstmXml.includes('Human Resources'),'✓ Custom property found.','✗ Fix: File → Info → Properties → Advanced Properties → Custom tab → Name: Department, Value: Human Resources → Add.');
     const nvh=(docXml.match(/(?<![A-Z])NVH(?![A-Z])/g)||[]).length;
     check(10,2,'Find & Replace: "NVH" → "Nevada Valley Healthcare"',nvh===0,'✓ No NVH abbreviations.',`✗ Found ${nvh} NVH instance(s). Fix: Ctrl+H → Find NVH → Replace Nevada Valley Healthcare.`);
     check(11,2,'Apply Title style',docXml.includes('styleId="Title"')||docXml.includes('w:val="Title"'),'✓ Title style applied.','✗ Fix: Click title → Home → Styles → Title.');
@@ -472,14 +472,13 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
-    check(29,3,'Insert SmartArt Process diagram',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'✓ SmartArt found.','✗ No SmartArt found. Fix: Insert → SmartArt → Process.');
-    check(30,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
-    check(31,4,'Add alt text to every image and SmartArt',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
+    check(29,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
+    check(30,7,'Add alt text to every image and icon',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
-    check(32,2,'Add comment on benefits table',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select cell → Review → New Comment.');
-    check(33,2,'Reply to comment from department manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
-    check(34,4,'Delete comment that has been addressed',true,'✓ Process task verified.','✗ Process task verified.');
-    check(35,5,'Turn on Track Changes; revise PTO policy',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'✓ Tracked changes found.','✗ Fix: Review → Track Changes → make edits.');
+    check(31,2,'Add comment on benefits table',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select cell → Review → New Comment.');
+    check(32,2,'Reply to comment from department manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
+    check(33,4,'Add a comment confirming the benefits figure has been verified',(cmmXml.match(/<w:comment /g)||[]).length>=3,'✓ Confirmation comment found.','✗ Fix: Select the benefits figure → Review → New Comment → confirm it has been verified.');
+    check(34,5,'Turn on Track Changes; revise PTO policy',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'✓ Tracked changes found.','✗ Fix: Review → Track Changes → make edits.');
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Core2',null,earned,total,JSON.stringify(results));
@@ -547,14 +546,13 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
     check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
-    check(26,4,'Insert SmartArt Cycle diagram',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'✓ SmartArt found.','✗ No SmartArt found. Fix: Insert → SmartArt → Cycle.');
-    check(27,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
-    check(28,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
-    check(29,3,'Add alt text to all figures',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
+    check(26,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
+    check(27,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
+    check(28,7,'Add alt text to all figures',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
-    check(30,2,'Add comment asking professor for feedback',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select thesis → Review → New Comment.');
-    check(31,4,'Reply to comment from writing partner',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
-    check(32,4,'Turn on Track Changes; revise methodology',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'✓ Tracked changes found.','✗ Fix: Review → Track Changes → revise methodology.');
+    check(29,2,'Add comment asking professor for feedback',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select thesis → Review → New Comment.');
+    check(30,4,'Reply to comment from writing partner',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
+    check(31,4,'Turn on Track Changes; revise methodology',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'✓ Tracked changes found.','✗ Fix: Review → Track Changes → revise methodology.');
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Var1',null,earned,total,JSON.stringify(results));
@@ -607,7 +605,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(12,4,'Apply Heading 2 to subsections',h2c>=1,`✓ Heading 2 on ${h2c}.`,`✗ Only ${h2c}. Fix: → Home → Heading 2.`);
     check(13,2,'Set body text line spacing to 1.5',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'✓ Line spacing found.','✗ Fix: Select text → Line Spacing → 1.5.');
     check(14,3,'Apply text effects (shadow) to proposal title',docXml.includes('w:effect')||docXml.includes('w:shadow')||docXml.includes('w:rStyle'),'✓ Text effect found.','✗ Fix: Select title → Home → Font → Text Effects → Shadow.');
-    check(15,4,'Insert section break before Budget; change to Landscape',/w:type="nextPage"|w:type="evenPage"|w:type="oddPage"/.test(docXml),'✓ Section break found.','✗ Fix: Layout → Breaks → Next Page before Budget → set to Landscape.');
+    check(15,4,'Insert section break before Budget; change to Landscape',/<w:type w:val="(nextPage|evenPage|oddPage|continuous)"/.test(docXml),'✓ Section break found.','✗ Fix: Layout → Breaks → Next Page before Budget → set to Landscape.');
     check(16,4,'Create 5-column budget table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 5 columns.');
     check(17,3,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells.','✗ Fix: Select top row → Table Layout → Merge Cells.');
     check(18,3,'Sort vendor table by cost',docXml.split('<w:tbl>').length>1,'✓ Table present (sort verified).','✗ Fix: Table Layout → Sort → Ascending.');
@@ -621,14 +619,13 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
     check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
-    check(27,4,'Insert SmartArt Process diagram',allXml.includes('dgm:')||allXml.includes('dgmLayout')||allXml.includes('clrMap'),'✓ SmartArt found.','✗ No SmartArt found. Fix: Insert → SmartArt → Process.');
-    check(28,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
-    check(29,4,'Add alt text to all graphics',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
+    check(27,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
+    check(28,8,'Add alt text to all graphics',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
-    check(30,2,'Add comment on budget table',cc>=1,`✓ ${cc} comment(s).`,'✗ Fix: Select cell → Review → New Comment.');
-    check(31,2,'Reply to comment from sales manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc}. Fix: Click comment → Reply.`);
-    check(32,3,'Delete comments that have been resolved',true,'✓ Comment management (verified by instructor).','✗ Comment management (verified by instructor).');
-    check(33,4,'Enable Track Changes; revise contract terms',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'✓ Tracked changes found.','✗ Fix: Review → Track Changes → revise contract section.');
+    check(29,2,'Add comment on budget table',cc>=1,`✓ ${cc} comment(s).`,'✗ Fix: Select cell → Review → New Comment.');
+    check(30,2,'Reply to comment from sales manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc}. Fix: Click comment → Reply.`);
+    check(31,3,'Add a comment confirming the budget item has been approved',(cmmXml.match(/<w:comment /g)||[]).length>=3,'✓ Confirmation comment found.','✗ Fix: Select the budget item → Review → New Comment → confirm it has been approved.');
+    check(32,4,'Enable Track Changes; revise contract terms',docXml.includes('<w:ins ')||docXml.includes('<w:del '),'✓ Tracked changes found.','✗ Fix: Review → Track Changes → revise contract section.');
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Var2',null,earned,total,JSON.stringify(results));
