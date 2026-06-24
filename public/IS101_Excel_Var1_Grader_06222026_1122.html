@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 Excel — Variation 1 Grader</title>
+<style>
+:root{--xl-green:#217346;--xl-green-dark:#185c37;--xl-green-light:#e6f2ec;--ink:#1a1a1a;--muted:#5f6b66;--line:#dfe6e2;--bg:#f4f7f5;--ok:#217346;--bad:#b00020;--bad-bg:#fcebeb;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+a{color:inherit;}
+.topbar{background:var(--xl-green-dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;position:sticky;top:0;z-index:40;}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600;}
+.xicon{background:#fff;color:var(--xl-green-dark);width:26px;height:26px;border-radius:5px;display:grid;place-items:center;font-weight:800;font-size:15px;}
+.topbar nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.topbar nav a,.topbar nav span#nshe{color:#fff;text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.3);}
+.topbar nav a:hover{background:rgba(255,255,255,.14);}
+#nshe{border-style:dashed;}
+.hero{background:linear-gradient(180deg,var(--xl-green) 0%,var(--xl-green-dark) 100%);color:#fff;padding:24px 20px 28px;}
+.hero-inner{max-width:860px;margin:0 auto;}
+.hero .eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:1.5px;opacity:.85;}
+.hero h1{font-size:25px;margin:4px 0 8px;font-weight:700;}
+.hero p.lead{font-size:14.5px;max-width:640px;opacity:.95;}
+.hero-actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;}
+.btn{border:none;border-radius:7px;padding:9px 14px;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-light{background:#fff;color:var(--xl-green-dark);}
+.btn-outline{background:transparent;color:#fff;border:1.5px solid #fff;}
+main{max-width:860px;margin:22px auto 60px;padding:0 20px;}
+.upload-card{background:#fff;border:2px dashed var(--line);border-radius:14px;padding:30px 24px;text-align:center;transition:border-color .2s;}
+.upload-card.drag{border-color:var(--xl-green);background:#fafdfb;}
+.upload-card h2{font-size:18px;margin-bottom:6px;}
+.upload-card p{font-size:13.5px;color:var(--muted);margin-bottom:16px;}
+.file-label{display:inline-block;background:var(--xl-green);color:#fff;padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;}
+.file-label:hover{background:var(--xl-green-dark);}
+#fileName{margin-top:12px;font-size:13.5px;color:var(--ink);font-weight:600;min-height:18px;}
+.grade-btn{margin-top:16px;background:var(--xl-green);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;width:100%;max-width:280px;}
+.grade-btn:disabled{opacity:.5;cursor:not-allowed;}
+.grade-btn:hover:not(:disabled){background:var(--xl-green-dark);}
+.spinner{display:none;margin:18px auto;width:32px;height:32px;border:3px solid var(--xl-green-light);border-top-color:var(--xl-green);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.score-card{display:none;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:22px;}
+.score-head{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.score-ring{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:800;color:#fff;flex:none;}
+.score-meta h3{font-size:19px;margin-bottom:2px;}
+.score-meta p{font-size:13.5px;color:var(--muted);}
+.results-list{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+.result-item{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border-radius:9px;border:1px solid var(--line);font-size:13.5px;}
+.result-item.pass{background:#f3fbf6;border-color:var(--xl-green-light);}
+.result-item.fail{background:var(--bad-bg);border-color:#f3c2c2;}
+.result-icon{font-weight:800;flex:none;width:20px;}
+.result-item.pass .result-icon{color:var(--ok);}
+.result-item.fail .result-icon{color:var(--bad);}
+.result-body{flex:1;}
+.result-task{font-weight:600;}
+.result-fb{font-size:12.5px;color:var(--muted);margin-top:2px;}
+.result-pts{font-weight:700;flex:none;font-size:12.5px;}
+.err-banner{display:none;background:var(--bad-bg);color:var(--bad);border:1px solid #f3c2c2;border-radius:9px;padding:12px 14px;margin-top:16px;font-size:13.5px;}
+.login-overlay{position:fixed;inset:0;background:rgba(24,92,55,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;}
+.login-overlay.hidden{display:none;}
+.login-box{background:#fff;border-radius:14px;padding:28px 26px;width:340px;max-width:92vw;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+.login-box .xicon{width:40px;height:40px;font-size:22px;margin-bottom:12px;}
+.login-box h2{font-size:20px;margin-bottom:5px;}
+.login-box p{font-size:13.5px;color:var(--muted);margin-bottom:16px;}
+.login-box label{font-size:12.5px;font-weight:600;color:var(--muted);}
+.login-box input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;margin:6px 0 4px;}
+.login-box input:focus{outline:none;border-color:var(--xl-green);}
+.login-error{color:var(--bad);font-size:12.5px;min-height:16px;margin-bottom:6px;}
+.login-box button{width:100%;background:var(--xl-green);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+.login-box button:hover{background:var(--xl-green-dark);}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="xicon">X</div>
+    <h2>Sign in to submit</h2>
+    <p>Enter your 10-digit NSHE ID to upload and grade your project.</p>
+    <label for="nsheInput">NSHE ID</label>
+    <input id="nsheInput" inputmode="numeric" maxlength="10" placeholder="e.g. 1000123456" autocomplete="off">
+    <div class="login-error" id="loginError"></div>
+    <button id="loginBtn">Sign in</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand"><span class="xicon">X</span><span>IS101 · Excel</span></div>
+  <nav>
+    <a href="IS101_Excel_Projects_06222026_1122.html">&larr; Projects</a>
+    <a href="IS101_START_HERE_06132026_0957.html">Dashboard</a>
+    <span id="nshe">Not signed in</span>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Excel Project Grader · MO-210</div>
+    <h1>Variation 1 — Auto-Grader</h1>
+    <p class="lead">You are a teaching assistant completing the SOC 101 grade book. Upload your completed <b>.xlsx</b> file for instant task-by-task scoring across all 26 tasks.</p>
+    <div class="hero-actions">
+      <a class="btn btn-light" href="Excel_Var1_Starter.xlsx" download>&#11015; Starter workbook</a>
+      <a class="btn btn-outline" href="Excel_Var1_Instructions.pdf" target="_blank">&#128196; Instructions (PDF)</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="upload-card" id="dropZone">
+    <h2>Upload your completed workbook</h2>
+    <p>Drag &amp; drop your .xlsx here, or choose a file. 26 tasks · 100 points.</p>
+    <label class="file-label" for="fileInput">Choose .xlsx file</label>
+    <input type="file" id="fileInput" accept=".xlsx" style="display:none;">
+    <div id="fileName"></div>
+    <button class="grade-btn" id="gradeBtn" disabled>Grade my project</button>
+    <div class="spinner" id="spinner"></div>
+  </div>
+  <div class="err-banner" id="errBanner"></div>
+  <div class="score-card" id="scoreCard">
+    <div class="score-head">
+      <div class="score-ring" id="scoreRing">0</div>
+      <div class="score-meta">
+        <h3 id="scoreTitle">Score</h3>
+        <p id="scoreSub"></p>
+      </div>
+    </div>
+    <div class="results-list" id="resultsList"></div>
+  </div>
+</main>
+
+<script>
+const ENDPOINT="/api/grade/excel-var1";
+const TOKEN_KEY="is101_token", NSHE_KEY="is101_nshe";
+let chosenFile=null;
+
+function showLogin(msg){document.getElementById('loginOverlay').classList.remove('hidden');if(msg)document.getElementById('loginError').textContent=msg;}
+function hideLogin(){document.getElementById('loginOverlay').classList.add('hidden');}
+
+async function doLogin(){
+  const nshe=(document.getElementById('nsheInput').value||'').trim();
+  const err=document.getElementById('loginError');
+  if(!/^[0-9]{10}$/.test(nshe)){err.textContent='Enter a valid 10-digit NSHE ID.';return;}
+  err.textContent='';
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nshe})});
+    if(!r.ok){err.textContent='Sign-in failed. Check your ID.';return;}
+    const d=await r.json();
+    if(d&&d.token)localStorage.setItem(TOKEN_KEY,d.token);
+    localStorage.setItem(NSHE_KEY,nshe);
+    document.getElementById('nshe').textContent='NSHE '+nshe;
+    hideLogin();
+  }catch(e){err.textContent='Network error. Try again.';}
+}
+async function reLogin(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(!nshe){showLogin();return false;}
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nshe})});
+    if(r.ok){const d=await r.json();if(d&&d.token)localStorage.setItem(TOKEN_KEY,d.token);return true;}
+  }catch(e){}
+  localStorage.removeItem(TOKEN_KEY);
+  showLogin('Your session expired — please sign in again.');
+  return false;
+}
+
+function pickFile(f){
+  if(!f)return;
+  if(!f.name.toLowerCase().endsWith('.xlsx')){document.getElementById('fileName').textContent='Please choose a .xlsx file.';return;}
+  chosenFile=f;
+  document.getElementById('fileName').textContent='Selected: '+f.name;
+  document.getElementById('gradeBtn').disabled=false;
+}
+document.getElementById('fileInput').addEventListener('change',e=>pickFile(e.target.files[0]));
+const dz=document.getElementById('dropZone');
+['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop',e=>pickFile(e.dataTransfer.files[0]));
+
+async function gradeFile(){
+  if(!chosenFile)return;
+  const btn=document.getElementById('gradeBtn'),sp=document.getElementById('spinner');
+  const sc=document.getElementById('scoreCard'),eb=document.getElementById('errBanner');
+  eb.style.display='none';sc.style.display='none';btn.disabled=true;sp.style.display='block';
+  const token=localStorage.getItem(TOKEN_KEY);
+  const fd=new FormData();fd.append('file',chosenFile);
+  try{
+    const r=await fetch(ENDPOINT,{method:'POST',headers:token?{'x-session-token':token}:{},body:fd});
+    if(r.status===401){sp.style.display='none';btn.disabled=false;if(await reLogin())return gradeFile();return;}
+    const data=await r.json();
+    sp.style.display='none';btn.disabled=false;
+    if(!r.ok){eb.textContent=data.error||'Grading failed.';eb.style.display='block';return;}
+    renderScore(data);
+  }catch(e){sp.style.display='none';btn.disabled=false;eb.textContent='Network error: '+e.message;eb.style.display='block';}
+}
+document.getElementById('gradeBtn').addEventListener('click',gradeFile);
+
+function renderScore(d){
+  const sc=document.getElementById('scoreCard'),ring=document.getElementById('scoreRing');
+  const pct=d.pct!=null?d.pct:Math.round((d.score/d.total)*100);
+  ring.textContent=pct+'%';
+  ring.style.background=pct>=80?'#217346':pct>=50?'#b8860b':'#b00020';
+  document.getElementById('scoreTitle').textContent=d.score+' / '+d.total+' points';
+  document.getElementById('scoreSub').textContent=d.passed+' of '+(d.passed+d.failed)+' tasks complete';
+  const list=document.getElementById('resultsList');list.innerHTML='';
+  d.results.forEach(r=>{
+    const item=document.createElement('div');
+    item.className='result-item '+(r.passed?'pass':'fail');
+    item.innerHTML='<span class="result-icon">'+(r.passed?'\u2713':'\u2717')+'</span>'+
+      '<div class="result-body"><div class="result-task">Task '+r.task+': '+r.description+'</div>'+
+      '<div class="result-fb">'+r.feedback+'</div></div>'+
+      '<span class="result-pts">'+r.pts_earned+'/'+r.pts_possible+'</span>';
+    list.appendChild(item);
+  });
+  sc.style.display='block';
+  sc.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('nsheInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+(function init(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(nshe){document.getElementById('nshe').textContent='NSHE '+nshe;hideLogin();}
+  else showLogin();
+})();
+</script>
+</body>
+</html>
