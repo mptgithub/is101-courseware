@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 Excel E4 — Perform Operations by Using Formulas and Functions</title>
+<style>
+:root{
+  --xl-green:#217346; --xl-green-dark:#185c37; --xl-green-light:#e6f2ec;
+  --ink:#1a1a1a; --muted:#5f6b66; --line:#dfe6e2; --bg:#f4f7f5;
+  --gold:#b8860b; --ok:#217346;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+a{color:inherit;}
+.topbar{background:var(--xl-green-dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;position:sticky;top:0;z-index:40;}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.2px;}
+.xicon{background:#fff;color:var(--xl-green-dark);width:26px;height:26px;border-radius:5px;display:grid;place-items:center;font-weight:800;font-size:15px;}
+.topbar nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.topbar nav a,.topbar nav span#nshe{color:#fff;text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.3);}
+.topbar nav a:hover{background:rgba(255,255,255,.14);}
+#nshe{border-style:dashed;opacity:.95;}
+.hero{background:linear-gradient(180deg,var(--xl-green) 0%,var(--xl-green-dark) 100%);color:#fff;padding:26px 20px 30px;}
+.hero-inner{max-width:980px;margin:0 auto;}
+.hero .eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:1.5px;opacity:.85;}
+.hero h1{font-size:27px;margin:4px 0 10px;font-weight:700;}
+.hero p.lead{font-size:15px;max-width:680px;opacity:.95;}
+.hero .reminder{margin-top:14px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:10px 14px;font-size:13.5px;display:flex;gap:8px;align-items:flex-start;}
+.hero-actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;}
+.btn{border:none;border-radius:7px;padding:10px 15px;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-light{background:#fff;color:var(--xl-green-dark);}
+.btn-outline{background:transparent;color:#fff;border:1.5px solid #fff;}
+.btn:hover{opacity:.92;}
+.progress-wrap{max-width:980px;margin:18px auto 0;padding:0 20px;}
+.progress-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:16px;}
+.progress-bar-track{flex:1;height:10px;background:var(--xl-green-light);border-radius:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;width:0;background:var(--xl-green);transition:width .35s ease;}
+.progress-text{font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;}
+main{max-width:980px;margin:20px auto 60px;padding:0 20px;}
+.domain-note{font-size:13px;color:var(--muted);margin:0 2px 14px;}
+.skill-card{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:11px;overflow:hidden;}
+.skill-card.done{border-color:var(--xl-green);}
+.skill-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;gap:12px;user-select:none;}
+.skill-header:hover{background:#fafdfb;}
+.skill-header:focus-visible{outline:3px solid var(--xl-green-light);outline-offset:-3px;}
+.skill-header-left{display:flex;align-items:center;gap:11px;min-width:0;}
+.skill-status-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);flex:none;}
+.skill-card.done .skill-status-dot{background:var(--xl-green);border-color:var(--xl-green);}
+.skill-title{font-size:15px;font-weight:600;}
+.skill-header-right{display:flex;align-items:center;gap:10px;flex:none;}
+.chevron{transition:transform .25s ease;color:var(--muted);font-size:15px;}
+.skill-card.open .chevron{transform:rotate(180deg);}
+.skill-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.skill-body-inner{padding:4px 16px 18px;border-top:1px solid var(--line);}
+.info-block{margin-top:14px;}
+.info-block h4{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--xl-green-dark);margin-bottom:4px;}
+.info-block p,.info-block li{font-size:14px;color:#33403b;}
+.ribbon-path{font-family:'Consolas',monospace;background:var(--xl-green-light);color:var(--xl-green-dark);padding:6px 10px;border-radius:6px;display:inline-block;font-size:13px;}
+.info-block ol{padding-left:20px;}
+.info-block ol li{margin:3px 0;}
+.success-block{background:#f3fbf6;border:1px solid var(--xl-green-light);border-radius:8px;padding:10px 12px;}
+.success-block h4{color:var(--ok);}
+.resources{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.resources-label{font-size:12.5px;color:var(--muted);font-weight:600;}
+.res-btn{font-size:12.5px;text-decoration:none;padding:6px 11px;border-radius:6px;border:1px solid var(--line);color:#33403b;background:#fff;}
+.res-btn:hover{border-color:var(--xl-green);color:var(--xl-green-dark);}
+.res-li.disabled{opacity:.5;pointer-events:none;}
+.mark-btn{margin-top:16px;background:var(--xl-green);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;}
+.mark-btn:hover{background:var(--xl-green-dark);}
+.skill-card.done .mark-btn{background:#fff;color:var(--xl-green-dark);border:1.5px solid var(--xl-green);}
+.skill-card.done .mark-btn::before{content:"\2713 ";}
+.login-overlay{position:fixed;inset:0;background:rgba(24,92,55,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;}
+.login-overlay.hidden{display:none;}
+.login-box{background:#fff;border-radius:14px;padding:28px 26px;width:340px;max-width:92vw;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+.login-box .xicon{width:40px;height:40px;font-size:22px;margin-bottom:12px;}
+.login-box h2{font-size:20px;margin-bottom:5px;}
+.login-box p{font-size:13.5px;color:var(--muted);margin-bottom:16px;}
+.login-box label{font-size:12.5px;font-weight:600;color:var(--muted);}
+.login-box input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;margin:6px 0 4px;}
+.login-box input:focus{outline:none;border-color:var(--xl-green);}
+.login-error{color:#b00020;font-size:12.5px;min-height:16px;margin-bottom:6px;}
+.login-box button{width:100%;background:var(--xl-green);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+.login-box button:hover{background:var(--xl-green-dark);}
+@media(max-width:560px){.hero h1{font-size:22px;}.topbar .brand span.t{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="xicon">X</div>
+    <h2>Sign in to continue</h2>
+    <p>Enter your 10-digit NSHE ID to track your Excel skill progress.</p>
+    <label for="nsheInput">NSHE ID</label>
+    <input id="nsheInput" inputmode="numeric" maxlength="10" placeholder="e.g. 1000123456" autocomplete="off">
+    <div class="login-error" id="loginError"></div>
+    <button id="loginBtn">Sign in</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand"><span class="xicon">X</span><span class="t">IS101 · Excel</span></div>
+  <nav>
+    <a href="IS101_START_HERE_06132026_0957.html">&larr; Dashboard</a>
+    <a href="IS101_Excel_Projects_06222026_1122.html">Go to Projects &rarr;</a>
+    <span id="nshe">Not signed in</span>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Domain E4 · MO-210</div>
+    <h1>Perform Operations by Using Formulas and Functions</h1>
+    <p class="lead">Work through each of these 18 skills in real Microsoft Excel, then mark it complete. Each skill maps to a Microsoft Excel Associate (MO-210) exam objective.</p>
+    <div class="reminder"><span>&#128193;</span><span>First, download the starter workbook and open it in Excel. Practice every skill directly in the file — there's no upload here; checkoffs record your progress.</span></div>
+    <div class="hero-actions">
+      <a class="btn btn-light" href="Excel_E4_Starter.xlsx" download>&#11015; Download starter workbook</a>
+      <a class="btn btn-outline" href="Excel_E4_Instructions.pdf" target="_blank">&#128196; Instructions (PDF)</a>
+    </div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progFill"></div></div>
+    <div class="progress-text" id="progText">0 of 18 complete</div>
+  </div>
+</div>
+
+<main id="main">
+  <p class="domain-note">Tip: only one card opens at a time. Click a skill to expand its steps.</p>
+
+    <div class="skill-card" data-skill="cell-references">
+      <div class="skill-header" data-card="cell-references" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Relative, absolute, and mixed references</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Absolute ($) references lock a cell so it doesn't shift when a formula is copied.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">$ toggling (F4)</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click in the formula on a reference.</li><li>Press F4 to cycle A1 → $A$1 → A$1 → $A1.</li><li>Copy the formula to confirm the locked part stays.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Copied formulas keep the $-locked reference fixed.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="cell-references" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Relative,+absolute,+and+mixed+references+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="cell-references">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="structured-references">
+      <div class="skill-header" data-card="structured-references" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Structured references in formulas</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Structured references use table/column names instead of cell addresses, so formulas stay readable.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Table[Column] syntax</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Inside or beside a Table, start a formula.</li><li>Reference a column as TableName[Column].</li><li>Press Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The formula shows the column name in brackets and calculates correctly.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="structured-references" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Structured+references+in+formulas+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="structured-references">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="math-stats-fns">
+      <div class="skill-header" data-card="math-stats-fns" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">AVERAGE, MAX, MIN, SUM</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These core functions total and summarize numeric ranges.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → AutoSum dropdown</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Home → AutoSum dropdown → Sum / Average / Max / Min.</li><li>Confirm the range, Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the calculated total/average/max/min.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="math-stats-fns" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+AVERAGE,+MAX,+MIN,+SUM+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="math-stats-fns">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="count-fns">
+      <div class="skill-header" data-card="count-fns" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">COUNT, COUNTA, COUNTBLANK</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Counting functions tally numbers, non-empty cells, or blanks.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → More Functions → Statistical</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =COUNT(range), =COUNTA(range), or =COUNTBLANK(range).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the count.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="count-fns" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+COUNT,+COUNTA,+COUNTBLANK+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="count-fns">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="if-function">
+      <div class="skill-header" data-card="if-function" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">IF</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>IF returns different results based on a condition — the foundation of logical formulas.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Logical → IF</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =IF(test, value_if_true, value_if_false).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the value matching the condition.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="if-function" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+IF+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="if-function">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="sort-function">
+      <div class="skill-header" data-card="sort-function" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">SORT()</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>SORT() returns a range sorted automatically — a dynamic array that updates with the data.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Lookup & Reference</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click an empty cell with room to spill.</li><li>Type =SORT(range).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The sorted values spill into the adjacent cells.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="sort-function" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+SORT()+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="sort-function">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="unique-function">
+      <div class="skill-header" data-card="unique-function" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">UNIQUE()</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>UNIQUE() extracts distinct values from a range, removing duplicates dynamically.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Lookup & Reference</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click an empty cell with room to spill.</li><li>Type =UNIQUE(range).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The distinct values spill out, duplicates removed.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="unique-function" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+UNIQUE()+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="unique-function">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="left-right-mid">
+      <div class="skill-header" data-card="left-right-mid" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">LEFT, RIGHT, MID</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These extract characters from text — useful for parsing codes and IDs.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Text</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =LEFT(A1,3), =RIGHT(A1,4), or =MID(A1,2,5).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the extracted characters.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="left-right-mid" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+LEFT,+RIGHT,+MID+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="left-right-mid">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="upper-lower-len">
+      <div class="skill-header" data-card="upper-lower-len" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">UPPER, LOWER, LEN</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These change text case or measure length for clean, consistent data.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Text</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =UPPER(A1), =LOWER(A1), or =LEN(A1).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the cased text or character count.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="upper-lower-len" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+UPPER,+LOWER,+LEN+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="upper-lower-len">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="concat-textjoin">
+      <div class="skill-header" data-card="concat-textjoin" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">CONCAT, TEXTJOIN</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These combine text from multiple cells, optionally with a delimiter.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Text</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =CONCAT(A1," ",B1) or =TEXTJOIN(", ",TRUE,A1:A5).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the combined text.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="concat-textjoin" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+CONCAT,+TEXTJOIN+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="concat-textjoin">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="nested-if">
+      <div class="skill-header" data-card="nested-if" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Nested IF</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Nesting IFs handles multiple conditions, like letter-grade bands.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Logical → IF</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =IF(A1>90,"A",IF(A1>80,"B","C")).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell returns the value for the matching band.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="nested-if" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Nested+IF+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="nested-if">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="countif">
+      <div class="skill-header" data-card="countif" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">COUNTIF</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>COUNTIF counts cells that meet one condition.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Statistical</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =COUNTIF(range, criteria).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows how many cells met the condition.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="countif" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+COUNTIF+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="countif">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="sumif">
+      <div class="skill-header" data-card="sumif" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">SUMIF</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>SUMIF adds only the cells that meet a condition.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Math & Trig</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =SUMIF(range, criteria, sum_range).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the conditional total.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="sumif" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+SUMIF+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="sumif">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="today-now">
+      <div class="skill-header" data-card="today-now" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">TODAY, NOW</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These insert the current date or date-and-time, updating automatically.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Date & Time</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =TODAY() or =NOW().</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows today's date (or current date/time).</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="today-now" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+TODAY,+NOW+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="today-now">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="year-month-day">
+      <div class="skill-header" data-card="year-month-day" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">YEAR, MONTH, DAY</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These pull the year, month, or day out of a date value.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Date & Time</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =YEAR(A1), =MONTH(A1), or =DAY(A1).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell shows the extracted date part.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="year-month-day" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+YEAR,+MONTH,+DAY+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="year-month-day">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="vlookup">
+      <div class="skill-header" data-card="vlookup" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">VLOOKUP</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>VLOOKUP finds a value in a table by matching the leftmost column.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Lookup & Reference</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =VLOOKUP(value, table, col_index, FALSE).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell returns the matched value from the table.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="vlookup" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+VLOOKUP+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="vlookup">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="xlookup">
+      <div class="skill-header" data-card="xlookup" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">XLOOKUP</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>XLOOKUP is the modern, flexible replacement for VLOOKUP — searches any direction.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Lookup & Reference</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Type =XLOOKUP(value, lookup_array, return_array).</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell returns the matched value.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="xlookup" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+XLOOKUP+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="xlookup">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="iferror">
+      <div class="skill-header" data-card="iferror" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">IFERROR</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>IFERROR replaces ugly error values with a friendly message or fallback.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Logical</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the result cell.</li><li>Wrap a formula: =IFERROR(formula, "Not found").</li><li>Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Errors display your fallback instead of #N/A or #DIV/0!.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="iferror" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+IFERROR+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="iferror">Mark complete</button>
+        </div>
+      </div>
+    </div>
+</main>
+
+<script>
+const DOMAIN = "E4";
+const TOTAL = 18;
+const TOKEN_KEY = "is101_token";
+const NSHE_KEY = "is101_nshe";
+const LS_PROGRESS = "is101_excel_E4_progress";
+let completed = new Set();
+
+function showLogin(msg){
+  const ov=document.getElementById('loginOverlay');
+  ov.classList.remove('hidden');
+  if(msg) document.getElementById('loginError').textContent=msg;
+}
+function hideLogin(){ document.getElementById('loginOverlay').classList.add('hidden'); }
+
+async function doLogin(){
+  const nshe=(document.getElementById('nsheInput').value||'').trim();
+  const err=document.getElementById('loginError');
+  if(!/^[0-9]{10}$/.test(nshe)){ err.textContent='Enter a valid 10-digit NSHE ID.'; return; }
+  err.textContent='';
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsheId:nshe})});
+    if(!r.ok){ err.textContent='Sign-in failed. Check your ID and try again.'; return; }
+    const data=await r.json();
+    if(data && data.token){ localStorage.setItem(TOKEN_KEY,data.token); }
+    localStorage.setItem(NSHE_KEY,nshe);
+    document.getElementById('nshe').textContent='NSHE '+nshe;
+    hideLogin();
+    loadProgress();
+  }catch(e){ err.textContent='Network error. Try again.'; }
+}
+
+async function handleExpired(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(!nshe){ showLogin(); return false; }
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsheId:nshe})});
+    if(r.ok){ const d=await r.json(); if(d&&d.token) localStorage.setItem(TOKEN_KEY,d.token); return true; }
+  }catch(e){}
+  localStorage.removeItem(TOKEN_KEY);
+  showLogin('Your session expired — please sign in again.');
+  return false;
+}
+
+function authHeaders(){
+  const t=localStorage.getItem(TOKEN_KEY);
+  return t?{'x-session-token':t,'Content-Type':'application/json'}:{'Content-Type':'application/json'};
+}
+
+async function loadProgress(){
+  try{
+    const r=await fetch('/api/progress/skills/'+DOMAIN,{headers:authHeaders()});
+    if(r.status===401){ if(await handleExpired()) return loadProgress(); return; }
+    if(r.ok){
+      const data=await r.json();
+      completed=new Set((data.completed||data.skills||[]));
+      syncFromLS(); render(); return;
+    }
+  }catch(e){}
+  syncFromLS(); render();
+}
+function syncFromLS(){
+  try{ const raw=localStorage.getItem(LS_PROGRESS); if(raw){ JSON.parse(raw).forEach(s=>completed.add(s)); } }catch(e){}
+}
+function saveLS(){ localStorage.setItem(LS_PROGRESS,JSON.stringify([...completed])); }
+
+async function toggleSkill(sid){
+  const nowDone=!completed.has(sid);
+  if(nowDone) completed.add(sid); else completed.delete(sid);
+  saveLS(); render();
+  try{
+    const r=await fetch('/api/progress/skill',{method:'POST',headers:authHeaders(),
+      body:JSON.stringify({domain:DOMAIN,skill:sid,completed:nowDone})});
+    if(r.status===401){ if(await handleExpired()) toggleSkill(sid); }
+  }catch(e){}
+}
+
+function render(){
+  let done=0;
+  document.querySelectorAll('.skill-card').forEach(card=>{
+    const sid=card.getAttribute('data-skill');
+    const is=completed.has(sid);
+    card.classList.toggle('done',is);
+    const btn=card.querySelector('[data-mark]');
+    if(btn) btn.textContent=is?'Completed':'Mark complete';
+    if(is) done++;
+  });
+  const pct=TOTAL?Math.round(done/TOTAL*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progText').textContent=done+' of '+TOTAL+' complete';
+}
+
+async function loadLinkedIn(){
+  try{
+    const r=await fetch('/api/linkedin/'+DOMAIN);
+    if(!r.ok) return;
+    const map=await r.json();
+    document.querySelectorAll('.res-li').forEach(a=>{
+      const sid=a.getAttribute('data-skill');
+      const url=map&&map[sid];
+      if(url){ a.href=url; a.classList.remove('disabled'); a.textContent='LinkedIn Learning'; }
+      else{ a.classList.add('disabled'); a.textContent='LinkedIn (coming soon)'; }
+    });
+  }catch(e){}
+}
+
+document.getElementById('main').addEventListener('click',e=>{
+  const mark=e.target.closest('[data-mark]');
+  if(mark){ e.stopPropagation(); toggleSkill(mark.getAttribute('data-mark')); return; }
+  if(e.target.closest('.resources')) return;
+  const header=e.target.closest('.skill-header');
+  if(!header) return;
+  const card=header.closest('.skill-card');
+  const body=card.querySelector('.skill-body');
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.skill-card.open').forEach(c=>{
+    c.classList.remove('open');
+    c.querySelector('.skill-header').setAttribute('aria-expanded','false');
+    c.querySelector('.skill-body').style.maxHeight='0px';
+  });
+  if(!isOpen){
+    card.classList.add('open');
+    header.setAttribute('aria-expanded','true');
+    body.style.maxHeight=body.scrollHeight+'px';
+  }
+});
+document.getElementById('main').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('skill-header')){
+    e.preventDefault(); e.target.click();
+  }
+});
+
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('nsheInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+(function init(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(nshe){ document.getElementById('nshe').textContent='NSHE '+nshe; hideLogin(); loadProgress(); }
+  else { showLogin(); }
+  loadLinkedIn();
+})();
+</script>
+</body>
+</html>

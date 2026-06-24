@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 Excel E2 — Manage Data Cells and Ranges</title>
+<style>
+:root{
+  --xl-green:#217346; --xl-green-dark:#185c37; --xl-green-light:#e6f2ec;
+  --ink:#1a1a1a; --muted:#5f6b66; --line:#dfe6e2; --bg:#f4f7f5;
+  --gold:#b8860b; --ok:#217346;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+a{color:inherit;}
+.topbar{background:var(--xl-green-dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;position:sticky;top:0;z-index:40;}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.2px;}
+.xicon{background:#fff;color:var(--xl-green-dark);width:26px;height:26px;border-radius:5px;display:grid;place-items:center;font-weight:800;font-size:15px;}
+.topbar nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.topbar nav a,.topbar nav span#nshe{color:#fff;text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.3);}
+.topbar nav a:hover{background:rgba(255,255,255,.14);}
+#nshe{border-style:dashed;opacity:.95;}
+.hero{background:linear-gradient(180deg,var(--xl-green) 0%,var(--xl-green-dark) 100%);color:#fff;padding:26px 20px 30px;}
+.hero-inner{max-width:980px;margin:0 auto;}
+.hero .eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:1.5px;opacity:.85;}
+.hero h1{font-size:27px;margin:4px 0 10px;font-weight:700;}
+.hero p.lead{font-size:15px;max-width:680px;opacity:.95;}
+.hero .reminder{margin-top:14px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:10px 14px;font-size:13.5px;display:flex;gap:8px;align-items:flex-start;}
+.hero-actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;}
+.btn{border:none;border-radius:7px;padding:10px 15px;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-light{background:#fff;color:var(--xl-green-dark);}
+.btn-outline{background:transparent;color:#fff;border:1.5px solid #fff;}
+.btn:hover{opacity:.92;}
+.progress-wrap{max-width:980px;margin:18px auto 0;padding:0 20px;}
+.progress-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:16px;}
+.progress-bar-track{flex:1;height:10px;background:var(--xl-green-light);border-radius:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;width:0;background:var(--xl-green);transition:width .35s ease;}
+.progress-text{font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;}
+main{max-width:980px;margin:20px auto 60px;padding:0 20px;}
+.domain-note{font-size:13px;color:var(--muted);margin:0 2px 14px;}
+.skill-card{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:11px;overflow:hidden;}
+.skill-card.done{border-color:var(--xl-green);}
+.skill-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;gap:12px;user-select:none;}
+.skill-header:hover{background:#fafdfb;}
+.skill-header:focus-visible{outline:3px solid var(--xl-green-light);outline-offset:-3px;}
+.skill-header-left{display:flex;align-items:center;gap:11px;min-width:0;}
+.skill-status-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);flex:none;}
+.skill-card.done .skill-status-dot{background:var(--xl-green);border-color:var(--xl-green);}
+.skill-title{font-size:15px;font-weight:600;}
+.skill-header-right{display:flex;align-items:center;gap:10px;flex:none;}
+.chevron{transition:transform .25s ease;color:var(--muted);font-size:15px;}
+.skill-card.open .chevron{transform:rotate(180deg);}
+.skill-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.skill-body-inner{padding:4px 16px 18px;border-top:1px solid var(--line);}
+.info-block{margin-top:14px;}
+.info-block h4{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--xl-green-dark);margin-bottom:4px;}
+.info-block p,.info-block li{font-size:14px;color:#33403b;}
+.ribbon-path{font-family:'Consolas',monospace;background:var(--xl-green-light);color:var(--xl-green-dark);padding:6px 10px;border-radius:6px;display:inline-block;font-size:13px;}
+.info-block ol{padding-left:20px;}
+.info-block ol li{margin:3px 0;}
+.success-block{background:#f3fbf6;border:1px solid var(--xl-green-light);border-radius:8px;padding:10px 12px;}
+.success-block h4{color:var(--ok);}
+.resources{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.resources-label{font-size:12.5px;color:var(--muted);font-weight:600;}
+.res-btn{font-size:12.5px;text-decoration:none;padding:6px 11px;border-radius:6px;border:1px solid var(--line);color:#33403b;background:#fff;}
+.res-btn:hover{border-color:var(--xl-green);color:var(--xl-green-dark);}
+.res-li.disabled{opacity:.5;pointer-events:none;}
+.mark-btn{margin-top:16px;background:var(--xl-green);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;}
+.mark-btn:hover{background:var(--xl-green-dark);}
+.skill-card.done .mark-btn{background:#fff;color:var(--xl-green-dark);border:1.5px solid var(--xl-green);}
+.skill-card.done .mark-btn::before{content:"\2713 ";}
+.login-overlay{position:fixed;inset:0;background:rgba(24,92,55,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;}
+.login-overlay.hidden{display:none;}
+.login-box{background:#fff;border-radius:14px;padding:28px 26px;width:340px;max-width:92vw;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+.login-box .xicon{width:40px;height:40px;font-size:22px;margin-bottom:12px;}
+.login-box h2{font-size:20px;margin-bottom:5px;}
+.login-box p{font-size:13.5px;color:var(--muted);margin-bottom:16px;}
+.login-box label{font-size:12.5px;font-weight:600;color:var(--muted);}
+.login-box input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;margin:6px 0 4px;}
+.login-box input:focus{outline:none;border-color:var(--xl-green);}
+.login-error{color:#b00020;font-size:12.5px;min-height:16px;margin-bottom:6px;}
+.login-box button{width:100%;background:var(--xl-green);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+.login-box button:hover{background:var(--xl-green-dark);}
+@media(max-width:560px){.hero h1{font-size:22px;}.topbar .brand span.t{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="xicon">X</div>
+    <h2>Sign in to continue</h2>
+    <p>Enter your 10-digit NSHE ID to track your Excel skill progress.</p>
+    <label for="nsheInput">NSHE ID</label>
+    <input id="nsheInput" inputmode="numeric" maxlength="10" placeholder="e.g. 1000123456" autocomplete="off">
+    <div class="login-error" id="loginError"></div>
+    <button id="loginBtn">Sign in</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand"><span class="xicon">X</span><span class="t">IS101 · Excel</span></div>
+  <nav>
+    <a href="IS101_START_HERE_06132026_0957.html">&larr; Dashboard</a>
+    <a href="IS101_Excel_Projects_06222026_1122.html">Go to Projects &rarr;</a>
+    <span id="nshe">Not signed in</span>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Domain E2 · MO-210</div>
+    <h1>Manage Data Cells and Ranges</h1>
+    <p class="lead">Work through each of these 19 skills in real Microsoft Excel, then mark it complete. Each skill maps to a Microsoft Excel Associate (MO-210) exam objective.</p>
+    <div class="reminder"><span>&#128193;</span><span>First, download the starter workbook and open it in Excel. Practice every skill directly in the file — there's no upload here; checkoffs record your progress.</span></div>
+    <div class="hero-actions">
+      <a class="btn btn-light" href="Excel_E2_Starter.xlsx" download>&#11015; Download starter workbook</a>
+      <a class="btn btn-outline" href="Excel_E2_Instructions.pdf" target="_blank">&#128196; Instructions (PDF)</a>
+    </div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progFill"></div></div>
+    <div class="progress-text" id="progText">0 of 19 complete</div>
+  </div>
+</div>
+
+<main id="main">
+  <p class="domain-note">Tip: only one card opens at a time. Click a skill to expand its steps.</p>
+
+    <div class="skill-card" data-skill="paste-special">
+      <div class="skill-header" data-card="paste-special" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Paste using special paste options</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Paste Special lets you paste only values, formats, or formulas — not everything at once.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Paste → Paste Special</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Copy the source.</li><li>Home → Paste dropdown → Paste Special.</li><li>Choose Values, Formats, or Transpose, then OK.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Only the chosen aspect (e.g. values) is pasted.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="paste-special" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Paste+using+special+paste+options+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="paste-special">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="autofill">
+      <div class="skill-header" data-card="autofill" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Fill cells by using AutoFill</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>AutoFill extends a series (months, numbers, dates) without retyping each value.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Fill handle drag / Home → Fill</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Type the first value(s) to establish the pattern.</li><li>Select them and drag the fill handle (bottom-right corner) across the blank cells.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The blank cells fill with the continued series (e.g. Jan, Feb, Mar…).</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="autofill" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Fill+cells+by+using+AutoFill+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="autofill">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="insert-delete-cols-rows">
+      <div class="skill-header" data-card="insert-delete-cols-rows" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Insert and delete multiple columns or rows</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Adding or removing whole columns/rows restructures a sheet quickly.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Insert / Delete</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the column/row headers.</li><li>Right-click → Insert or Delete (or Home → Insert/Delete).</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The columns/rows are added or removed and data shifts accordingly.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="insert-delete-cols-rows" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Insert+and+delete+multiple+columns+or+rows+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="insert-delete-cols-rows">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="insert-delete-cells">
+      <div class="skill-header" data-card="insert-delete-cells" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Insert and delete cells</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Inserting or deleting individual cells shifts surrounding data precisely.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Insert / Delete Cells</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cell(s).</li><li>Home → Insert → Insert Cells (or Delete).</li><li>Choose the shift direction.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Cells are inserted/deleted with the chosen shift.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="insert-delete-cells" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Insert+and+delete+cells+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="insert-delete-cells">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="randbetween-sequence">
+      <div class="skill-header" data-card="randbetween-sequence" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Generate data: RANDBETWEEN(), SEQUENCE()</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>These functions generate test data or numbered sequences automatically.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Math & Trig</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the target cell.</li><li>Type =RANDBETWEEN(1,100) for a random number, or =SEQUENCE(10) for 1–10.</li><li>Press Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cell(s) populate with generated values.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="randbetween-sequence" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Generate+data:+RANDBETWEEN(),+SEQUENCE()+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="randbetween-sequence">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="merge-unmerge">
+      <div class="skill-header" data-card="merge-unmerge" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Merge and unmerge cells</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Merging creates a spanning title across columns; unmerging restores separate cells.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Merge & Center</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells to merge.</li><li>Home → Merge & Center (or Merge Across).</li><li>To undo, select and click Unmerge Cells.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The selected cells become one spanning cell (or split back apart).</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="merge-unmerge" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Merge+and+unmerge+cells+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="merge-unmerge">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="cell-alignment">
+      <div class="skill-header" data-card="cell-alignment" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Modify alignment, orientation, indentation</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Alignment and indentation make data easier to read and visually organized.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Alignment group</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells.</li><li>Use the Alignment group buttons (horizontal/vertical, indent, orientation).</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The text aligns, indents, or rotates as set.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="cell-alignment" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Modify+alignment,+orientation,+indentation+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="cell-alignment">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="format-painter-xl">
+      <div class="skill-header" data-card="format-painter-xl" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Format cells by using Format Painter</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Format Painter copies a cell's formatting onto others instantly.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Format Painter</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click a cell with the desired formatting.</li><li>Click Format Painter.</li><li>Drag across the target cells.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The target cells take on the copied formatting.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="format-painter-xl" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Format+cells+by+using+Format+Painter+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="format-painter-xl">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="wrap-text-xl">
+      <div class="skill-header" data-card="wrap-text-xl" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Wrap text within cells</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Wrapping shows long text on multiple lines inside one cell instead of spilling over.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Wrap Text</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells.</li><li>Home → Wrap Text.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Long content displays on multiple lines within the cell.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="wrap-text-xl" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Wrap+text+within+cells+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="wrap-text-xl">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="number-formats">
+      <div class="skill-header" data-card="number-formats" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Apply number formats</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Number formats display values as currency, percentages, or dates without changing the underlying number.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Number group</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells.</li><li>Home → Number group → pick a format (Currency, %, Date).</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Values display in the chosen format (e.g. $1,250.00).</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="number-formats" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Apply+number+formats+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="number-formats">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="format-cells">
+      <div class="skill-header" data-card="format-cells" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Apply cell formats (font, fill, border)</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Fonts, fills, and borders give a sheet visual structure and emphasis.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Format Cells dialog (Ctrl+1)</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells.</li><li>Press Ctrl+1.</li><li>Set Font, Fill, and Border on the relevant tabs, OK.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cells show the chosen font, fill color, and borders.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="format-cells" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Apply+cell+formats+(font,+fill,+border)+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="format-cells">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="cell-styles">
+      <div class="skill-header" data-card="cell-styles" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Apply cell styles (named)</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Named cell styles (Good, Bad, Heading) apply consistent formatting in one click.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Cell Styles</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells.</li><li>Home → Cell Styles.</li><li>Pick a named style (e.g. Good, Heading 1).</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cells take on the named style's formatting.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="cell-styles" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Apply+cell+styles+(named)+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="cell-styles">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="clear-formatting">
+      <div class="skill-header" data-card="clear-formatting" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Clear cell formatting</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Clearing formatting strips styling while keeping the data.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Clear → Clear Formats</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the cells.</li><li>Home → Clear → Clear Formats.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The cells return to default formatting, data intact.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="clear-formatting" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Clear+cell+formatting+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="clear-formatting">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="group-worksheets">
+      <div class="skill-header" data-card="group-worksheets" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Format multiple worksheets by grouping</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Grouping sheets applies the same edits to all of them at once.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Shift/Ctrl-click sheet tabs</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the first sheet tab.</li><li>Shift- or Ctrl-click others to group.</li><li>Make edits; right-click → Ungroup when done.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Edits apply identically across all grouped sheets.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="group-worksheets" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Format+multiple+worksheets+by+grouping+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="group-worksheets">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="define-named-range">
+      <div class="skill-header" data-card="define-named-range" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Define a named range</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>A named range gives a meaningful label to cells so formulas read clearly.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Formulas → Define Name / Name Box</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the range.</li><li>Type a name in the Name Box and press Enter (or Formulas → Define Name).</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The name appears in the Name Box dropdown and Name Manager.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="define-named-range" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Define+a+named+range+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="define-named-range">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="reference-named-range">
+      <div class="skill-header" data-card="reference-named-range" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Reference a named range</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Using a name in a formula is clearer than raw cell addresses.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Use the name inside a formula</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Click the target cell.</li><li>Type a formula using the name, e.g. =SUM(Sales).</li><li>Press Enter.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The formula calculates using the named range.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="reference-named-range" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Reference+a+named+range+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="reference-named-range">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="sparklines">
+      <div class="skill-header" data-card="sparklines" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Insert Sparklines</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Sparklines are tiny in-cell charts that show a trend at a glance.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Insert → Sparklines</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the data range.</li><li>Insert → Sparklines → Line (or Column).</li><li>Choose the location cell, OK.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>A miniature chart appears inside the chosen cell.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="sparklines" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Insert+Sparklines+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="sparklines">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="conditional-formatting">
+      <div class="skill-header" data-card="conditional-formatting" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Apply built-in conditional formatting</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Conditional formatting highlights cells automatically based on rules.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Conditional Formatting</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the range.</li><li>Home → Conditional Formatting.</li><li>Pick a rule (Highlight Cells, Data Bars, Color Scales).</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>Cells change appearance based on their values.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="conditional-formatting" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Apply+built-in+conditional+formatting+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="conditional-formatting">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" data-skill="remove-conditional-formatting">
+      <div class="skill-header" data-card="remove-conditional-formatting" role="button" tabindex="0" aria-expanded="false">
+        <div class="skill-header-left">
+          <span class="skill-status-dot" aria-hidden="true"></span>
+          <span class="skill-title">Remove conditional formatting</span>
+        </div>
+        <div class="skill-header-right">
+          <span class="chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-body-inner">
+          <div class="info-block"><h4>Why this matters</h4><p>Clearing rules removes the automatic highlighting.</p></div>
+          <div class="info-block"><h4>Where to find it</h4><p class="ribbon-path">Home → Conditional Formatting → Clear Rules</p></div>
+          <div class="info-block"><h4>How to do it</h4><ol><li>Select the range.</li><li>Home → Conditional Formatting → Clear Rules → Clear from Selected Cells.</li></ol></div>
+          <div class="info-block success-block"><h4>How you'll know it worked</h4><p>The conditional highlighting is removed.</p></div>
+          <div class="resources">
+            <span class="resources-label">Learn more:</span>
+            <a class="res-btn res-li" data-res="linkedin" data-skill="remove-conditional-formatting" href="#" target="_blank" rel="noopener">LinkedIn Learning</a>
+            <a class="res-btn res-px" href="https://www.perplexity.ai/search?q=Excel+Remove+conditional+formatting+how+to" target="_blank" rel="noopener">Perplexity</a>
+            <a class="res-btn res-ms" href="https://support.microsoft.com/en-us/excel" target="_blank" rel="noopener">Microsoft Support</a>
+          </div>
+          <button class="mark-btn" data-mark="remove-conditional-formatting">Mark complete</button>
+        </div>
+      </div>
+    </div>
+</main>
+
+<script>
+const DOMAIN = "E2";
+const TOTAL = 19;
+const TOKEN_KEY = "is101_token";
+const NSHE_KEY = "is101_nshe";
+const LS_PROGRESS = "is101_excel_E2_progress";
+let completed = new Set();
+
+function showLogin(msg){
+  const ov=document.getElementById('loginOverlay');
+  ov.classList.remove('hidden');
+  if(msg) document.getElementById('loginError').textContent=msg;
+}
+function hideLogin(){ document.getElementById('loginOverlay').classList.add('hidden'); }
+
+async function doLogin(){
+  const nshe=(document.getElementById('nsheInput').value||'').trim();
+  const err=document.getElementById('loginError');
+  if(!/^[0-9]{10}$/.test(nshe)){ err.textContent='Enter a valid 10-digit NSHE ID.'; return; }
+  err.textContent='';
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsheId:nshe})});
+    if(!r.ok){ err.textContent='Sign-in failed. Check your ID and try again.'; return; }
+    const data=await r.json();
+    if(data && data.token){ localStorage.setItem(TOKEN_KEY,data.token); }
+    localStorage.setItem(NSHE_KEY,nshe);
+    document.getElementById('nshe').textContent='NSHE '+nshe;
+    hideLogin();
+    loadProgress();
+  }catch(e){ err.textContent='Network error. Try again.'; }
+}
+
+async function handleExpired(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(!nshe){ showLogin(); return false; }
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsheId:nshe})});
+    if(r.ok){ const d=await r.json(); if(d&&d.token) localStorage.setItem(TOKEN_KEY,d.token); return true; }
+  }catch(e){}
+  localStorage.removeItem(TOKEN_KEY);
+  showLogin('Your session expired — please sign in again.');
+  return false;
+}
+
+function authHeaders(){
+  const t=localStorage.getItem(TOKEN_KEY);
+  return t?{'x-session-token':t,'Content-Type':'application/json'}:{'Content-Type':'application/json'};
+}
+
+async function loadProgress(){
+  try{
+    const r=await fetch('/api/progress/skills/'+DOMAIN,{headers:authHeaders()});
+    if(r.status===401){ if(await handleExpired()) return loadProgress(); return; }
+    if(r.ok){
+      const data=await r.json();
+      completed=new Set((data.completed||data.skills||[]));
+      syncFromLS(); render(); return;
+    }
+  }catch(e){}
+  syncFromLS(); render();
+}
+function syncFromLS(){
+  try{ const raw=localStorage.getItem(LS_PROGRESS); if(raw){ JSON.parse(raw).forEach(s=>completed.add(s)); } }catch(e){}
+}
+function saveLS(){ localStorage.setItem(LS_PROGRESS,JSON.stringify([...completed])); }
+
+async function toggleSkill(sid){
+  const nowDone=!completed.has(sid);
+  if(nowDone) completed.add(sid); else completed.delete(sid);
+  saveLS(); render();
+  try{
+    const r=await fetch('/api/progress/skill',{method:'POST',headers:authHeaders(),
+      body:JSON.stringify({domain:DOMAIN,skill:sid,completed:nowDone})});
+    if(r.status===401){ if(await handleExpired()) toggleSkill(sid); }
+  }catch(e){}
+}
+
+function render(){
+  let done=0;
+  document.querySelectorAll('.skill-card').forEach(card=>{
+    const sid=card.getAttribute('data-skill');
+    const is=completed.has(sid);
+    card.classList.toggle('done',is);
+    const btn=card.querySelector('[data-mark]');
+    if(btn) btn.textContent=is?'Completed':'Mark complete';
+    if(is) done++;
+  });
+  const pct=TOTAL?Math.round(done/TOTAL*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progText').textContent=done+' of '+TOTAL+' complete';
+}
+
+async function loadLinkedIn(){
+  try{
+    const r=await fetch('/api/linkedin/'+DOMAIN);
+    if(!r.ok) return;
+    const map=await r.json();
+    document.querySelectorAll('.res-li').forEach(a=>{
+      const sid=a.getAttribute('data-skill');
+      const url=map&&map[sid];
+      if(url){ a.href=url; a.classList.remove('disabled'); a.textContent='LinkedIn Learning'; }
+      else{ a.classList.add('disabled'); a.textContent='LinkedIn (coming soon)'; }
+    });
+  }catch(e){}
+}
+
+document.getElementById('main').addEventListener('click',e=>{
+  const mark=e.target.closest('[data-mark]');
+  if(mark){ e.stopPropagation(); toggleSkill(mark.getAttribute('data-mark')); return; }
+  if(e.target.closest('.resources')) return;
+  const header=e.target.closest('.skill-header');
+  if(!header) return;
+  const card=header.closest('.skill-card');
+  const body=card.querySelector('.skill-body');
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.skill-card.open').forEach(c=>{
+    c.classList.remove('open');
+    c.querySelector('.skill-header').setAttribute('aria-expanded','false');
+    c.querySelector('.skill-body').style.maxHeight='0px';
+  });
+  if(!isOpen){
+    card.classList.add('open');
+    header.setAttribute('aria-expanded','true');
+    body.style.maxHeight=body.scrollHeight+'px';
+  }
+});
+document.getElementById('main').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('skill-header')){
+    e.preventDefault(); e.target.click();
+  }
+});
+
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('nsheInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+(function init(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(nshe){ document.getElementById('nshe').textContent='NSHE '+nshe; hideLogin(); loadProgress(); }
+  else { showLogin(); }
+  loadLinkedIn();
+})();
+</script>
+</body>
+</html>

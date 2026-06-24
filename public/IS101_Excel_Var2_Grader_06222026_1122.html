@@ -141,7 +141,7 @@ async function doLogin(){
   if(!/^[0-9]{10}$/.test(nshe)){err.textContent='Enter a valid 10-digit NSHE ID.';return;}
   err.textContent='';
   try{
-    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nshe})});
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsheId:nshe})});
     if(!r.ok){err.textContent='Sign-in failed. Check your ID.';return;}
     const d=await r.json();
     if(d&&d.token)localStorage.setItem(TOKEN_KEY,d.token);
@@ -154,7 +154,7 @@ async function reLogin(){
   const nshe=localStorage.getItem(NSHE_KEY);
   if(!nshe){showLogin();return false;}
   try{
-    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nshe})});
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nsheId:nshe})});
     if(r.ok){const d=await r.json();if(d&&d.token)localStorage.setItem(TOKEN_KEY,d.token);return true;}
   }catch(e){}
   localStorage.removeItem(TOKEN_KEY);
