@@ -729,6 +729,238 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
   }
 });
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXCEL PROJECT GRADERS (MO-210) — Core1, Core2, Var1, Var2
+// Ported from validated reference logic. Defeats the documented Excel gotchas:
+//  - decode XML entities before matching formula operators
+//  - read <f> (formula) not <v> (cached value)
+//  - resolve cell s= -> <xf> in <cellXfs> for applied formatting (not style defs)
+//  - require non-empty/non-default values (openpyxl boilerplate)
+//  - tables/charts/drawings/chartsheets live in separate parts
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Shared helpers for Excel grading
+function xlHelpers(zip) {
+  const names = zip.getEntries().map(e => e.entryName);
+  const read = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
+  const P = {}; names.forEach(n => { P[n] = read(n); });
+  const sheet = (i) => P['xl/worksheets/sheet'+i+'.xml'] || '';
+  const styles = P['xl/styles.xml'] || '';
+  const wbxml = P['xl/workbook.xml'] || '';
+  const core = P['docProps/core.xml'] || '';
+  const shared = P['xl/sharedStrings.xml'] || '';
+  const tables = names.filter(n => n.startsWith('xl/tables/')).map(n => P[n]);
+  const charts = names.filter(n => n.startsWith('xl/charts/chart')).map(n => P[n]);
+  const chartXml = charts.join('');
+  const chartsheets = names.filter(n => n.startsWith('xl/chartsheets/'));
+  const drawings = names.filter(n => n.startsWith('xl/drawings/drawing')).map(n => P[n]).join('');
+  const hasComments = names.some(n => n.toLowerCase().includes('comment'));
+  const decode = (s) => s.replace(/&gt;/g,'>').replace(/&lt;/g,'<').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&');
+  // cellXfs extraction
+  const cxMatch = styles.match(/<cellXfs[\s\S]*?<\/cellXfs>/);
+  const CX = cxMatch ? cxMatch[0] : '';
+  const XFS = CX.match(/<xf\b[^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g) || [];
+  const usedStyles = (sx) => { const s=new Set(); let m; const re=/<c [^>]*s="(\d+)"/g; while((m=re.exec(sx))) s.add(parseInt(m[1])); return s; };
+  const anyXf = (sx, pred) => { for (const i of usedStyles(sx)) { if (i < XFS.length && pred(XFS[i])) return true; } return false; };
+  const formulas = (sx) => { const out=[]; let m; const re=/<f[^>]*>([\s\S]*?)<\/f>/g; while((m=re.exec(sx))) out.push(decode(m[1])); return out; };
+  return { names, P, sheet, styles, wbxml, core, shared, tables, charts, chartXml, chartsheets, drawings, hasComments, XFS, usedStyles, anyXf, formulas };
+}
+
+// ── CORE 1 — Desert Sun Consulting (25 tasks) ───────────────────────────────────
+app.post('/api/grade/excel-core1', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.xlsx') { try { fs.unlinkSync(req.file.path); } catch(e){} return res.status(400).json({ error: 'Please upload a .xlsx file.' }); }
+  try {
+    let AdmZip; try { AdmZip = require('adm-zip'); } catch(e) { return res.status(500).json({ error: 'adm-zip module not installed.' }); }
+    const zip = new AdmZip(req.file.path);
+    const H = xlHelpers(zip);
+    try { fs.unlinkSync(req.file.path); } catch(e){}
+    const billing = H.sheet(1), clients = H.sheet(2);
+    const results=[]; let earned=0, total=0;
+    const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
+    const usedNumFmt = (sx) => { for (const i of H.usedStyles(sx)) { if(i<H.XFS.length){ const m=H.XFS[i].match(/numFmtId="(\d+)"/); if(m && m[1]!=='0' && m[1]!=='164') return true; } } return false; };
+
+    check(1,5,'Import client roster from clients.csv',(clients+H.shared).includes('C-101')&&(clients+H.shared).includes('Aurora Logistics')&&(clients+H.shared).includes('Henderson'),'Client roster imported.','Import the clients.csv data into the Clients sheet (Data > Get Data > From Text/CSV).');
+    check(2,3,'Set Billing sheet to Landscape',billing.includes('orientation="landscape"'),'Landscape set.','Set Page Layout > Orientation > Landscape.');
+    check(3,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(billing)||(billing.includes('Desert Sun')&&billing.includes('<oddHeader')),'Header/footer added.','Add Insert > Header & Footer with company name + page number.');
+    check(4,3,'Freeze top header row',billing.includes('state="frozen"'),'Panes frozen.','Use View > Freeze Panes.');
+    check(5,3,'Set workbook properties (Title, Author)',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set File > Info > Title and Author.');
+    check(6,3,'Set print area',H.wbxml.includes('Print_Area'),'Print area set.','Set Page Layout > Print Area > Set Print Area.');
+    check(7,4,'Insert hyperlink in A1',billing.includes('<hyperlink')||H.names.some(n=>n.endsWith('.rels')&&n.includes('sheet1')&&H.P[n].toLowerCase().includes('hyperlink')),'Hyperlink added.','Add a hyperlink in A1 (Insert > Link).');
+    check(8,3,'Merge & center title A1:F1',billing.includes('<mergeCell ref="A1:F1"'),'Title merged.','Merge & Center A1:F1 (Home > Merge & Center).');
+    check(9,3,'Center-align header row',H.anyXf(billing,x=>x.includes('horizontal="center"')),'Headers centered.','Center-align the header row.');
+    check(10,3,'Format Amount Billed as Currency',usedNumFmt(billing)||/formatCode="[^"]*\$[^"]*"/.test(H.styles),'Currency applied.','Format the Amount Billed column as Currency.');
+    check(11,3,'Bold + fill header row',H.anyXf(billing,x=>(/applyFill="(1|true)"/.test(x))&&((x.match(/fillId="(\d+)"/)||[])[1]!=='0')),'Header filled.','Apply bold font and a fill color to the header row.');
+    check(12,3,'Wrap text in Notes column',H.anyXf(billing,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Enable Wrap Text on the Notes column.');
+    check(13,4,'Name range "Billing"',/<definedName[^>]*\bname="Billing"/.test(H.wbxml),'Named range defined.','Define a named range called Billing.');
+    check(14,5,'Conditional formatting on overdue',billing.includes('<conditionalFormatting'),'Conditional formatting found.','Highlight overdue invoices with Conditional Formatting.');
+    check(15,5,'Sparklines for monthly hours',billing.toLowerCase().includes('sparkline'),'Sparklines added.','Add line sparklines (Insert > Sparklines).');
+    check(16,5,'Convert range to Excel Table',H.tables.some(t=>t.includes('BillingTable')),'Table created.','Convert the billing range to a Table (Ctrl+T).');
+    check(17,3,'Apply a Medium table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a Medium table style.');
+    check(18,5,'Add Total Row summing Amount Billed',H.tables.some(t=>t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row (Table Design > Total Row).');
+    check(19,5,'Filter to Active clients',billing.includes('<autoFilter')&&billing.includes('<filterColumn'),'Filter applied.','Filter the table to Active clients.');
+    check(20,3,'Sort by Client then Invoice Date',billing.includes('<sortState')&&(billing.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort by Client then Invoice Date (Data > Sort > Add Level).');
+    check(21,5,'Create Column chart of revenue',H.charts.length>=1,'Chart created.','Insert a Column chart of revenue by client.');
+    check(22,6,'Add second data series (prior year)',(H.chartXml.match(/<c:ser>/g)||[]).length>=2,'Second series added.','Add a prior-year data series (Chart Design > Select Data > Add).');
+    check(23,5,'Add data labels and axis title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and an axis title.');
+    check(24,5,'Apply a chart style',H.chartXml.includes('<c:style ')||(H.chartXml.includes('<mc:Choice')&&H.chartXml.toLowerCase().includes('style')),'Chart style applied.','Apply a chart style from the gallery.');
+    check(25,4,'Add chart alt text',/descr="[^"]{5,}"/.test(H.drawings),'Alt text added.','Add alternative text to the chart (right-click > Edit Alt Text).');
+
+    const pct=Math.round(earned/total*100);
+    stmts.savePracticeGrade.run(req.nsheId,'ExcelCore1',null,earned,total,JSON.stringify(results));
+    res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
+  } catch(err) { console.error('ExcelCore1 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
+});
+
+// ── CORE 2 — Nevada Valley Healthcare (26 tasks) ────────────────────────────────
+app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.xlsx') { try { fs.unlinkSync(req.file.path); } catch(e){} return res.status(400).json({ error: 'Please upload a .xlsx file.' }); }
+  try {
+    let AdmZip; try { AdmZip = require('adm-zip'); } catch(e) { return res.status(500).json({ error: 'adm-zip module not installed.' }); }
+    const zip = new AdmZip(req.file.path);
+    const H = xlHelpers(zip);
+    try { fs.unlinkSync(req.file.path); } catch(e){}
+    const roster = H.sheet(1);
+    const results=[]; let earned=0, total=0;
+    const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
+
+    check(1,4,'Set column width and row height',(roster.includes('customWidth="1"')||roster.includes('customWidth="true"'))&&(roster.includes('customHeight="1"')||roster.includes('customHeight="true"')),'Sizes set.','Set Department column width to 28 and header row height to 30.');
+    check(2,5,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(roster)||(roster.includes('Staffing')&&roster.includes('<oddHeader')),'Header/footer added.','Add a header and a footer with the sheet name.');
+    check(3,4,'Switch to Page Layout view',roster.includes('view="pageLayout"'),'Page Layout view set.','Switch the Roster sheet to Page Layout view (View tab).');
+    check(4,3,'Set print area',H.wbxml.includes('Print_Area'),'Print area set.','Set the print area to the roster range.');
+    check(5,3,'Configure print to fit one page wide',roster.includes('fitToPage="1"')||roster.includes('fitToPage="true"'),'Fit-to-page set.','Configure print settings to fit all columns on one page wide.');
+    check(6,5,'Add comment on PTO column',H.hasComments,'Comment added.','Add a comment on the PTO column (Review > New Comment).');
+    check(7,5,'AutoFill shift weeks',(roster+H.shared).includes('Week 12'),'Series filled.','AutoFill the shift-week series through Week 12.');
+    check(8,3,'Apply a named cell style to title',H.XFS.some((x,i)=>H.usedStyles(roster).has(i)&&/xfId="[1-9]/.test(x)),'Cell style applied.','Apply a named cell style (e.g. Title/Heading) to the workbook title.');
+    check(9,4,'Apply borders to roster grid',H.anyXf(roster,x=>(/applyBorder="(1|true)"/.test(x))&&((x.match(/borderId="(\d+)"/)||[])[1]!=='0')),'Borders applied.','Apply borders to the roster grid (Format Cells > Border).');
+    check(10,3,'Format Hourly Rate as Currency',(()=>{for(const i of H.usedStyles(roster)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format the Hourly Rate column as Currency.');
+    check(11,5,'Add column sparklines',roster.toLowerCase().includes('sparkline'),'Sparklines added.','Add column sparklines for weekly shift counts.');
+    check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:G1"'),'Banner merged.','Merge and center the section banner across the table.');
+    check(13,5,'Convert roster to Table',H.tables.some(t=>t.includes('RosterTable')),'Roster table created.','Convert the staffing roster to an Excel Table.');
+    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row (Table Design > Style Options).');
+    check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
+    check(16,4,'Apply a table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table.');
+    check(17,3,'Filter to Emergency department',roster.includes('<autoFilter')&&roster.includes('<filterColumn'),'Filter applied.','Filter the roster to the Emergency department.');
+    check(18,3,'Freeze first column',roster.includes('state="frozen"'),'Column frozen.','Freeze the first column (View > Freeze Panes > Freeze First Column).');
+    check(19,3,'Vertically center cells',H.anyXf(roster,x=>x.includes('vertical="center"')),'Cells centered.','Vertically center all cells in the roster.');
+    check(20,2,'Wrap text in Responsibilities',H.anyXf(roster,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the Responsibilities column.');
+    check(21,4,'Apply color scale',roster.includes('<conditionalFormatting')&&(roster.includes('colorScale')||roster.includes('cfvo')),'Color scale applied.','Apply a color scale to the weekly hours columns.');
+    check(22,5,'Create Bar chart',H.charts.length>=1,'Chart created.','Create a Bar chart of headcount by department.');
+    check(23,5,'Move chart to its own sheet',H.chartsheets.length>=1,'Chart sheet created.','Move the chart to its own chart sheet (Chart Design > Move Chart > New sheet).');
+    check(24,4,'Apply a chart style',H.chartXml.includes('<c:style ')||(H.chartXml.includes('<mc:Choice')&&H.chartXml.toLowerCase().includes('style')),'Chart style applied.','Apply a chart style to the headcount chart.');
+    check(25,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title, Author, and Subject workbook properties.');
+    check(26,3,'Apply Percentage format to Coverage %',/formatCode="[^"]*%[^"]*"/.test(H.styles)||H.XFS.some((x,i)=>H.usedStyles(roster).has(i)&&/numFmtId="(9|10)"/.test(x)),'Percentage applied.','Apply Percentage format to the Coverage % column.');
+
+    const pct=Math.round(earned/total*100);
+    stmts.savePracticeGrade.run(req.nsheId,'ExcelCore2',null,earned,total,JSON.stringify(results));
+    res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
+  } catch(err) { console.error('ExcelCore2 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
+});
+
+// ── VARIATION 1 — CSN Grade Book (26 tasks, formulas) ───────────────────────────
+app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.xlsx') { try { fs.unlinkSync(req.file.path); } catch(e){} return res.status(400).json({ error: 'Please upload a .xlsx file.' }); }
+  try {
+    let AdmZip; try { AdmZip = require('adm-zip'); } catch(e) { return res.status(500).json({ error: 'adm-zip module not installed.' }); }
+    const zip = new AdmZip(req.file.path);
+    const H = xlHelpers(zip);
+    try { fs.unlinkSync(req.file.path); } catch(e){}
+    const grades = H.sheet(1);
+    const F = H.formulas(grades);
+    const Fj = F.join(' ').toUpperCase();
+    const fn = (...xs) => xs.some(x => Fj.includes(x.toUpperCase()));
+    const results=[]; let earned=0, total=0;
+    const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
+
+    check(1,3,'Freeze header row and name column',grades.includes('state="frozen"'),'Panes frozen.','Freeze the header row and student-name column.');
+    check(2,3,'Add comment on curve column',H.hasComments,'Comment added.','Add a comment on the curve column.');
+    check(3,2,'Percent format on percentage columns',/formatCode="[^"]*%[^"]*"/.test(H.styles)||H.XFS.some((x,i)=>H.usedStyles(grades).has(i)&&/numFmtId="(9|10)"/.test(x)),'Percent applied.','Format the percentage columns with Percent format.');
+    check(4,3,'Conditional formatting on failing scores',grades.includes('<conditionalFormatting'),'Conditional formatting found.','Highlight failing scores (below 60) in red.');
+    check(5,3,'Name range "GradeScale"',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Define a named range called GradeScale.');
+    check(6,3,'Reference GradeScale in a formula',Fj.includes('GRADESCALE'),'Named range used.','Use the GradeScale named range inside a lookup formula.');
+    check(7,2,'Wrap text in feedback column',H.anyXf(grades,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the instructor-feedback column.');
+    check(8,3,'Convert grade data to Table',H.tables.some(t=>t.includes('GradeTable')),'Table created.','Convert the grade data to an Excel Table.');
+    check(9,3,'Sort by final grade then last name',grades.includes('<sortState')&&(grades.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort by final grade (desc) then last name (asc).');
+    check(10,6,'SUM and AVERAGE',fn('SUM(')&&fn('AVERAGE('),'SUM/AVERAGE used.','Use SUM and AVERAGE to total and average each student\u2019s scores.');
+    check(11,4,'COUNT / COUNTA',fn('COUNT(','COUNTA(','COUNTBLANK('),'COUNT used.','Use COUNT/COUNTA to tally submitted assignments.');
+    check(12,4,'Absolute reference',F.some(f=>f.includes('$')),'Absolute reference used.','Use an absolute reference ($) to the total-points cell.');
+    check(13,5,'IF Pass/Fail',fn('IF('),'IF used.','Use IF to mark each student Pass or Fail.');
+    check(14,6,'Nested IF letter grade',F.some(f=>(f.toUpperCase().match(/IF\(/g)||[]).length>=2),'Nested IF used.','Use a nested IF to assign letter grades A\u2013F.');
+    check(15,4,'COUNTIF for A grades',fn('COUNTIF('),'COUNTIF used.','Use COUNTIF to count how many students earned an A.');
+    check(16,6,'VLOOKUP letter grade',fn('VLOOKUP('),'VLOOKUP used.','Use VLOOKUP against the grade scale to return each letter grade.');
+    check(17,5,'IFERROR wrapping VLOOKUP',fn('IFERROR('),'IFERROR used.','Wrap the VLOOKUP in IFERROR to show \u201cCheck\u201d on errors.');
+    check(18,3,'TODAY() report date',fn('TODAY(','NOW('),'TODAY used.','Use TODAY() to stamp the report-generated date.');
+    check(19,4,'Create Column chart',H.charts.length>=1,'Chart created.','Create a Column chart of class average by assignment.');
+    check(20,4,'Add data labels and chart title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and a chart title.');
+    check(21,3,'Add chart alt text',/descr="[^"]{5,}"/.test(H.drawings),'Alt text added.','Add alternative text to the class-average chart.');
+    check(22,3,'Bold and shade header row',H.anyXf(grades,x=>(/applyFill="(1|true)"/.test(x))&&((x.match(/fillId="(\d+)"/)||[])[1]!=='0')),'Header shaded.','Bold and shade the header row.');
+    check(23,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(grades)||(grades.includes('Grade Book')&&grades.includes('<oddHeader')),'Header/footer added.','Add a header with the course name and a footer page number.');
+    check(24,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author workbook properties.');
+    check(25,3,'Filter to failing students',grades.includes('<autoFilter')&&grades.includes('<filterColumn'),'Filter applied.','Filter to students currently failing.');
+    check(26,8,'Center score columns',H.anyXf(grades,x=>x.includes('horizontal="center"')),'Scores centered.','Center the score columns.');
+
+    const pct=Math.round(earned/total*100);
+    stmts.savePracticeGrade.run(req.nsheId,'ExcelVar1',null,earned,total,JSON.stringify(results));
+    res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
+  } catch(err) { console.error('ExcelVar1 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
+});
+
+// ── VARIATION 2 — Oasis Events Inventory (25 tasks, formulas) ────────────────────
+app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.xlsx') { try { fs.unlinkSync(req.file.path); } catch(e){} return res.status(400).json({ error: 'Please upload a .xlsx file.' }); }
+  try {
+    let AdmZip; try { AdmZip = require('adm-zip'); } catch(e) { return res.status(500).json({ error: 'adm-zip module not installed.' }); }
+    const zip = new AdmZip(req.file.path);
+    const H = xlHelpers(zip);
+    try { fs.unlinkSync(req.file.path); } catch(e){}
+    const inv = H.sheet(1);
+    const F = H.formulas(inv);
+    const Fj = F.join(' ').toUpperCase();
+    const fn = (...xs) => xs.some(x => Fj.includes(x.toUpperCase()));
+    const results=[]; let earned=0, total=0;
+    const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
+
+    check(1,2,'Turn on Show Formulas',inv.includes('showFormulas="1"')||inv.includes('showFormulas="true"'),'Show Formulas on.','Turn on Show Formulas (Formulas > Show Formulas).');
+    check(2,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author properties.');
+    check(3,3,'SEQUENCE for line-item IDs',fn('SEQUENCE(','RANDBETWEEN('),'SEQUENCE used.','Use SEQUENCE to generate the line-item ID column.');
+    check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
+    check(5,3,'Convert inventory to Table',H.tables.some(t=>t.includes('InvTable')),'Table created.','Convert the inventory list to an Excel Table.');
+    check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:I1[12]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
+    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row summing the Line Total column.');
+    check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||/\[@/.test(f)),'Structured reference used.','Use a structured reference (Table[Qty]*Table[Unit Cost]).');
+    check(9,6,'SUMIF spend per category',fn('SUMIF('),'SUMIF used.','Use SUMIF to total spend per item category.');
+    check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
+    check(11,4,'UPPER and LEN for category code',fn('UPPER(','LOWER(','LEN('),'UPPER/LEN used.','Use UPPER and LEN for category codes.');
+    check(12,5,'TEXTJOIN for item label',fn('CONCAT(','TEXTJOIN('),'TEXTJOIN used.','Use TEXTJOIN to build a combined item label.');
+    check(13,6,'XLOOKUP for unit cost',fn('XLOOKUP('),'XLOOKUP used.','Use XLOOKUP against the price list for unit cost.');
+    check(14,4,'SORT() vendor list',fn('SORT('),'SORT used.','Use SORT() for a sorted vendor list.');
+    check(15,4,'UNIQUE() categories',fn('UNIQUE('),'UNIQUE used.','Use UNIQUE() to list distinct categories.');
+    check(16,5,'YEAR/MONTH/DAY event date',fn('YEAR(','MONTH(','DAY('),'Date functions used.','Use YEAR/MONTH/DAY to break out the event date.');
+    check(17,5,'Icon set on reorder level',inv.includes('<conditionalFormatting')&&(inv.includes('iconSet')||inv.includes('cfRule')),'Icon set applied.','Flag items below reorder level with an icon set.');
+    check(18,4,'Name range "PriceList"',/<definedName[^>]*\bname="PriceList"/.test(H.wbxml),'Named range defined.','Define a named range called PriceList.');
+    check(19,4,'Create Pie chart',H.charts.length>=1,'Chart created.','Create a Pie chart of spend by category.');
+    check(20,4,'Apply a chart style',H.chartXml.includes('<c:style ')||(H.chartXml.includes('<mc:Choice')&&H.chartXml.toLowerCase().includes('style')),'Chart style applied.','Apply a chart style to the spend chart.');
+    check(21,3,'Add chart alt text',/descr="[^"]{5,}"/.test(H.drawings),'Alt text added.','Add alternative text to the spend chart.');
+    check(22,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(inv)||(inv.includes('Oasis')&&inv.includes('<oddHeader')),'Header/footer added.','Add a header with the company name and a footer page number.');
+    check(23,3,'Merge & center title banner',inv.includes('<mergeCell ref="A1:I1"'),'Banner merged.','Merge and center the workbook title banner.');
+    check(24,3,'Freeze header row',inv.includes('state="frozen"'),'Panes frozen.','Freeze the inventory header row.');
+    check(25,3,'Sort by category then item name',inv.includes('<sortState')&&(inv.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort inventory by category then item name.');
+
+    const pct=Math.round(earned/total*100);
+    stmts.savePracticeGrade.run(req.nsheId,'ExcelVar2',null,earned,total,JSON.stringify(results));
+    res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
+  } catch(err) { console.error('ExcelVar2 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
+});
+
+
 // ── CATCH-ALL ─────────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
