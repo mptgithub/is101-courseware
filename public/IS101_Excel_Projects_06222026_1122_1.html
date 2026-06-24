@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 Excel — Projects</title>
+<style>
+:root{--xl-green:#217346;--xl-green-dark:#185c37;--xl-green-light:#e6f2ec;--ink:#1a1a1a;--muted:#5f6b66;--line:#dfe6e2;--bg:#f4f7f5;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+a{color:inherit;}
+.topbar{background:var(--xl-green-dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;position:sticky;top:0;z-index:40;}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600;}
+.xicon{background:#fff;color:var(--xl-green-dark);width:26px;height:26px;border-radius:5px;display:grid;place-items:center;font-weight:800;font-size:15px;}
+.topbar nav a,.topbar nav span#nshe{color:#fff;text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.3);}
+.topbar nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+#nshe{border-style:dashed;}
+.hero{background:linear-gradient(180deg,var(--xl-green) 0%,var(--xl-green-dark) 100%);color:#fff;padding:26px 20px 30px;}
+.hero-inner{max-width:980px;margin:0 auto;}
+.hero .eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:1.5px;opacity:.85;}
+.hero h1{font-size:27px;margin:4px 0 10px;font-weight:700;}
+.hero p{font-size:15px;max-width:680px;opacity:.95;}
+main{max-width:980px;margin:24px auto 60px;padding:0 20px;}
+.section-label{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--xl-green-dark);font-weight:700;margin:22px 2px 12px;}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:720px){.proj-grid{grid-template-columns:1fr;}}
+.proj-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;gap:14px;}
+.proj-icon{font-size:30px;flex:none;width:48px;height:48px;display:grid;place-items:center;background:var(--xl-green-light);border-radius:11px;}
+.proj-body{flex:1;min-width:0;}
+.proj-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.proj-head h3{font-size:17px;}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--xl-green-light);color:var(--xl-green-dark);white-space:nowrap;}
+.proj-sub{font-size:13px;color:var(--xl-green-dark);font-weight:600;margin-top:2px;}
+.proj-desc{font-size:13.5px;color:var(--muted);margin:6px 0 12px;}
+.proj-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.pbtn{font-size:13px;text-decoration:none;padding:8px 13px;border-radius:7px;border:1px solid var(--line);color:#33403b;background:#fff;font-weight:600;}
+.pbtn:hover{border-color:var(--xl-green);color:var(--xl-green-dark);}
+.pbtn-primary{background:var(--xl-green);color:#fff;border-color:var(--xl-green);}
+.pbtn-primary:hover{background:var(--xl-green-dark);color:#fff;}
+.note{background:#fff;border:1px solid var(--line);border-left:4px solid var(--xl-green);border-radius:8px;padding:12px 14px;font-size:13.5px;color:var(--muted);margin-top:20px;}
+.login-overlay{position:fixed;inset:0;background:rgba(24,92,55,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;}
+.login-overlay.hidden{display:none;}
+.login-box{background:#fff;border-radius:14px;padding:28px 26px;width:340px;max-width:92vw;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+.login-box .xicon{width:40px;height:40px;font-size:22px;margin-bottom:12px;}
+.login-box h2{font-size:20px;margin-bottom:5px;}
+.login-box p{font-size:13.5px;color:var(--muted);margin-bottom:16px;}
+.login-box label{font-size:12.5px;font-weight:600;color:var(--muted);}
+.login-box input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;margin:6px 0 4px;}
+.login-box input:focus{outline:none;border-color:var(--xl-green);}
+.login-error{color:#b00020;font-size:12.5px;min-height:16px;margin-bottom:6px;}
+.login-box button{width:100%;background:var(--xl-green);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="xicon">X</div>
+    <h2>Sign in</h2>
+    <p>Enter your 10-digit NSHE ID to access the Excel projects.</p>
+    <label for="nsheInput">NSHE ID</label>
+    <input id="nsheInput" inputmode="numeric" maxlength="10" placeholder="e.g. 1000123456" autocomplete="off">
+    <div class="login-error" id="loginError"></div>
+    <button id="loginBtn">Sign in</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand"><span class="xicon">X</span><span>IS101 · Excel</span></div>
+  <nav>
+    <a href="IS101_START_HERE_06132026_0957.html">&larr; Dashboard</a>
+    <span id="nshe">Not signed in</span>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Unit 3 · Microsoft Excel 365 (MO-210)</div>
+    <h1>Excel Projects</h1>
+    <p>Each project is a realistic Las Vegas business workbook worth 100 points, auto-graded the moment you upload it. Complete the projects your instructor assigns.</p>
+  </div>
+</div>
+
+<main>
+  <div class="section-label">Core Projects</div>
+  <div class="proj-grid">
+      <div class="proj-card">
+        <div class="proj-icon">📊</div>
+        <div class="proj-body">
+          <div class="proj-head">
+            <h3>Core 1</h3>
+            <span class="badge">25 tasks · 100 pts</span>
+          </div>
+          <p class="proj-sub">Desert Sun Consulting</p>
+          <p class="proj-desc">Client Billing & Revenue workbook — import, format, tables, and charts.</p>
+          <div class="proj-actions">
+            <a class="pbtn pbtn-primary" href="IS101_Excel_Core1_Grader_06222026_1122.html">Open Grader &rarr;</a>
+            <a class="pbtn" href="Excel_Core1_Starter.xlsx" download>&#11015; Starter</a>
+            <a class="pbtn" href="Excel_Core1_Instructions.pdf" target="_blank">&#128196; Instructions</a>
+          </div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-icon">🏥</div>
+        <div class="proj-body">
+          <div class="proj-head">
+            <h3>Core 2</h3>
+            <span class="badge">26 tasks · 100 pts</span>
+          </div>
+          <p class="proj-sub">Nevada Valley Healthcare</p>
+          <p class="proj-desc">Department staffing & shift-coverage workbook — data, tables, and a chart sheet.</p>
+          <div class="proj-actions">
+            <a class="pbtn pbtn-primary" href="IS101_Excel_Core2_Grader_06222026_1122.html">Open Grader &rarr;</a>
+            <a class="pbtn" href="Excel_Core2_Starter.xlsx" download>&#11015; Starter</a>
+            <a class="pbtn" href="Excel_Core2_Instructions.pdf" target="_blank">&#128196; Instructions</a>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="section-label">Variation Projects (Formula-Focused)</div>
+  <div class="proj-grid">
+      <div class="proj-card">
+        <div class="proj-icon">🎓</div>
+        <div class="proj-body">
+          <div class="proj-head">
+            <h3>Variation 1</h3>
+            <span class="badge">26 tasks · 100 pts</span>
+          </div>
+          <p class="proj-sub">CSN — SOC 101 Grade Book</p>
+          <p class="proj-desc">Formula-focused: SUM, IF, nested IF, COUNTIF, VLOOKUP, IFERROR.</p>
+          <div class="proj-actions">
+            <a class="pbtn pbtn-primary" href="IS101_Excel_Var1_Grader_06222026_1122.html">Open Grader &rarr;</a>
+            <a class="pbtn" href="Excel_Var1_Starter.xlsx" download>&#11015; Starter</a>
+            <a class="pbtn" href="Excel_Var1_Instructions.pdf" target="_blank">&#128196; Instructions</a>
+          </div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-icon">🎉</div>
+        <div class="proj-body">
+          <div class="proj-head">
+            <h3>Variation 2</h3>
+            <span class="badge">25 tasks · 100 pts</span>
+          </div>
+          <p class="proj-sub">Oasis Events — Inventory & Budget</p>
+          <p class="proj-desc">Formula-focused: SUMIF, XLOOKUP, structured refs, SORT, UNIQUE, TEXTJOIN.</p>
+          <div class="proj-actions">
+            <a class="pbtn pbtn-primary" href="IS101_Excel_Var2_Grader_06222026_1122.html">Open Grader &rarr;</a>
+            <a class="pbtn" href="Excel_Var2_Starter.xlsx" download>&#11015; Starter</a>
+            <a class="pbtn" href="Excel_Var2_Instructions.pdf" target="_blank">&#128196; Instructions</a>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="note">Each project: download the starter workbook, complete every task in real Microsoft Excel using the Instructions PDF, then open the Grader and upload your finished <b>.xlsx</b> for instant task-by-task scoring.</div>
+</main>
+
+<script>
+const TOKEN_KEY="is101_token", NSHE_KEY="is101_nshe";
+function showLogin(msg){document.getElementById('loginOverlay').classList.remove('hidden');if(msg)document.getElementById('loginError').textContent=msg;}
+function hideLogin(){document.getElementById('loginOverlay').classList.add('hidden');}
+async function doLogin(){
+  const nshe=(document.getElementById('nsheInput').value||'').trim();
+  const err=document.getElementById('loginError');
+  if(!/^[0-9]{10}$/.test(nshe)){err.textContent='Enter a valid 10-digit NSHE ID.';return;}
+  err.textContent='';
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nshe})});
+    if(!r.ok){err.textContent='Sign-in failed. Check your ID.';return;}
+    const d=await r.json();
+    if(d&&d.token)localStorage.setItem(TOKEN_KEY,d.token);
+    localStorage.setItem(NSHE_KEY,nshe);
+    document.getElementById('nshe').textContent='NSHE '+nshe;
+    hideLogin();
+  }catch(e){err.textContent='Network error. Try again.';}
+}
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('nsheInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+(function init(){
+  const nshe=localStorage.getItem(NSHE_KEY);
+  if(nshe){document.getElementById('nshe').textContent='NSHE '+nshe;hideLogin();}
+  else showLogin();
+})();
+</script>
+</body>
+</html>
