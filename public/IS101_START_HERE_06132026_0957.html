@@ -1046,6 +1046,16 @@
   .unit-card:nth-child(2) { animation-delay: 0.12s; }
   .unit-card:nth-child(3) { animation-delay: 0.19s; }
   .unit-card:nth-child(4) { animation-delay: 0.26s; }
+  .site-footer {
+    text-align: center;
+    padding: 28px 1rem 32px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(122,143,168,0.25);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    letter-spacing: 0.3px;
+  }
+  .site-footer p { margin: 0; }
 </style>
 </head>
 <body>
@@ -1099,9 +1109,9 @@
 ══════════════════════════════════════════════ -->
 <div class="view active" id="viewHome">
   <div class="home-hero">
-    <div class="eyebrow">College of Southern Nevada · Dr. Mark Taormino</div>
+    <div class="eyebrow">Designed and Created by Dr. Mark Taormino</div>
     <h1>Introduction to<br><em>Computing</em></h1>
-    <p class="subtitle">Learn at your own pace. Complete each unit to earn full credit. Start anywhere you're ready.</p>
+    <p class="subtitle">Modern, up-to-date courseware for beginning college students.</p>
   </div>
 
   <div class="units-grid">
@@ -2077,6 +2087,10 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<footer class="site-footer">
+  <p>&copy; Dr. Mark Taormino &middot; All Rights Reserved</p>
+</footer>
 
 </body>
 </html>
