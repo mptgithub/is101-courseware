@@ -371,7 +371,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(12,4,'Apply Heading 2 to all subsection headers',h2>=1,'Heading 2 on '+h2+' subsections.','No Heading 2. Fix: Click subsection headers > Home > Heading 2.');
     check(13,2,'Set body text line spacing to 1.15',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'Line spacing settings found.','No custom line spacing. Fix: Select body text > Home > Line Spacing > 1.15.');
     check(14,2,'Set 6pt spacing after each paragraph',docXml.includes('w:after='),'Paragraph spacing after found.','No spacing after. Fix: Paragraph dialog > Spacing After 6pt.');
-    check(15,4,'Insert section break before Financial Summary and change to Landscape',/<w:type w:val="(nextPage|evenPage|oddPage|continuous)"/.test(docXml),'Section break found.','No section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set Landscape.');
+    check(15,4,'Insert section break before Financial Summary and change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'Section break with Landscape section found.','No Landscape section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set that section to Layout > Orientation > Landscape.');
     // D3 - 6 tasks - 18 pts
     check(16,4,'Create a 4-column quarterly revenue table',docXml.includes('<w:tbl>'),'Table found.','No table. Fix: Insert > Table > 4 columns x 5 rows.');
     check(17,3,'Merge top row cells for spanning title',docXml.includes('w:gridSpan')||docXml.includes('w:hMerge'),'Merged cells found.','No merged cells. Fix: Select top row > Table Layout > Merge Cells.');
@@ -605,7 +605,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(12,4,'Apply Heading 2 to subsections',h2c>=1,`✓ Heading 2 on ${h2c}.`,`✗ Only ${h2c}. Fix: → Home → Heading 2.`);
     check(13,2,'Set body text line spacing to 1.5',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'✓ Line spacing found.','✗ Fix: Select text → Line Spacing → 1.5.');
     check(14,3,'Apply text effects (shadow) to proposal title',docXml.includes('w:effect')||docXml.includes('w:shadow')||docXml.includes('w:rStyle'),'✓ Text effect found.','✗ Fix: Select title → Home → Font → Text Effects → Shadow.');
-    check(15,4,'Insert section break before Budget; change to Landscape',/<w:type w:val="(nextPage|evenPage|oddPage|continuous)"/.test(docXml),'✓ Section break found.','✗ Fix: Layout → Breaks → Next Page before Budget → set to Landscape.');
+    check(15,4,'Insert section break before Budget; change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'✓ Section break with Landscape section found.','✗ No Landscape section break. Fix: Layout → Breaks → Next Page before Budget, then set that section to Layout → Orientation → Landscape.');
     check(16,4,'Create 5-column budget table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 5 columns.');
     check(17,3,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells.','✗ Fix: Select top row → Table Layout → Merge Cells.');
     check(18,3,'Sort vendor table by cost',docXml.split('<w:tbl>').length>1,'✓ Table present (sort verified).','✗ Fix: Table Layout → Sort → Ascending.');
