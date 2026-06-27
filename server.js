@@ -366,7 +366,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(9,3,'Find and Replace DSC with Desert Sun Consulting',dsc===0,'No DSC abbreviations found.','Found '+dsc+' DSC instances. Fix: Ctrl+H > Find DSC > Replace Desert Sun Consulting > Replace All.');
     check(10,3,'Apply Title style to document title',docXml.includes('styleId="Title"')||docXml.includes('w:val="Title"'),'Title style applied.','Title style not found. Fix: Click title > Home > Styles > Title.');
     const h1=(docXml.match(/(?:styleId|w:val)="Heading ?1"/g)||[]).length;
-    check(11,4,'Apply Heading 1 to all section headers',h1>=3,'Heading 1 on '+h1+' sections.','Only '+h1+' Heading 1 - need 3. Fix: Click section headers > Home > Heading 1.');
+    check(11,4,'Apply Heading 1 to all section headers',h1>=8,'Heading 1 on '+h1+' sections.','Only '+h1+' Heading 1 found - need 8. Fix: Apply Heading 1 to: Executive Summary, Financial Summary, Quarterly Revenue, Client Portfolio, Strategic Objectives, Services Offered, Organizational Structure, and Conclusion.');
     const h2=(docXml.match(/(?:styleId|w:val)="Heading ?2"/g)||[]).length;
     check(12,4,'Apply Heading 2 to all subsection headers',h2>=1,'Heading 2 on '+h2+' subsections.','No Heading 2. Fix: Click subsection headers > Home > Heading 2.');
     check(13,2,'Set body text line spacing to 1.15',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'Line spacing settings found.','No custom line spacing. Fix: Select body text > Home > Line Spacing > 1.15.');
@@ -378,11 +378,11 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(18,3,'Sort client table alphabetically',docXml.split('<w:tbl>').length>=3,'Multiple tables found.','Client table not found. Fix: Add client table then Table Layout > Sort > Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered list of 5 strategic objectives',ni>=5,'Numbered list found ('+ni+' references).','Numbered list not found. Fix: Select 5 objectives > Home > Numbering.');
-    check(20,2,'Create bulleted list of services',ni>0,'List formatting found.','No bulleted list. Fix: Select services > Home > Bullets.');
+    check(20,2,'Create bulleted list of services',docXml.includes('w:numFmt w:val="bullet"')||(/w:numId w:val="(\d+)"/.test(docXml)&&(docXml.match(/w:numId w:val="\d+"/g)||[]).length>5),'Bulleted list found.','No bulleted list. Fix: Select the three service categories > Home > Bullets.');
     check(21,4,'Increase list level for sub-items',/w:ilvl w:val="[1-9]"/.test(docXml),'Sub-level list items found.','No sub-level items. Fix: Select sub-items > Home > Increase Indent.');
     // D4 - 3 tasks - 10 pts
-    check(22,3,'Insert Table of Contents after title page',allXml.includes('TOC')&&allXml.includes('fldChar'),'TOC found.','No TOC. Fix: References > Table of Contents > Automatic Table 1.');
-    check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',allXml.includes('TOC')&&allXml.includes('fldChar'),'TOC present with custom levels.','No TOC found to customize. Fix: Insert TOC first, then References > Custom TOC > Show levels 2.');
+    check(22,3,'Insert Table of Contents after title page',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'TOC found.','No TOC. Fix: References > Table of Contents > Automatic Table 1.');
+    check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml),'TOC customized to Heading 1 and 2 only.','TOC not customized. Fix: References > Table of Contents > Custom Table of Contents > Show levels: 2.');
     check(24,4,'Insert footnote on revenue figure',/<w:footnote w:id="[1-9]/.test(fnXml)&&docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
@@ -467,8 +467,8 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(21,2,'Create numbered checklist of Day 1 tasks',ni>=5,`✓ List items found (${ni}).`,`✗ Numbered list not found. Fix: Select Day 1 tasks → Home → Numbering.`);
     check(22,2,'Create bulleted list of conduct guidelines',ni>0,'✓ List formatting found.','✗ Fix: Select guidelines → Home → Bullets.');
     check(23,4,'Add second-level bullets under each guideline',/w:ilvl w:val="[1-9]"/.test(docXml),'✓ Sub-level items found.','✗ Fix: Select sub-items → Home → Increase Indent.');
-    check(24,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(25,3,'Customize TOC: dotted leaders, 3 heading levels',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
+    check(24,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
+    check(25,3,'Customize TOC: dotted leaders, 3 heading levels',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*3[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*3[^"]*"[^<]*<\/w:instrText>/.test(docXml),'✓ TOC customized to 3 levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
     check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
@@ -540,8 +540,8 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(18,2,'Create numbered list of research questions',ni>=3,`✓ List items found (${ni}).`,'✗ Fix: Select questions → Home → Numbering.');
     check(19,2,'Create bulleted list of key findings',ni>0,'✓ List formatting found.','✗ Fix: Select findings → Home → Bullets.');
     check(20,2,'Restart list numbering for second set',docXml.includes('w:startOverride')||ni>5,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
-    check(21,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(22,4,'Customize TOC: Heading 1 and 2 only',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
+    check(21,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
+    check(22,4,'Customize TOC: Heading 1 and 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml),'✓ TOC customized to Heading 1 and 2 only.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
@@ -613,8 +613,8 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(19,2,'Create numbered timeline of event activities',ni>=3,`✓ List items (${ni}).`,'✗ Fix: Select timeline → Home → Numbering.');
     check(20,2,'Create bulleted list of services',ni>0,'✓ List found.','✗ Fix: Select services → Home → Bullets.');
     check(21,3,'Change bullet format for premium services to custom symbol',ni>3||docXml.includes('numFmt'),'✓ Custom list format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol.');
-    check(22,4,'Insert Table of Contents',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',allXml.includes('TOC')&&allXml.includes('fldChar'),'✓ TOC present with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
+    check(22,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
+    check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
