@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Word D1 Practice Grader</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:100vh}
+.topbar{background:#2b579a;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:12px}
+.topbar .logo{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.topbar .sub{font-size:13px;opacity:.8}
+.container{max-width:860px;margin:32px auto;padding:0 16px}
+.card{background:#fff;border-radius:8px;border:1px solid #dde3ee;padding:28px 32px;margin-bottom:20px}
+h1{font-size:20px;font-weight:700;color:#2b579a;margin-bottom:6px}
+.desc{font-size:14px;color:#555;line-height:1.6;margin-bottom:20px}
+.upload-zone{border:2px dashed #c0cadc;border-radius:8px;padding:36px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:#2b579a;background:#f0f4ff}
+.upload-zone input{display:none}
+.upload-zone .icon{font-size:36px;margin-bottom:8px;color:#2b579a}
+.upload-zone p{font-size:14px;color:#666}
+.upload-zone strong{color:#2b579a}
+.btn{display:inline-block;padding:10px 24px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s}
+.btn-primary{background:#2b579a;color:#fff}
+.btn-primary:hover{background:#1e3f73}
+.btn-primary:disabled{background:#aaa;cursor:not-allowed}
+.status{font-size:13px;color:#666;margin-top:10px;min-height:18px}
+#results{display:none}
+.domain-header{font-size:15px;font-weight:700;color:#2b579a;padding:10px 0 6px;border-bottom:2px solid #e8ecf4;margin:20px 0 8px}
+.skill-row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid #f0f2f8}
+.skill-row:last-child{border-bottom:none}
+.badge{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px}
+.badge.pass{background:#d4edda;color:#155724}
+.badge.fail{background:#f8d7da;color:#721c24}
+.badge.self{background:#fff3cd;color:#856404;font-size:10px}
+.skill-name{font-size:13px;font-weight:600;color:#222;flex:1}
+.skill-msg{font-size:12px;color:#666;margin-top:2px}
+.skill-detail{font-size:11px;color:#888;margin-top:2px;font-style:italic}
+.self-label{font-size:11px;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:4px;padding:1px 6px;display:inline-block;margin-top:3px}
+.score-banner{background:#2b579a;color:#fff;border-radius:8px;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.score-big{font-size:42px;font-weight:700}
+.score-label{font-size:13px;opacity:.8;margin-top:2px}
+.score-breakdown{text-align:right;font-size:13px;opacity:.9}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#555;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:6px}
+.dl-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#2b579a;text-decoration:none;font-weight:600}
+.dl-link:hover{text-decoration:underline}
+.nshe-row{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+.nshe-row input{flex:1;padding:9px 12px;border:1px solid #ccd0da;border-radius:6px;font-size:14px}
+.nshe-row input:focus{outline:none;border-color:#2b579a}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">IS101</div>
+  <div class="sub">Word D1 — Manage Documents · Practice Grader</div>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h1>D1 Practice Check</h1>
+    <p class="desc">
+      Complete the D1 skills in your practice starter file, then upload it here to see which skills were detected.
+      Skills marked <span style="background:#fff3cd;color:#856404;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600">Self-check</span>
+      cannot be verified from the saved file — confirm those yourself by reviewing what you did in Word.
+    </p>
+
+    <a class="dl-link" href="/Word_D1_Practice_Starter.docx" download style="margin-bottom:16px;display:inline-flex">
+      ⬇ Download D1 Practice Starter File
+    </a>
+
+    <div class="nshe-row" style="margin-top:14px">
+      <input type="text" id="nsheId" placeholder="Enter your NSHE ID" maxlength="20" />
+    </div>
+
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept=".docx" />
+      <div class="icon">📄</div>
+      <p><strong>Click to upload</strong> or drag and drop your .docx file here</p>
+      <p style="margin-top:6px;font-size:12px;color:#999">Only .docx files are accepted</p>
+    </div>
+    <div class="status" id="status"></div>
+    <div style="margin-top:14px">
+      <button class="btn btn-primary" id="gradeBtn" onclick="submitGrade()" disabled>Check My Work</button>
+    </div>
+
+    <div class="legend" style="margin-top:16px">
+      <div class="legend-item"><div class="badge pass">✓</div> Detected — skill complete</div>
+      <div class="legend-item"><div class="badge fail">✗</div> Not detected — try again</div>
+      <div class="legend-item"><div class="badge self">👁</div> Self-check — verify manually</div>
+    </div>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+let selectedFile = null;
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const status = document.getElementById('status');
+const gradeBtn = document.getElementById('gradeBtn');
+
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) setFile(e.target.files[0]);
+});
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+
+function setFile(f) {
+  if (!f.name.endsWith('.docx')) { status.textContent = 'Please upload a .docx file.'; return; }
+  selectedFile = f;
+  status.textContent = `Selected: ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+  gradeBtn.disabled = false;
+}
+
+async function submitGrade() {
+  if (!selectedFile) return;
+  const nshe = document.getElementById('nsheId').value.trim();
+  if (!nshe) { status.textContent = 'Please enter your NSHE ID first.'; return; }
+
+  gradeBtn.disabled = true;
+  status.textContent = 'Checking your work…';
+  document.getElementById('results').style.display = 'none';
+
+  const form = new FormData();
+  form.append('file', selectedFile);
+  form.append('nsheId', nshe);
+
+  try {
+    const res = await fetch('/api/grade/word-practice-d1', { method: 'POST', body: form });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const data = await res.json();
+    renderResults(data);
+  } catch(e) {
+    status.textContent = 'Error: ' + e.message;
+  } finally {
+    gradeBtn.disabled = false;
+  }
+}
+
+function renderResults(data) {
+  const el = document.getElementById('results');
+  status.textContent = '';
+
+  const autoChecked = data.skills.filter(s => s.type !== 'self').length;
+  const autoPassed = data.skills.filter(s => s.type !== 'self' && s.passed).length;
+  const selfCount = data.skills.filter(s => s.type === 'self').length;
+  const total = data.skills.length;
+
+  let html = `
+    <div class="score-banner">
+      <div>
+        <div class="score-big">${autoPassed} / ${autoChecked}</div>
+        <div class="score-label">auto-graded skills detected</div>
+      </div>
+      <div class="score-breakdown">
+        ${total} total D1 skills<br>
+        ${autoChecked} auto-graded &nbsp;·&nbsp; ${selfCount} self-check
+      </div>
+    </div>`;
+
+  const domains = [...new Set(data.skills.map(s => s.domain))];
+  for (const domain of domains) {
+    const skills = data.skills.filter(s => s.domain === domain);
+    html += `<div class="card"><div class="domain-header">${domain}</div>`;
+    for (const s of skills) {
+      const badgeClass = s.type === 'self' ? 'self' : (s.passed ? 'pass' : 'fail');
+      const badgeIcon = s.type === 'self' ? '👁' : (s.passed ? '✓' : '✗');
+      html += `
+        <div class="skill-row">
+          <div class="badge ${badgeClass}">${badgeIcon}</div>
+          <div style="flex:1">
+            <div class="skill-name">${s.name}</div>
+            ${s.type === 'self'
+              ? `<span class="self-label">Self-check — verify manually in Word</span><div class="skill-detail">${s.hint}</div>`
+              : `<div class="skill-msg">${s.passed ? s.passMsg : s.failMsg}</div>`}
+          </div>
+        </div>`;
+    }
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
