@@ -968,25 +968,24 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
 // ── WORD COMBINED PRACTICE GRADER (D1–D6) ─────────────────────────────────
 app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => {
   try {
-    const buf = fs.readFileSync(req.file.path);
-    const zip = new JSZip();
-    await zip.loadAsync(buf);
-    const rx = async (n) => { try { const f=zip.file(n); return f ? await f.async('text') : ''; } catch(e){ return ''; } };
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip(req.file.path);
+    const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
 
-    const docXml    = await rx('word/document.xml');
-    const coreXml   = await rx('docProps/core.xml');
-    const cstmXml   = await rx('docProps/custom.xml');
-    const hXml      = await rx('word/header1.xml') || await rx('word/header2.xml') || '';
-    const fXml      = await rx('word/footer1.xml') || await rx('word/footer2.xml') || '';
-    const cmmXml    = await rx('word/comments.xml');
-    const cmmExtXml = await rx('word/commentsExtended.xml');
-    const settXml   = await rx('word/settings.xml');
-    const stylesXml = await rx('word/styles.xml');
-    const numXml    = await rx('word/numbering.xml');
-    const fnXml     = await rx('word/footnotes.xml');
-    const enXml     = await rx('word/endnotes.xml');
-    const relsXml   = await rx('word/_rels/document.xml.rels');
-    const fileList  = Object.keys(zip.files).join('|');
+    const docXml    = getXml('word/document.xml');
+    const coreXml   = getXml('docProps/core.xml');
+    const cstmXml   = getXml('docProps/custom.xml');
+    const hXml      = getXml('word/header1.xml') || getXml('word/header2.xml') || '';
+    const fXml      = getXml('word/footer1.xml') || getXml('word/footer2.xml') || '';
+    const cmmXml    = getXml('word/comments.xml');
+    const cmmExtXml = getXml('word/commentsExtended.xml');
+    const settXml   = getXml('word/settings.xml');
+    const stylesXml = getXml('word/styles.xml');
+    const numXml    = getXml('word/numbering.xml');
+    const fnXml     = getXml('word/footnotes.xml');
+    const enXml     = getXml('word/endnotes.xml');
+    const relsXml   = getXml('word/_rels/document.xml.rels');
+    const fileList  = zip.getEntries().map(e => e.entryName).join('|');
 
     const INCH = 1440;
     const skills = [];
