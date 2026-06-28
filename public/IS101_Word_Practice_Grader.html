@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS101 — Word Practice Grader</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:100vh}
+.topbar{background:#2b579a;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:12px}
+.topbar .logo{font-size:20px;font-weight:700}
+.topbar .sub{font-size:13px;opacity:.8}
+.container{max-width:860px;margin:32px auto;padding:0 16px}
+.card{background:#fff;border-radius:8px;border:1px solid #dde3ee;padding:24px 28px;margin-bottom:20px}
+h1{font-size:20px;font-weight:700;color:#2b579a;margin-bottom:6px}
+.desc{font-size:13px;color:#555;line-height:1.6;margin-bottom:16px}
+.dl-btn{display:inline-flex;align-items:center;gap:8px;background:#2b579a;color:#fff;border:none;border-radius:6px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;margin-bottom:16px}
+.dl-btn:hover{background:#1e3f73}
+.nshe-row{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.nshe-row input{flex:1;padding:9px 12px;border:1px solid #ccd0da;border-radius:6px;font-size:14px}
+.nshe-row input:focus{outline:none;border-color:#2b579a}
+.upload-zone{border:2px dashed #c0cadc;border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:12px}
+.upload-zone:hover,.upload-zone.drag{border-color:#2b579a;background:#f0f4ff}
+.upload-zone input{display:none}
+.upload-icon{font-size:32px;color:#2b579a;margin-bottom:8px}
+.upload-zone p{font-size:13px;color:#666}
+.upload-zone strong{color:#2b579a}
+.btn{display:inline-block;padding:10px 24px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s}
+.btn-primary{background:#2b579a;color:#fff}
+.btn-primary:hover{background:#1e3f73}
+.btn-primary:disabled{background:#aaa;cursor:not-allowed}
+.status{font-size:13px;color:#666;margin-top:10px;min-height:18px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#555;margin-top:14px;padding-top:14px;border-top:1px solid #eee}
+.legend-item{display:flex;align-items:center;gap:6px}
+.badge{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.badge.pass{background:#d4edda;color:#155724}
+.badge.fail{background:#f8d7da;color:#721c24}
+.badge.self{background:#fff3cd;color:#856404;font-size:9px}
+/* Results */
+#results{display:none}
+.score-banner{background:#2b579a;color:#fff;border-radius:8px;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.score-big{font-size:40px;font-weight:700;line-height:1}
+.score-label{font-size:12px;opacity:.8;margin-top:4px}
+.score-right{text-align:right;font-size:13px;opacity:.9;line-height:1.7}
+.domain-card{background:#fff;border-radius:8px;border:1px solid #dde3ee;margin-bottom:16px;overflow:hidden}
+.domain-header{background:#e8edf5;padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+.domain-title{font-size:14px;font-weight:700;color:#2b579a}
+.domain-score{font-size:12px;color:#555}
+.skill-row{display:flex;align-items:flex-start;gap:12px;padding:10px 20px;border-top:1px solid #f0f2f8}
+.skill-info{flex:1}
+.skill-name{font-size:13px;font-weight:600;color:#222}
+.skill-msg{font-size:12px;color:#555;margin-top:2px}
+.self-label{display:inline-block;font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:4px;padding:1px 6px;margin-top:3px}
+.self-hint{font-size:11px;color:#888;margin-top:3px;font-style:italic}
+.try-again{font-size:11px;color:#c00;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">IS101</div>
+  <div class="sub">Word Practice Grader — Domains 1–6</div>
+</div>
+
+<div class="container">
+  <div class="card" id="uploadCard">
+    <h1>Word Practice Skills Check</h1>
+    <p class="desc">
+      Download the practice starter file, work through the skills in Microsoft Word,
+      then upload your completed file here to see which skills were detected.
+      You can upload at any time — after one domain, after all six, or anything in between.
+    </p>
+
+    <a class="dl-btn" href="/Word_Practice_Combined_Starter.docx" download>
+      ⬇ Download Practice Starter File
+    </a>
+
+    <div class="nshe-row">
+      <input type="text" id="nsheId" placeholder="Enter your NSHE ID" maxlength="20" />
+    </div>
+
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept=".docx" />
+      <div class="upload-icon">📄</div>
+      <p><strong>Click to upload</strong> or drag and drop your completed .docx file here</p>
+      <p style="font-size:11px;color:#999;margin-top:4px">Only .docx files — 25 MB max</p>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div style="margin-top:12px">
+      <button class="btn btn-primary" id="gradeBtn" onclick="submitGrade()" disabled>Check My Work</button>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="badge pass">✓</div> Skill detected in your file</div>
+      <div class="legend-item"><div class="badge fail">✗</div> Not detected — try again</div>
+      <div class="legend-item"><div class="badge self">👁</div> Self-check — verify in Word</div>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+  <div id="reuploadRow" style="display:none;margin-bottom:24px">
+    <button class="btn btn-primary" onclick="document.getElementById('uploadCard').scrollIntoView({behavior:'smooth'})">
+      ↑ Upload Again
+    </button>
+    <span style="font-size:12px;color:#666;margin-left:12px">Keep working and re-upload at any time.</span>
+  </div>
+</div>
+
+<script>
+let selectedFile = null;
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const status    = document.getElementById('status');
+const gradeBtn  = document.getElementById('gradeBtn');
+
+fileInput.addEventListener('change', e => { if (e.target.files[0]) setFile(e.target.files[0]); });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+
+function setFile(f) {
+  if (!f.name.endsWith('.docx')) { status.textContent = 'Please upload a .docx file.'; return; }
+  if (f.size > 25 * 1024 * 1024) { status.textContent = 'File too large (25 MB max).'; return; }
+  selectedFile = f;
+  status.textContent = `Selected: ${f.name} (${(f.size / 1024).toFixed(1)} KB)`;
+  gradeBtn.disabled = false;
+}
+
+async function submitGrade() {
+  if (!selectedFile) return;
+  const nshe = document.getElementById('nsheId').value.trim();
+  if (!nshe) { status.textContent = 'Please enter your NSHE ID first.'; return; }
+
+  gradeBtn.disabled = true;
+  status.textContent = 'Checking your work…';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('reuploadRow').style.display = 'none';
+
+  const form = new FormData();
+  form.append('file', selectedFile);
+  form.append('nsheId', nshe);
+
+  try {
+    const res = await fetch('/api/grade/word-practice', { method: 'POST', body: form });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const data = await res.json();
+    renderResults(data);
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+  } finally {
+    gradeBtn.disabled = false;
+  }
+}
+
+function renderResults(data) {
+  const el = document.getElementById('results');
+  status.textContent = '';
+
+  const autoSkills = data.skills.filter(s => s.type !== 'self');
+  const selfSkills  = data.skills.filter(s => s.type === 'self');
+  const passed = autoSkills.filter(s => s.passed).length;
+  const total  = autoSkills.length;
+
+  // Group by domain
+  const domains = [...new Set(data.skills.map(s => s.domain))];
+
+  let html = `
+    <div class="score-banner">
+      <div>
+        <div class="score-big">${passed} / ${total}</div>
+        <div class="score-label">auto-graded skills detected</div>
+      </div>
+      <div class="score-right">
+        ${data.skills.length} total skills checked<br>
+        ${total} auto-graded &nbsp;·&nbsp; ${selfSkills.length} self-check
+      </div>
+    </div>`;
+
+  for (const domain of domains) {
+    const skills = data.skills.filter(s => s.domain === domain);
+    const domainAuto = skills.filter(s => s.type !== 'self');
+    const domainPassed = domainAuto.filter(s => s.passed).length;
+
+    html += `
+      <div class="domain-card">
+        <div class="domain-header">
+          <div class="domain-title">${domain}</div>
+          <div class="domain-score">${domainPassed}/${domainAuto.length} detected</div>
+        </div>`;
+
+    for (const s of skills) {
+      const badgeClass = s.type === 'self' ? 'self' : (s.passed ? 'pass' : 'fail');
+      const badgeIcon  = s.type === 'self' ? '👁' : (s.passed ? '✓' : '✗');
+      html += `
+        <div class="skill-row">
+          <div class="badge ${badgeClass}">${badgeIcon}</div>
+          <div class="skill-info">
+            <div class="skill-name">${s.name}</div>`;
+      if (s.type === 'self') {
+        html += `<div class="self-label">Self-check</div><div class="self-hint">${s.hint}</div>`;
+      } else if (s.passed) {
+        html += `<div class="skill-msg">${s.passMsg}</div>`;
+      } else {
+        html += `<div class="try-again">${s.failMsg}</div>`;
+      }
+      html += `</div></div>`;
+    }
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
+  el.style.display = 'block';
+  document.getElementById('reuploadRow').style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
