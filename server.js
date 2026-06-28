@@ -343,7 +343,8 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     const hXml=getXml('word/header1.xml')||getXml('word/header2.xml')||getXml('word/header3.xml');
     const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
     const cmmXml=getXml('word/comments.xml'), fnXml=getXml('word/footnotes.xml');
-    const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml;
+    const numXml=getXml('word/numbering.xml');
+    const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
     try { fs.unlinkSync(req.file.path); } catch(e) {}
     const results=[]; let earned=0, total=0;
     const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
@@ -378,17 +379,17 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(18,3,'Sort client table alphabetically',docXml.split('<w:tbl>').length>=3,'Multiple tables found.','Client table not found. Fix: Add client table then Table Layout > Sort > Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered list of 5 strategic objectives',ni>=5,'Numbered list found ('+ni+' references).','Numbered list not found. Fix: Select 5 objectives > Home > Numbering.');
-    check(20,2,'Create bulleted list of services',docXml.includes('w:numFmt w:val="bullet"')||(/w:numId w:val="(\d+)"/.test(docXml)&&(docXml.match(/w:numId w:val="\d+"/g)||[]).length>5),'Bulleted list found.','No bulleted list. Fix: Select the three service categories > Home > Bullets.');
+    check(20,2,'Create bulleted list of services',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(/w:numId w:val="(\d+)"/.test(docXml)&&(docXml.match(/w:numId w:val="\d+"/g)||[]).length>5),'Bulleted list found.','No bulleted list. Fix: Select the three service categories > Home > Bullets.');
     check(21,4,'Increase list level for sub-items',/w:ilvl w:val="[1-9]"/.test(docXml),'Sub-level list items found.','No sub-level items. Fix: Select sub-items > Home > Increase Indent.');
     // D4 - 3 tasks - 10 pts
     check(22,3,'Insert Table of Contents after title page',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'TOC found.','No TOC. Fix: References > Table of Contents > Automatic Table 1.');
-    check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml),'TOC customized to Heading 1 and 2 only.','TOC not customized. Fix: References > Table of Contents > Custom Table of Contents > Show levels: 2.');
+    check(23,3,'Customize TOC to show Heading 1 and Heading 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),'TOC customized to Heading 1 and 2 only.','TOC not customized. Fix: References > Table of Contents > Custom Table of Contents > Show levels: 2.');
     check(24,4,'Insert footnote on revenue figure',/<w:footnote w:id="[1-9]/.test(fnXml)&&docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
     check(26,3,'Set text wrapping to Through for the logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Picture Format > Wrap Text > Through.');
     check(27,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
-    check(28,8,'Add alt text to ALL images in the document',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
+    check(28,8,'Add alt text to ALL images in the document',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
     // D6 - 3 tasks - 9 pts
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
@@ -427,7 +428,8 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const fXml = getXml('word/footer1.xml') || getXml('word/footer2.xml') || getXml('word/footer3.xml');
     const cmmXml = getXml('word/comments.xml');
     const enXml = getXml('word/endnotes.xml');
-    const allXml = docXml+stylesXml+coreXml+hXml+fXml+cmmXml+enXml;
+    const numXml = getXml('word/numbering.xml');
+    const allXml = docXml+stylesXml+coreXml+hXml+fXml+cmmXml+enXml+numXml;
     try { fs.unlinkSync(req.file.path); } catch(e) {}
 
     const results = []; let earned = 0, total = 0;
@@ -465,15 +467,15 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(20,2,'Enable Repeat Header Row',docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Click header row → Table Layout → Repeat Header Rows.');
     const ni=docXml.split('w:numId').length-1;
     check(21,2,'Create numbered checklist of Day 1 tasks',ni>=5,`✓ List items found (${ni}).`,`✗ Numbered list not found. Fix: Select Day 1 tasks → Home → Numbering.`);
-    check(22,2,'Create bulleted list of conduct guidelines',docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&/w:ilvl w:val="0"/.test(docXml)&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select conduct guidelines → Home → Bullets.');
+    check(22,2,'Create bulleted list of conduct guidelines',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&/w:ilvl w:val="0"/.test(docXml)&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select conduct guidelines → Home → Bullets.');
     check(23,4,'Add second-level bullets under each guideline',/w:ilvl w:val="[1-9]"/.test(docXml),'✓ Sub-level items found.','✗ Fix: Select sub-items → Home → Increase Indent.');
     check(24,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(25,3,'Customize TOC: dotted leaders, 3 heading levels',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*3[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*3[^"]*"[^<]*<\/w:instrText>/.test(docXml),'✓ TOC customized to 3 levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
+    check(25,3,'Customize TOC: dotted leaders, 3 heading levels',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*3/.test(docXml),'✓ TOC customized to 3 levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
     check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(29,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
-    check(30,7,'Add alt text to every image and icon',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
+    check(30,7,'Add alt text to every image and icon',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(31,2,'Add comment on benefits table',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select cell → Review → New Comment.');
     check(32,2,'Reply to comment from department manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -505,7 +507,8 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const hXml=getXml('word/header1.xml')||getXml('word/header2.xml')||getXml('word/header3.xml');
     const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
     const cmmXml=getXml('word/comments.xml'),fnXml=getXml('word/footnotes.xml');
-    const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml;
+    const numXml=getXml('word/numbering.xml');
+    const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
     try { fs.unlinkSync(req.file.path); } catch(e) {}
 
     const results=[]; let earned=0,total=0;
@@ -538,17 +541,17 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(17,3,'Sort data table by response percentage (descending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the survey table → Table Layout → Sort → Column 4 (Percentage) → Descending.');
     const ni=docXml.split('w:numId').length-1;
     check(18,2,'Create numbered list of research questions',ni>=3,`✓ List items found (${ni}).`,'✗ Fix: Select questions → Home → Numbering.');
-    check(19,2,'Create bulleted list of key findings',docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select key findings → Home → Bullets.');
-    check(20,2,'Restart list numbering for second set',docXml.includes('w:startOverride')||ni>5,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
+    check(19,2,'Create bulleted list of key findings',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select key findings → Home → Bullets.');
+    check(20,2,'Restart list numbering for second set',docXml.includes('w:startOverride')||numXml.includes('w:startOverride')||ni>5,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
     check(21,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(22,4,'Customize TOC: Heading 1 and 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml),'✓ TOC customized to Heading 1 and 2 only.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
+    check(22,4,'Customize TOC: Heading 1 and 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),'✓ TOC customized to Heading 1 and 2 only.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
     check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
     check(26,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
     check(27,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
-    check(28,7,'Add alt text to all figures',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
+    check(28,7,'Add alt text to all figures',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment asking professor for feedback',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select thesis → Review → New Comment.');
     check(30,4,'Reply to comment from writing partner',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -579,7 +582,8 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     const hXml=getXml('word/header1.xml')||getXml('word/header2.xml')||getXml('word/header3.xml');
     const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
     const cmmXml=getXml('word/comments.xml'),fnXml=getXml('word/footnotes.xml');
-    const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml;
+    const numXml=getXml('word/numbering.xml');
+    const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
     try { fs.unlinkSync(req.file.path); } catch(e) {}
 
     const results=[]; let earned=0,total=0;
@@ -611,16 +615,16 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(18,3,'Sort vendor table by cost (ascending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the vendor table → Table Layout → Sort → Cost column → Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered timeline of event activities',ni>=3,`✓ List items (${ni}).`,'✗ Fix: Select timeline → Home → Numbering.');
-    check(20,2,'Create bulleted list of services',docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select services → Home → Bullets.');
-    check(21,3,'Change bullet format for premium services to custom symbol',docXml.includes('w:numFmt w:val="bullet"')&&(docXml.includes('<w:lvlText')||docXml.includes('w:char=')),'✓ Custom bullet format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol → choose a custom symbol.');
+    check(20,2,'Create bulleted list of services',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select services → Home → Bullets.');
+    check(21,3,'Change bullet format for premium services to custom symbol',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')&&(numXml.includes('<w:lvlText')||numXml.includes('w:char=')||docXml.includes('<w:lvlText')),'✓ Custom bullet format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol → choose a custom symbol.');
     check(22,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
-    check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml)||/<w:instrText[^>]*>[^<]*TOC[^<]*\\l "[^"]*1[^"]*-[^"]*2[^"]*"[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
+    check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),'✓ TOC found with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
     check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(27,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
-    check(28,8,'Add alt text to all graphics',docXml.includes('w:descr=')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
+    check(28,8,'Add alt text to all graphics',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment on budget table',cc>=1,`✓ ${cc} comment(s).`,'✗ Fix: Select cell → Review → New Comment.');
     check(30,2,'Reply to comment from sales manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc}. Fix: Click comment → Reply.`);
