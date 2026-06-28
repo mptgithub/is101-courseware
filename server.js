@@ -1177,7 +1177,7 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
 
     // Indentation
     auto('D2 — Format Text & Paragraphs','Set indentation',
-      docXml.includes('w:firstLine=') || /w:left="[1-9]\d+"/.test(docXml),
+      docXml.includes('w:firstLine=') || /<w:ind[^>]*w:left="[1-9]\d+"/.test(docXml),
       '✓ Indentation detected.',
       '✗ No indentation. Fix: Layout → Indent or Paragraph dialog → Indentation.');
 
@@ -1427,10 +1427,13 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Media file detected — icon likely inserted.',
       '✗ No icon detected. Fix: Insert → Icons → search for a business icon → Insert.');
 
-    // Add text to shape (callout)
+    // Add text to shape: seeded shapes have empty wps:txbx blocks
+    // Require actual non-empty text inside a wps:txbx
+    const txbxBlocks = [...docXml.matchAll(/<wps:txbx>([\s\S]*?)<\/wps:txbx>/g)].map(m => m[1]);
+    const shapeHasText = txbxBlocks.some(block => /<w:t>[^<]+<\/w:t>/.test(block));
     auto('D5 — Graphic Elements','Add text to a shape',
-      docXml.includes('wps:txbx') || docXml.includes('w:txbxContent'),
-      '✓ Shape with text detected.',
+      shapeHasText,
+      '✓ Text inside a shape detected.',
       '✗ No text in shape. Fix: Double-click a shape → type text inside it.');
 
     auto('D5 — Graphic Elements','Position an object on the page',
