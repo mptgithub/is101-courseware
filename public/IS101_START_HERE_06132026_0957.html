@@ -1968,6 +1968,12 @@ function renderUnitContent(unitNum) {
       setTimeout(() => {
         const lbl = document.getElementById('wp-drop-label');
         if (lbl) lbl.onclick = () => document.getElementById('wp-file').click();
+        if (window._wpFile) {
+          const st = document.getElementById('wp-status');
+          const btn = document.getElementById('wp-btn');
+          if (st) st.textContent = 'Selected: ' + window._wpFile.name + ' (' + (window._wpFile.size/1024).toFixed(1) + ' KB)';
+          if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        }
       }, 0);
     }
     // ── end practice grader widget ────────────────────────────────────
@@ -2155,14 +2161,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── Word Practice Grader functions ────────────────────────────────────────
 (function() {
-  let wpFile = null;
+  window._wpFile = null;
 
   window.wpSetFile = function(f) {
     if (!f || !f.name.endsWith('.docx')) {
       document.getElementById('wp-status').textContent = 'Please select a .docx file.';
       return;
     }
-    wpFile = f;
+    window._wpFile = f;
     document.getElementById('wp-status').textContent = 'Selected: ' + f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)';
     const btn = document.getElementById('wp-btn');
     btn.disabled = false;
@@ -2178,7 +2184,7 @@ window.addEventListener('DOMContentLoaded', () => {
   window.wpSubmit = async function() {
     const nshe = document.getElementById('wp-nshe').value.trim();
     if (!nshe) { document.getElementById('wp-status').textContent = 'Enter your NSHE ID first.'; return; }
-    if (!wpFile) return;
+    if (!window._wpFile) { document.getElementById('wp-status').textContent = 'Please select a file first.'; return; }
 
     const btn = document.getElementById('wp-btn');
     btn.disabled = true;
@@ -2187,7 +2193,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('wp-results').style.display = 'none';
 
     const form = new FormData();
-    form.append('file', wpFile);
+    form.append('file', window._wpFile);
     form.append('nsheId', nshe);
 
     try {
@@ -2198,8 +2204,8 @@ window.addEventListener('DOMContentLoaded', () => {
     } catch(e) {
       document.getElementById('wp-status').textContent = 'Error: ' + e.message;
     } finally {
-      btn.disabled = false;
-      btn.style.opacity = '1';
+      const b = document.getElementById('wp-btn');
+      if (b) { b.disabled = false; b.style.opacity = '1'; }
     }
   };
 
