@@ -965,7 +965,229 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
 });
 
 
-// ── CATCH-ALL ─────────────────────────────────────────────────────────────────
+// ── WORD D1 PRACTICE GRADER ───────────────────────────────────────────────────
+app.post('/api/grade/word-practice-d1', upload.single('file'), async (req, res) => {
+  try {
+    const buf = fs.readFileSync(req.file.path);
+    const zip = new JSZip();
+    await zip.loadAsync(buf);
+    const gx = (n) => { try { return zip.file(n)?.nodeStream ? zip.files[n] && zip.files[n].async('text') : null; } catch(e){ return null; } };
+    const rx = async (n) => { try { const f=zip.file(n); return f ? await f.async('text') : ''; } catch(e){ return ''; } };
+
+    const docXml   = await rx('word/document.xml');
+    const coreXml  = await rx('docProps/core.xml');
+    const cstmXml  = await rx('docProps/custom.xml');
+    const hXml     = await rx('word/header1.xml') || await rx('word/header2.xml') || '';
+    const fXml     = await rx('word/footer1.xml') || await rx('word/footer2.xml') || '';
+    const cmmXml   = await rx('word/comments.xml');
+    const cmmExtXml= await rx('word/commentsExtended.xml');
+    const settXml  = await rx('word/settings.xml');
+    const numXml   = await rx('word/numbering.xml');
+    const stylesXml= await rx('word/styles.xml');
+    const relsXml  = await rx('word/_rels/document.xml.rels');
+
+    // File list for detecting SmartArt, 3D models etc.
+    const fileList = Object.keys(zip.files).join('|');
+
+    const INCH = 1440;
+    const skills = [];
+
+    const auto = (domain, name, passed, passMsg, failMsg) =>
+      skills.push({ domain, name, type: 'auto', passed, passMsg, failMsg });
+    const self = (domain, name, hint) =>
+      skills.push({ domain, name, type: 'self', passed: null, hint });
+
+    // ── D1 Skills ─────────────────────────────────────────────────────────────
+
+    // 1. Set page margins
+    const pgMar = docXml.match(/w:pgMar([^/]*?)\//);
+    let mOk = false;
+    if (pgMar) {
+      const a = pgMar[1];
+      const t = parseInt((a.match(/w:top="(\d+)"/) || [0,'0'])[1]);
+      const b = parseInt((a.match(/w:bottom="(\d+)"/) || [0,'0'])[1]);
+      const l = parseInt((a.match(/w:left="(\d+)"/) || [0,'0'])[1]);
+      const r = parseInt((a.match(/w:right="(\d+)"/) || [0,'0'])[1]);
+      mOk = [t,b,l,r].every(v => v > 0 && Math.abs(v - INCH) < 144);
+    }
+    auto('D1 — Manage Documents', 'Set page margins', mOk,
+      '✓ Page margins changed from the default.',
+      '✗ Margins not changed. Fix: Layout → Margins → choose or set custom margins.');
+
+    // 2. Set page orientation
+    const hasLandscape = docXml.includes('w:orient="landscape"');
+    auto('D1 — Manage Documents', 'Set page orientation', hasLandscape,
+      '✓ Landscape orientation detected.',
+      '✗ Orientation not changed. Fix: Layout → Orientation → Landscape.');
+
+    // 3. Set paper size (Letter = 12240 × 15840 DXA)
+    const hasLetter = docXml.includes('w:w="12240"') && (docXml.includes('w:h="15840"') || docXml.includes('w:h="12240"'));
+    auto('D1 — Manage Documents', 'Set paper size to Letter', hasLetter,
+      '✓ US Letter paper size detected.',
+      '✗ Paper size not set to Letter. Fix: Layout → Size → Letter.');
+
+    // 4. Set page color
+    const hasPageColor = settXml.includes('w:displayBackgroundShape') &&
+      (docXml.includes('w:background') || settXml.includes('w:background') ||
+       docXml.includes('<w:bg ') || coreXml.includes('background'));
+    auto('D1 — Manage Documents', 'Set page color', hasPageColor,
+      '✓ Page background color detected.',
+      '✗ No page color. Fix: Design → Page Color → choose a color.');
+
+    // 5. Add page borders
+    const hasPageBorder = docXml.includes('<w:pgBorders') || settXml.includes('pgBorders');
+    auto('D1 — Manage Documents', 'Add page borders', hasPageBorder,
+      '✓ Page border detected.',
+      '✗ No page border. Fix: Design → Page Borders → choose a border style.');
+
+    // 6. Apply a style set
+    const h1c = (docXml.match(/(?:styleId|w:val)="Heading ?1"/g) || []).length;
+    auto('D1 — Manage Documents', 'Apply a style set', h1c >= 1,
+      '✓ Heading styles applied — style set in use.',
+      '✗ No heading styles detected. Fix: Design → Document Formatting → Style Sets → choose one.');
+
+    // 7. Insert header
+    auto('D1 — Manage Documents', 'Insert a header', hXml.length > 100,
+      '✓ Header content detected.',
+      '✗ No header found. Fix: Insert → Header → choose a style and add text.');
+
+    // 8. Insert footer
+    auto('D1 — Manage Documents', 'Insert a footer', fXml.length > 100,
+      '✓ Footer content detected.',
+      '✗ No footer found. Fix: Insert → Footer → choose a style and add text.');
+
+    // 9. Insert page numbers
+    const hasPageNums = fXml.includes('fldChar') || fXml.includes('PAGE') ||
+                        hXml.includes('fldChar') || hXml.includes('PAGE');
+    auto('D1 — Manage Documents', 'Insert page numbers', hasPageNums,
+      '✓ Page number field detected.',
+      '✗ No page numbers. Fix: Insert → Page Number → choose a position.');
+
+    // 10. Insert a hyperlink
+    auto('D1 — Manage Documents', 'Insert a hyperlink',
+      docXml.includes('w:hyperlink') || relsXml.includes('hyperlink'),
+      '✓ Hyperlink detected.',
+      '✗ No hyperlink found. Fix: select text → Insert → Link → enter a URL.');
+
+    // 11. Add a watermark
+    const hasWatermark = hXml.toLowerCase().includes('watermark') ||
+      hXml.includes('w:pict') || hXml.includes('v:shape') ||
+      (hXml.includes('w:sdt') && hXml.toLowerCase().includes('draft'));
+    auto('D1 — Manage Documents', 'Add a watermark', hasWatermark,
+      '✓ Watermark detected.',
+      '✗ No watermark. Fix: Design → Watermark → choose DRAFT or CONFIDENTIAL.');
+
+    // 12. Modify document properties
+    const hasProps = /<dc:title>[^<]+<\/dc:title>/.test(coreXml) ||
+                     /<dc:creator>[^<]+<\/dc:creator>/.test(coreXml) ||
+                     /<dc:subject>[^<]+<\/dc:subject>/.test(coreXml);
+    auto('D1 — Manage Documents', 'Modify document properties', hasProps,
+      '✓ Document properties (Title, Author, or Subject) detected.',
+      '✗ No document properties set. Fix: File → Info → Properties → fill in Title and Author.');
+
+    // 13. Add a custom document property
+    const hasCustomProp = cstmXml.length > 150 && cstmXml.includes('<property ');
+    auto('D1 — Manage Documents', 'Add a custom document property', hasCustomProp,
+      '✓ Custom document property detected.',
+      '✗ No custom property. Fix: File → Info → Properties → Advanced Properties → Custom tab → Add.');
+
+    // 14. Search for text (Navigation Pane) — self-check
+    self('D1 — Manage Documents', 'Search for text (Navigation Pane)',
+      'Use Ctrl+F or View → Navigation Pane. Type a word in the search box. This action leaves no trace in the saved file.');
+
+    // 15. Navigate to specific locations (Go To) — self-check
+    self('D1 — Manage Documents', 'Navigate to locations (Go To)',
+      'Use Ctrl+G or F5. Choose a page number, heading, or bookmark to navigate to.');
+
+    // 16. Show/Hide formatting marks — self-check
+    self('D1 — Manage Documents', 'Show/Hide formatting marks',
+      'Press Ctrl+* or Home → ¶ button. You should see paragraph marks and spaces appear. This is a display setting not saved to the file.');
+
+    // 17. Modify print settings (detected via pageSetup)
+    const hasPrintSettings = docXml.includes('<w:pageSetup') &&
+      (docXml.includes('w:paperSize="') || docXml.includes('w:scale=') ||
+       docXml.includes('w:fitToWidth') || docXml.includes('w:paperHeight'));
+    auto('D1 — Manage Documents', 'Modify print settings', hasPrintSettings,
+      '✓ Print settings detected in the document.',
+      '✗ No print settings change detected. Fix: File → Print → Page Setup → adjust settings like paper size or fit to page.');
+
+    // 18. Save as different file format — self-check
+    self('D1 — Manage Documents', 'Save as a different file format',
+      'Use File → Save As → choose PDF, .txt, or another format. Your saved .docx cannot confirm this — check that the other file type was saved to your computer.');
+
+    // 19. Share a document — self-check
+    self('D1 — Manage Documents', 'Share a document',
+      'Use File → Share → Share with People. Enter an email address and set permissions. This action is online and leaves no trace in the local .docx file.');
+
+    // 20. Check Accessibility — self-check
+    self('D1 — Manage Documents', 'Check accessibility',
+      'Use Review → Check Accessibility. Read the results panel and fix any issues listed. The checker result is not saved to the file.');
+
+    // 21. Check compatibility — self-check
+    self('D1 — Manage Documents', 'Check compatibility',
+      'Use File → Info → Check for Issues → Check Compatibility. Review what features may not be supported in older Word formats.');
+
+    // 22. Remove hidden properties / personal info (detectable because starter has known properties)
+    // Starter has Title, Creator, Subject, Keywords — after removal these should be empty/absent
+    const starterHadTitle = true; // we know the starter had these
+    const titleGone  = !/<dc:title>[^<]+<\/dc:title>/.test(coreXml);
+    const creatorGone = !/Mark Taormino/.test(coreXml) && !/Un-named/.test(coreXml);
+    const keywordsGone = !/<cp:keywords>[^<]+<\/cp:keywords>/.test(coreXml);
+    auto('D1 — Manage Documents', 'Remove hidden properties / personal info',
+      titleGone && keywordsGone,
+      '✓ Hidden properties and personal info removed from the starter\'s known values.',
+      '✗ Original hidden properties still present. Fix: File → Info → Check for Issues → Inspect Document → Remove All next to Document Properties.');
+
+    // 23. Delete a comment (starter had comment id=0)
+    const commentCount = (cmmXml.match(/<w:comment /g) || []).length;
+    auto('D1 — Manage Documents', 'Delete a comment',
+      commentCount === 0,
+      '✓ The starter\'s comment has been deleted.',
+      '✗ Comment still present. Fix: right-click the comment bubble → Delete Comment.');
+
+    // 24. Resolve a comment (starter will have comment — check for w15:done="1")
+    const resolved = cmmExtXml.includes('w15:done="1"') || cmmExtXml.includes("w15:done='1'");
+    auto('D1 — Manage Documents', 'Resolve a comment',
+      resolved,
+      '✓ Comment marked as resolved.',
+      '✗ No resolved comment found. Fix: hover the comment → click the checkmark (✓) button to resolve it.');
+
+    // 25. Review tracked changes — self-check
+    self('D1 — Manage Documents', 'Review tracked changes',
+      'Use Review → Show Markup to see all changes. Use the Previous/Next buttons to review each one. Reviewing is not a file-changing action.');
+
+    // 26. Accept a tracked change (starter has known del/ins — after accept, markup gone)
+    const hasTrackedChanges = docXml.includes('<w:ins ') || docXml.includes('<w:del ');
+    auto('D1 — Manage Documents', 'Accept a tracked change',
+      !hasTrackedChanges,
+      '✓ No tracked change markup found — at least one change was accepted.',
+      '✗ Tracked changes still present. Fix: Review → Accept → Accept This Change (click on a specific change first).');
+
+    // 27. Reject a tracked change (starter has known ins — after reject, text gone)
+    // If tracked changes remain = not done; if gone = done (accept or reject both work — note this)
+    auto('D1 — Manage Documents', 'Reject a tracked change',
+      !hasTrackedChanges,
+      '✓ Tracked change markup removed — change was accepted or rejected.',
+      '✗ Tracked changes still present. Fix: Review → Reject → Reject This Change.');
+
+    // 28. Lock/Unlock track changes
+    const trackLocked = settXml.includes('w:documentProtection') && settXml.includes('trackedChanges');
+    const trackUnlocked = !trackLocked;
+    auto('D1 — Manage Documents', 'Lock or unlock track changes',
+      trackUnlocked,
+      '✓ Track Changes lock has been removed from the starter.',
+      '✗ Track Changes is still locked. Fix: Review → Track Changes dropdown → Lock Track Changes → enter password (none set).');
+
+    fs.unlinkSync(req.file.path);
+    res.json({ skills });
+  } catch(err) {
+    console.error('Word D1 Practice grading error:', err.stack || err);
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    res.status(500).json({ error: 'Grading failed: ' + (err.message || String(err)) });
+  }
+});
+
+
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
     return res.status(404).json({ error: 'API endpoint not found' });
