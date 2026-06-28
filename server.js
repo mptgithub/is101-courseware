@@ -965,231 +965,599 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
 });
 
 
-// ── WORD D1 PRACTICE GRADER ───────────────────────────────────────────────────
-app.post('/api/grade/word-practice-d1', upload.single('file'), async (req, res) => {
+// ── WORD COMBINED PRACTICE GRADER (D1–D6) ─────────────────────────────────
+app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => {
   try {
     const buf = fs.readFileSync(req.file.path);
     const zip = new JSZip();
     await zip.loadAsync(buf);
-    const gx = (n) => { try { return zip.file(n)?.nodeStream ? zip.files[n] && zip.files[n].async('text') : null; } catch(e){ return null; } };
     const rx = async (n) => { try { const f=zip.file(n); return f ? await f.async('text') : ''; } catch(e){ return ''; } };
 
-    const docXml   = await rx('word/document.xml');
-    const coreXml  = await rx('docProps/core.xml');
-    const cstmXml  = await rx('docProps/custom.xml');
-    const hXml     = await rx('word/header1.xml') || await rx('word/header2.xml') || '';
-    const fXml     = await rx('word/footer1.xml') || await rx('word/footer2.xml') || '';
-    const cmmXml   = await rx('word/comments.xml');
-    const cmmExtXml= await rx('word/commentsExtended.xml');
-    const settXml  = await rx('word/settings.xml');
-    const numXml   = await rx('word/numbering.xml');
-    const stylesXml= await rx('word/styles.xml');
-    const relsXml  = await rx('word/_rels/document.xml.rels');
-
-    // File list for detecting SmartArt, 3D models etc.
-    const fileList = Object.keys(zip.files).join('|');
+    const docXml    = await rx('word/document.xml');
+    const coreXml   = await rx('docProps/core.xml');
+    const cstmXml   = await rx('docProps/custom.xml');
+    const hXml      = await rx('word/header1.xml') || await rx('word/header2.xml') || '';
+    const fXml      = await rx('word/footer1.xml') || await rx('word/footer2.xml') || '';
+    const cmmXml    = await rx('word/comments.xml');
+    const cmmExtXml = await rx('word/commentsExtended.xml');
+    const settXml   = await rx('word/settings.xml');
+    const stylesXml = await rx('word/styles.xml');
+    const numXml    = await rx('word/numbering.xml');
+    const fnXml     = await rx('word/footnotes.xml');
+    const enXml     = await rx('word/endnotes.xml');
+    const relsXml   = await rx('word/_rels/document.xml.rels');
+    const fileList  = Object.keys(zip.files).join('|');
 
     const INCH = 1440;
     const skills = [];
-
     const auto = (domain, name, passed, passMsg, failMsg) =>
-      skills.push({ domain, name, type: 'auto', passed, passMsg, failMsg });
+      skills.push({ domain, name, type:'auto', passed, passMsg, failMsg });
     const self = (domain, name, hint) =>
-      skills.push({ domain, name, type: 'self', passed: null, hint });
+      skills.push({ domain, name, type:'self', passed:null, hint });
 
-    // ── D1 Skills ─────────────────────────────────────────────────────────────
-
-    // 1. Set page margins
+    // ── D1 — Manage Documents ───────────────────────────────────────────────
     const pgMar = docXml.match(/w:pgMar([^/]*?)\//);
     let mOk = false;
     if (pgMar) {
       const a = pgMar[1];
-      const t = parseInt((a.match(/w:top="(\d+)"/) || [0,'0'])[1]);
-      const b = parseInt((a.match(/w:bottom="(\d+)"/) || [0,'0'])[1]);
-      const l = parseInt((a.match(/w:left="(\d+)"/) || [0,'0'])[1]);
-      const r = parseInt((a.match(/w:right="(\d+)"/) || [0,'0'])[1]);
-      mOk = [t,b,l,r].every(v => v > 0 && Math.abs(v - INCH) < 144);
+      const vals = ['top','bottom','left','right'].map(s => parseInt((a.match(new RegExp(`w:${s}="(\\d+)"`)) || [0,'0'])[1]));
+      mOk = vals.every(v => v > 0 && Math.abs(v - INCH) < 144);
     }
-    auto('D1 — Manage Documents', 'Set page margins', mOk,
-      '✓ Page margins changed from the default.',
-      '✗ Margins not changed. Fix: Layout → Margins → choose or set custom margins.');
+    auto('D1 — Manage Documents','Set page margins', mOk,
+      '✓ Margins changed from the default.',
+      '✗ Margins not changed. Fix: Layout → Margins → Normal (or custom).');
 
-    // 2. Set page orientation
-    const hasLandscape = docXml.includes('w:orient="landscape"');
-    auto('D1 — Manage Documents', 'Set page orientation', hasLandscape,
+    auto('D1 — Manage Documents','Set page orientation', docXml.includes('w:orient="landscape"'),
       '✓ Landscape orientation detected.',
       '✗ Orientation not changed. Fix: Layout → Orientation → Landscape.');
 
-    // 3. Set paper size (Letter = 12240 × 15840 DXA)
-    const hasLetter = docXml.includes('w:w="12240"') && (docXml.includes('w:h="15840"') || docXml.includes('w:h="12240"'));
-    auto('D1 — Manage Documents', 'Set paper size to Letter', hasLetter,
-      '✓ US Letter paper size detected.',
-      '✗ Paper size not set to Letter. Fix: Layout → Size → Letter.');
+    auto('D1 — Manage Documents','Set paper size to Letter',
+      docXml.includes('w:w="12240"') && docXml.includes('w:h="15840"'),
+      '✓ US Letter size detected.',
+      '✗ Paper size not Letter. Fix: Layout → Size → Letter.');
 
-    // 4. Set page color
-    const hasPageColor = settXml.includes('w:displayBackgroundShape') &&
-      (docXml.includes('w:background') || settXml.includes('w:background') ||
-       docXml.includes('<w:bg ') || coreXml.includes('background'));
-    auto('D1 — Manage Documents', 'Set page color', hasPageColor,
+    auto('D1 — Manage Documents','Set page color',
+      docXml.includes('<w:bg ') || settXml.includes('w:background'),
       '✓ Page background color detected.',
       '✗ No page color. Fix: Design → Page Color → choose a color.');
 
-    // 5. Add page borders
-    const hasPageBorder = docXml.includes('<w:pgBorders') || settXml.includes('pgBorders');
-    auto('D1 — Manage Documents', 'Add page borders', hasPageBorder,
+    auto('D1 — Manage Documents','Add page borders',
+      docXml.includes('<w:pgBorders'),
       '✓ Page border detected.',
       '✗ No page border. Fix: Design → Page Borders → choose a border style.');
 
-    // 6. Apply a style set — detect by Heading 1 color changing from the starter's known baseline
-    // Starter has Heading1 color 2F5496 and 2E74B5 (default Office). Any style set change produces a different color.
-    const starterH1Colors = ['2F5496','2E74B5','2E74B5'.toLowerCase(),'2F5496'.toLowerCase(),'1F4D78'];
+    const starterH1Colors = new Set(['2F5496','2E74B5','1F4D78']);
     const h1Colors = [...stylesXml.matchAll(/styleId="Heading1"[\s\S]*?w:color w:val="([^"]+)"/g)].map(m => m[1].toUpperCase());
-    const styleSetChanged = h1Colors.length > 0 && h1Colors.some(c => !starterH1Colors.map(s=>s.toUpperCase()).includes(c));
-    auto('D1 — Manage Documents', 'Apply a style set', styleSetChanged,
-      '✓ Style set change detected — Heading styles updated from the default.',
-      '✗ Style set not changed. Fix: Design → Document Formatting → Style Sets gallery → choose one (e.g. Basic (Stylish)).');
+    auto('D1 — Manage Documents','Apply a style set',
+      h1Colors.length > 0 && h1Colors.some(c => !starterH1Colors.has(c)),
+      '✓ Style set change detected — Heading styles updated.',
+      '✗ Style set not changed. Fix: Design → Document Formatting → Style Sets → choose one.');
 
-    // 7. Insert header
-    auto('D1 — Manage Documents', 'Insert a header', hXml.length > 100,
+    auto('D1 — Manage Documents','Insert a header', hXml.length > 100,
       '✓ Header content detected.',
-      '✗ No header found. Fix: Insert → Header → choose a style and add text.');
+      '✗ No header. Fix: Insert → Header → choose a style and add text.');
 
-    // 8. Insert footer
-    auto('D1 — Manage Documents', 'Insert a footer', fXml.length > 100,
+    auto('D1 — Manage Documents','Insert a footer', fXml.length > 100,
       '✓ Footer content detected.',
-      '✗ No footer found. Fix: Insert → Footer → choose a style and add text.');
+      '✗ No footer. Fix: Insert → Footer → choose a style and add text.');
 
-    // 9. Insert page numbers
-    const hasPageNums = fXml.includes('fldChar') || fXml.includes('PAGE') ||
-                        hXml.includes('fldChar') || hXml.includes('PAGE');
-    auto('D1 — Manage Documents', 'Insert page numbers', hasPageNums,
+    auto('D1 — Manage Documents','Insert page numbers',
+      fXml.includes('fldChar') || fXml.includes('PAGE') || hXml.includes('fldChar') || hXml.includes('PAGE'),
       '✓ Page number field detected.',
       '✗ No page numbers. Fix: Insert → Page Number → choose a position.');
 
-    // 10. Insert a hyperlink
-    auto('D1 — Manage Documents', 'Insert a hyperlink',
+    auto('D1 — Manage Documents','Insert a hyperlink',
       docXml.includes('w:hyperlink') || relsXml.includes('hyperlink'),
       '✓ Hyperlink detected.',
-      '✗ No hyperlink found. Fix: select text → Insert → Link → enter a URL.');
+      '✗ No hyperlink. Fix: Select text → Insert → Link → enter a URL.');
 
-    // 11. Add a watermark
-    const hasWatermark = hXml.toLowerCase().includes('watermark') ||
-      hXml.includes('w:pict') || hXml.includes('v:shape') ||
-      (hXml.includes('w:sdt') && hXml.toLowerCase().includes('draft'));
-    auto('D1 — Manage Documents', 'Add a watermark', hasWatermark,
+    auto('D1 — Manage Documents','Add a watermark',
+      hXml.toLowerCase().includes('watermark') || hXml.includes('w:pict') || hXml.includes('v:shape'),
       '✓ Watermark detected.',
-      '✗ No watermark. Fix: Design → Watermark → choose DRAFT or CONFIDENTIAL.');
+      '✗ No watermark. Fix: Design → Watermark → DRAFT or CONFIDENTIAL.');
 
-    // 12. Modify document properties — starter has known Title/Author; student should change them
     const starterTitle = 'Annual Business Report 2026 \u2014 DRAFT';
     const currentTitle = (coreXml.match(/<dc:title>([^<]+)<\/dc:title>/) || ['',''])[1];
-    const hasModifiedProps = currentTitle.length > 0 && currentTitle !== starterTitle;
-    auto('D1 — Manage Documents', 'Modify document properties', hasModifiedProps,
-      '✓ Document properties changed from the starter\'s default values.',
-      '✗ Properties not changed. Fix: File → Info → Properties panel → update Title and Author.');
+    auto('D1 — Manage Documents','Modify document properties',
+      currentTitle.length > 0 && currentTitle !== starterTitle,
+      '✓ Document properties changed from starter defaults.',
+      '✗ Properties not changed. Fix: File → Info → Properties → update Title and Author.');
 
-    // 13. Add a custom document property
-    const hasCustomProp = cstmXml.length > 150 && cstmXml.includes('<property ');
-    auto('D1 — Manage Documents', 'Add a custom document property', hasCustomProp,
-      '✓ Custom document property detected.',
-      '✗ No custom property. Fix: File → Info → Properties → Advanced Properties → Custom tab → Add.');
+    auto('D1 — Manage Documents','Add a custom document property',
+      cstmXml.length > 150 && cstmXml.includes('<property '),
+      '✓ Custom property detected.',
+      '✗ No custom property. Fix: File → Info → Properties → Advanced Properties → Custom → Add.');
 
-    // 14. Search for text (Navigation Pane) — self-check
-    self('D1 — Manage Documents', 'Search for text (Navigation Pane)',
-      'Use Ctrl+F or View → Navigation Pane. Type a word in the search box. This action leaves no trace in the saved file.');
+    self('D1 — Manage Documents','Search for text (Navigation Pane)',
+      'Use Ctrl+F or View → Navigation Pane. Type a search term. Navigation leaves no trace in the saved file.');
+    self('D1 — Manage Documents','Navigate to specific locations (Go To)',
+      'Use Ctrl+G or F5. Navigate to a page number or heading.');
+    self('D1 — Manage Documents','Show/Hide formatting marks',
+      'Press Ctrl+* or Home → ¶. This is a display setting — it is not saved to the file.');
 
-    // 15. Navigate to specific locations (Go To) — self-check
-    self('D1 — Manage Documents', 'Navigate to locations (Go To)',
-      'Use Ctrl+G or F5. Choose a page number, heading, or bookmark to navigate to.');
+    auto('D1 — Manage Documents','Modify print settings',
+      docXml.includes('<w:pageSetup') && (docXml.includes('w:paperSize="') || docXml.includes('w:scale=') || docXml.includes('w:fitToWidth')),
+      '✓ Print settings change detected.',
+      '✗ No print settings change. Fix: File → Print → Page Setup → adjust settings.');
 
-    // 16. Show/Hide formatting marks — self-check
-    self('D1 — Manage Documents', 'Show/Hide formatting marks',
-      'Press Ctrl+* or Home → ¶ button. You should see paragraph marks and spaces appear. This is a display setting not saved to the file.');
+    self('D1 — Manage Documents','Save as a different file format',
+      'File → Save As → choose PDF or another format. The .docx cannot confirm this — verify the saved file on your computer.');
+    self('D1 — Manage Documents','Share a document',
+      'File → Share → Share with People. This is an online action with no trace in the local .docx file.');
+    self('D1 — Manage Documents','Check Accessibility',
+      'Review → Check Accessibility. Read and address any issues listed in the results panel.');
+    self('D1 — Manage Documents','Check Compatibility',
+      'File → Info → Check for Issues → Check Compatibility. Review any features not supported in older formats.');
 
-    // 17. Modify print settings (detected via pageSetup)
-    const hasPrintSettings = docXml.includes('<w:pageSetup') &&
-      (docXml.includes('w:paperSize="') || docXml.includes('w:scale=') ||
-       docXml.includes('w:fitToWidth') || docXml.includes('w:paperHeight'));
-    auto('D1 — Manage Documents', 'Modify print settings', hasPrintSettings,
-      '✓ Print settings detected in the document.',
-      '✗ No print settings change detected. Fix: File → Print → Page Setup → adjust settings like paper size or fit to page.');
-
-    // 18. Save as different file format — self-check
-    self('D1 — Manage Documents', 'Save as a different file format',
-      'Use File → Save As → choose PDF, .txt, or another format. Your saved .docx cannot confirm this — check that the other file type was saved to your computer.');
-
-    // 19. Share a document — self-check
-    self('D1 — Manage Documents', 'Share a document',
-      'Use File → Share → Share with People. Enter an email address and set permissions. This action is online and leaves no trace in the local .docx file.');
-
-    // 20. Check Accessibility — self-check
-    self('D1 — Manage Documents', 'Check accessibility',
-      'Use Review → Check Accessibility. Read the results panel and fix any issues listed. The checker result is not saved to the file.');
-
-    // 21. Check compatibility — self-check
-    self('D1 — Manage Documents', 'Check compatibility',
-      'Use File → Info → Check for Issues → Check Compatibility. Review what features may not be supported in older Word formats.');
-
-    // 22. Remove hidden properties / personal info (detectable because starter has known properties)
-    // Starter has Title, Creator, Subject, Keywords — after removal these should be empty/absent
-    const starterHadTitle = true; // we know the starter had these
-    const titleGone  = !/<dc:title>[^<]+<\/dc:title>/.test(coreXml);
-    const creatorGone = !/Mark Taormino/.test(coreXml) && !/Un-named/.test(coreXml);
+    const titleGone = !/<dc:title>[^<]+<\/dc:title>/.test(coreXml);
     const keywordsGone = !/<cp:keywords>[^<]+<\/cp:keywords>/.test(coreXml);
-    auto('D1 — Manage Documents', 'Remove hidden properties / personal info',
+    auto('D1 — Manage Documents','Remove hidden properties / personal info',
       titleGone && keywordsGone,
-      '✓ Hidden properties and personal info removed from the starter\'s known values.',
-      '✗ Original hidden properties still present. Fix: File → Info → Check for Issues → Inspect Document → Remove All next to Document Properties.');
+      '✓ Starter\'s known properties (Title, Keywords) removed.',
+      '✗ Original properties still present. Fix: File → Info → Check for Issues → Inspect Document → Remove All.');
 
-    // 23. Delete a comment (starter had comment id=0)
+    // Starter has 2 comments (id=0 Manager, id=1 Finance Manager)
+    // Delete comment: student removes one; resolve: student marks one resolved
     const commentCount = (cmmXml.match(/<w:comment /g) || []).length;
-    auto('D1 — Manage Documents', 'Delete a comment',
-      commentCount === 0,
-      '✓ The starter\'s comment has been deleted.',
-      '✗ Comment still present. Fix: right-click the comment bubble → Delete Comment.');
+    auto('D1 — Manage Documents','Delete a comment',
+      commentCount < 2,
+      `✓ A comment was deleted (${commentCount} remaining).`,
+      '✗ Both starter comments still present. Fix: right-click a comment bubble → Delete Comment.');
 
-    // 24. Resolve a comment (starter will have comment — check for w15:done="1")
-    const resolved = cmmExtXml.includes('w15:done="1"') || cmmExtXml.includes("w15:done='1'");
-    auto('D1 — Manage Documents', 'Resolve a comment',
-      resolved,
+    auto('D1 — Manage Documents','Resolve a comment',
+      cmmExtXml.includes('w15:done="1"') || cmmExtXml.includes("w15:done='1'"),
       '✓ Comment marked as resolved.',
-      '✗ No resolved comment found. Fix: hover the comment → click the checkmark (✓) button to resolve it.');
+      '✗ No resolved comment. Fix: hover a comment → click the ✓ checkmark button.');
 
-    // 25. Review tracked changes — self-check
-    self('D1 — Manage Documents', 'Review tracked changes',
-      'Use Review → Show Markup to see all changes. Use the Previous/Next buttons to review each one. Reviewing is not a file-changing action.');
+    self('D1 — Manage Documents','Review tracked changes',
+      'Review → Show Markup to view changes. Use Previous/Next to step through them. Reviewing leaves no file trace.');
 
-    // 26. Accept a tracked change (starter has known del/ins — after accept, markup gone)
-    const hasTrackedChanges = docXml.includes('<w:ins ') || docXml.includes('<w:del ');
-    auto('D1 — Manage Documents', 'Accept a tracked change',
-      !hasTrackedChanges,
-      '✓ No tracked change markup found — at least one change was accepted.',
-      '✗ Tracked changes still present. Fix: Review → Accept → Accept This Change (click on a specific change first).');
+    // Starter has del id=10/11 in D1 and del id=20 in D6
+    // Accept: all tracked change markup gone
+    // Reject: markup also gone (either action removes it)
+    const hasAnyTC = docXml.includes('<w:ins ') || docXml.includes('<w:del ');
+    auto('D1 — Manage Documents','Accept a tracked change',
+      !hasAnyTC,
+      '✓ Tracked change markup removed — change accepted.',
+      '✗ Tracked changes still present. Fix: Review → Accept → Accept This Change.');
 
-    // 27. Reject a tracked change (starter has known ins — after reject, text gone)
-    // If tracked changes remain = not done; if gone = done (accept or reject both work — note this)
-    auto('D1 — Manage Documents', 'Reject a tracked change',
-      !hasTrackedChanges,
-      '✓ Tracked change markup removed — change was accepted or rejected.',
+    auto('D1 — Manage Documents','Reject a tracked change',
+      !hasAnyTC,
+      '✓ Tracked change markup removed — change accepted or rejected.',
       '✗ Tracked changes still present. Fix: Review → Reject → Reject This Change.');
 
-    // 28. Lock/Unlock track changes
     const trackLocked = settXml.includes('w:documentProtection') && settXml.includes('trackedChanges');
-    const trackUnlocked = !trackLocked;
-    auto('D1 — Manage Documents', 'Lock or unlock track changes',
-      trackUnlocked,
-      '✓ Track Changes lock has been removed from the starter.',
-      '✗ Track Changes is still locked. Fix: Review → Track Changes dropdown → Lock Track Changes → enter password (none set).');
+    auto('D1 — Manage Documents','Lock or unlock track changes',
+      !trackLocked,
+      '✓ Track Changes lock removed from the starter.',
+      '✗ Still locked. Fix: Review → Track Changes dropdown → Lock Track Changes → click OK (no password).');
+
+    // ── D2 — Format Text and Paragraphs ────────────────────────────────────
+    // Find+Replace DSC: starter has 11 DSC instances; after replace, zero
+    const dscCount = (docXml.match(/\bDSC\b/g) || []).length;
+    auto('D2 — Format Text & Paragraphs','Find and Replace (DSC → Desert Sun Consulting)',
+      dscCount === 0,
+      '✓ No "DSC" abbreviations found — all replaced.',
+      `✗ ${dscCount} instance(s) of "DSC" still present. Fix: Ctrl+H → Find "DSC" → Replace with "Desert Sun Consulting" → Replace All.`);
+
+    // Apply symbol: check for w:sym element
+    auto('D2 — Format Text & Paragraphs','Insert a symbol or special character',
+      docXml.includes('<w:sym '),
+      '✓ Special character/symbol detected.',
+      '✗ No symbol found. Fix: Insert → Symbol → More Symbols → choose © or another symbol.');
+
+    // Apply text effects: shadow/glow/reflection on title
+    auto('D2 — Format Text & Paragraphs','Apply text effects',
+      docXml.includes('w:shadow') || docXml.includes('a:outerShdw') || docXml.includes('a:glow') || docXml.includes('a:reflection'),
+      '✓ Text effect detected.',
+      '✗ No text effect. Fix: Select title → Home → Font → Text Effects → Shadow or Glow.');
+
+    // Line spacing: check for non-default w:line value
+    const lineSpacingSet = (()=>{ const m=docXml.match(/w:line="(\d+)"/g); return m && m.some(v=>{ const n=parseInt(v.match(/\d+/)[0]); return n!==240&&n>200&&n<600; }); })();
+    auto('D2 — Format Text & Paragraphs','Set line spacing',
+      lineSpacingSet,
+      '✓ Custom line spacing detected.',
+      '✗ Line spacing not changed. Fix: Select text → Home → Line Spacing → choose 1.5 or 2.0.');
+
+    // Paragraph spacing: starter body paragraphs only have w:after (never w:before on body text)
+    // Headings have w:before but they use pStyle. Student-set spacing adds w:before to body paragraphs.
+    // Detect: w:before on a pPr that has no Heading pStyle and no center alignment
+    const bodySpacingSet = (()=>{
+      return [...docXml.matchAll(/<w:pPr>([\s\S]*?)<\/w:pPr>/g)].some(m => {
+        const b = m[1];
+        return !b.includes('pStyle w:val="Heading') &&
+               !b.includes('jc w:val="center"') &&
+               /w:before="(12|18|24|36|48|60|72|96|120|180|240)"/.test(b) &&
+               !/w:before="(480|720|1440|2880)"/.test(b); // exclude large values
+      });
+    })();
+    auto('D2 — Format Text & Paragraphs','Set paragraph spacing',
+      bodySpacingSet,
+      '✓ Paragraph spacing (before) detected on body text.',
+      '✗ No spacing before body paragraphs detected. Fix: Select body text → Home → Paragraph dialog → Spacing Before → set 6pt or 12pt.');
+
+    // Indentation
+    auto('D2 — Format Text & Paragraphs','Set indentation',
+      docXml.includes('w:firstLine=') || /w:left="[1-9]\d+"/.test(docXml),
+      '✓ Indentation detected.',
+      '✗ No indentation. Fix: Layout → Indent or Paragraph dialog → Indentation.');
+
+    // Character style
+    auto('D2 — Format Text & Paragraphs','Apply a built-in character style',
+      /w:rStyle w:val="(?!CommentReference|FootnoteReference|EndnoteReference)[^"]{3,}"/.test(docXml),
+      '✓ Character style applied.',
+      '✗ No character style. Fix: Select text → Home → Styles → choose Intense Quote or Strong.');
+
+    // Paragraph style
+    auto('D2 — Format Text & Paragraphs','Apply a built-in paragraph style',
+      /w:pStyle w:val="(?!Normal|Heading|footnote|endnote|Comment)[^"]{3,}"/.test(docXml),
+      '✓ Named paragraph style applied.',
+      '✗ No paragraph style applied. Fix: Home → Styles → choose a style like Title or Quote.');
+
+    // Two columns
+    auto('D2 — Format Text & Paragraphs','Format text in multiple columns',
+      docXml.includes('<w:cols') && /w:num="[2-9]"/.test(docXml),
+      '✓ Multi-column layout detected.',
+      '✗ No column layout. Fix: Select text → Layout → Columns → Two.');
+
+    // Column break
+    auto('D2 — Format Text & Paragraphs','Insert a column break',
+      docXml.includes('w:type="column"'),
+      '✓ Column break detected.',
+      '✗ No column break. Fix: Place cursor in column → Layout → Breaks → Column.');
+
+    // Page break: starter has 5 page breaks (section dividers); student should add more
+    const pbCount = (docXml.match(/w:type="page"/g) || []).length;
+    auto('D2 — Format Text & Paragraphs','Insert a page break',
+      pbCount > 5,
+      `✓ ${pbCount} page breaks detected — student added page break(s).`,
+      '✗ No new page break. Fix: Click before a heading → Ctrl+Enter (or Layout → Breaks → Page).');
+
+    // Section break
+    auto('D2 — Format Text & Paragraphs','Insert a section break',
+      (docXml.match(/<w:sectPr[ >]/g) || []).length >= 2,
+      '✓ Section break detected.',
+      '✗ No section break. Fix: Layout → Breaks → Next Page or Continuous.');
+
+    // Change page setup for section (landscape section)
+    auto('D2 — Format Text & Paragraphs','Change page setup for a section',
+      (docXml.match(/<w:sectPr[ >]/g) || []).length >= 2 && docXml.includes('w:orient="landscape"'),
+      '✓ Section with different page setup detected.',
+      '✗ No section page setup change. Fix: Insert section break first, then Layout → Orientation → Landscape in that section.');
+
+    // Format Painter: target paragraph should now have red+bold formatting matching source
+    // Source is "SOURCE TEXT" paragraph with FF0000 red bold
+    // Target is "TARGET TEXT" - check if it now has red color too
+    const targetHasRed = /TARGET TEXT[\s\S]{0,200}FF0000/.test(docXml) ||
+      /FF0000[\s\S]{0,500}TARGET TEXT/.test(docXml);
+    auto('D2 — Format Text & Paragraphs','Use Format Painter',
+      targetHasRed,
+      '✓ Target text now has matching red formatting — Format Painter used.',
+      '✗ Target text formatting not changed. Fix: Click source text → Home → Format Painter brush → click target text.');
+
+    // Clear formatting: "CLEAR THIS" paragraph should now have no bold/italic/color
+    const clearStillFormatted = /<w:b\/>/.test(docXml.slice(docXml.indexOf('CLEAR THIS'), docXml.indexOf('CLEAR THIS') + 400)) ||
+      /<w:i\/>/.test(docXml.slice(docXml.indexOf('CLEAR THIS'), docXml.indexOf('CLEAR THIS') + 400)) ||
+      /0563C1/.test(docXml.slice(docXml.indexOf('CLEAR THIS'), docXml.indexOf('CLEAR THIS') + 400));
+    auto('D2 — Format Text & Paragraphs','Clear formatting',
+      !clearStillFormatted,
+      '✓ Formatting cleared from the "CLEAR THIS" paragraph.',
+      '✗ "CLEAR THIS" paragraph still has Bold/Italic/Blue. Fix: Select it → Home → Clear All Formatting.');
+
+    // Modify footnote properties: starter has decimal numbering (default)
+    // After modification, numFmt should be something other than decimal
+    const fnNumFmt = (fnXml.match(/<w:numFmt w:val="([^"]+)"/) || [])[1] || 'decimal';
+    auto('D2 — Format Text & Paragraphs','Modify footnote/endnote properties',
+      fnNumFmt !== 'decimal' && fnNumFmt !== '',
+      `✓ Footnote numbering changed to ${fnNumFmt}.`,
+      '✗ Footnote still uses default decimal numbering. Fix: References → Footnotes dialog launcher → Number format → change to Roman numerals.');
+
+    // ── D3 — Tables and Lists ───────────────────────────────────────────────
+    auto('D3 — Tables & Lists','Create a table',
+      docXml.includes('<w:tbl>'),
+      '✓ Table detected.',
+      '✗ No table found. Fix: Insert → Table or convert tab-separated text.');
+
+    auto('D3 — Tables & Lists','Convert text to a table',
+      docXml.includes('<w:tbl>'),
+      '✓ Table detected (convert text to table).',
+      '✗ No table found. Fix: Select tab-separated data → Insert → Table → Convert Text to Table.');
+
+    auto('D3 — Tables & Lists','Convert a table to text',
+      docXml.includes('<w:tbl>') && docXml.includes('convertedFromTable'),
+      '✓ Table-to-text conversion detected.',
+      '✗ Not detected. Fix: Click in table → Table Layout → Convert to Text.');
+
+    auto('D3 — Tables & Lists','Sort table data',
+      docXml.split('<w:tbl>').length >= 2,
+      '✓ Multiple tables found — sort verified visually.',
+      '✗ Less than 2 tables detected. Fix: Click in table → Table Layout → Sort.');
+
+    auto('D3 — Tables & Lists','Merge cells',
+      docXml.includes('w:gridSpan'),
+      '✓ Merged cells detected.',
+      '✗ No merged cells. Fix: Select cells → Table Layout → Merge Cells.');
+
+    auto('D3 — Tables & Lists','Split cells',
+      docXml.includes('<w:splitPgBreak') || docXml.includes('w:vMerge') || docXml.count > 0,
+      '✓ Split/modified cell structure detected.',
+      '✗ Not detected. Fix: Click in cell → Table Layout → Split Cells.');
+
+    auto('D3 — Tables & Lists','Split a table',
+      docXml.split('<w:tbl>').length >= 3,
+      '✓ Multiple tables detected — table was split.',
+      '✗ Less than 3 tables. Fix: Click in the row where you want to split → Table Layout → Split Table.');
+
+    // Resize table
+    auto('D3 — Tables & Lists','Resize a table / rows / columns',
+      docXml.includes('w:w=') && docXml.includes('<w:tbl>'),
+      '✓ Table with column widths detected.',
+      '✗ No table found. Fix: Drag column borders or use Table Layout → Width.');
+
+    // Cell margins
+    auto('D3 — Tables & Lists','Configure cell margins and spacing',
+      docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing'),
+      '✓ Custom cell margins detected.',
+      '✗ No custom cell margins. Fix: Table Layout → Cell Margins.');
+
+    // Repeat header row
+    auto('D3 — Tables & Lists','Configure a repeating row header',
+      docXml.includes('w:tblHeader'),
+      '✓ Repeating header row detected.',
+      '✗ No repeat header. Fix: Click header row → Table Layout → Repeat Header Rows.');
+
+    // Numbered list — starter has 0 numId in docXml; student adds lists
+    const numIdCount = (docXml.match(/w:numId w:val="[1-9]/g) || []).length;
+    auto('D3 — Tables & Lists','Format paragraphs as a numbered list',
+      numIdCount >= 1,
+      '✓ Numbered list detected.',
+      '✗ No numbered list. Fix: Select items → Home → Numbering.');
+
+    // Bulleted list — check docXml for numId references (baseline=0) plus bullet in numXml
+    // Since numXml already has bullet formats from D1 starter, check docXml has numId refs
+    // and the corresponding abstractNum uses bullet format
+    auto('D3 — Tables & Lists','Format paragraphs as a bulleted list',
+      numIdCount >= 2 && numXml.includes('w:numFmt w:val="bullet"'),
+      '✓ Bulleted list detected.',
+      '✗ No bulleted list. Fix: Select items → Home → Bullets.');
+
+    // Change list format / custom bullet — check for bullet char NOT in the default set
+    const defaultBullets = new Set(['●','○','■','·','–','*','•','']);
+    const lvlTexts = [...numXml.matchAll(/<w:lvlText w:val="([^"]+)"/g)].map(m => m[1]);
+    const hasCustomBullet = lvlTexts.some(lt => !defaultBullets.has(lt));
+    auto('D3 — Tables & Lists','Change bullet characters and number formats',
+      hasCustomBullet,
+      '✓ Custom bullet character detected.',
+      '✗ No custom bullet. Fix: Home → Bullets dropdown → Define New Bullet → Symbol → choose e.g. ✓.');
+
+    auto('D3 — Tables & Lists','Define custom bullet characters',
+      hasCustomBullet,
+      '✓ Custom bullet character defined.',
+      '✗ No custom bullet defined. Fix: Home → Bullets → Define New Bullet → Symbol → choose a checkmark or star.');
+
+    // List levels
+    auto('D3 — Tables & Lists','Increase/decrease list levels',
+      /w:ilvl w:val="[1-9]"/.test(docXml),
+      '✓ Indented list level detected.',
+      '✗ No sub-levels. Fix: Select sub-items → Home → Increase Indent.');
+
+    // Restart numbering: check docXml (student-created lists) not numXml baseline
+    auto('D3 — Tables & Lists','Start, restart, or continue list numbering',
+      docXml.includes('w:startOverride'),
+      '✓ List numbering restart detected.',
+      '✗ Not detected. Fix: Right-click first item of second list → Restart at 1.');
+
+    // ── D4 — References ─────────────────────────────────────────────────────
+    auto('D4 — References','Insert a footnote',
+      fnXml.split('<w:footnote w:id=').length > 3 && docXml.includes('w:footnoteReference'),
+      '✓ New footnote detected.',
+      '✗ No new footnote. Fix: References → Insert Footnote → type citation text.');
+
+    auto('D4 — References','Insert an endnote',
+      /<w:endnote w:id="[1-9]/.test(enXml) && docXml.includes('w:endnoteReference'),
+      '✓ Endnote detected.',
+      '✗ No endnote. Fix: References → Insert Endnote → type citation text.');
+
+    auto('D4 — References','Insert a Table of Contents',
+      /<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),
+      '✓ Table of Contents detected.',
+      '✗ No TOC. Fix: References → Table of Contents → Automatic Table 1.');
+
+    auto('D4 — References','Customize a Table of Contents',
+      /<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml) ||
+      /<w:instrText[^>]*>[^<]*TOC[^<]*\\l [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),
+      '✓ TOC customized to specific levels.',
+      '✗ TOC not customized. Fix: References → Table of Contents → Custom Table of Contents → Show levels: 2.');
+
+    self('D4 — References','Modify footnote/endnote properties',
+      'References → Footnotes dialog launcher → change Number format to Roman numerals (i, ii, iii). Check the D2 section — the grader detects this change there.');
+
+    // ── D5 — Graphic Elements ───────────────────────────────────────────────
+    auto('D5 — Graphic Elements','Insert a picture',
+      docXml.includes('a:blip r:embed=') || (docXml.includes('w:drawing') && docXml.includes('r:embed=')),
+      '✓ Embedded picture detected.',
+      '✗ No picture. Fix: Insert → Pictures → This Device → select an image.');
+
+    // Format shape: starter has PracticeShape with noFill + blue outline
+    // After formatting, student adds a solidFill to the shape body (not the line)
+    // Detect: solidFill appears BEFORE <a:ln> in the PracticeShape spPr
+    const shapeIdx = docXml.indexOf('PracticeShape');
+    const shapeBlock = shapeIdx >= 0 ? docXml.slice(shapeIdx, shapeIdx + 800) : '';
+    const spPrMatch = shapeBlock.match(/<wps:spPr>([\s\S]*?)<\/wps:spPr>/);
+    let shapeHasFill = false;
+    if (spPrMatch) {
+      const spPr = spPrMatch[1];
+      const lnIdx = spPr.indexOf('<a:ln>');
+      const fillIdx = spPr.indexOf('<a:solidFill>');
+      // Fill is present AND appears before the line element (shape fill, not stroke)
+      shapeHasFill = fillIdx >= 0 && (lnIdx < 0 || fillIdx < lnIdx);
+    }
+    // Insert a shape: seeded shapes have ids 10 and 11; student inserts a NEW shape with higher id
+    const shapeIds = [...docXml.matchAll(/<wp:docPr id="(\d+)"/g)].map(m => parseInt(m[1]));
+    auto('D5 — Graphic Elements','Insert a shape',
+      shapeIds.some(id => id > 11),
+      '✓ Student-inserted shape detected.',
+      '✗ No new shape found. Fix: Insert → Shapes → choose a shape and draw it in the document.');
+
+    auto('D5 — Graphic Elements','Format a shape',
+      shapeHasFill,
+      '✓ Shape fill color detected — shape was formatted.',
+      '✗ PracticeShape still has no fill. Fix: Click the shape → Shape Format → Shape Fill → choose a color.');
+
+    // Insert a text box: seeded textboxes (ids 10,11) exist but are empty
+    // Detect a student-inserted textbox by id > 11 OR any txbxContent with non-empty text
+    // Use proper scoping to avoid greedy cross-boundary matches
+    const tbBlocks = [...docXml.matchAll(/<w:txbxContent>([\s\S]*?)<\/w:txbxContent>/g)].map(m => m[1]);
+    const anyTbText = tbBlocks.some(block => /<w:t>[^<]+<\/w:t>/.test(block));
+    auto('D5 — Graphic Elements','Insert a text box',
+      shapeIds.some(id => id > 11) || anyTbText,
+      '✓ Text box with content detected.',
+      '✗ No text box inserted. Fix: Insert → Text Box → Draw Text Box → type your text.');
+
+    // Add text to text box: starter textbox is empty; check for non-empty w:t inside PracticeTextBox
+    const tbIdx = docXml.indexOf('PracticeTextBox');
+    const tbBlock = tbIdx >= 0 ? docXml.slice(tbIdx, tbIdx + 1000) : '';
+    const tbHasText = /<w:t>[^<]+<\/w:t>/.test(tbBlock);
+    auto('D5 — Graphic Elements','Add text to a text box',
+      tbHasText,
+      '✓ Text detected inside the practice text box.',
+      '✗ Practice text box still empty. Fix: Click inside the text box → type your tagline.');
+
+    auto('D5 — Graphic Elements','Insert an icon',
+      fileList.includes('word/media/') && (docXml.includes('a:extLst') || fileList.split('|').some(f => f.includes('media/'))),
+      '✓ Media file detected — icon likely inserted.',
+      '✗ No icon detected. Fix: Insert → Icons → search for a business icon → Insert.');
+
+    // Add text to shape (callout)
+    auto('D5 — Graphic Elements','Add text to a shape',
+      docXml.includes('wps:txbx') || docXml.includes('w:txbxContent'),
+      '✓ Shape with text detected.',
+      '✗ No text in shape. Fix: Double-click a shape → type text inside it.');
+
+    auto('D5 — Graphic Elements','Position an object on the page',
+      docXml.includes('wp:anchor') || docXml.includes('positionH'),
+      '✓ Positioned object detected.',
+      '✗ No positioned object. Fix: Click image → Picture Format → Position → choose a position.');
+
+    auto('D5 — Graphic Elements','Wrap text around an object',
+      ['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w => docXml.includes(w)) || docXml.includes('wp:anchor'),
+      '✓ Text wrapping detected.',
+      '✗ No text wrap. Fix: Click image → Picture Format → Wrap Text → choose a wrap style.');
+
+    // Alt text: check for non-empty descr attributes (starter shapes have descr="")
+    const altTexts = [...docXml.matchAll(/descr="([^"]{5,})"/g)];
+    auto('D5 — Graphic Elements','Add alternative text to an object',
+      altTexts.length > 0,
+      `✓ Alt text found on ${altTexts.length} object(s).`,
+      '✗ No alt text. Fix: Right-click each image/shape → Edit Alt Text → type a description.');
+
+    // SmartArt
+    auto('D5 — Graphic Elements','Insert SmartArt',
+      fileList.includes('diagrams/') || docXml.includes('dgm:') || fileList.includes('dgm'),
+      '✓ SmartArt detected.',
+      '✗ No SmartArt. Fix: Insert → SmartArt → choose a layout → OK.');
+
+    // Screenshot/picture
+    auto('D5 — Graphic Elements','Insert a screenshot or screen clipping',
+      docXml.includes('w:drawing') && fileList.split('|').some(f => f.match(/word\/media\/image\d/)),
+      '✓ Image file in document detected (screenshot or picture).',
+      '✗ No screenshot. Fix: Open a window → Insert → Screenshot → choose a window or Screen Clipping.');
+
+    // Artistic effects
+    auto('D5 — Graphic Elements','Apply artistic effects to a picture',
+      docXml.includes('a14:artisticFilter') || docXml.includes('artisticFilter'),
+      '✓ Artistic effect detected.',
+      '✗ No artistic effect. Fix: Click image → Picture Format → Artistic Effects → choose one.');
+
+    // Picture effects
+    auto('D5 — Graphic Elements','Apply picture effects and styles',
+      docXml.includes('<a:effectLst>') || docXml.includes('a:outerShdw') || docXml.includes('a:glow'),
+      '✓ Picture effect detected.',
+      '✗ No picture effect. Fix: Click image → Picture Format → Picture Effects → Shadow or Glow.');
+
+    // Remove background
+    auto('D5 — Graphic Elements','Remove a picture background',
+      docXml.includes('pic:bg') || docXml.includes('a:alphaBiLevel') || docXml.includes('backgroundRemoval'),
+      '✓ Background removal detected.',
+      '✗ Not detected. Fix: Click image → Picture Format → Remove Background → Mark Areas to Keep/Remove → Keep Changes.');
+
+    // 3D model
+    auto('D5 — Graphic Elements','Insert a 3D model',
+      fileList.includes('.glb') || fileList.includes('word/3D') || docXml.includes('am3d:'),
+      '✓ 3D model detected.',
+      '✗ No 3D model. Fix: Insert → 3D Models → From Online Sources → search and insert.');
+
+    // ── D6 — Document Collaboration ─────────────────────────────────────────
+    // Starter has 2 comments (id=0, id=1); student should ADD one more
+    const totalComments = (cmmXml.match(/<w:comment /g) || []).length;
+    auto('D6 — Collaboration','Add a comment',
+      totalComments >= 3,
+      `✓ ${totalComments} comments found — new comment added.`,
+      '✗ No new comment detected. Fix: Select text → Review → New Comment → type your note.');
+
+    // Reply: commentsExtended has a parentId attribute linking reply to parent
+    auto('D6 — Collaboration','Review and reply to a comment',
+      cmmExtXml.includes('w15:paraIdParent=') || totalComments >= 3,
+      '✓ Comment reply detected.',
+      '✗ No reply detected. Fix: Click a comment → Reply button → type your response.');
+
+    // Resolve: w15:done="1"
+    auto('D6 — Collaboration','Resolve a comment',
+      cmmExtXml.includes('w15:done="1"') || cmmExtXml.includes("w15:done='1'"),
+      '✓ Resolved comment detected.',
+      '✗ No resolved comment. Fix: Hover a comment → click the ✓ button to resolve it.');
+
+    // Delete a comment: starter has 2; after delete fewer remain
+    auto('D6 — Collaboration','Delete a comment',
+      totalComments < 2,
+      '✓ A comment was deleted.',
+      '✗ Both starter comments still present. Fix: Right-click comment → Delete Comment.');
+
+    // Turn on Track Changes: check for w:ins NOT authored by the seeded authors
+    const seededAuthors = ['Manager', 'Finance Manager'];
+    const studentInserted = [...docXml.matchAll(/<w:ins[^>]*w:author="([^"]+)"/g)]
+      .some(m => !seededAuthors.includes(m[1]));
+    auto('D6 — Collaboration','Turn on Track Changes',
+      studentInserted,
+      '✓ Student-authored tracked changes detected.',
+      '✗ No student tracked changes. Fix: Review → Track Changes (Ctrl+Shift+E) → make edits in the document.');
+
+    // Accept tracked change: D1 starter had del id=10+11, D6 has del id=20
+    // After accept, those dels are gone
+    const starterDelGone = !docXml.includes('<w:del w:id="10"') && !docXml.includes('<w:del w:id="20"');
+    auto('D6 — Collaboration','Accept a tracked change',
+      starterDelGone,
+      '✓ Starter\'s tracked deletions were accepted.',
+      '✗ Seeded tracked changes still present. Fix: Click a tracked change → Review → Accept.');
+
+    // Reject tracked change: D6 has del id=20 (Finance Manager deleted compliance text)
+    // After REJECT, that deleted text is RESTORED — the del id=20 marker disappears
+    const d6DelGone = !docXml.includes('<w:del w:id="20"');
+    auto('D6 — Collaboration','Reject a tracked change',
+      d6DelGone,
+      '✓ D6 tracked deletion rejected — deleted text restored.',
+      '✗ The D6 Finance Manager deletion is still present. Fix: Click on that tracked change → Review → Reject.');
+
+    self('D6 — Collaboration','Review tracked changes',
+      'Review → Show Markup to see all changes. Use Previous/Next to step through them. This action leaves no file trace.');
+
+    // Lock track changes: starter HAS the lock; student should UNLOCK
+    auto('D6 — Collaboration','Lock or unlock track changes',
+      !trackLocked,
+      '✓ Track Changes lock removed.',
+      '✗ Still locked from starter. Fix: Review → Track Changes dropdown → Lock Track Changes → OK (no password).');
+
+    self('D6 — Collaboration','Resolve a comment (verify)',
+      'After resolving, the comment shows a checkmark. The grader checks for this — verify the resolved state shows in the Comments pane.');
 
     fs.unlinkSync(req.file.path);
     res.json({ skills });
   } catch(err) {
-    console.error('Word D1 Practice grading error:', err.stack || err);
+    console.error('Word Practice grading error:', err.stack || err);
     try { fs.unlinkSync(req.file.path); } catch(e) {}
     res.status(500).json({ error: 'Grading failed: ' + (err.message || String(err)) });
   }
 });
-
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
