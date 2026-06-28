@@ -1040,11 +1040,14 @@ app.post('/api/grade/word-practice-d1', upload.single('file'), async (req, res) 
       '✓ Page border detected.',
       '✗ No page border. Fix: Design → Page Borders → choose a border style.');
 
-    // 6. Apply a style set
-    const h1c = (docXml.match(/(?:styleId|w:val)="Heading ?1"/g) || []).length;
-    auto('D1 — Manage Documents', 'Apply a style set', h1c >= 1,
-      '✓ Heading styles applied — style set in use.',
-      '✗ No heading styles detected. Fix: Design → Document Formatting → Style Sets → choose one.');
+    // 6. Apply a style set — detect by Heading 1 color changing from the starter's known baseline
+    // Starter has Heading1 color 2F5496 and 2E74B5 (default Office). Any style set change produces a different color.
+    const starterH1Colors = ['2F5496','2E74B5','2E74B5'.toLowerCase(),'2F5496'.toLowerCase(),'1F4D78'];
+    const h1Colors = [...stylesXml.matchAll(/styleId="Heading1"[\s\S]*?w:color w:val="([^"]+)"/g)].map(m => m[1].toUpperCase());
+    const styleSetChanged = h1Colors.length > 0 && h1Colors.some(c => !starterH1Colors.map(s=>s.toUpperCase()).includes(c));
+    auto('D1 — Manage Documents', 'Apply a style set', styleSetChanged,
+      '✓ Style set change detected — Heading styles updated from the default.',
+      '✗ Style set not changed. Fix: Design → Document Formatting → Style Sets gallery → choose one (e.g. Basic (Stylish)).');
 
     // 7. Insert header
     auto('D1 — Manage Documents', 'Insert a header', hXml.length > 100,
@@ -1077,13 +1080,13 @@ app.post('/api/grade/word-practice-d1', upload.single('file'), async (req, res) 
       '✓ Watermark detected.',
       '✗ No watermark. Fix: Design → Watermark → choose DRAFT or CONFIDENTIAL.');
 
-    // 12. Modify document properties
-    const hasProps = /<dc:title>[^<]+<\/dc:title>/.test(coreXml) ||
-                     /<dc:creator>[^<]+<\/dc:creator>/.test(coreXml) ||
-                     /<dc:subject>[^<]+<\/dc:subject>/.test(coreXml);
-    auto('D1 — Manage Documents', 'Modify document properties', hasProps,
-      '✓ Document properties (Title, Author, or Subject) detected.',
-      '✗ No document properties set. Fix: File → Info → Properties → fill in Title and Author.');
+    // 12. Modify document properties — starter has known Title/Author; student should change them
+    const starterTitle = 'Annual Business Report 2026 \u2014 DRAFT';
+    const currentTitle = (coreXml.match(/<dc:title>([^<]+)<\/dc:title>/) || ['',''])[1];
+    const hasModifiedProps = currentTitle.length > 0 && currentTitle !== starterTitle;
+    auto('D1 — Manage Documents', 'Modify document properties', hasModifiedProps,
+      '✓ Document properties changed from the starter\'s default values.',
+      '✗ Properties not changed. Fix: File → Info → Properties panel → update Title and Author.');
 
     // 13. Add a custom document property
     const hasCustomProp = cstmXml.length > 150 && cstmXml.includes('<property ');
