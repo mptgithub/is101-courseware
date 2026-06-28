@@ -1224,11 +1224,11 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Section with different page setup detected.',
       '✗ No section page setup change. Fix: Insert section break first, then Layout → Orientation → Landscape in that section.');
 
-    // Format Painter: target paragraph should now have red+bold formatting matching source
-    // Source is "SOURCE TEXT" paragraph with FF0000 red bold
-    // Target is "TARGET TEXT" - check if it now has red color too
-    const targetHasRed = /TARGET TEXT[\s\S]{0,200}FF0000/.test(docXml) ||
-      /FF0000[\s\S]{0,500}TARGET TEXT/.test(docXml);
+    // Format Painter: TARGET TEXT paragraph should have FF0000 red color AFTER the student applies it
+    // Source paragraph (FF0000) comes BEFORE Target paragraph in the document
+    // So correct detection: FF0000 appears within 300 chars AFTER "TARGET TEXT"
+    const targetIdx = docXml.indexOf('TARGET TEXT');
+    const targetHasRed = targetIdx >= 0 && /FF0000/.test(docXml.slice(targetIdx, targetIdx + 300));
     auto('D2 — Format Text & Paragraphs','Use Format Painter',
       targetHasRed,
       '✓ Target text now has matching red formatting — Format Painter used.',
