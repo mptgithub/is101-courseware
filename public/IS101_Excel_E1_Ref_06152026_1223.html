@@ -755,56 +755,36 @@ function toast(msg, type) {
 }
 
 // ── Practice Grader Indicators ────────────────────────────────────────────
-// Shows students whether each skill is auto-graded or self-check BEFORE they start
-(function() {
-  const SKILL_TYPES = {
-    'add-rename-sheet':    'auto',
-    'navigate-named':      'self',
-    'customize-qat':       'self',
-    'print-settings':      'auto',
-    'configure-rows-cols': 'auto',
-    'workbook-themes':     'self',
-    'freeze-panes':        'auto',
-    'save-format':         'self',
-    'workbook-properties': 'auto',
-    'import-text':         'self',
-    'hyperlinks':          'auto',
-    'page-setup':          'auto',
-    'row-col-size':        'auto',
-    'headers-footers':     'auto',
-    'worksheet-views':     'auto',
-    'display-formulas':    'auto',
-    'print-area':          'auto',
-    'comments-notes':      'auto',
-    'search-data':         'self',
-    'options-views':       'self',
-    'window-views':        'self',
-    'save-format-xl':      'self',
-    'inspect-workbook':    'self',
-  };
-
-  document.querySelectorAll('.skill-card[data-skill]').forEach(card => {
-    const skillId = card.getAttribute('data-skill');
-    const type = SKILL_TYPES[skillId];
+const SKILL_TYPES = {
+  'add-rename-sheet':'auto','navigate-named':'self','customize-qat':'self',
+  'print-settings':'auto','configure-rows-cols':'auto','workbook-themes':'self',
+  'freeze-panes':'auto','save-format':'self','workbook-properties':'auto',
+  'import-text':'self','hyperlinks':'auto','page-setup':'auto','row-col-size':'auto',
+  'headers-footers':'auto','worksheet-views':'auto','display-formulas':'auto',
+  'print-area':'auto','comments-notes':'auto','search-data':'self',
+  'options-views':'self','window-views':'self','save-format-xl':'self','inspect-workbook':'self',
+};
+function injectGradingPills() {
+  document.querySelectorAll('.skill-title').forEach(function(titleEl) {
+    if (titleEl.querySelector('.grading-pill')) return; // already injected
+    var card = titleEl.closest('[data-skill]');
+    if (!card) return;
+    var skillId = card.getAttribute('data-skill');
+    var type = SKILL_TYPES[skillId];
     if (!type) return;
-
-    const header = card.querySelector('.skill-header');
-    const title = header && header.querySelector('.skill-title');
-    if (!title) return;
-
-    const pill = document.createElement('span');
+    var pill = document.createElement('span');
+    pill.className = 'grading-pill';
     if (type === 'auto') {
       pill.style.cssText = 'display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:#d4edda;color:#155724;border:1px solid #b8daba;margin-left:8px;vertical-align:middle;white-space:nowrap;';
       pill.textContent = '✓ Auto-graded';
-      pill.title = 'This skill will be automatically checked when you upload your practice file.';
     } else {
       pill.style.cssText = 'display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;margin-left:8px;vertical-align:middle;white-space:nowrap;';
       pill.textContent = '👁 Self-check';
-      pill.title = 'This skill cannot be auto-detected from the saved file. Verify it yourself in Excel.';
     }
-    title.appendChild(pill);
+    titleEl.appendChild(pill);
   });
-})();
+}
+document.addEventListener('DOMContentLoaded', injectGradingPills);
 // ── end Practice Grader Indicators ───────────────────────────────────────
 </script>
 </body>
