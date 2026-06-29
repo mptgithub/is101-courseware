@@ -1976,7 +1976,68 @@ function renderUnitContent(unitNum) {
         }
       }, 0);
     }
-    // ── end practice grader widget ────────────────────────────────────
+    // ── end Word practice grader widget ──────────────────────────────
+    }
+
+    // ── Excel Practice Grader widget (Unit 3 only) ──────────────────────
+    if (unitNum === 3) {
+      container.innerHTML += `
+        <div id="excel-practice-submit" style="
+          background:#fff;border:1px solid #dde3ee;border-radius:8px;
+          padding:20px 24px;margin-top:8px;
+        ">
+          <div style="font-size:15px;font-weight:700;color:#217346;margin-bottom:6px">
+            ✅ Check Your Excel Practice Work
+          </div>
+          <p style="font-size:13px;color:#555;line-height:1.5;margin-bottom:14px">
+            Download the practice starter file, complete the skills in Excel, then upload
+            your file here to see which skills were detected. Upload at any time — after
+            one domain or all five.
+          </p>
+          <a href="/Excel_Practice_Combined_Starter.xlsx" download style="
+            display:inline-flex;align-items:center;gap:8px;
+            background:#217346;color:#fff;border:none;border-radius:6px;
+            padding:8px 16px;font-size:13px;font-weight:600;
+            cursor:pointer;text-decoration:none;margin-bottom:14px;
+          ">⬇ Download Excel Practice Starter File</a>
+          <div style="margin-bottom:10px">
+            <input type="text" id="ep-nshe" placeholder="Your NSHE ID"
+              style="padding:8px 12px;border:1px solid #ccd0da;border-radius:6px;font-size:13px;width:220px" />
+          </div>
+          <label style="
+            display:block;border:2px dashed #c0cadc;border-radius:8px;
+            padding:20px;text-align:center;cursor:pointer;
+            font-size:13px;color:#666;margin-bottom:10px;transition:border-color .2s;
+          " id="ep-drop-label"
+            ondragover="event.preventDefault();document.getElementById('ep-drop-label').style.borderColor='#217346'"
+            ondragleave="document.getElementById('ep-drop-label').style.borderColor='#c0cadc'"
+            ondrop="epHandleDrop(event)">
+            <input type="file" id="ep-file" accept=".xlsx" style="display:none"
+              onchange="epSetFile(this.files[0])" />
+            <span style="font-size:24px;display:block;margin-bottom:4px">📊</span>
+            <strong style="color:#217346">Click to upload</strong> or drag your completed .xlsx here
+          </label>
+          <div id="ep-status" style="font-size:12px;color:#666;min-height:16px;margin-bottom:10px"></div>
+          <button id="ep-btn" onclick="epSubmit()" disabled style="
+            background:#217346;color:#fff;border:none;border-radius:6px;
+            padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;opacity:.5;
+          ">Check My Work</button>
+          <div id="ep-results" style="display:none;margin-top:20px"></div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        const lbl = document.getElementById('ep-drop-label');
+        if (lbl) lbl.onclick = () => document.getElementById('ep-file').click();
+        if (window._epFile) {
+          const st = document.getElementById('ep-status');
+          const btn = document.getElementById('ep-btn');
+          if (st) st.textContent = 'Selected: ' + window._epFile.name + ' (' + (window._epFile.size/1024).toFixed(1) + ' KB)';
+          if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+      }, 0);
+    }
+    // ── end Excel practice grader widget ─────────────────────────────
   }
 }
 
@@ -2261,7 +2322,110 @@ window.addEventListener('DOMContentLoaded', () => {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 })();
-// ── end Word Practice Grader ──────────────────────────────────────────────
+// ── Excel Practice Grader functions ───────────────────────────────────────
+(function() {
+  window._epFile = null;
+
+  window.epSetFile = function(f) {
+    if (!f || !f.name.endsWith('.xlsx')) {
+      document.getElementById('ep-status').textContent = 'Please select a .xlsx file.';
+      return;
+    }
+    window._epFile = f;
+    document.getElementById('ep-status').textContent = 'Selected: ' + f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)';
+    const btn = document.getElementById('ep-btn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  };
+
+  window.epHandleDrop = function(e) {
+    e.preventDefault();
+    document.getElementById('ep-drop-label').style.borderColor = '#c0cadc';
+    if (e.dataTransfer.files[0]) epSetFile(e.dataTransfer.files[0]);
+  };
+
+  window.epSubmit = async function() {
+    const nshe = document.getElementById('ep-nshe').value.trim();
+    if (!nshe) { document.getElementById('ep-status').textContent = 'Enter your NSHE ID first.'; return; }
+    if (!window._epFile) { document.getElementById('ep-status').textContent = 'Please select a file first.'; return; }
+
+    const btn = document.getElementById('ep-btn');
+    btn.disabled = true;
+    btn.style.opacity = '.5';
+    document.getElementById('ep-status').textContent = 'Checking your work…';
+    document.getElementById('ep-results').style.display = 'none';
+
+    const form = new FormData();
+    form.append('file', window._epFile);
+    form.append('nsheId', nshe);
+
+    try {
+      const res = await fetch('/api/grade/excel-practice', { method: 'POST', body: form });
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const data = await res.json();
+      epRenderResults(data);
+    } catch(e) {
+      document.getElementById('ep-status').textContent = 'Error: ' + e.message;
+    } finally {
+      const b = document.getElementById('ep-btn');
+      if (b) { b.disabled = false; b.style.opacity = '1'; }
+    }
+  };
+
+  window.epRenderResults = function(data) {
+    const autoSkills = data.skills.filter(s => s.type !== 'self');
+    const passed = autoSkills.filter(s => s.passed).length;
+    const total  = autoSkills.length;
+    const selfCount = data.skills.filter(s => s.type === 'self').length;
+    const domains = [...new Set(data.skills.map(s => s.domain))];
+    const green = '#217346';
+
+    let html = '<div style="background:' + green + ';color:#fff;border-radius:6px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+      '<div><div style="font-size:28px;font-weight:700">' + passed + ' / ' + total + '</div>' +
+      '<div style="font-size:12px;opacity:.8">auto-graded skills detected</div></div>' +
+      '<div style="font-size:12px;opacity:.9;text-align:right">' + total + ' auto-graded · ' + selfCount + ' self-check</div></div>';
+
+    for (const domain of domains) {
+      const skills = data.skills.filter(s => s.domain === domain);
+      const da = skills.filter(s => s.type !== 'self');
+      const dp = da.filter(s => s.passed).length;
+      html += '<div style="border:1px solid #dde3ee;border-radius:6px;margin-bottom:10px;overflow:hidden">' +
+        '<div style="background:#e8f5ee;padding:8px 16px;display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="font-size:13px;font-weight:700;color:' + green + '">' + domain + '</span>' +
+        '<span style="font-size:12px;color:#555">' + dp + '/' + da.length + ' detected</span></div>';
+
+      for (const s of skills) {
+        const isPass = s.type !== 'self' && s.passed;
+        const isFail = s.type !== 'self' && !s.passed;
+        const bg = isPass ? '#d4edda' : isFail ? '#f8d7da' : '#fff3cd';
+        const fc = isPass ? '#155724' : isFail ? '#721c24' : '#856404';
+        const icon = s.type === 'self' ? '👁' : s.passed ? '✓' : '✗';
+        html += '<div style="display:flex;gap:10px;padding:8px 16px;border-top:1px solid #f0f2f8;align-items:flex-start">' +
+          '<div style="width:20px;height:20px;border-radius:50%;background:' + bg + ';color:' + fc + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">' + icon + '</div>' +
+          '<div style="flex:1"><div style="font-size:12px;font-weight:600;color:#222">' + s.name + '</div>';
+        if (s.type === 'self') {
+          html += '<div style="font-size:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:3px;padding:1px 5px;display:inline-block;margin-top:2px">Self-check</div>' +
+            '<div style="font-size:11px;color:#888;margin-top:2px;font-style:italic">' + s.hint + '</div>';
+        } else {
+          html += '<div style="font-size:11px;color:' + (s.passed ? '#555' : '#c00') + ';margin-top:2px">' + (s.passed ? s.passMsg : s.failMsg) + '</div>';
+        }
+        html += '</div></div>';
+      }
+      html += '</div>';
+    }
+
+    html += '<button onclick="document.getElementById(\'excel-practice-submit\').scrollIntoView({behavior:\'smooth\'})" ' +
+      'style="background:#e8f5ee;color:' + green + ';border:1px solid #c0cadc;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;margin-top:4px">' +
+      '↑ Upload Again</button>';
+
+    document.getElementById('ep-status').textContent = '';
+    const el = document.getElementById('ep-results');
+    el.innerHTML = html;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+})();
+// ── end Excel Practice Grader ─────────────────────────────────────────────
 </script>
 
 <footer class="site-footer">

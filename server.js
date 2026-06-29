@@ -1561,6 +1561,443 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
   }
 });
 
+// ── EXCEL COMBINED PRACTICE GRADER (E1–E5) ───────────────────────────────
+app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
+  try {
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip(req.file.path);
+    const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
+
+    const wbXml    = getXml('xl/workbook.xml');
+    const stylesXml= getXml('xl/styles.xml');
+    const coreXml  = getXml('docProps/core.xml');
+    const sharedXml= getXml('xl/sharedStrings.xml');
+    const entries  = zip.getEntries().map(e => e.entryName);
+
+    // Collect all sheet XMLs
+    const sheetEntries = entries.filter(e => e.startsWith('xl/worksheets/sheet') && e.endsWith('.xml'));
+    const allSheetXml  = sheetEntries.map(e => getXml(e)).join('\n');
+
+    // Sheet names
+    const sheetNames = [...wbXml.matchAll(/name="([^"]+)"/g)].map(m => m[1]);
+    const sheetCount = sheetNames.length;
+
+    // Tables
+    const tableEntries = entries.filter(e => e.includes('tables/table') && e.endsWith('.xml'));
+    const allTableXml  = tableEntries.map(e => getXml(e)).join('\n');
+
+    // Charts
+    const chartEntries = entries.filter(e => e.includes('charts/chart') && e.endsWith('.xml'));
+    const chartSheetEntries = entries.filter(e => e.includes('chartsheets/'));
+
+    // Drawing entries
+    const drawingEntries = entries.filter(e => e.includes('drawings/drawing') && e.endsWith('.xml'));
+    const allDrawingXml = drawingEntries.map(e => getXml(e)).join('\n');
+
+    // Comments
+    const commentEntries = entries.filter(e => e.includes('comments') && !e.includes('threadedComment') && e.endsWith('.xml'));
+
+    // Rels for hyperlinks
+    const allRelsXml = entries.filter(e => e.endsWith('.rels')).map(e => getXml(e)).join('\n');
+
+    // All formulas
+    const formulaMatches = [...allSheetXml.matchAll(/<f[^>]*>([^<]+)<\/f>/g)].map(m => m[1]);
+    const allFormulas = formulaMatches.join(' ').replace(/&gt;/g,'>')
+      .replace(/&lt;/g,'<').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
+
+    // Helper: check if a numFmtId is non-default (not 0=General, not openpyxl defaults)
+    const defaultNumFmts = new Set(['0','164','49','1','2','3','4','9','10','11','12','13','14','15','16','17','18','19','20','21','22','37','38','39','40','41','42','43','44','45','46','47','48']);
+    const cellXfs = stylesXml.match(/<cellXfs>([\s\S]*?)<\/cellXfs>/)?.[1] || '';
+    const appliedNumFmts = [...cellXfs.matchAll(/numFmtId="(\d+)"/g)].map(m => m[1]);
+    const hasCustomNumFmt = appliedNumFmts.some(id => !defaultNumFmts.has(id) && id !== '0');
+
+    // Helper: non-default alignment in cellXfs
+    const alignmentInCellXfs = [...cellXfs.matchAll(/<alignment[^>]+>/g)].map(m => m[0]);
+    const hasNonDefaultAlignment = alignmentInCellXfs.some(a =>
+      /horizontal="(?!general)[^"]+/.test(a) ||
+      /vertical="(?!bottom)[^"]+/.test(a) ||
+      /textRotation=/.test(a) ||
+      /indent="[1-9]/.test(a)
+    );
+
+    // Helper: wrap text actually applied in cellXfs
+    const hasWrapInCellXfs = /wrapText="1"/.test(cellXfs);
+
+    // Helper: non-default font (bold OR color OR size != 11) in cellXfs via fontId
+    const fontXfs = [...cellXfs.matchAll(/fontId="(\d+)"/g)].map(m => m[1]).filter(id => id !== '0');
+    const fontsXml = stylesXml.match(/<fonts[^>]*>([\s\S]*?)<\/fonts>/)?.[1] || '';
+    const fontList = [...fontsXml.matchAll(/<font>([\s\S]*?)<\/font>/g)].map(m => m[1]);
+    const hasNonDefaultFont = fontXfs.some(id => {
+      const f = fontList[parseInt(id)] || '';
+      return /<b\/>/.test(f) || /<color[^>]+rgb="(?!FF000000|FFFF0000)[^"]{8}"/.test(f) ||
+             /<sz val="(?!11")[^"]*"/.test(f);
+    });
+
+    // Helper: check for custom row height or column width
+    const hasCustomRowHeight = /customHeight="1"[^>]*ht="(?!(?:15|12\.75|13\.5)")[^"]+"|ht="(?!(?:15|12\.75|13\.5)")[^"]+"[^>]*customHeight="1"/.test(allSheetXml);
+    const hasCustomColWidth  = /customWidth="1"/.test(allSheetXml);
+
+    const skills = [];
+    const auto = (domain, name, passed, passMsg, failMsg) =>
+      skills.push({ domain, name, type:'auto', passed, passMsg, failMsg });
+    const self = (domain, name, hint) =>
+      skills.push({ domain, name, type:'self', passed:null, hint });
+
+    // ── E1 — Manage Worksheets and Workbooks ──────────────────────────────
+    self('E1 — Manage Worksheets & Workbooks','Import data from text file',
+      'Data → Get Data → From Text/CSV → select a .csv file → Load. The end result is indistinguishable from typed data.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Insert and remove hyperlinks',
+      allSheetXml.includes('<hyperlink') || allRelsXml.includes('hyperlink'),
+      '✓ Hyperlink detected.',
+      '✗ No hyperlink. Fix: Select a cell → Insert → Link (Ctrl+K) → enter a URL.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Modify page setup',
+      /orientation="(?:landscape|portrait)"|<pageSetup[^>]*(?:paperSize|scale)=/.test(allSheetXml),
+      '✓ Page setup change detected.',
+      '✗ No page setup change. Fix: Page Layout → Orientation or Size.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Adjust row height and column width',
+      // Starter already has customWidth set by openpyxl; require customHeight as evidence of student action
+      /customHeight="1"/.test(allSheetXml),
+      '✓ Custom row height detected.',
+      '✗ No row height change. Fix: Right-click a row number → Row Height → type a value (e.g. 20).');
+
+    auto('E1 — Manage Worksheets & Workbooks','Customize headers and footers',
+      /<oddHeader>[^<]{3,}<\/oddHeader>|<oddFooter>[^<]{3,}<\/oddFooter>/.test(allSheetXml),
+      '✓ Header or footer content detected.',
+      '✗ No header/footer. Fix: Insert → Header & Footer → type content.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Display worksheets in different views',
+      /view="(?:pageLayout|pageBreakPreview)"/.test(allSheetXml),
+      '✓ Page Layout or Page Break Preview detected.',
+      '✗ View not changed. Fix: View → Page Layout or Page Break Preview.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Freeze rows and columns',
+      /state="frozen"/.test(allSheetXml),
+      '✓ Frozen pane detected.',
+      '✗ No frozen panes. Fix: Click cell B2 → View → Freeze Panes → Freeze Panes.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Modify built-in workbook properties',
+      (()=>{
+        const title = (coreXml.match(/<dc:title>([^<]+)<\/dc:title>/) || [])[1] || '';
+        return title.length > 0 && title !== 'Excel Practice Starter';
+      })(),
+      '✓ Workbook properties updated.',
+      '✗ Properties not changed. Fix: File → Info → Properties → add Title and Author.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Display formulas',
+      /showFormulas="1"/.test(allSheetXml),
+      '✓ Show Formulas mode detected.',
+      '✗ Not detected. Fix: Formulas → Show Formulas (Ctrl+`).');
+
+    auto('E1 — Manage Worksheets & Workbooks','Set a print area',
+      /Print_Area/.test(wbXml),
+      '✓ Print area detected.',
+      '✗ No print area. Fix: Select range → Page Layout → Print Area → Set Print Area.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Configure print settings',
+      /<printOptions[^>]+(?:headings|gridLines|horizontalCentered|verticalCentered)|<pageSetup[^>]+(?:fitToWidth|copies|firstPageNumber)/.test(allSheetXml),
+      '✓ Print settings configured.',
+      '✗ No print settings. Fix: Page Layout → Print Titles or File → Print → Page Setup.');
+
+    auto('E1 — Manage Worksheets & Workbooks','Manage comments and notes',
+      commentEntries.length > 0 || /threadedComment/.test(entries.join('|')),
+      '✓ Comment or note detected.',
+      '✗ No comment. Fix: Right-click a cell → New Comment → type your note.');
+
+    self('E1 — Manage Worksheets & Workbooks','Search for data within a workbook',
+      'Use Ctrl+F to open Find. Type a value and press Enter to search. This is navigation only — no file trace.');
+    self('E1 — Manage Worksheets & Workbooks','Navigate to named cells or ranges',
+      'Use the Name Box (top-left) or Ctrl+G to go to a specific cell or named range.');
+    self('E1 — Manage Worksheets & Workbooks','Customize options and views',
+      'File → Options. These are app-level settings not saved in the workbook.');
+    self('E1 — Manage Worksheets & Workbooks','Manage the Quick Access Toolbar',
+      'File → Options → Quick Access Toolbar. Stored in your Excel profile, not the workbook.');
+    self('E1 — Manage Worksheets & Workbooks','Change window views',
+      'View → Arrange All or New Window. Window arrangement is not saved in the file.');
+    self('E1 — Manage Worksheets & Workbooks','Save / export in alternative file formats',
+      'File → Save As → choose .csv, .pdf, or another format. The .xlsx cannot confirm this.');
+    self('E1 — Manage Worksheets & Workbooks','Inspect workbook and correct issues',
+      'File → Info → Check for Issues → Inspect Document. Results are not saved to the file.');
+
+    // ── E2 — Manage Data Cells and Ranges ─────────────────────────────────
+    auto('E2 — Manage Data Cells & Ranges','Fill cells by using AutoFill',
+      (()=>{
+        // Starter has no series; student fills a series — check for sequential values
+        const nums = [...allSheetXml.matchAll(/<v>(\d+)<\/v>/g)].map(m => parseInt(m[1]));
+        const hasSequence = nums.some((v,i) => i > 0 && v === nums[i-1] + 1);
+        return hasSequence;
+      })(),
+      '✓ Sequential data series detected — AutoFill likely used.',
+      '✗ No series detected. Fix: Type first two values, select them, drag fill handle down.');
+
+    auto('E2 — Manage Data Cells & Ranges','Generate data: RANDBETWEEN / SEQUENCE',
+      /RANDBETWEEN|SEQUENCE/.test(allFormulas),
+      '✓ RANDBETWEEN or SEQUENCE formula detected.',
+      '✗ Not found. Fix: Type =RANDBETWEEN(1,100) or =SEQUENCE(10) in a cell.');
+
+    auto('E2 — Manage Data Cells & Ranges','Merge and unmerge cells',
+      // Starter has one title merge; student should add more
+      (allSheetXml.match(/<mergeCell /g) || []).length > 1,
+      '✓ Merged cells detected.',
+      '✗ No student merge found. Fix: Select cells → Home → Merge & Center.');
+
+    auto('E2 — Manage Data Cells & Ranges','Modify alignment, orientation, indentation',
+      hasNonDefaultAlignment,
+      '✓ Non-default alignment detected.',
+      '✗ No alignment change. Fix: Home → Alignment group → center, right-align, or rotate.');
+
+    auto('E2 — Manage Data Cells & Ranges','Wrap text within cells',
+      hasWrapInCellXfs,
+      '✓ Wrap text detected.',
+      '✗ No wrap text. Fix: Select cells → Home → Wrap Text button.');
+
+    auto('E2 — Manage Data Cells & Ranges','Apply number formats',
+      hasCustomNumFmt,
+      '✓ Custom number format detected.',
+      '✗ No number format. Fix: Select cells → Home → Number group → Currency or Percentage.');
+
+    auto('E2 — Manage Data Cells & Ranges','Apply cell formats (font/fill/border)',
+      hasNonDefaultFont || /fillId="[1-9]/.test(cellXfs) || /borderId="[1-9]/.test(cellXfs),
+      '✓ Cell formatting (font/fill/border) detected.',
+      '✗ No formatting. Fix: Select cells → Home → Font/Fill/Border controls.');
+
+    auto('E2 — Manage Data Cells & Ranges','Apply cell styles (named)',
+      /cellStyleXfId="[1-9]/.test(cellXfs) || /<cellStyle[^>]*name="(?!Normal)[^"]{2,}"/.test(stylesXml),
+      '✓ Named cell style applied.',
+      '✗ No named style. Fix: Home → Cell Styles gallery → choose Good, Bad, Heading 1, etc.');
+
+    auto('E2 — Manage Data Cells & Ranges','Define a named range',
+      /<definedName[^>]*name="(?!_xlnm)[^"]+/.test(wbXml),
+      '✓ Named range detected.',
+      '✗ No named range. Fix: Select range → Formulas → Define Name → type a name.');
+
+    auto('E2 — Manage Data Cells & Ranges','Reference a named range',
+      (()=>{
+        const names = [...wbXml.matchAll(/<definedName[^>]*name="([^"]+)"/g)]
+          .map(m => m[1]).filter(n => !n.startsWith('_xlnm'));
+        return names.some(n => allFormulas.includes(n));
+      })(),
+      '✓ Named range referenced in a formula.',
+      '✗ Not detected. Fix: In a formula, type the range name instead of the cell address.');
+
+    auto('E2 — Manage Data Cells & Ranges','Insert Sparklines',
+      /sparkline/i.test(allSheetXml),
+      '✓ Sparklines detected.',
+      '✗ No sparklines. Fix: Select data → Insert → Sparklines → Line or Column.');
+
+    auto('E2 — Manage Data Cells & Ranges','Apply built-in conditional formatting',
+      /<conditionalFormatting/.test(allSheetXml),
+      '✓ Conditional formatting detected.',
+      '✗ No conditional formatting. Fix: Select range → Home → Conditional Formatting → choose a rule.');
+
+    self('E2 — Manage Data Cells & Ranges','Paste using special paste options',
+      'Home → Paste → Paste Special (Ctrl+Alt+V). The end result is indistinguishable from typed values.');
+    self('E2 — Manage Data Cells & Ranges','Insert and delete multiple columns or rows',
+      'Right-click a row/column header → Insert or Delete. Final layout looks the same as data always there.');
+    self('E2 — Manage Data Cells & Ranges','Format cells by using Format Painter',
+      'Click a formatted cell → Home → Format Painter → click target. End result is the same as manual formatting.');
+    self('E2 — Manage Data Cells & Ranges','Clear cell formatting',
+      'Select cells → Home → Clear → Clear Formats. Cleared cells look identical to unformatted ones.');
+    self('E2 — Manage Data Cells & Ranges','Format multiple worksheets by grouping',
+      'Shift-click sheet tabs to group them → apply formatting. Per-sheet result looks like normal formatting.');
+    self('E2 — Manage Data Cells & Ranges','Remove conditional formatting',
+      'Home → Conditional Formatting → Clear Rules. Removed rules look the same as never applied.');
+
+    // ── E3 — Manage Tables and Table Data ─────────────────────────────────
+    auto('E3 — Manage Tables & Table Data','Create Excel tables from cell ranges',
+      tableEntries.length > 0,
+      `✓ ${tableEntries.length} Excel table(s) detected.`,
+      '✗ No table found. Fix: Select data range → Insert → Table (Ctrl+T).');
+
+    auto('E3 — Manage Tables & Table Data','Apply table styles',
+      /<tableStyleInfo[^>]*name="(?!TableStyleMedium2|TableStyleMedium9)[^"]*"/.test(allTableXml) ||
+      /<tableStyleInfo[^>]*name="[^"]{5,}"/.test(allTableXml),
+      '✓ Table style applied.',
+      '✗ No table style. Fix: Click in table → Table Design → Table Styles gallery.');
+
+    auto('E3 — Manage Tables & Table Data','Convert tables to cell ranges',
+      // Starter has no tables; student creates one then converts another
+      // Detect: student converted a table (hard to detect after conversion)
+      // Better: if student has done convert, the table XML count < number they created
+      // Self-check fallback since conversion leaves no artifact
+      false,
+      '✓ Table converted to range.',
+      '✗ Not detected. Fix: Click in table → Table Design → Convert to Range.');
+
+    auto('E3 — Manage Tables & Table Data','Add or remove table rows and columns',
+      tableEntries.length > 0 && /<table[^>]*ref="[A-Z]+1:[A-Z]+(?:[2-9]|[1-9]\d)"/.test(allTableXml),
+      '✓ Table with data rows detected.',
+      '✗ No table with rows. Fix: Click last row of table → Tab to add a new row.');
+
+    auto('E3 — Manage Tables & Table Data','Configure table style options',
+      /showRowStripes="(?:0|1)"|showFirstColumn="1"|showLastColumn="1"|showColumnStripes="1"/.test(allTableXml),
+      '✓ Table style options configured.',
+      '✗ Not detected. Fix: Click in table → Table Design → Table Style Options checkboxes.');
+
+    auto('E3 — Manage Tables & Table Data','Insert and configure total rows',
+      /totalsRowShown="1"/.test(allTableXml),
+      '✓ Total row detected.',
+      '✗ No total row. Fix: Click in table → Table Design → Total Row checkbox.');
+
+    auto('E3 — Manage Tables & Table Data','Filter records',
+      /<autoFilter>/.test(allSheetXml) && /<filterColumn/.test(allSheetXml),
+      '✓ Active filter detected.',
+      '✗ No filter applied. Fix: Click column dropdown → uncheck some values to filter.');
+
+    auto('E3 — Manage Tables & Table Data','Sort data by multiple columns',
+      /<sortState[^>]*>[\s\S]*?<sortCondition[\s\S]*?<sortCondition/.test(allSheetXml),
+      '✓ Multi-column sort detected.',
+      '✗ No multi-column sort. Fix: Data → Sort → Add Level → set primary and secondary sort.');
+
+    // ── E4 — Formulas and Functions ───────────────────────────────────────
+    const hasFormula = (fn) => new RegExp(`\\b${fn}\\b`, 'i').test(allFormulas);
+
+    auto('E4 — Formulas & Functions','Relative, absolute, and mixed references',
+      /\$[A-Z]+\$\d+|\$[A-Z]+\d+|[A-Z]+\$\d+/.test(allFormulas),
+      '✓ Absolute or mixed cell reference detected.',
+      '✗ No $ reference. Fix: In a formula, press F4 to toggle $A$1 absolute references.');
+
+    auto('E4 — Formulas & Functions','Structured references in formulas',
+      /\[.*?\]/.test(allFormulas) && allFormulas.includes('['),
+      '✓ Structured table reference detected.',
+      '✗ Not found. Fix: In a formula inside a table, reference columns as Table1[ColumnName].');
+
+    auto('E4 — Formulas & Functions','AVERAGE / MAX / MIN / SUM',
+      hasFormula('SUM') || hasFormula('AVERAGE') || hasFormula('MAX') || hasFormula('MIN'),
+      '✓ SUM/AVERAGE/MAX/MIN formula detected.',
+      '✗ Not found. Fix: Type =SUM(B2:B10) or use Home → AutoSum dropdown.');
+
+    auto('E4 — Formulas & Functions','COUNT / COUNTA / COUNTBLANK',
+      hasFormula('COUNT') || hasFormula('COUNTA') || hasFormula('COUNTBLANK'),
+      '✓ COUNT/COUNTA/COUNTBLANK formula detected.',
+      '✗ Not found. Fix: Type =COUNT(B2:B10) in a cell.');
+
+    auto('E4 — Formulas & Functions','IF',
+      hasFormula('IF'),
+      '✓ IF formula detected.',
+      '✗ No IF. Fix: Type =IF(A1>100,"High","Low") in a cell.');
+
+    auto('E4 — Formulas & Functions','SORT()',
+      hasFormula('SORT'),
+      '✓ SORT() dynamic array formula detected.',
+      '✗ Not found. Fix: Type =SORT(A2:A10) in a cell.');
+
+    auto('E4 — Formulas & Functions','UNIQUE()',
+      hasFormula('UNIQUE'),
+      '✓ UNIQUE() dynamic array formula detected.',
+      '✗ Not found. Fix: Type =UNIQUE(C2:C20) in a cell.');
+
+    auto('E4 — Formulas & Functions','LEFT / RIGHT / MID',
+      hasFormula('LEFT') || hasFormula('RIGHT') || hasFormula('MID'),
+      '✓ LEFT/RIGHT/MID text formula detected.',
+      '✗ Not found. Fix: Type =LEFT(A2,3) to extract first 3 characters.');
+
+    auto('E4 — Formulas & Functions','UPPER / LOWER / LEN',
+      hasFormula('UPPER') || hasFormula('LOWER') || hasFormula('LEN'),
+      '✓ UPPER/LOWER/LEN formula detected.',
+      '✗ Not found. Fix: Type =UPPER(A2) or =LEN(A2) in a cell.');
+
+    auto('E4 — Formulas & Functions','CONCAT / TEXTJOIN',
+      hasFormula('CONCAT') || hasFormula('TEXTJOIN'),
+      '✓ CONCAT or TEXTJOIN formula detected.',
+      '✗ Not found. Fix: Type =TEXTJOIN(", ",TRUE,A2:A5) to join text.');
+
+    auto('E4 — Formulas & Functions','Nested IF',
+      (allFormulas.match(/IF\(/gi) || []).length >= 2,
+      '✓ Nested IF detected.',
+      '✗ No nested IF. Fix: Type =IF(A1>100,"High",IF(A1>50,"Mid","Low")).');
+
+    auto('E4 — Formulas & Functions','COUNTIF',
+      hasFormula('COUNTIF'),
+      '✓ COUNTIF detected.',
+      '✗ Not found. Fix: Type =COUNTIF(C2:C20,"Corporate").');
+
+    auto('E4 — Formulas & Functions','SUMIF',
+      hasFormula('SUMIF'),
+      '✓ SUMIF detected.',
+      '✗ Not found. Fix: Type =SUMIF(C2:C20,"Corporate",E2:E20).');
+
+    auto('E4 — Formulas & Functions','TODAY / NOW',
+      hasFormula('TODAY') || hasFormula('NOW'),
+      '✓ TODAY() or NOW() detected.',
+      '✗ Not found. Fix: Type =TODAY() to show today\'s date.');
+
+    auto('E4 — Formulas & Functions','YEAR / MONTH / DAY',
+      hasFormula('YEAR') || hasFormula('MONTH') || hasFormula('DAY'),
+      '✓ YEAR/MONTH/DAY formula detected.',
+      '✗ Not found. Fix: Type =YEAR(F2) to extract the year from a date.');
+
+    auto('E4 — Formulas & Functions','VLOOKUP',
+      hasFormula('VLOOKUP'),
+      '✓ VLOOKUP detected.',
+      '✗ Not found. Fix: Type =VLOOKUP(A2,PriceTable!A:D,3,FALSE).');
+
+    auto('E4 — Formulas & Functions','XLOOKUP',
+      hasFormula('XLOOKUP'),
+      '✓ XLOOKUP detected.',
+      '✗ Not found. Fix: Type =XLOOKUP(A2,PriceTable!A:A,PriceTable!C:C).');
+
+    auto('E4 — Formulas & Functions','IFERROR',
+      hasFormula('IFERROR'),
+      '✓ IFERROR detected.',
+      '✗ Not found. Fix: Wrap a formula: =IFERROR(VLOOKUP(...),"Not found").');
+
+    // ── E5 — Manage Charts ────────────────────────────────────────────────
+    auto('E5 — Manage Charts','Create charts',
+      chartEntries.length > 0,
+      `✓ ${chartEntries.length} chart(s) detected.`,
+      '✗ No chart. Fix: Select data → Insert → Charts → choose Column, Line, or Pie.');
+
+    auto('E5 — Manage Charts','Create chart sheets',
+      chartSheetEntries.length > 0,
+      '✓ Chart sheet detected.',
+      '✗ No chart sheet. Fix: Right-click chart → Move Chart → New sheet → OK.');
+
+    auto('E5 — Manage Charts','Add data series to charts',
+      chartEntries.length > 0 && (()=>{
+        const chartXml = chartEntries.map(e => getXml(e)).join('\n');
+        return (chartXml.match(/<c:ser>/g) || []).length >= 2;
+      })(),
+      '✓ Multiple data series detected.',
+      '✗ Only one data series. Fix: Right-click chart → Select Data → Add → select another range.');
+
+    auto('E5 — Manage Charts','Add and modify chart elements',
+      (()=>{
+        const chartXml = chartEntries.map(e => getXml(e)).join('\n');
+        return /<c:dLbls>|<c:title>|<c:trendline>|<c:majorGridlines>/.test(chartXml);
+      })(),
+      '✓ Chart elements (labels/title/trendline) detected.',
+      '✗ No chart elements. Fix: Click chart → Chart Design → Add Chart Element.');
+
+    auto('E5 — Manage Charts','Apply chart styles',
+      (()=>{
+        const chartXml = chartEntries.map(e => getXml(e)).join('\n');
+        return /<c:style val="[^1"][^"]*"/.test(chartXml) || /<c:style val="1[^"]/.test(chartXml);
+      })(),
+      '✓ Chart style applied.',
+      '✗ No chart style. Fix: Click chart → Chart Design → Chart Styles gallery.');
+
+    auto('E5 — Manage Charts','Add alternative text to charts',
+      /descr="[^"]{5,}"/.test(allDrawingXml),
+      '✓ Alt text on chart detected.',
+      '✗ No alt text. Fix: Right-click chart border → Edit Alt Text → type description.');
+
+    self('E5 — Manage Charts','Switch between rows and columns in source data',
+      'Chart Design → Switch Row/Column. The result is not reliably distinguishable from a chart built the other way.');
+    self('E5 — Manage Charts','Apply chart layouts',
+      'Chart Design → Quick Layout. This stores no distinct layout ID in the file.');
+
+    fs.unlinkSync(req.file.path);
+    res.json({ skills });
+  } catch(err) {
+    console.error('Excel practice grading error:', err.stack || err);
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    res.status(500).json({ error: 'Grading failed: ' + (err.message || String(err)) });
+  }
+});
+
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
     return res.status(404).json({ error: 'API endpoint not found' });
