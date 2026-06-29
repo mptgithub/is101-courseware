@@ -708,7 +708,20 @@ async function loadProgress(){
 function syncFromLS(){
   try{ const raw=localStorage.getItem(LS_PROGRESS); if(raw){ JSON.parse(raw).forEach(s=>completed.add(s)); } }catch(e){}
 }
-function saveLS(){ localStorage.setItem(LS_PROGRESS,JSON.stringify([...completed])); }
+function saveLS(){
+  localStorage.setItem(LS_PROGRESS,JSON.stringify([...completed]));
+  // Sync to START_HERE progress key so the main page shows completion
+  try {
+    const nshe = localStorage.getItem(NSHE_KEY);
+    if (nshe) {
+      const startKey = 'is101_progress_' + nshe;
+      let startProgress = {};
+      try { startProgress = JSON.parse(localStorage.getItem(startKey) || '{}'); } catch(e) {}
+      completed.forEach(function(sid) { startProgress[sid] = true; });
+      localStorage.setItem(startKey, JSON.stringify(startProgress));
+    }
+  } catch(e) {}
+}
 
 async function toggleSkill(sid){
   const nowDone=!completed.has(sid);

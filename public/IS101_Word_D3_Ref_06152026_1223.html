@@ -796,6 +796,17 @@ async function toggleSkill(skillId) {
   renderCard(skillId);
   updateProgress();
   localStorage.setItem('is101_skills_' + DOMAIN, JSON.stringify([...done]));
+  // Sync to START_HERE progress key
+  try {
+    const nshe = localStorage.getItem('is101_nshe');
+    if (nshe) {
+      const startKey = 'is101_progress_' + nshe;
+      let startProgress = {};
+      try { startProgress = JSON.parse(localStorage.getItem(startKey) || '{}'); } catch(e2) {}
+      done.forEach(function(sid) { startProgress[sid] = true; });
+      localStorage.setItem(startKey, JSON.stringify(startProgress));
+    }
+  } catch(e) {}
   document.getElementById('saving-' + skillId).style.display = 'inline';
   try {
     const res = await fetch('/api/progress/skill', {
@@ -880,11 +891,11 @@ const SKILL_TYPES_D3 = {
   'sort-table': 'auto',
   'split-cells': 'auto',
 };
-document.querySelectorAll('.skill-card[data-skill]').forEach(function(card) {
+document.querySelectorAll('[data-skill]').forEach(function(card) {
   var skillId = card.getAttribute('data-skill');
   var type = SKILL_TYPES_D3[skillId];
   if (!type) return;
-  var titleEl = card.querySelector('.skill-title');
+  var titleEl = card.querySelector('.skill-title') || card.querySelector('.skill-name') || card.querySelector('h3') || card.querySelector('strong');
   if (!titleEl) return;
   if (titleEl.querySelector('.grading-pill')) return;
   var pill = document.createElement('span');
@@ -893,7 +904,7 @@ document.querySelectorAll('.skill-card[data-skill]').forEach(function(card) {
   pill.textContent = type === 'auto' ? '✓ Auto-graded' : '👁 Self-check';
   titleEl.appendChild(pill);
 });
-// ── end Practice Grader Indicators ──────────────────────────────────────────
+// ── end Practice Grader Indicators ───────────────────────────────────────────
 </script>
 </body>
 </html>
