@@ -864,6 +864,36 @@ function toast(msg, type) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.className = '', 3200);
 }
+
+// ── Practice Grader Indicators ──────────────────────────────────────────────
+const SKILL_TYPES_D3 = {
+  'apply-table-style': 'auto',
+  'bulleted-list': 'auto',
+  'convert-text-to-table': 'auto',
+  'create-table': 'auto',
+  'delete-rows-cols': 'auto',
+  'insert-rows-cols': 'auto',
+  'merge-cells': 'auto',
+  'modify-table-style': 'auto',
+  'numbered-list': 'auto',
+  'repeat-header-row': 'auto',
+  'sort-table': 'auto',
+  'split-cells': 'auto',
+};
+document.querySelectorAll('.skill-card[data-skill]').forEach(function(card) {
+  var skillId = card.getAttribute('data-skill');
+  var type = SKILL_TYPES_D3[skillId];
+  if (!type) return;
+  var titleEl = card.querySelector('.skill-title');
+  if (!titleEl) return;
+  if (titleEl.querySelector('.grading-pill')) return;
+  var pill = document.createElement('span');
+  pill.className = 'grading-pill';
+  pill.style.cssText = type === 'auto' ? 'display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;background:#d4edda;color:#155724;border:1px solid #b8daba;margin-left:8px;vertical-align:middle;white-space:nowrap;' : 'display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;margin-left:8px;vertical-align:middle;white-space:nowrap;';
+  pill.textContent = type === 'auto' ? '✓ Auto-graded' : '👁 Self-check';
+  titleEl.appendChild(pill);
+});
+// ── end Practice Grader Indicators ──────────────────────────────────────────
 </script>
 </body>
 </html>
