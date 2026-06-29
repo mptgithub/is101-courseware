@@ -789,8 +789,8 @@ function toast(msg, type) {
     if (!type) return;
 
     const header = card.querySelector('.skill-header');
-    const badge = header && header.querySelector('.skill-badge');
-    if (!badge) return;
+    const title = header && header.querySelector('.skill-title');
+    if (!title) return;
 
     const pill = document.createElement('span');
     if (type === 'auto') {
@@ -802,7 +802,7 @@ function toast(msg, type) {
       pill.textContent = '👁 Self-check';
       pill.title = 'This skill cannot be auto-detected from the saved file. Verify it yourself in Excel.';
     }
-    badge.appendChild(pill);
+    title.appendChild(pill);
   });
 })();
 // ── end Practice Grader Indicators ───────────────────────────────────────
