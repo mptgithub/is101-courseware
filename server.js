@@ -461,9 +461,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(1,2,'Set 1-inch top/bottom and 1.25-inch left/right margins',mOk,'✓ Margins correct.','✗ Margins incorrect. Fix: Layout → Margins → Custom → Top/Bottom 1", Left/Right 1.25".');
     // T2 paper size: starter is A4 (w:w="11906"). Student must change to Letter (w:w="12240").
     // Checking for 12240 is a real change from the starter state — fully independent.
-    const core2PgSz=docXml.match(/w:pgSz([^/]*?)\//);
-    const core2PgW=core2PgSz?(parseInt((core2PgSz[1].match(/w:w="(\d+)"/))||[0,0])[1]):0;
-    check(2,2,'Set paper size to Letter',Math.abs(core2PgW-12240)<50,'✓ Paper size is Letter.','✗ Paper size is not Letter. Fix: Layout → Size → Letter. (Starter is A4 — you must change it.)');
+    const _c2pgSz = docXml.match(/w:pgSz[^/]*//); const _c2pgW = _c2pgSz ? parseInt((_c2pgSz[0].match(/w:w="(\d+)"/) || ["","0"])[1]) : 0; check(2,2,"Set paper size to Letter",Math.abs(_c2pgW-12240)<50,"✓ Paper size is Letter.","✗ Paper size is not Letter. Fix: Layout → Size → Letter. (Starter is A4 — you must change it.)");
     // T3 style set: detect by H1 color in styles.xml changing from default Word blues. Independent of any heading tasks.
     const core2DefaultH1Colors = ['2F5496','2E74B5','1F4D78','365F91','17375E'];
     const core2H1Match = stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/) || [];
