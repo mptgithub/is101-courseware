@@ -553,8 +553,8 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(1,3,'Set 1-inch margins (APA)',mOk,'✓ 1-inch margins confirmed.','✗ Fix: Layout → Margins → Normal (1" all sides).');
     // T2 orientation: starter is Landscape (w=15840, h=12240). Student must change to Portrait.
     // Check: pgSz width must be portrait-sized (12240) and no landscape orient attribute.
-    const var1PgSz=docXml.match(/w:pgSz([^/]*?)\//);
-    const var1PgW=var1PgSz?(parseInt((var1PgSz[1].match(/w:w="(\d+)"/))||[0,0])[1]):0;
+    const var1PgSzStr=(docXml.match(/w:pgSz[^<]*/)|| [''])[0];
+    const var1PgW=parseInt((var1PgSzStr.match(/w:w="(\d+)"/)|| ['','0'])[1]);
     const var1IsPortrait=var1PgW>0&&var1PgW<=12500&&!docXml.includes('w:orient="landscape"');
     check(2,2,'Set orientation to Portrait',var1IsPortrait,'✓ Portrait orientation confirmed.','✗ Document is still Landscape. Fix: Layout → Orientation → Portrait. (Starter is Landscape — you must change it.)');
     // T3 style set: detect by H1 color in styles.xml — fully independent of heading tasks.
@@ -649,11 +649,11 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(1,2,'Set 1-inch margins',mOk,'✓ Margins confirmed.','✗ Fix: Layout → Margins → Normal.');
     // T2 orientation: starter is Landscape. Student must set Portrait for main section.
     // Require pgSz width to be portrait-sized (<=12500) — the starter has w=15840.
-    const var2PgSz=docXml.match(/w:pgSz([^/]*?)\//);
-    const var2PgW=var2PgSz?(parseInt((var2PgSz[1].match(/w:w="(\d+)"/))||[0,0])[1]):0;
-    // T15 adds a landscape section, so we check the FIRST sectPr for portrait width.
-    const firstSectMatch=docXml.match(/w:pgSz([^/]*?)\//);
-    const firstPgW=firstSectMatch?(parseInt((firstSectMatch[1].match(/w:w="(\d+)"/))||[0,0])[1]):0;
+    const var2PgSzStr=(docXml.match(/w:pgSz[^<]*/)|| [''])[0];
+    const var2PgW=parseInt((var2PgSzStr.match(/w:w="(\d+)"/)|| ['','0'])[1]);
+    // T15 adds a landscape section, so check only the first pgSz width for portrait.
+    const firstPgW=var2PgW;
+    // firstPgW = var2PgW from first pgSz match above
     const var2IsPortrait=firstPgW>0&&firstPgW<=12500;
     check(2,2,'Set orientation to Portrait',var2IsPortrait,'✓ Portrait orientation confirmed.','✗ Document is still Landscape. Fix: Layout → Orientation → Portrait. (Starter is Landscape — you must change it.)');
     // T3 style set: detect H1 color change in styles.xml — fully independent.
