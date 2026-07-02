@@ -944,9 +944,13 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
     check(11,5,'Add column sparklines',roster.toLowerCase().includes('sparkline'),'Sparklines added.','Add column sparklines for weekly shift counts.');
     check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:G1"'),'Banner merged.','Merge and center the section banner across the table.');
     check(13,5,'Convert roster to Table',H.tables.some(t=>t.includes('RosterTable')),'Roster table created.','Convert the staffing roster to an Excel Table.');
-    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row (Table Design > Style Options).');
+    // T14: scope banded rows check to RosterTable only — not CertTable from starter.
+    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row (Table Design > Style Options). Note: must be on the Roster table.');
+    // T15 salvage: starter ships CertTable (A3:C7). Pass when CertTable is gone from tables parts.
+    // Starter has CertTable → untouched file fails (CertTable present). Student converts → passes.
     check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
-    check(16,4,'Apply a table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table.');
+    // T16: scope table style to RosterTable only — CertTable has no style so this is clean.
+    check(16,4,'Apply a table style',H.tables.some(t=>t.includes('RosterTable')&&/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table.');
     check(17,3,'Filter to Emergency department',roster.includes('<autoFilter')&&roster.includes('<filterColumn'),'Filter applied.','Filter the roster to the Emergency department.');
     check(18,3,'Freeze first column',roster.includes('state="frozen"'),'Column frozen.','Freeze the first column (View > Freeze Panes > Freeze First Column).');
     check(19,3,'Vertically center cells',H.anyXf(roster,x=>x.includes('vertical="center"')),'Cells centered.','Vertically center all cells in the roster.');
@@ -997,7 +1001,8 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(14,6,'Nested IF letter grade',F.some(f=>(f.toUpperCase().match(/IF\(/g)||[]).length>=2),'Nested IF used.','Use a nested IF to assign letter grades A\u2013F.');
     check(15,4,'COUNTIF for A grades',fn('COUNTIF('),'COUNTIF used.','Use COUNTIF to count how many students earned an A.');
     check(16,6,'VLOOKUP letter grade',fn('VLOOKUP('),'VLOOKUP used.','Use VLOOKUP against the grade scale to return each letter grade.');
-    check(17,5,'IFERROR wrapping VLOOKUP',fn('IFERROR('),'IFERROR used.','Wrap the VLOOKUP in IFERROR to show \u201cCheck\u201d on errors.');
+    // T17: require IFERROR and VLOOKUP in the same formula — not just anywhere in the sheet.
+    check(17,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().includes('IFERROR(')&&f.toUpperCase().includes('VLOOKUP(')),'IFERROR wrapping VLOOKUP detected.','Wrap the VLOOKUP in IFERROR: =IFERROR(VLOOKUP(...),"Check"). Both must be in the same cell formula.');
     check(18,3,'TODAY() report date',fn('TODAY(','NOW('),'TODAY used.','Use TODAY() to stamp the report-generated date.');
     check(19,4,'Create Column chart',H.charts.length>=1,'Chart created.','Create a Column chart of class average by assignment.');
     check(20,4,'Add data labels and chart title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and a chart title.');
@@ -1036,9 +1041,16 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(3,3,'SEQUENCE for line-item IDs',fn('SEQUENCE(','RANDBETWEEN('),'SEQUENCE used.','Use SEQUENCE to generate the line-item ID column.');
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.some(t=>t.includes('InvTable')),'Table created.','Convert the inventory list to an Excel Table.');
-    check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:I1[12]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
-    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row summing the Line Total column.');
-    check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||/\[@/.test(f)),'Structured reference used.','Use a structured reference (Table[Qty]*Table[Unit Cost]).');
+    // T6: starter has data in cols A-M rows 3-11. After creating InvTable (T5) and adding Line Total
+    // as an active column (F already exists as header), the table ref should cover at least A3:M11.
+    // Check: InvTable exists AND its ref extends to at least column F (Line Total data populated).
+    // The ref regex checks that the table covers through column M (all headers present).
+    check(6,4,'Add Line Total column to table',H.tables.some(t=>t.includes('InvTable')&&/ref="A3:[A-Z]+1[01]"/.test(t)),'Column added.','Add a Line Total column to the inventory table (Table Design > Resize Table, or type in the adjacent column header).');
+    // T7: scope totalsRowShown to InvTable only — not any other table that might exist.
+    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('InvTable')&&t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row (Table Design > Total Row). Make sure the Total Row is on the Inventory table.');
+    // T8: structured reference — require InvTable column reference specifically, not just any [@.
+    // Valid forms: InvTable[Qty], InvTable[Unit Cost], [@Qty], etc. inside a formula on the inv sheet.
+    check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference for the line total: =[@Qty]*[@[Unit Cost]] or =InvTable[Qty]*InvTable[Unit Cost].');
     check(9,6,'SUMIF spend per category',fn('SUMIF('),'SUMIF used.','Use SUMIF to total spend per item category.');
     check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
     check(11,4,'UPPER and LEN for category code',fn('UPPER(','LOWER(','LEN('),'UPPER/LEN used.','Use UPPER and LEN for category codes.');
