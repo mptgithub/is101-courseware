@@ -771,6 +771,10 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       sectPrCount>=2 && /w:(?:left|right)="1080"/.test(docXml),
       '✓ Section with custom page setup found.','✗ No second section with 0.75" margins found. Fix: Insert a section break before the FAQ, then Layout → Margins → Custom → 0.75".');
 
+    // Starter has 4 tables (equipment, ticket, software-version, software-inventory).
+    // T7 convert text→table: adds 1 → need >=5.
+    // T12 split table: splits 1 into 2 → need >=6 (one more than T7).
+    // Using distinct thresholds ensures neither task passes from the other's work alone.
     const tblCount = (docXml.match(/<w:tbl>/g)||[]).length;
     check(7,9,'Convert the tab-separated ticket priority list to a table',
       tblCount>=5,
@@ -787,17 +791,29 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       hasCustomMargin,
       '✓ Custom cell margins found.','✗ No custom cell margins found. Fix: Click in table → Layout → Cell Margins → increase values.');
 
+    // T10 split merged cell: check that no gridSpan remains anywhere in the document EXCEPT
+    // inside tables that the student created via T7 (which may legitimately have their own merges).
+    // Safer check: the ticket table specifically should have no gridSpan. We scope to the
+    // region around "Ticket" text in the document to avoid false-fails from student-created tables.
+    const ticketTableRegion = (()=>{
+      const idx = docXml.indexOf('Ticket');
+      if(idx<0) return docXml;
+      const tblStart = docXml.lastIndexOf('<w:tbl>',idx);
+      const tblEnd = docXml.indexOf('</w:tbl>',idx);
+      return tblStart>=0&&tblEnd>=0 ? docXml.slice(tblStart,tblEnd) : docXml;
+    })();
     check(10,8,'Split the merged header cell in the ticket table into two columns',
-      !docXml.includes('w:gridSpan'),
-      '✓ Header cell appears split.','✗ Header cell still appears merged. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
+      !ticketTableRegion.includes('w:gridSpan'),
+      '✓ Merged header cell appears split.','✗ Merged cell still present in ticket table. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
 
     check(11,5,'Resize the equipment table columns to fit content',
       docXml.includes('w:tblLayout'),
       '✓ Custom column widths found.','✗ No custom column resizing detected. Fix: Drag column borders or use Layout → AutoFit → AutoFit Contents.');
 
+    // T12 split table: requires tblCount>=6 (one higher than T7's threshold of 5).
     check(12,9,'Split the long software inventory table into two separate tables',
-      tblCount>=5,
-      '✓ Multiple tables found (inventory table split).','✗ Software inventory table is still one table. Fix: Click in a middle row → Layout → Split Table.');
+      tblCount>=6,
+      '✓ Software inventory table has been split.','✗ Still one inventory table. Fix: Click in a middle row of the software inventory table → Layout → Split Table.');
 
     const hasWingdingsFont = docXml.includes('Wingdings');
     const hasPUAChar = /[\uF000-\uF0FF]/.test(docXml);
@@ -1355,36 +1371,43 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Multiple tables found — sort verified visually.',
       '✗ Less than 2 tables detected. Fix: Click in table → Table Layout → Sort.');
 
+    // Merge cells: requires a table to exist first.
+    const practTblCount = (docXml.match(/<w:tbl>/g)||[]).length;
     auto('D3 — Tables & Lists','Merge cells',
-      docXml.includes('w:gridSpan'),
+      practTblCount>=1 && docXml.includes('w:gridSpan'),
       '✓ Merged cells detected.',
-      '✗ No merged cells. Fix: Select cells → Table Layout → Merge Cells.');
+      '✗ No merged cells. Fix: Create a table first, then select cells → Table Layout → Merge Cells.');
 
+    // Split cells: w:splitPgBreak is not a valid OOXML element. Correct check: after splitting,
+    // a previously-merged cell has w:gridSpan removed, or new columns appear. Best artifact-based
+    // proxy: a tcPr with explicit w:tcW on multiple cells in a row where there was previously a merge.
+    // Since the practice starter has no pre-merged cells, the student must first merge (above) then split.
+    // Detect: vMerge (row-split artifact) OR a table where cell count per row > 1 without gridSpan.
     auto('D3 — Tables & Lists','Split cells',
-      docXml.includes('<w:splitPgBreak') || docXml.includes('w:vMerge') || docXml.count > 0,
-      '✓ Split/modified cell structure detected.',
-      '✗ Not detected. Fix: Click in cell → Table Layout → Split Cells.');
+      practTblCount>=1 && (docXml.includes('w:vMerge') || (docXml.includes('w:gridSpan') === false && practTblCount>=1)),
+      '✓ Split cell structure detected.',
+      '✗ Not detected. Fix: Select a merged cell → Table Layout → Split Cells → set columns/rows.');
 
     auto('D3 — Tables & Lists','Split a table',
-      docXml.split('<w:tbl>').length >= 3,
+      practTblCount >= 3,
       '✓ Multiple tables detected — table was split.',
       '✗ Less than 3 tables. Fix: Click in the row where you want to split → Table Layout → Split Table.');
 
-    // Resize table
+    // Resize table: w:w= appears everywhere including paragraph margins. Require it inside a tblPr or tcW context.
     auto('D3 — Tables & Lists','Resize a table / rows / columns',
-      docXml.includes('w:w=') && docXml.includes('<w:tbl>'),
-      '✓ Table with column widths detected.',
-      '✗ No table found. Fix: Drag column borders or use Table Layout → Width.');
+      practTblCount>=1 && (docXml.includes('<w:tcW ') || docXml.includes('w:tblW ')||docXml.includes('w:trHeight')),
+      '✓ Table with custom column/row sizing detected.',
+      '✗ No resize detected. Fix: Drag column borders or Table Layout → Width / Height.');
 
-    // Cell margins
+    // Cell margins: independent — checks for tcMar element inside any table cell.
     auto('D3 — Tables & Lists','Configure cell margins and spacing',
-      docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing'),
+      practTblCount>=1 && (docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing')),
       '✓ Custom cell margins detected.',
       '✗ No custom cell margins. Fix: Table Layout → Cell Margins.');
 
-    // Repeat header row
+    // Repeat header row: requires a table.
     auto('D3 — Tables & Lists','Configure a repeating row header',
-      docXml.includes('w:tblHeader'),
+      practTblCount>=1 && docXml.includes('w:tblHeader'),
       '✓ Repeating header row detected.',
       '✗ No repeat header. Fix: Click header row → Table Layout → Repeat Header Rows.');
 
@@ -1445,11 +1468,14 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Table of Contents detected.',
       '✗ No TOC. Fix: References → Table of Contents → Automatic Table 1.');
 
+    // Customize TOC: requires a TOC to exist first (insert-toc above). Check both conditions.
+    const practHasToc = /<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml);
+    const practTocCustomized = /<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml) ||
+      /<w:instrText[^>]*>[^<]*TOC[^<]*\\l [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml);
     auto('D4 — References','Customize a Table of Contents',
-      /<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml) ||
-      /<w:instrText[^>]*>[^<]*TOC[^<]*\\l [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),
+      practHasToc && practTocCustomized,
       '✓ TOC customized to specific levels.',
-      '✗ TOC not customized. Fix: References → Table of Contents → Custom Table of Contents → Show levels: 2.');
+      '✗ TOC not customized. Fix: Insert a TOC first, then References → Table of Contents → Custom Table of Contents → Show levels: 2.');
 
     self('D4 — References','Modify footnote/endnote properties',
       'References → Footnotes dialog launcher → change Number format to Roman numerals (i, ii, iii). Check the D2 section — the grader detects this change there.');
