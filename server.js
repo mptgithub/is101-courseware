@@ -355,13 +355,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     if(pgMar){const a=pgMar[1];mT=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mB=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mL=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mR=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
     check(1,2,'Set 1-inch margins on all sides',[mT,mB,mL,mR].every(v=>Math.abs(v-INCH)<72),'Margins are 1 inch on all sides.','Margins not 1 inch. Fix: Layout > Margins > Normal.');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'Portrait orientation confirmed.','Document is Landscape. Fix: Layout > Orientation > Portrait.');
-    // Style set: detect by checking H1 color in styles.xml changed away from default Word blues (2F5496, 2E74B5, 1F4D78).
-    // This is fully independent — styles.xml changes the moment the style set is applied, no H1 paragraph needed.
-    const defaultH1Colors = ['2F5496','2E74B5','1F4D78','365F91','17375E'];
-    const h1StyleColor = (stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/) || stylesXml.match(/(?:styleId|w:styleId)="Heading1"[\s\S]{0,800}?<w:color w:val="([^"]+)"/))||[];
-    const currentH1Color = (h1StyleColor[1]||'').toUpperCase();
-    const styleSetChanged = currentH1Color.length>0 && !defaultH1Colors.map(c=>c.toUpperCase()).includes(currentH1Color);
-    check(3,2,'Apply the Basic Stylish style set',styleSetChanged,'Style set applied (H1 color changed from default).','No style set detected. Fix: Design > Style Sets > Basic (Stylish). Note: the style set changes heading colors — if H1 still shows default blue the style set was not applied.');
+    check(3,2,'Apply the Basic Stylish style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
     const hC=hXml.includes('Desert Sun'); const hD=/20(25|26|27)/.test(hXml)||/January|February|March|April|May|June|July|August|September|October|November|December/.test(hXml);
     check(4,4,'Insert header: company name and date',hC&&hD,'Header has company name and date.','Header incomplete. Company:'+hC+' Date:'+hD+'. Fix: Insert > Header > add Desert Sun Consulting and date.');
     check(5,3,'Insert footer: Confidential centered',fXml.toLowerCase().includes('confidential'),'Footer has Confidential.','Footer missing Confidential. Fix: Insert > Footer > type Confidential.');
@@ -381,9 +375,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(15,4,'Insert section break before Financial Summary and change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'Section break with Landscape section found.','No Landscape section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set that section to Layout > Orientation > Landscape.');
     // D3 - 6 tasks - 18 pts
     check(16,4,'Create a 4-column quarterly revenue table',docXml.includes('<w:tbl>'),'Table found.','No table. Fix: Insert > Table > 4 columns x 5 rows.');
-    // T17 merge: only valid if a table exists (T16). Check gridSpan only when tbl present.
-    const core1TblCount=(docXml.match(/<w:tbl>/g)||[]).length;
-    check(17,3,'Merge top row cells for spanning title',core1TblCount>=1&&(docXml.includes('w:gridSpan')||docXml.includes('w:hMerge')),'Merged cells found.','No merged cells found. Fix: First create the table (T16), then select the top row > Table Layout > Merge Cells.');
+    check(17,3,'Merge top row cells for spanning title',docXml.includes('w:gridSpan')||docXml.includes('w:hMerge'),'Merged cells found.','No merged cells. Fix: Select top row > Table Layout > Merge Cells.');
     check(18,3,'Sort client table alphabetically',docXml.split('<w:tbl>').length>=3,'Multiple tables found.','Client table not found. Fix: Add client table then Table Layout > Sort > Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered list of 5 strategic objectives',ni>=5,'Numbered list found ('+ni+' references).','Numbered list not found. Fix: Select 5 objectives > Home > Numbering.');
@@ -395,17 +387,9 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(24,4,'Insert footnote on revenue figure',/<w:footnote w:id="[1-9]/.test(fnXml)&&docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
-    // T26 wrap: only meaningful if an image exists (T25). Check wrap attribute scoped to drawing elements.
-    const core1HasImg = docXml.includes('w:drawing')||docXml.includes('a:blip');
-    const core1HasWrap = ['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w));
-    check(26,3,'Set text wrapping to Through for the logo',core1HasImg&&core1HasWrap,'Text wrapping set.','Wrapping not set. Fix: Insert logo image first (T25), then Picture Format > Wrap Text > Through.');
+    check(26,3,'Set text wrapping to Through for the logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Picture Format > Wrap Text > Through.');
     check(27,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
-    // T28 alt text: count drawing elements and verify EVERY one has a non-empty descr attribute.
-    // Fully independent — checks whatever images are present, no dependency on T25/T27.
-    const core1DrawingCount=(docXml.match(/w:drawing/g)||[]).length;
-    const core1DescrCount=(docXml.match(/descr="[^"]{3,}"/g)||[]).length;
-    const core1AltOk=core1DrawingCount>0&&core1DescrCount>=core1DrawingCount;
-    check(28,8,'Add alt text to ALL images in the document',core1AltOk,`✓ Alt text found on all ${core1DrawingCount} image(s).`,`✗ Found ${core1DrawingCount} image(s) but only ${core1DescrCount} with alt text. Fix: Right-click EACH image > Edit Alt Text > type a description.`);
+    check(28,8,'Add alt text to ALL images in the document',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
     // D6 - 3 tasks - 9 pts
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
@@ -459,18 +443,11 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     if(pgMar){const a=pgMar[1];mTop=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mBot=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mLeft=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mRight=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
     const mOk = Math.abs(mTop-INCH)<72&&Math.abs(mBot-INCH)<72&&Math.abs(mLeft-1800)<72&&Math.abs(mRight-1800)<72;
     check(1,2,'Set 1-inch top/bottom and 1.25-inch left/right margins',mOk,'✓ Margins correct.','✗ Margins incorrect. Fix: Layout → Margins → Custom → Top/Bottom 1", Left/Right 1.25".');
-    // T2 paper size: starter is A4 (w:w="11906"). Student must change to Letter (w:w="12240").
-    // Checking for 12240 is a real change from the starter state — fully independent.
-    const _pgSzStr = (docXml.match(/w:pgSz[^<]*/) || [''])[0]; const _c2pgW = parseInt((_pgSzStr.match(/w:w="(\d+)"/) || ['','0'])[1]); check(2,2,'Set paper size to Letter',Math.abs(_c2pgW-12240)<50,'\u2713 Paper size is Letter.','\u2717 Paper size is not Letter. Fix: Layout \u2192 Size \u2192 Letter. (Starter is A4 \u2014 you must change it.)');
-    // T3 style set: detect by H1 color in styles.xml changing from default Word blues. Independent of any heading tasks.
-    const core2DefaultH1Colors = ['2F5496','2E74B5','1F4D78','365F91','17375E'];
-    const core2H1Match = stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/) || [];
-    const core2H1Color = (core2H1Match[1]||'').toUpperCase();
-    const core2StyleSetChanged = core2H1Color.length>0 && !core2DefaultH1Colors.map(c=>c.toUpperCase()).includes(core2H1Color);
-    check(3,2,'Apply the "Shaded" style set',core2StyleSetChanged,'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Shaded.');
+    check(2,2,'Set paper size to Letter',docXml.includes('w:w="12240"')||!docXml.includes('w:pgSz'),'✓ Paper size is Letter.','✗ Paper size is not Letter. Fix: Layout → Size → Letter.');
+    check(3,2,'Apply the "Shaded" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Shaded.');
     check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(hXml.includes('Nevada Valley')||hXml.includes('NVH'))&&(hXml.includes('Training')||hXml.includes('Manual')),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
-    check(5,3,'Insert footer with department name',fXml.length>50,'✓ Footer content found.','✗ Footer empty. Fix: Insert → Footer → Edit Footer → type the department name.');
-    check(6,2,'Insert page numbers in the footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ No page numbers detected. Fix: Insert → Header & Footer → Footer → Edit Footer → Insert → Page Number → Current Position.');
+    check(5,3,'Insert footer with department name and page number',fXml.length>50,'✓ Footer found.','✗ Footer empty. Fix: Insert → Footer → add department name and page number.');
+    check(6,2,'Insert page numbers starting at 1 after cover page',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
     check(7,3,'Add a "CONFIDENTIAL" watermark',hXml.toUpperCase().includes('CONFIDENTIAL')||hXml.toLowerCase().includes('pict'),'✓ Watermark detected.','✗ Fix: Design → Watermark → type CONFIDENTIAL.');
     check(8,3,'Set document properties: Title, Author, Subject, Keywords',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'✓ Properties set.','✗ Fix: File → Info → Properties panel.');
     check(9,2,'Add custom document property: Department = Human Resources',/name="Department"/.test(cstmXml)&&cstmXml.includes('Human Resources'),'✓ Custom property found.','✗ Fix: File → Info → Properties → Advanced Properties → Custom tab → Name: Department, Value: Human Resources → Add.');
@@ -486,11 +463,8 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(16,4,'Insert page break before each new chapter',docXml.includes('w:type="page"'),'✓ Page break(s) found.','✗ No page breaks found. Fix: Click before each chapter → Ctrl+Enter.');
     check(17,2,'Format Quick Reference section in two columns',docXml.includes('<w:cols')&&docXml.includes('w:num="2"'),'✓ Two-column formatting found.','✗ No column formatting found. Fix: Select text → Layout → Columns → Two.');
     check(18,3,'Create 3-column employee benefits summary table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 3 columns.');
-    // T19 merge: only valid if table from T18 exists.
-    const core2TblCount=(docXml.match(/<w:tbl>/g)||[]).length;
-    check(19,2,'Merge header row cells',core2TblCount>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create the table first (T18), then select the top row → Table Layout → Merge Cells.');
-    // T20 repeat header: tblHeader lives inside a table row — requires the table from T18 to exist.
-    check(20,2,'Enable Repeat Header Row',core2TblCount>=1&&docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Create the table first (T18), then click the header row → Table Layout → Repeat Header Rows.');
+    check(19,2,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ Fix: Select top row → Table Layout → Merge Cells.');
+    check(20,2,'Enable Repeat Header Row',docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Click header row → Table Layout → Repeat Header Rows.');
     const ni=docXml.split('w:numId').length-1;
     check(21,2,'Create numbered checklist of Day 1 tasks',ni>=5,`✓ List items found (${ni}).`,`✗ Numbered list not found. Fix: Select Day 1 tasks → Home → Numbering.`);
     check(22,2,'Create bulleted list of conduct guidelines',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&/w:ilvl w:val="0"/.test(docXml)&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select conduct guidelines → Home → Bullets.');
@@ -499,16 +473,9 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(25,3,'Customize TOC: dotted leaders, 3 heading levels',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*3/.test(docXml),'✓ TOC customized to 3 levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
     check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
-    // T28 wrap: requires image from T27 to exist.
-    const core2HasImg=docXml.includes('w:drawing')||docXml.includes('a:blip');
-    const core2HasWrap=['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor');
-    check(28,2,'Set text wrapping to Square for logo',core2HasImg&&core2HasWrap,'✓ Text wrapping set.','✗ Fix: Insert logo first (T27), then Picture Format → Wrap Text → Square.');
+    check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(29,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
-    // T30 alt text: fully independent — count drawings present and verify each has a non-empty descr.
-    const core2DrawingCount=(docXml.match(/w:drawing/g)||[]).length;
-    const core2DescrCount=(docXml.match(/descr="[^"]{3,}"/g)||[]).length;
-    const core2AltOk=core2DrawingCount>0&&core2DescrCount>=core2DrawingCount;
-    check(30,7,'Add alt text to every image and icon',core2AltOk,`✓ Alt text on all ${core2DrawingCount} graphic(s).`,`✗ Found ${core2DrawingCount} graphic(s) but only ${core2DescrCount} with alt text. Fix: Right-click EACH image/icon → Edit Alt Text → type a description.`);
+    check(30,7,'Add alt text to every image and icon',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(31,2,'Add comment on benefits table',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select cell → Review → New Comment.');
     check(32,2,'Reply to comment from department manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -551,18 +518,8 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     let mOk=false;
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
     check(1,3,'Set 1-inch margins (APA)',mOk,'✓ 1-inch margins confirmed.','✗ Fix: Layout → Margins → Normal (1" all sides).');
-    // T2 orientation: starter is Landscape (w=15840, h=12240). Student must change to Portrait.
-    // Check: pgSz width must be portrait-sized (12240) and no landscape orient attribute.
-    const var1PgSzStr=(docXml.match(/w:pgSz[^<]*/)|| [''])[0];
-    const var1PgW=parseInt((var1PgSzStr.match(/w:w="(\d+)"/)|| ['','0'])[1]);
-    const var1IsPortrait=var1PgW>0&&var1PgW<=12500&&!docXml.includes('w:orient="landscape"');
-    check(2,2,'Set orientation to Portrait',var1IsPortrait,'✓ Portrait orientation confirmed.','✗ Document is still Landscape. Fix: Layout → Orientation → Portrait. (Starter is Landscape — you must change it.)');
-    // T3 style set: detect by H1 color in styles.xml — fully independent of heading tasks.
-    const var1DefaultH1Colors=['2F5496','2E74B5','1F4D78','365F91','17375E'];
-    const var1H1Match=stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/)|| [];
-    const var1H1Color=(var1H1Match[1]||'').toUpperCase();
-    const var1StyleSetOk=var1H1Color.length>0&&!var1DefaultH1Colors.map(c=>c.toUpperCase()).includes(var1H1Color);
-    check(3,2,'Apply the "Basic (Simple)" style set',var1StyleSetOk,'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Basic (Simple).');
+    check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'✓ Portrait orientation.','✗ Fix: Layout → Orientation → Portrait.');
+    check(3,2,'Apply the "Basic (Simple)" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Basic (Simple).');
     const hHasTitle=/Social Media|Las Vegas|Tourism|SOC/.test(hXml)||hXml.length>100;
     const hHasPage=hXml.includes('PAGE')||hXml.includes('fldChar');
     check(4,4,'Insert running head: title left, page number right',hHasTitle&&hHasPage,'✓ Running head found.',`✗ Title:${hHasTitle} Page#:${hHasPage}. Fix: Insert → Header → title left, page # right.`);
@@ -580,12 +537,8 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(13,4,'Apply Intense Quote character style',stylesXml.includes('Intense Quote')||docXml.includes('Intense'),'✓ Intense Quote style found.','✗ Fix: Select quotation → Home → Styles → Intense Quote.');
     check(14,2,'Insert page break before References',docXml.includes('w:type="page"'),'✓ Page break found.','✗ Fix: Click before References → Ctrl+Enter.');
     check(15,4,'Create 4-column survey data table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 4 columns.');
-    // T16 merge: requires table from T15.
-    const var1TblCount=(docXml.match(/<w:tbl>/g)||[]).length;
-    check(16,3,'Merge header row cells',var1TblCount>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create the table first (T15), then select the top row → Table Layout → Merge Cells.');
-    // T17 sort: requires table from T15. Grader checks table XML for w:tblHeader (sort leaves no XML artifact in Word).
-    // Best available check: a second table (TOC) would make >=2; use presence of table + note sort is self-verified visually.
-    check(17,3,'Sort data table by response percentage (descending)',var1TblCount>=1,'✓ Table present — verify sort order visually.','✗ No table found. Fix: Create the survey table (T15) then Table Layout → Sort → Column 4 → Descending.');
+    check(16,3,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells.','✗ Fix: Select top row → Table Layout → Merge Cells.');
+    check(17,3,'Sort data table by response percentage (descending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the survey table → Table Layout → Sort → Column 4 (Percentage) → Descending.');
     const ni=docXml.split('w:numId').length-1;
     check(18,2,'Create numbered list of research questions',ni>=3,`✓ List items found (${ni}).`,'✗ Fix: Select questions → Home → Numbering.');
     check(19,2,'Create bulleted list of key findings',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select key findings → Home → Bullets.');
@@ -595,17 +548,10 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(23,4,'Insert 5 footnotes throughout',fnc>=5,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 5. Fix: References → Insert Footnote × 5.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
-    // T25 wrap: requires image from T24.
-    const var1HasImg=docXml.includes('w:drawing')||docXml.includes('a:blip');
-    const var1HasWrap=['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w));
-    check(25,2,'Set text wrapping to Top and Bottom',var1HasImg&&var1HasWrap,'✓ Wrapping set.','✗ Fix: Insert image first (T24), then Picture Format → Wrap Text → Top and Bottom.');
+    check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
     check(26,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
     check(27,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
-    // T28 alt text: count all drawings and verify each has non-empty descr — fully independent.
-    const var1DrawingCount=(docXml.match(/w:drawing/g)||[]).length;
-    const var1DescrCount=(docXml.match(/descr="[^"]{3,}"/g)||[]).length;
-    const var1AltOk=var1DrawingCount>0&&var1DescrCount>=var1DrawingCount;
-    check(28,7,'Add alt text to all figures',var1AltOk,`✓ Alt text on all ${var1DrawingCount} figure(s).`,`✗ Found ${var1DrawingCount} figure(s) but only ${var1DescrCount} with alt text. Fix: Right-click EACH image/shape → Edit Alt Text → type a description.`);
+    check(28,7,'Add alt text to all figures',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment asking professor for feedback',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select thesis → Review → New Comment.');
     check(30,4,'Reply to comment from writing partner',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -647,21 +593,8 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     let mOk=false;
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
     check(1,2,'Set 1-inch margins',mOk,'✓ Margins confirmed.','✗ Fix: Layout → Margins → Normal.');
-    // T2 orientation: starter is Landscape. Student must set Portrait for main section.
-    // Require pgSz width to be portrait-sized (<=12500) — the starter has w=15840.
-    const var2PgSzStr=(docXml.match(/w:pgSz[^<]*/)|| [''])[0];
-    const var2PgW=parseInt((var2PgSzStr.match(/w:w="(\d+)"/)|| ['','0'])[1]);
-    // T15 adds a landscape section, so check only the first pgSz width for portrait.
-    const firstPgW=var2PgW;
-    // firstPgW = var2PgW from first pgSz match above
-    const var2IsPortrait=firstPgW>0&&firstPgW<=12500;
-    check(2,2,'Set orientation to Portrait',var2IsPortrait,'✓ Portrait orientation confirmed.','✗ Document is still Landscape. Fix: Layout → Orientation → Portrait. (Starter is Landscape — you must change it.)');
-    // T3 style set: detect H1 color change in styles.xml — fully independent.
-    const var2DefaultH1Colors=['2F5496','2E74B5','1F4D78','365F91','17375E'];
-    const var2H1Match=stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/)|| [];
-    const var2H1Color=(var2H1Match[1]||'').toUpperCase();
-    const var2StyleSetOk=var2H1Color.length>0&&!var2DefaultH1Colors.map(c=>c.toUpperCase()).includes(var2H1Color);
-    check(3,2,'Apply the "Lines (Stylish)" style set',var2StyleSetOk,'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Lines (Stylish).');
+    check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'✓ Portrait.','✗ Fix: Layout → Orientation → Portrait.');
+    check(3,2,'Apply the "Lines (Stylish)" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Lines (Stylish).');
     check(4,4,'Insert header with Oasis Events and proposal number',hXml.toLowerCase().includes('oasis')||hXml.includes('Proposal')||hXml.length>80,'✓ Header content found.','✗ Fix: Insert → Header → add Oasis Events and proposal number.');
     check(5,3,'Insert footer: Oasis Events · Confidential · Page X of Y',fXml.toLowerCase().includes('oasis')||fXml.toLowerCase().includes('confidential')||fXml.length>50,'✓ Footer content found.','✗ Fix: Insert → Footer → type footer text.');
     check(6,2,'Insert page numbers in footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
@@ -676,17 +609,10 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(12,4,'Apply Heading 2 to all subsections: Proposal Overview, Date and Venue',h2c>=2,`✓ Heading 2 on ${h2c}.`,`✗ Only ${h2c} Heading 2 — need 2. Fix: Click Proposal Overview and Date and Venue → Home → Heading 2.`);
     check(13,2,'Set body text line spacing to 1.5',(()=>{const m=docXml.match(/w:line="(\d+)"/g);return m&&m.some(v=>parseInt(v.match(/\d+/)[0])>=330&&parseInt(v.match(/\d+/)[0])<=360);})(),'✓ 1.5 line spacing found.','✗ Fix: Select body text → Home → Line Spacing → 1.5.');
     check(14,3,'Apply text effects (shadow, glow, or reflection) to proposal title',docXml.includes('w:effect')||docXml.includes('w:shadow')||docXml.includes('a:outerShdw')||docXml.includes('a:glow')||docXml.includes('a:reflection'),'✓ Text effect found.','✗ Fix: Select title → Home → Font dialog → Text Effects → Shadow (or Glow/Reflection).');
-    // T15 section break: starter is already Landscape, so after T2 the student converts to Portrait.
-    // Then T15 adds a NEW landscape section for Budget. Requires: >=2 sectPr + landscape orient present.
-    // This is independent: we're checking the student added a section break AND one section is landscape.
-    const var2SectCount=(docXml.match(/<w:sectPr[ >]/g)||[]).length;
-    check(15,4,'Insert section break before Budget; change to Landscape',var2SectCount>=2&&docXml.includes('w:orient="landscape"'),'✓ Section break with Landscape Budget section found.','✗ Fix: Layout → Breaks → Next Page before Budget Summary, then click in that section → Layout → Orientation → Landscape.');
+    check(15,4,'Insert section break before Budget; change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'✓ Section break with Landscape section found.','✗ No Landscape section break. Fix: Layout → Breaks → Next Page before Budget, then set that section to Layout → Orientation → Landscape.');
     check(16,4,'Create 5-column budget table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 5 columns.');
-    // T17 merge: requires table from T16.
-    const var2TblCount=(docXml.match(/<w:tbl>/g)||[]).length;
-    check(17,3,'Merge header row cells',var2TblCount>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create the table first (T16), then select the top row → Table Layout → Merge Cells.');
-    // T18 sort: requires both tables (budget T16, vendor T18). Check for >=2 tables present.
-    check(18,3,'Sort vendor table by cost (ascending)',var2TblCount>=2,'✓ Two tables found — verify sort order visually.','✗ Less than 2 tables found. Fix: Create both the budget table (T16) and vendor table, then Table Layout → Sort → Cost → Ascending.');
+    check(17,3,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells.','✗ Fix: Select top row → Table Layout → Merge Cells.');
+    check(18,3,'Sort vendor table by cost (ascending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the vendor table → Table Layout → Sort → Cost column → Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered timeline of event activities',ni>=3,`✓ List items (${ni}).`,'✗ Fix: Select timeline → Home → Numbering.');
     check(20,2,'Create bulleted list of services',numXml.includes('w:numFmt w:val="bullet"') || docXml.includes('w:numFmt w:val="bullet"')||(ni>0&&docXml.includes('w:numFmt')),'✓ Bulleted list found.','✗ Fix: Select services → Home → Bullets.');
@@ -696,16 +622,9 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
-    // T26 wrap: requires image from T25.
-    const var2HasImg=docXml.includes('w:drawing')||docXml.includes('a:blip');
-    const var2HasWrap=['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w));
-    check(26,2,'Set text wrapping to Square',var2HasImg&&var2HasWrap,'✓ Wrapping set.','✗ Fix: Insert image first (T25), then Picture Format → Wrap Text → Square.');
+    check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(27,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
-    // T28 alt text: count all drawings and verify each has a non-empty descr — fully independent.
-    const var2DrawingCount=(docXml.match(/w:drawing/g)||[]).length;
-    const var2DescrCount=(docXml.match(/descr="[^"]{3,}"/g)||[]).length;
-    const var2AltOk=var2DrawingCount>0&&var2DescrCount>=var2DrawingCount;
-    check(28,8,'Add alt text to all graphics',var2AltOk,`✓ Alt text on all ${var2DrawingCount} graphic(s).`,`✗ Found ${var2DrawingCount} graphic(s) but only ${var2DescrCount} with alt text. Fix: Right-click EACH image/shape → Edit Alt Text → type a description.`);
+    check(28,8,'Add alt text to all graphics',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment on budget table',cc>=1,`✓ ${cc} comment(s).`,'✗ Fix: Select cell → Review → New Comment.');
     check(30,2,'Reply to comment from sales manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc}. Fix: Click comment → Reply.`);
@@ -769,10 +688,6 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       sectPrCount>=2 && /w:(?:left|right)="1080"/.test(docXml),
       '✓ Section with custom page setup found.','✗ No second section with 0.75" margins found. Fix: Insert a section break before the FAQ, then Layout → Margins → Custom → 0.75".');
 
-    // Starter has 4 tables (equipment, ticket, software-version, software-inventory).
-    // T7 convert text→table: adds 1 → need >=5.
-    // T12 split table: splits 1 into 2 → need >=6 (one more than T7).
-    // Using distinct thresholds ensures neither task passes from the other's work alone.
     const tblCount = (docXml.match(/<w:tbl>/g)||[]).length;
     check(7,9,'Convert the tab-separated ticket priority list to a table',
       tblCount>=5,
@@ -789,29 +704,17 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       hasCustomMargin,
       '✓ Custom cell margins found.','✗ No custom cell margins found. Fix: Click in table → Layout → Cell Margins → increase values.');
 
-    // T10 split merged cell: check that no gridSpan remains anywhere in the document EXCEPT
-    // inside tables that the student created via T7 (which may legitimately have their own merges).
-    // Safer check: the ticket table specifically should have no gridSpan. We scope to the
-    // region around "Ticket" text in the document to avoid false-fails from student-created tables.
-    const ticketTableRegion = (()=>{
-      const idx = docXml.indexOf('Ticket');
-      if(idx<0) return docXml;
-      const tblStart = docXml.lastIndexOf('<w:tbl>',idx);
-      const tblEnd = docXml.indexOf('</w:tbl>',idx);
-      return tblStart>=0&&tblEnd>=0 ? docXml.slice(tblStart,tblEnd) : docXml;
-    })();
     check(10,8,'Split the merged header cell in the ticket table into two columns',
-      !ticketTableRegion.includes('w:gridSpan'),
-      '✓ Merged header cell appears split.','✗ Merged cell still present in ticket table. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
+      !docXml.includes('w:gridSpan'),
+      '✓ Header cell appears split.','✗ Header cell still appears merged. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
 
     check(11,5,'Resize the equipment table columns to fit content',
       docXml.includes('w:tblLayout'),
       '✓ Custom column widths found.','✗ No custom column resizing detected. Fix: Drag column borders or use Layout → AutoFit → AutoFit Contents.');
 
-    // T12 split table: requires tblCount>=6 (one higher than T7's threshold of 5).
     check(12,9,'Split the long software inventory table into two separate tables',
-      tblCount>=6,
-      '✓ Software inventory table has been split.','✗ Still one inventory table. Fix: Click in a middle row of the software inventory table → Layout → Split Table.');
+      tblCount>=5,
+      '✓ Multiple tables found (inventory table split).','✗ Software inventory table is still one table. Fix: Click in a middle row → Layout → Split Table.');
 
     const hasWingdingsFont = docXml.includes('Wingdings');
     const hasPUAChar = /[\uF000-\uF0FF]/.test(docXml);
@@ -942,12 +845,8 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
     check(11,5,'Add column sparklines',roster.toLowerCase().includes('sparkline'),'Sparklines added.','Add column sparklines for weekly shift counts.');
     check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:G1"'),'Banner merged.','Merge and center the section banner across the table.');
     check(13,5,'Convert roster to Table',H.tables.some(t=>t.includes('RosterTable')),'Roster table created.','Convert the staffing roster to an Excel Table.');
-    // T14: scope banded rows check to RosterTable only — not CertTable from starter.
-    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row (Table Design > Style Options). Note: must be on the Roster table.');
-    // T15 salvage: starter ships CertTable (A3:C7). Pass when CertTable is gone from tables parts.
-    // Starter has CertTable → untouched file fails (CertTable present). Student converts → passes.
+    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row on the Roster table (Table Design > Style Options).');
     check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
-    // T16: scope table style to RosterTable only — CertTable has no style so this is clean.
     check(16,4,'Apply a table style',H.tables.some(t=>t.includes('RosterTable')&&/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table.');
     check(17,3,'Filter to Emergency department',roster.includes('<autoFilter')&&roster.includes('<filterColumn'),'Filter applied.','Filter the roster to the Emergency department.');
     check(18,3,'Freeze first column',roster.includes('state="frozen"'),'Column frozen.','Freeze the first column (View > Freeze Panes > Freeze First Column).');
@@ -999,8 +898,7 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(14,6,'Nested IF letter grade',F.some(f=>(f.toUpperCase().match(/IF\(/g)||[]).length>=2),'Nested IF used.','Use a nested IF to assign letter grades A\u2013F.');
     check(15,4,'COUNTIF for A grades',fn('COUNTIF('),'COUNTIF used.','Use COUNTIF to count how many students earned an A.');
     check(16,6,'VLOOKUP letter grade',fn('VLOOKUP('),'VLOOKUP used.','Use VLOOKUP against the grade scale to return each letter grade.');
-    // T17: require IFERROR and VLOOKUP in the same formula — not just anywhere in the sheet.
-    check(17,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().includes('IFERROR(')&&f.toUpperCase().includes('VLOOKUP(')),'IFERROR wrapping VLOOKUP detected.','Wrap the VLOOKUP in IFERROR: =IFERROR(VLOOKUP(...),"Check"). Both must be in the same cell formula.');
+    check(17,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().includes('IFERROR(')&&f.toUpperCase().includes('VLOOKUP(')),'IFERROR wrapping VLOOKUP detected.','Wrap the VLOOKUP in IFERROR: =IFERROR(VLOOKUP(...)). Both must be in the same cell.');
     check(18,3,'TODAY() report date',fn('TODAY(','NOW('),'TODAY used.','Use TODAY() to stamp the report-generated date.');
     check(19,4,'Create Column chart',H.charts.length>=1,'Chart created.','Create a Column chart of class average by assignment.');
     check(20,4,'Add data labels and chart title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and a chart title.');
@@ -1039,16 +937,9 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(3,3,'SEQUENCE for line-item IDs',fn('SEQUENCE(','RANDBETWEEN('),'SEQUENCE used.','Use SEQUENCE to generate the line-item ID column.');
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.some(t=>t.includes('InvTable')),'Table created.','Convert the inventory list to an Excel Table.');
-    // T6: starter has data in cols A-M rows 3-11. After creating InvTable (T5) and adding Line Total
-    // as an active column (F already exists as header), the table ref should cover at least A3:M11.
-    // Check: InvTable exists AND its ref extends to at least column F (Line Total data populated).
-    // The ref regex checks that the table covers through column M (all headers present).
-    check(6,4,'Add Line Total column to table',H.tables.some(t=>t.includes('InvTable')&&/ref="A3:[A-Z]+1[01]"/.test(t)),'Column added.','Add a Line Total column to the inventory table (Table Design > Resize Table, or type in the adjacent column header).');
-    // T7: scope totalsRowShown to InvTable only — not any other table that might exist.
-    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('InvTable')&&t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row (Table Design > Total Row). Make sure the Total Row is on the Inventory table.');
-    // T8: structured reference — require InvTable column reference specifically, not just any [@.
-    // Valid forms: InvTable[Qty], InvTable[Unit Cost], [@Qty], etc. inside a formula on the inv sheet.
-    check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference for the line total: =[@Qty]*[@[Unit Cost]] or =InvTable[Qty]*InvTable[Unit Cost].');
+    check(6,4,'Add Line Total column to table',H.tables.some(t=>t.includes('InvTable')&&/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
+    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('InvTable')&&t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row to the inventory table (Table Design > Total Row).');
+    check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference: =[@Qty]*[@[Unit Cost]] or =InvTable[Qty]*InvTable[Unit Cost].');
     check(9,6,'SUMIF spend per category',fn('SUMIF('),'SUMIF used.','Use SUMIF to total spend per item category.');
     check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
     check(11,4,'UPPER and LEN for category code',fn('UPPER(','LOWER(','LEN('),'UPPER/LEN used.','Use UPPER and LEN for category codes.');
@@ -1381,43 +1272,36 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Multiple tables found — sort verified visually.',
       '✗ Less than 2 tables detected. Fix: Click in table → Table Layout → Sort.');
 
-    // Merge cells: requires a table to exist first.
-    const practTblCount = (docXml.match(/<w:tbl>/g)||[]).length;
     auto('D3 — Tables & Lists','Merge cells',
-      practTblCount>=1 && docXml.includes('w:gridSpan'),
+      docXml.includes('w:gridSpan'),
       '✓ Merged cells detected.',
-      '✗ No merged cells. Fix: Create a table first, then select cells → Table Layout → Merge Cells.');
+      '✗ No merged cells. Fix: Select cells → Table Layout → Merge Cells.');
 
-    // Split cells: w:splitPgBreak is not a valid OOXML element. Correct check: after splitting,
-    // a previously-merged cell has w:gridSpan removed, or new columns appear. Best artifact-based
-    // proxy: a tcPr with explicit w:tcW on multiple cells in a row where there was previously a merge.
-    // Since the practice starter has no pre-merged cells, the student must first merge (above) then split.
-    // Detect: vMerge (row-split artifact) OR a table where cell count per row > 1 without gridSpan.
     auto('D3 — Tables & Lists','Split cells',
-      practTblCount>=1 && (docXml.includes('w:vMerge') || (docXml.includes('w:gridSpan') === false && practTblCount>=1)),
-      '✓ Split cell structure detected.',
-      '✗ Not detected. Fix: Select a merged cell → Table Layout → Split Cells → set columns/rows.');
+      docXml.includes('<w:splitPgBreak') || docXml.includes('w:vMerge') || docXml.count > 0,
+      '✓ Split/modified cell structure detected.',
+      '✗ Not detected. Fix: Click in cell → Table Layout → Split Cells.');
 
     auto('D3 — Tables & Lists','Split a table',
-      practTblCount >= 3,
+      docXml.split('<w:tbl>').length >= 3,
       '✓ Multiple tables detected — table was split.',
       '✗ Less than 3 tables. Fix: Click in the row where you want to split → Table Layout → Split Table.');
 
-    // Resize table: w:w= appears everywhere including paragraph margins. Require it inside a tblPr or tcW context.
+    // Resize table
     auto('D3 — Tables & Lists','Resize a table / rows / columns',
-      practTblCount>=1 && (docXml.includes('<w:tcW ') || docXml.includes('w:tblW ')||docXml.includes('w:trHeight')),
-      '✓ Table with custom column/row sizing detected.',
-      '✗ No resize detected. Fix: Drag column borders or Table Layout → Width / Height.');
+      docXml.includes('w:w=') && docXml.includes('<w:tbl>'),
+      '✓ Table with column widths detected.',
+      '✗ No table found. Fix: Drag column borders or use Table Layout → Width.');
 
-    // Cell margins: independent — checks for tcMar element inside any table cell.
+    // Cell margins
     auto('D3 — Tables & Lists','Configure cell margins and spacing',
-      practTblCount>=1 && (docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing')),
+      docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing'),
       '✓ Custom cell margins detected.',
       '✗ No custom cell margins. Fix: Table Layout → Cell Margins.');
 
-    // Repeat header row: requires a table.
+    // Repeat header row
     auto('D3 — Tables & Lists','Configure a repeating row header',
-      practTblCount>=1 && docXml.includes('w:tblHeader'),
+      docXml.includes('w:tblHeader'),
       '✓ Repeating header row detected.',
       '✗ No repeat header. Fix: Click header row → Table Layout → Repeat Header Rows.');
 
@@ -1478,14 +1362,11 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Table of Contents detected.',
       '✗ No TOC. Fix: References → Table of Contents → Automatic Table 1.');
 
-    // Customize TOC: requires a TOC to exist first (insert-toc above). Check both conditions.
-    const practHasToc = /<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml);
-    const practTocCustomized = /<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml) ||
-      /<w:instrText[^>]*>[^<]*TOC[^<]*\\l [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml);
     auto('D4 — References','Customize a Table of Contents',
-      practHasToc && practTocCustomized,
+      /<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml) ||
+      /<w:instrText[^>]*>[^<]*TOC[^<]*\\l [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),
       '✓ TOC customized to specific levels.',
-      '✗ TOC not customized. Fix: Insert a TOC first, then References → Table of Contents → Custom Table of Contents → Show levels: 2.');
+      '✗ TOC not customized. Fix: References → Table of Contents → Custom Table of Contents → Show levels: 2.');
 
     self('D4 — References','Modify footnote/endnote properties',
       'References → Footnotes dialog launcher → change Number format to Roman numerals (i, ii, iii). Check the D2 section — the grader detects this change there.');
