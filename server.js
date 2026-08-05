@@ -340,7 +340,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     const zip = new AdmZip(req.file.path);
     const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
     const docXml=getXml('word/document.xml'), stylesXml=getXml('word/styles.xml'), coreXml=getXml('docProps/core.xml');
-    const hXml=getXml('word/header1.xml')||getXml('word/header2.xml')||getXml('word/header3.xml');
+    let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
     const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
     const cmmXml=getXml('word/comments.xml'), fnXml=getXml('word/footnotes.xml');
     const numXml=getXml('word/numbering.xml');
@@ -424,7 +424,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const stylesXml = getXml('word/styles.xml');
     const coreXml = getXml('docProps/core.xml');
     const cstmXml = getXml('docProps/custom.xml');
-    const hXml = getXml('word/header1.xml') || getXml('word/header2.xml') || getXml('word/header3.xml');
+    let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
     const fXml = getXml('word/footer1.xml') || getXml('word/footer2.xml') || getXml('word/footer3.xml');
     const cmmXml = getXml('word/comments.xml');
     const enXml = getXml('word/endnotes.xml');
@@ -509,7 +509,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const zip = new AdmZip(req.file.path);
     const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
     const docXml=getXml('word/document.xml'),stylesXml=getXml('word/styles.xml'),coreXml=getXml('docProps/core.xml');
-    const hXml=getXml('word/header1.xml')||getXml('word/header2.xml')||getXml('word/header3.xml');
+    let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
     const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
     const cmmXml=getXml('word/comments.xml'),fnXml=getXml('word/footnotes.xml');
     const numXml=getXml('word/numbering.xml');
@@ -589,7 +589,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     const zip = new AdmZip(req.file.path);
     const getXml=(n)=>{try{return zip.readAsText(n)||'';}catch(e){return '';}};
     const docXml=getXml('word/document.xml'),stylesXml=getXml('word/styles.xml'),coreXml=getXml('docProps/core.xml');
-    const hXml=getXml('word/header1.xml')||getXml('word/header2.xml')||getXml('word/header3.xml');
+    let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
     const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
     const cmmXml=getXml('word/comments.xml'),fnXml=getXml('word/footnotes.xml');
     const numXml=getXml('word/numbering.xml');
