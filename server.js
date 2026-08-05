@@ -356,7 +356,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(1,2,'Set 1-inch margins on all sides',[mT,mB,mL,mR].every(v=>Math.abs(v-INCH)<72),'Margins are 1 inch on all sides.','Margins not 1 inch. Fix: Layout > Margins > Normal.');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'Portrait orientation confirmed.','Document is Landscape. Fix: Layout > Orientation > Portrait.');
     check(3,2,'Apply the Basic Stylish style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
-    const hC=hXml.includes('Desert Sun'); const hD=/20(25|26|27)/.test(hXml)||/January|February|March|April|May|June|July|August|September|October|November|December/.test(hXml);
+    const hTexts=[...hXml.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>m[1]).join(' ').replace(/\s+/g,' '); const hC=hTexts.includes('Desert Sun'); const hD=/20(25|26|27)/.test(hXml)||/January|February|March|April|May|June|July|August|September|October|November|December/.test(hXml);
     check(4,4,'Insert header: company name and date',hC&&hD,'Header has company name and date.','Header incomplete. Company:'+hC+' Date:'+hD+'. Fix: Insert > Header > add Desert Sun Consulting and date.');
     check(5,3,'Insert footer: Confidential centered',fXml.toLowerCase().includes('confidential'),'Footer has Confidential.','Footer missing Confidential. Fix: Insert > Footer > type Confidential.');
     check(6,3,'Insert page numbers bottom right',fXml.includes('PAGE')||fXml.includes('fldChar'),'Page numbers in footer.','No page numbers. Fix: Insert > Page Number > Bottom of Page > Plain Number 3.');
@@ -450,7 +450,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const c2H1C=(c2H1M&&c2H1M[1]||'').toUpperCase();
     const c2StyleOk=c2H1C.length>0&&c2H1C!=='2E74B5'&&c2H1C!=='2F5496'&&c2H1C!=='1F4D78'&&c2H1C!=='365F91'&&c2H1C!=='17375E';
     check(3,2,'Apply the "Shaded" style set',c2StyleOk,'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Shaded.');
-    check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(hXml.includes('Nevada Valley')||hXml.includes('NVH'))&&(hXml.includes('Training')||hXml.includes('Manual')),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
+    check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(()=>{const _ht=[...hXml.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>m[1]).join(' ').replace(/\s+/g,' '); return (_ht.includes('Nevada Valley')||hXml.includes('NVH'))&&(_ht.includes('Training')||_ht.includes('Manual'));})(),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
     check(5,3,'Insert footer with department name',fXml.length>50,'✓ Footer content found.','✗ Footer empty. Fix: Insert → Footer → Edit Footer → type the department name.');
     check(6,2,'Insert page numbers in the footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ No page numbers detected. Fix: Insert → Header & Footer → Footer → Edit Footer → Insert → Page Number → Current Position.');
     check(7,3,'Add a "CONFIDENTIAL" watermark',hXml.toUpperCase().includes('CONFIDENTIAL')||hXml.toLowerCase().includes('pict'),'✓ Watermark detected.','✗ Fix: Design → Watermark → type CONFIDENTIAL.');
