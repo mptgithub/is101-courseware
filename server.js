@@ -375,7 +375,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(15,4,'Insert section break before Financial Summary and change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'Section break with Landscape section found.','No Landscape section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set that section to Layout > Orientation > Landscape.');
     // D3 - 6 tasks - 18 pts
     check(16,4,'Create a 4-column quarterly revenue table',docXml.includes('<w:tbl>'),'Table found.','No table. Fix: Insert > Table > 4 columns x 5 rows.');
-    check(17,3,'Merge top row cells for spanning title',docXml.includes('w:gridSpan')||docXml.includes('w:hMerge'),'Merged cells found.','No merged cells. Fix: Select top row > Table Layout > Merge Cells.');
+    const c1Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(17,3,'Merge top row cells for spanning title',c1Tbl>=1&&(docXml.includes('w:gridSpan')||docXml.includes('w:hMerge')),'Merged cells found.','No merged cells. Fix: Create table first (T16), then select top row > Table Layout > Merge Cells.');
     check(18,3,'Sort client table alphabetically',docXml.split('<w:tbl>').length>=3,'Multiple tables found.','Client table not found. Fix: Add client table then Table Layout > Sort > Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered list of 5 strategic objectives',ni>=5,'Numbered list found ('+ni+' references).','Numbered list not found. Fix: Select 5 objectives > Home > Numbering.');
@@ -387,9 +387,9 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(24,4,'Insert footnote on revenue figure',/<w:footnote w:id="[1-9]/.test(fnXml)&&docXml.includes('w:footnoteReference'),'Footnote found.','No footnote. Fix: Click after revenue figure > References > Insert Footnote.');
     // D5 - 5 tasks - 19 pts
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
-    check(26,3,'Set text wrapping to Through for the logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Picture Format > Wrap Text > Through.');
+    check(26,3,'Set text wrapping to Through for the logo',(docXml.includes('w:drawing')||docXml.includes('a:blip'))&&['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Insert logo first (T25), then Picture Format > Wrap Text > Through.');
     check(27,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
-    check(28,8,'Add alt text to ALL images in the document',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'Alt text found.','No alt text. Fix: Right-click each image > Edit Alt Text > describe.');
+    const c1Drw=(docXml.match(/w:drawing/g)||[]).length; const c1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to ALL images in the document',c1Drw>0&&c1Dsc>=c1Drw,'Alt text found on all '+c1Drw+' image(s).','Found '+c1Drw+' image(s) but only '+c1Dsc+' with alt text. Fix: Right-click EACH image > Edit Alt Text > type a description.');
     // D6 - 3 tasks - 9 pts
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
@@ -443,11 +443,16 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     if(pgMar){const a=pgMar[1];mTop=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mBot=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mLeft=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mRight=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
     const mOk = Math.abs(mTop-INCH)<72&&Math.abs(mBot-INCH)<72&&Math.abs(mLeft-1800)<72&&Math.abs(mRight-1800)<72;
     check(1,2,'Set 1-inch top/bottom and 1.25-inch left/right margins',mOk,'✓ Margins correct.','✗ Margins incorrect. Fix: Layout → Margins → Custom → Top/Bottom 1", Left/Right 1.25".');
-    check(2,2,'Set paper size to Letter',docXml.includes('w:w="12240"')||!docXml.includes('w:pgSz'),'✓ Paper size is Letter.','✗ Paper size is not Letter. Fix: Layout → Size → Letter.');
-    check(3,2,'Apply the "Shaded" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Shaded.');
+    const _pgSzStr=(docXml.match(/w:pgSz[^<]*/)||[''])[0]; const _c2pgW=parseInt((_pgSzStr.match(/w:w="(\d+)"/)||['','0'])[1]);
+    check(2,2,'Set paper size to Letter',Math.abs(_c2pgW-12240)<50,'✓ Paper size is Letter.','✗ Paper size is not Letter. Fix: Layout → Size → Letter. (Starter is A4 — you must change it.)');
+    const c2DefaultH1=['2F5496','2E74B5','1F4D78','365F91','17375E','FFFFFF'];
+    const c2H1M=stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/);
+    const c2H1C=(c2H1M&&c2H1M[1]||'').toUpperCase();
+    const c2StyleOk=c2H1C.length>0&&c2H1C!=='2E74B5'&&c2H1C!=='2F5496'&&c2H1C!=='1F4D78'&&c2H1C!=='365F91'&&c2H1C!=='17375E';
+    check(3,2,'Apply the "Shaded" style set',c2StyleOk,'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Shaded.');
     check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(hXml.includes('Nevada Valley')||hXml.includes('NVH'))&&(hXml.includes('Training')||hXml.includes('Manual')),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
-    check(5,3,'Insert footer with department name and page number',fXml.length>50,'✓ Footer found.','✗ Footer empty. Fix: Insert → Footer → add department name and page number.');
-    check(6,2,'Insert page numbers starting at 1 after cover page',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
+    check(5,3,'Insert footer with department name',fXml.length>50,'✓ Footer content found.','✗ Footer empty. Fix: Insert → Footer → Edit Footer → type the department name.');
+    check(6,2,'Insert page numbers in the footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ No page numbers detected. Fix: Insert → Header & Footer → Footer → Edit Footer → Insert → Page Number → Current Position.');
     check(7,3,'Add a "CONFIDENTIAL" watermark',hXml.toUpperCase().includes('CONFIDENTIAL')||hXml.toLowerCase().includes('pict'),'✓ Watermark detected.','✗ Fix: Design → Watermark → type CONFIDENTIAL.');
     check(8,3,'Set document properties: Title, Author, Subject, Keywords',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'✓ Properties set.','✗ Fix: File → Info → Properties panel.');
     check(9,2,'Add custom document property: Department = Human Resources',/name="Department"/.test(cstmXml)&&cstmXml.includes('Human Resources'),'✓ Custom property found.','✗ Fix: File → Info → Properties → Advanced Properties → Custom tab → Name: Department, Value: Human Resources → Add.');
@@ -463,8 +468,8 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(16,4,'Insert page break before each new chapter',docXml.includes('w:type="page"'),'✓ Page break(s) found.','✗ No page breaks found. Fix: Click before each chapter → Ctrl+Enter.');
     check(17,2,'Format Quick Reference section in two columns',docXml.includes('<w:cols')&&docXml.includes('w:num="2"'),'✓ Two-column formatting found.','✗ No column formatting found. Fix: Select text → Layout → Columns → Two.');
     check(18,3,'Create 3-column employee benefits summary table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 3 columns.');
-    check(19,2,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ Fix: Select top row → Table Layout → Merge Cells.');
-    check(20,2,'Enable Repeat Header Row',docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Click header row → Table Layout → Repeat Header Rows.');
+    const c2Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(19,2,'Merge header row cells',c2Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create table first (T18), then select top row → Table Layout → Merge Cells.');
+    check(20,2,'Enable Repeat Header Row',c2Tbl>=1&&docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Create table first (T18), then click header row → Table Layout → Repeat Header Rows.');
     const ni=docXml.split('w:numId').length-1;
     check(21,2,'Create numbered checklist of Day 1 tasks',ni>=5,`✓ List items found (${ni}).`,`✗ Numbered list not found. Fix: Select Day 1 tasks → Home → Numbering.`);
     check(22,2,'Create bulleted list of conduct guidelines',ni>0&&numXml.includes('w:numFmt w:val="bullet"'),'✓ Bulleted list found.','✗ Fix: Select conduct guidelines → Home → Bullets.');
@@ -473,9 +478,9 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(25,3,'Customize TOC: dotted leaders, 3 heading levels',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*3/.test(docXml),'✓ TOC customized to 3 levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
     check(26,4,'Insert endnotes citing regulatory sources',/<w:endnote w:id="[1-9]/.test(enXml)&&docXml.includes('w:endnoteReference'),'✓ Endnote(s) found.','✗ Fix: References → Insert Endnote → type regulatory citation.');
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
-    check(28,2,'Set text wrapping to Square for logo',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor'),'✓ Text wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
+    check(28,2,'Set text wrapping to Square for logo',(docXml.includes('w:drawing')||docXml.includes('a:blip'))&&(['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor')),'✓ Text wrapping set.','✗ Fix: Insert logo first (T27), then Picture Format → Wrap Text → Square.');
     check(29,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
-    check(30,7,'Add alt text to every image and icon',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click image → Edit Alt Text.');
+    const c2Drw=(docXml.match(/w:drawing/g)||[]).length; const c2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(30,7,'Add alt text to every image and icon',c2Drw>0&&c2Dsc>=c2Drw,'✓ Alt text on all '+c2Drw+' graphic(s).','✗ Found '+c2Drw+' graphic(s) but only '+c2Dsc+' with alt text. Fix: Right-click EACH image/icon → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(31,2,'Add comment on benefits table',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select cell → Review → New Comment.');
     check(32,2,'Reply to comment from department manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -518,8 +523,13 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     let mOk=false;
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
     check(1,3,'Set 1-inch margins (APA)',mOk,'✓ 1-inch margins confirmed.','✗ Fix: Layout → Margins → Normal (1" all sides).');
-    check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'✓ Portrait orientation.','✗ Fix: Layout → Orientation → Portrait.');
-    check(3,2,'Apply the "Basic (Simple)" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Basic (Simple).');
+    const v1PgSzStr=(docXml.match(/w:pgSz[^<]*/)||[''])[0]; const v1PgW=parseInt((v1PgSzStr.match(/w:w="(\d+)"/)||['','0'])[1]);
+    const v1IsPortrait=v1PgW>0&&v1PgW<=12500&&!docXml.includes('w:orient="landscape"');
+    check(2,2,'Set orientation to Portrait',v1IsPortrait,'✓ Portrait orientation confirmed.','✗ Document is still Landscape. Fix: Layout → Orientation → Portrait. (Starter is Landscape — you must change it.)');
+    const v1DefaultH1=['2F5496','2E74B5','1F4D78','365F91','17375E'];
+    const v1H1M=stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/);
+    const v1H1C=(v1H1M&&v1H1M[1]||'').toUpperCase();
+    check(3,2,'Apply the "Basic (Simple)" style set',v1H1C.length>0&&!v1DefaultH1.includes(v1H1C),'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Basic (Simple).');
     const hHasTitle=/Social Media|Las Vegas|Tourism|SOC/.test(hXml)||hXml.length>100;
     const hHasPage=hXml.includes('PAGE')||hXml.includes('fldChar');
     check(4,4,'Insert running head: title left, page number right',hHasTitle&&hHasPage,'✓ Running head found.',`✗ Title:${hHasTitle} Page#:${hHasPage}. Fix: Insert → Header → title left, page # right.`);
@@ -537,7 +547,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(13,4,'Apply Intense Quote character style',stylesXml.includes('Intense Quote')||docXml.includes('Intense'),'✓ Intense Quote style found.','✗ Fix: Select quotation → Home → Styles → Intense Quote.');
     check(14,2,'Insert page break before References',docXml.includes('w:type="page"'),'✓ Page break found.','✗ Fix: Click before References → Ctrl+Enter.');
     check(15,4,'Create 4-column survey data table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 4 columns.');
-    check(16,3,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells.','✗ Fix: Select top row → Table Layout → Merge Cells.');
+    const v1Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(16,3,'Merge header row cells',v1Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create table first (T15), then select top row → Table Layout → Merge Cells.');
     check(17,3,'Sort data table by response percentage (descending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the survey table → Table Layout → Sort → Column 4 (Percentage) → Descending.');
     const ni=docXml.split('w:numId').length-1;
     check(18,2,'Create numbered list of research questions',ni>=3,`✓ List items found (${ni}).`,'✗ Fix: Select questions → Home → Numbering.');
@@ -551,7 +561,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
     check(26,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
     check(27,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
-    check(28,7,'Add alt text to all figures',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
+    const v1Drw=(docXml.match(/w:drawing/g)||[]).length; const v1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,7,'Add alt text to all figures',v1Drw>0&&v1Dsc>=v1Drw,'✓ Alt text on all '+v1Drw+' figure(s).','✗ Found '+v1Drw+' figure(s) but only '+v1Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment asking professor for feedback',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select thesis → Review → New Comment.');
     check(30,4,'Reply to comment from writing partner',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -593,8 +603,13 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     let mOk=false;
     if(pgMar){const vals=(pgMar[1].match(/w:(?:top|bottom|left|right)="(\d+)"/g)||[]).map(m=>parseInt(m.match(/"(\d+)"/)[1]));mOk=vals.length>0&&vals.every(v=>Math.abs(v-INCH)<72);}
     check(1,2,'Set 1-inch margins',mOk,'✓ Margins confirmed.','✗ Fix: Layout → Margins → Normal.');
-    check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'✓ Portrait.','✗ Fix: Layout → Orientation → Portrait.');
-    check(3,2,'Apply the "Lines (Stylish)" style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'✓ Style set applied.','✗ Fix: Design → Style Sets → Lines (Stylish).');
+    const v2PgSzStr=(docXml.match(/w:pgSz[^<]*/)||[''])[0]; const v2PgW=parseInt((v2PgSzStr.match(/w:w="(\d+)"/)||['','0'])[1]);
+    const v2IsPortrait=v2PgW>0&&v2PgW<=12500;
+    check(2,2,'Set orientation to Portrait',v2IsPortrait,'✓ Portrait orientation confirmed.','✗ Document is still Landscape. Fix: Layout → Orientation → Portrait. (Starter is Landscape — you must change it.)');
+    const v2DefaultH1=['2F5496','2E74B5','1F4D78','365F91','17375E'];
+    const v2H1M=stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/);
+    const v2H1C=(v2H1M&&v2H1M[1]||'').toUpperCase();
+    check(3,2,'Apply the "Lines (Stylish)" style set',v2H1C.length>0&&!v2DefaultH1.includes(v2H1C),'✓ Style set applied (H1 color changed from default).','✗ Style set not detected. Fix: Design → Style Sets → Lines (Stylish).');
     check(4,4,'Insert header with Oasis Events and proposal number',hXml.toLowerCase().includes('oasis')||hXml.includes('Proposal')||hXml.length>80,'✓ Header content found.','✗ Fix: Insert → Header → add Oasis Events and proposal number.');
     check(5,3,'Insert footer: Oasis Events · Confidential · Page X of Y',fXml.toLowerCase().includes('oasis')||fXml.toLowerCase().includes('confidential')||fXml.length>50,'✓ Footer content found.','✗ Fix: Insert → Footer → type footer text.');
     check(6,2,'Insert page numbers in footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
@@ -611,7 +626,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(14,3,'Apply text effects (shadow, glow, or reflection) to proposal title',docXml.includes('w:effect')||docXml.includes('w:shadow')||docXml.includes('a:outerShdw')||docXml.includes('a:glow')||docXml.includes('a:reflection'),'✓ Text effect found.','✗ Fix: Select title → Home → Font dialog → Text Effects → Shadow (or Glow/Reflection).');
     check(15,4,'Insert section break before Budget; change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'✓ Section break with Landscape section found.','✗ No Landscape section break. Fix: Layout → Breaks → Next Page before Budget, then set that section to Layout → Orientation → Landscape.');
     check(16,4,'Create 5-column budget table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 5 columns.');
-    check(17,3,'Merge header row cells',docXml.includes('w:gridSpan'),'✓ Merged cells.','✗ Fix: Select top row → Table Layout → Merge Cells.');
+    const vv2Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(17,3,'Merge header row cells',vv2Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create table first (T16), then select top row → Table Layout → Merge Cells.');
     check(18,3,'Sort vendor table by cost (ascending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the vendor table → Table Layout → Sort → Cost column → Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered timeline of event activities',ni>=3,`✓ List items (${ni}).`,'✗ Fix: Select timeline → Home → Numbering.');
@@ -624,7 +639,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
     check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(27,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
-    check(28,8,'Add alt text to all graphics',docXml.includes('descr="')||docXml.includes('pic:cNvPr'),'✓ Alt text found.','✗ Fix: Right-click each image → Edit Alt Text.');
+    const vv2Drw=(docXml.match(/w:drawing/g)||[]).length; const vv2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to all graphics',vv2Drw>0&&vv2Dsc>=vv2Drw,'✓ Alt text on all '+vv2Drw+' graphic(s).','✗ Found '+vv2Drw+' graphic(s) but only '+vv2Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment on budget table',cc>=1,`✓ ${cc} comment(s).`,'✗ Fix: Select cell → Review → New Comment.');
     check(30,2,'Reply to comment from sales manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc}. Fix: Click comment → Reply.`);
