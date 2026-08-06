@@ -715,7 +715,8 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       '✓ Software version table converted to text.','✗ Software version table is still a table. Fix: Click in table → Layout → Convert to Text.');
 
     const tcMarValues = [...docXml.matchAll(/<w:tcMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
-    const hasCustomMargin = tcMarValues.some(v => v !== 80);
+    const tblCellMarValues = [...docXml.matchAll(/<w:tblCellMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
+    const hasCustomMargin = tcMarValues.some(v => v !== 80) || tblCellMarValues.some(v => v > 80);
     check(9,5,'Increase cell margins on the equipment table for readability',
       hasCustomMargin,
       '✓ Custom cell margins found.','✗ No custom cell margins found. Fix: Click in table → Layout → Cell Margins → increase values.');
