@@ -691,8 +691,8 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       '✓ Hyperlink found.','✗ No hyperlink found. Fix: Insert → Link → paste the support portal URL.');
 
     check(4,5,'Insert a degree symbol (°) in the Fahrenheit troubleshooting note',
-      docXml.includes('w:sym')||docXml.includes('\u00B0')||docXml.includes('&#176;')||docXml.includes('&#xB0;'),
-      '✓ Symbol found.','✗ No degree symbol found. Fix: Insert → Symbol → ° (U+00B0).');
+      docXml.includes('w:sym')||docXml.includes('\u00B0')||docXml.includes('\u00BA')||docXml.includes('&#176;')||docXml.includes('&#xB0;')||docXml.includes('&#186;')||docXml.includes('&#xBA;'),
+      '✓ Symbol found.','✗ No degree symbol found. Fix: Insert → Symbol → ° (degree sign).');
 
     check(5,8,'Insert a column break in the two-column FAQ section',
       docXml.includes('w:type="column"'),
