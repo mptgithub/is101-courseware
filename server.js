@@ -672,7 +672,8 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
     let fXml=''; for(const n of ['word/footer1.xml','word/footer2.xml','word/footer3.xml']) fXml += getXml(n);
     const cmmXml = getXml('word/comments.xml');
     const fnXml = getXml('word/footnotes.xml');
-    const allXml = docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml;
+    const numXml = getXml('word/numbering.xml');
+    const allXml = docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
     try { fs.unlinkSync(req.file.path); } catch(e) {}
 
     const results=[]; let earned=0, total=0;
