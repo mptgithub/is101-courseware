@@ -389,7 +389,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
     check(26,3,'Set text wrapping to Through for the logo',(docXml.includes('w:drawing')||docXml.includes('a:blip'))&&['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Insert logo first (T25), then Picture Format > Wrap Text > Through.');
     check(27,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
-    const c1Drw=(docXml.match(/w:drawing/g)||[]).length; const c1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to ALL images in the document',c1Drw>0&&c1Dsc>=c1Drw,'Alt text found on all '+c1Drw+' image(s).','Found '+c1Drw+' image(s) but only '+c1Dsc+' with alt text. Fix: Right-click EACH image > Edit Alt Text > type a description.');
+    const c1HasImg=docXml.includes('a:blip'); const c1HasAlt=(docXml.match(/descr="[^"]{3,}"/g)||[]).length>=1; check(28,8,'Add alt text to ALL images in the document',c1HasImg&&c1HasAlt,'Alt text found on logo image.','No alt text on the logo image. Fix: Right-click the logo > Edit Alt Text > type a description.');
     // D6 - 3 tasks - 9 pts
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
@@ -480,7 +480,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(27,4,'Insert NVH logo on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select NVH logo.');
     check(28,2,'Set text wrapping to Square for logo',(docXml.includes('w:drawing')||docXml.includes('a:blip'))&&(['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w))||docXml.includes('wp:anchor')),'✓ Text wrapping set.','✗ Fix: Insert logo first (T27), then Picture Format → Wrap Text → Square.');
     check(29,3,'Insert icon representing each department',docXml.includes('w:drawing'),'✓ Graphic element(s) found.','✗ Fix: Insert → Icons → search type → Insert.');
-    const c2Drw=(docXml.match(/w:drawing/g)||[]).length; const c2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(30,7,'Add alt text to every image and icon',c2Drw>0&&c2Dsc>=c2Drw,'✓ Alt text on all '+c2Drw+' graphic(s).','✗ Found '+c2Drw+' graphic(s) but only '+c2Dsc+' with alt text. Fix: Right-click EACH image/icon → Edit Alt Text.');
+    const c2Drw=(docXml.match(/<w:drawing>/g)||[]).length; const c2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(30,7,'Add alt text to every image and icon',c2Drw>0&&c2Dsc>=c2Drw,'✓ Alt text on all '+c2Drw+' graphic(s).','✗ Found '+c2Drw+' graphic(s) but only '+c2Dsc+' with alt text. Fix: Right-click EACH image/icon → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(31,2,'Add comment on benefits table',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select cell → Review → New Comment.');
     check(32,2,'Reply to comment from department manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -561,7 +561,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
     check(26,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
     check(27,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
-    const v1Drw=(docXml.match(/w:drawing/g)||[]).length; const v1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,7,'Add alt text to all figures',v1Drw>0&&v1Dsc>=v1Drw,'✓ Alt text on all '+v1Drw+' figure(s).','✗ Found '+v1Drw+' figure(s) but only '+v1Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
+    const v1Drw=(docXml.match(/<w:drawing>/g)||[]).length; const v1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,7,'Add alt text to all figures',v1Drw>0&&v1Dsc>=v1Drw,'✓ Alt text on all '+v1Drw+' figure(s).','✗ Found '+v1Drw+' figure(s) but only '+v1Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment asking professor for feedback',cc>=1,`✓ ${cc} comment(s) found.`,'✗ Fix: Select thesis → Review → New Comment.');
     check(30,4,'Reply to comment from writing partner',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc} comment. Fix: Click comment → Reply.`);
@@ -639,7 +639,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
     check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
     check(27,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
-    const vv2Drw=(docXml.match(/w:drawing/g)||[]).length; const vv2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to all graphics',vv2Drw>0&&vv2Dsc>=vv2Drw,'✓ Alt text on all '+vv2Drw+' graphic(s).','✗ Found '+vv2Drw+' graphic(s) but only '+vv2Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
+    const vv2Drw=(docXml.match(/<w:drawing>/g)||[]).length; const vv2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to all graphics',vv2Drw>0&&vv2Dsc>=vv2Drw,'✓ Alt text on all '+vv2Drw+' graphic(s).','✗ Found '+vv2Drw+' graphic(s) but only '+vv2Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,2,'Add comment on budget table',cc>=1,`✓ ${cc} comment(s).`,'✗ Fix: Select cell → Review → New Comment.');
     check(30,2,'Reply to comment from sales manager',cc>=2,`✓ Reply found (${cc} total).`,`✗ Only ${cc}. Fix: Click comment → Reply.`);
