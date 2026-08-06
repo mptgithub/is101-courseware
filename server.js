@@ -738,8 +738,8 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       softwareTables>=2,
       '✓ Software inventory table has been split.','✗ Software inventory table is still one table. Fix: Click in a middle row of the software inventory table → Layout → Split Table.');
 
-    const hasWingdingsFont = docXml.includes('Wingdings');
-    const hasPUAChar = /[\uF000-\uF0FF]/.test(docXml);
+    const hasWingdingsFont = docXml.includes('Wingdings') || numXml.includes('Wingdings');
+    const hasPUAChar = /[\uF000-\uF0FF]/.test(docXml) || /[\uF000-\uF0FF]/.test(numXml);
     check(13,8,'Apply a custom bullet character (checkmark) to the quick-fix list',
       hasWingdingsFont && hasPUAChar,
       '✓ Custom bullet character found.','✗ No custom bullet character found. Fix: Select quick-fix list → Home → Bullets → Define New Bullet → Symbol → choose a checkmark (Wingdings).');
