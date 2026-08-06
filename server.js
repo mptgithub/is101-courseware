@@ -713,7 +713,7 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       docXml.includes('Microsoft Office') && !softwareVersionStillTable,
       '✓ Software version table converted to text.','✗ Software version table is still a table. Fix: Click in table → Layout → Convert to Text.');
 
-    const tcMarValues = [...docXml.matchAll(/<w:tcMar><w:top w:type="dxa" w:w="(\d+)"/g)].map(m=>parseInt(m[1]));
+    const tcMarValues = [...docXml.matchAll(/<w:tcMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
     const hasCustomMargin = tcMarValues.some(v => v !== 80);
     check(9,5,'Increase cell margins on the equipment table for readability',
       hasCustomMargin,
