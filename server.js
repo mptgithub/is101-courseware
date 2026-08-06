@@ -704,8 +704,9 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       '✓ Section with custom page setup found.','✗ No second section with 0.75" margins found. Fix: Insert a section break before the FAQ, then Layout → Margins → Custom → 0.75".');
 
     const tblCount = (docXml.match(/<w:tbl>/g)||[]).length;
+    const ticketPriorityInTable = /(<w:tbl>[\s\S]*?Critical[\s\S]*?<\/w:tbl>)/.test(docXml) || /(<w:tbl>[\s\S]*?Priority[\s\S]*?Response Time[\s\S]*?<\/w:tbl>)/.test(docXml);
     check(7,9,'Convert the tab-separated ticket priority list to a table',
-      tblCount>=5,
+      ticketPriorityInTable,
       '✓ Ticket priority table found.','✗ Ticket priority list is not yet a table. Fix: Select the list → Insert → Table → Convert Text to Table.');
 
     const softwareVersionStillTable = /Microsoft Office[\s\S]{0,4000}?<\/w:tbl>/.test(docXml);
@@ -727,9 +728,14 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       docXml.includes('w:tblLayout'),
       '✓ Custom column widths found.','✗ No custom column resizing detected. Fix: Drag column borders or use Layout → AutoFit → AutoFit Contents.');
 
+    // T12: Split inventory table — check that software inventory data spans 2+ tables
+    // Look for multiple tables containing software-related content
+    const softwareTables = [...docXml.matchAll(/<w:tbl>([\s\S]*?)<\/w:tbl>/g)].filter(m => 
+      m[1].includes('License') || m[1].includes('Volume') || m[1].includes('Named User') || m[1].includes('Concurrent')
+    ).length;
     check(12,9,'Split the long software inventory table into two separate tables',
-      tblCount>=5,
-      '✓ Multiple tables found (inventory table split).','✗ Software inventory table is still one table. Fix: Click in a middle row → Layout → Split Table.');
+      softwareTables>=2,
+      '✓ Software inventory table has been split.','✗ Software inventory table is still one table. Fix: Click in a middle row of the software inventory table → Layout → Split Table.');
 
     const hasWingdingsFont = docXml.includes('Wingdings');
     const hasPUAChar = /[\uF000-\uF0FF]/.test(docXml);
