@@ -866,7 +866,7 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
     check(9,4,'Apply borders to roster grid',H.anyXf(roster,x=>(/applyBorder="(1|true)"/.test(x))&&((x.match(/borderId="(\d+)"/)||[])[1]!=='0')),'Borders applied.','Apply borders to the roster grid (Format Cells > Border).');
     check(10,3,'Format Hourly Rate as Currency',(()=>{for(const i of H.usedStyles(roster)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format the Hourly Rate column as Currency.');
     check(11,5,'Add column sparklines',roster.toLowerCase().includes('sparkline'),'Sparklines added.','Add column sparklines for weekly shift counts.');
-    check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:G1"'),'Banner merged.','Merge and center the section banner across the table.');
+    check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:'),'Banner merged.','Merge and center the title banner starting at A1 across the data columns.');
     check(13,5,'Convert roster to Table',H.tables.some(t=>t.includes('RosterTable')),'Roster table created.','Convert the staffing roster to an Excel Table.');
     check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row on the Roster table (Table Design > Style Options).');
     check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
