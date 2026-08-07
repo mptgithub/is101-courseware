@@ -826,7 +826,7 @@ app.post('/api/grade/excel-core1', requireStudent, upload.single('file'), async 
     check(15,5,'Sparklines for monthly hours',billing.toLowerCase().includes('sparkline'),'Sparklines added.','Add line sparklines (Insert > Sparklines).');
     check(16,5,'Convert range to Excel Table',H.tables.some(t=>t.includes('BillingTable')),'Table created.','Convert the billing range to a Table (Ctrl+T).');
     check(17,3,'Apply a Medium table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a Medium table style.');
-    check(18,5,'Add Total Row summing Amount Billed',H.tables.some(t=>t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row (Table Design > Total Row).');
+    check(18,5,'Add Total Row summing Amount Billed',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design tab → check Total Row.');
     check(19,5,'Filter to Active clients',billing.includes('<autoFilter')&&billing.includes('<filterColumn'),'Filter applied.','Filter the table to Active clients.');
     check(20,3,'Sort by Client then Invoice Date',billing.includes('<sortState')&&(billing.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort by Client then Invoice Date (Data > Sort > Add Level).');
     check(21,5,'Create Column chart of revenue',H.charts.length>=1,'Chart created.','Insert a Column chart of revenue by client.');
@@ -961,7 +961,7 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.some(t=>t.includes('InvTable')),'Table created.','Convert the inventory list to an Excel Table.');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>t.includes('InvTable')&&/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
-    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('InvTable')&&t.includes('totalsRowShown="1"')),'Total row added.','Add a Total Row to the inventory table (Table Design > Total Row).');
+    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('InvTable')&&(t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"'))),'Total row added.','Add a Total Row to the inventory table (Table Design > Total Row).');
     check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference: =[@Qty]*[@[Unit Cost]] or =InvTable[Qty]*InvTable[Unit Cost].');
     check(9,6,'SUMIF spend per category',fn('SUMIF('),'SUMIF used.','Use SUMIF to total spend per item category.');
     check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
