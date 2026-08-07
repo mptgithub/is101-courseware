@@ -867,10 +867,10 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
     check(10,3,'Format Hourly Rate as Currency',(()=>{for(const i of H.usedStyles(roster)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format the Hourly Rate column as Currency.');
     check(11,5,'Add column sparklines',roster.toLowerCase().includes('sparkline'),'Sparklines added.','Add column sparklines for weekly shift counts.');
     check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:'),'Banner merged.','Merge and center the title banner starting at A1 across the data columns.');
-    check(13,5,'Convert roster to Table',H.tables.some(t=>t.includes('RosterTable')),'Roster table created.','Convert the staffing roster to an Excel Table.');
-    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row on the Roster table (Table Design > Style Options).');
+    check(13,5,'Convert roster to Table',H.tables.length>=1||H.wbxml.includes('RosterTable'),'Roster table created.','Convert the staffing roster to an Excel Table (Ctrl+T).');
+    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row (Table Design > Style Options).');
     check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
-    check(16,4,'Apply a table style',H.tables.some(t=>t.includes('RosterTable')&&/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table.');
+    check(16,4,'Apply a table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table (Table Design > Table Styles).');
     check(17,3,'Filter to Emergency department',roster.includes('<filterColumn')||H.tables.some(t=>t.includes('<filterColumn')),'Filter applied.','Filter the roster to the Emergency department: click the Department dropdown → select Emergency.');
     check(18,3,'Freeze first column',roster.includes('state="frozen"'),'Column frozen.','Freeze the first column (View > Freeze Panes > Freeze First Column).');
     check(19,3,'Vertically center cells',H.anyXf(roster,x=>x.includes('vertical="center"')),'Cells centered.','Vertically center all cells in the roster.');
