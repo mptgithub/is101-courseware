@@ -828,7 +828,7 @@ app.post('/api/grade/excel-core1', requireStudent, upload.single('file'), async 
     check(17,3,'Apply a Medium table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a Medium table style.');
     check(18,5,'Add Total Row summing Amount Billed',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design tab → check Total Row.');
     check(19,5,'Filter to Active clients',billing.includes('<filterColumn')||H.tables.some(t=>t.includes('filterColumn')),'Filter applied.','Filter the table to show only Active clients: click the Status column dropdown → uncheck Inactive → OK.');
-    check(20,3,'Sort by Client then Invoice Date',billing.includes('<sortState')&&(billing.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort by Client then Invoice Date (Data > Sort > Add Level).');
+    check(20,3,'Sort by Client then Invoice Date',(billing.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&(billing.match(/<sortCondition/g)||[]).length>=2||(H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Sort by Client then Invoice Date: Data → Sort → Sort by Client → Add Level → Then by Invoice Date.');
     check(21,5,'Create Column chart of revenue',H.charts.length>=1,'Chart created.','Insert a Column chart of revenue by client.');
     check(22,6,'Add second data series (prior year)',(H.chartXml.match(/<c:ser>/g)||[]).length>=2,'Second series added.','Add a prior-year data series (Chart Design > Select Data > Add).');
     check(23,5,'Add data labels and axis title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and an axis title.');
@@ -871,7 +871,7 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
     check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row on the Roster table (Table Design > Style Options).');
     check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
     check(16,4,'Apply a table style',H.tables.some(t=>t.includes('RosterTable')&&/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table.');
-    check(17,3,'Filter to Emergency department',roster.includes('<autoFilter')&&roster.includes('<filterColumn'),'Filter applied.','Filter the roster to the Emergency department.');
+    check(17,3,'Filter to Emergency department',roster.includes('<filterColumn')||H.tables.some(t=>t.includes('<filterColumn')),'Filter applied.','Filter the roster to the Emergency department: click the Department dropdown → select Emergency.');
     check(18,3,'Freeze first column',roster.includes('state="frozen"'),'Column frozen.','Freeze the first column (View > Freeze Panes > Freeze First Column).');
     check(19,3,'Vertically center cells',H.anyXf(roster,x=>x.includes('vertical="center"')),'Cells centered.','Vertically center all cells in the roster.');
     check(20,2,'Wrap text in Responsibilities',H.anyXf(roster,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the Responsibilities column.');
@@ -913,7 +913,7 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(6,3,'Reference GradeScale in a formula',Fj.includes('GRADESCALE'),'Named range used.','Use the GradeScale named range inside a lookup formula.');
     check(7,2,'Wrap text in feedback column',H.anyXf(grades,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the instructor-feedback column.');
     check(8,3,'Convert grade data to Table',H.tables.some(t=>t.includes('GradeTable')),'Table created.','Convert the grade data to an Excel Table.');
-    check(9,3,'Sort by final grade then last name',grades.includes('<sortState')&&(grades.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort by final grade (desc) then last name (asc).');
+    check(9,3,'Sort by final grade then last name',(grades.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&((grades.match(/<sortCondition/g)||[]).length>=2||H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Sort by final grade (desc) then last name (asc): Data → Sort → Add Level.');
     check(10,6,'SUM and AVERAGE',fn('SUM(')&&fn('AVERAGE('),'SUM/AVERAGE used.','Use SUM and AVERAGE to total and average each student\u2019s scores.');
     check(11,4,'COUNT / COUNTA',fn('COUNT(','COUNTA(','COUNTBLANK('),'COUNT used.','Use COUNT/COUNTA to tally submitted assignments.');
     check(12,4,'Absolute reference',F.some(f=>f.includes('$')),'Absolute reference used.','Use an absolute reference ($) to the total-points cell.');
@@ -929,7 +929,7 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(22,3,'Bold and shade header row',H.anyXf(grades,x=>(/applyFill="(1|true)"/.test(x))&&((x.match(/fillId="(\d+)"/)||[])[1]!=='0')),'Header shaded.','Bold and shade the header row.');
     check(23,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(grades)||(grades.includes('Grade Book')&&grades.includes('<oddHeader')),'Header/footer added.','Add a header with the course name and a footer page number.');
     check(24,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author workbook properties.');
-    check(25,3,'Filter to failing students',grades.includes('<autoFilter')&&grades.includes('<filterColumn'),'Filter applied.','Filter to students currently failing.');
+    check(25,3,'Filter to failing students',grades.includes('<filterColumn')||H.tables.some(t=>t.includes('<filterColumn')),'Filter applied.','Filter to students currently failing: click the Grade dropdown → select F.');
     check(26,8,'Center score columns',H.anyXf(grades,x=>x.includes('horizontal="center"')),'Scores centered.','Center the score columns.');
 
     const pct=Math.round(earned/total*100);
@@ -979,7 +979,7 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(22,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(inv)||(inv.includes('Oasis')&&inv.includes('<oddHeader')),'Header/footer added.','Add a header with the company name and a footer page number.');
     check(23,3,'Merge & center title banner',inv.includes('<mergeCell ref="A1:I1"'),'Banner merged.','Merge and center the workbook title banner.');
     check(24,3,'Freeze header row',inv.includes('state="frozen"'),'Panes frozen.','Freeze the inventory header row.');
-    check(25,3,'Sort by category then item name',inv.includes('<sortState')&&(inv.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort inventory by category then item name.');
+    check(25,3,'Sort by category then item name',(inv.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&((inv.match(/<sortCondition/g)||[]).length>=2||H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Sort inventory by category then item name: Data → Sort → Add Level.');
 
     const pct=Math.round(earned/total*100);
     stmts.savePracticeGrade.run(req.nsheId,'ExcelVar2',null,earned,total,JSON.stringify(results));
