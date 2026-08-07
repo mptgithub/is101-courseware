@@ -827,7 +827,7 @@ app.post('/api/grade/excel-core1', requireStudent, upload.single('file'), async 
     check(16,5,'Convert range to Excel Table',H.tables.some(t=>t.includes('BillingTable')),'Table created.','Convert the billing range to a Table (Ctrl+T).');
     check(17,3,'Apply a Medium table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a Medium table style.');
     check(18,5,'Add Total Row summing Amount Billed',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design tab → check Total Row.');
-    check(19,5,'Filter to Active clients',billing.includes('<autoFilter')&&billing.includes('<filterColumn'),'Filter applied.','Filter the table to Active clients.');
+    check(19,5,'Filter to Active clients',billing.includes('<filterColumn')||H.tables.some(t=>t.includes('filterColumn')),'Filter applied.','Filter the table to show only Active clients: click the Status column dropdown → uncheck Inactive → OK.');
     check(20,3,'Sort by Client then Invoice Date',billing.includes('<sortState')&&(billing.match(/<sortCondition/g)||[]).length>=2,'Multi-sort applied.','Sort by Client then Invoice Date (Data > Sort > Add Level).');
     check(21,5,'Create Column chart of revenue',H.charts.length>=1,'Chart created.','Insert a Column chart of revenue by client.');
     check(22,6,'Add second data series (prior year)',(H.chartXml.match(/<c:ser>/g)||[]).length>=2,'Second series added.','Add a prior-year data series (Chart Design > Select Data > Add).');
