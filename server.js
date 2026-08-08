@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // IS101 Courseware Server — v2 (32-task grader)
 // College of Southern Nevada © Dr. Mark Taormino · All Rights Reserved
-// Updated: June 16, 2026
+// Updated: August 8, 2026 — 7:15 PM
 // ─────────────────────────────────────────────────────────────────────────────
 'use strict';
 
@@ -939,9 +939,9 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(9,3,'Name range GradeScale',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Click the GradeScale sheet tab, select A4:B8, type GradeScale in the Name Box, press Enter.');
     check(10,5,'IF Pass/Fail',(H.cellStr(grades,'K4')||'').toLowerCase()==='pass'&&(H.cellStr(grades,'K11')||'').toLowerCase()==='fail','IF correctly marks Pass and Fail.','Use IF in column K: if Total (column H) >= 180, show Pass; otherwise Fail.');
     check(11,6,'Nested IF letter grade',(H.cellStr(grades,'L4')||'')==='C'&&(H.cellStr(grades,'L6')||'')==='B'&&(H.cellStr(grades,'L8')||'')==='F','Nested IF assigns correct letter grades.','Use nested IF in column L checking Total (H) against 270=A, 240=B, 210=C, 180=D, below=F.');
-    check(12,6,'VLOOKUP letter grade',F.some(f=>f.toUpperCase().indexOf('VLOOKUP(')>=0&&f.toUpperCase().indexOf('GRADESCALE')>=0),'VLOOKUP uses GradeScale named range.','Use VLOOKUP referencing Total (column H) and the GradeScale named range with TRUE for approximate match.');
-    check(13,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().indexOf('IFERROR(')>=0&&f.toUpperCase().indexOf('VLOOKUP(')>=0),'IFERROR wraps VLOOKUP correctly.','Wrap VLOOKUP in IFERROR in the same cell. Two parameters: the VLOOKUP, and a fallback like Check.');
-    check(14,3,'Reference GradeScale in a formula',Fj.includes('GRADESCALE'),'Named range used in formula.','This is satisfied when you complete Task 12 using the GradeScale name.');
+    check(12,6,'VLOOKUP student grade',(H.cellStr(grades,'P10')||'')==='B','VLOOKUP returns correct grade for Cruz.','Type Cruz in cell P9. In P10, write a VLOOKUP that searches for the name in P9, looks through the student data (A4:L11), and returns the letter grade from column 12. Use FALSE for exact match.');
+    check(13,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().indexOf('IFERROR(')>=0&&f.toUpperCase().indexOf('VLOOKUP(')>=0),'IFERROR wraps VLOOKUP correctly.','Wrap your VLOOKUP in P10 with IFERROR. If the name is not found, show Not Found instead of an error.');
+    check(14,3,'Reference GradeScale in a formula',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml)||Fj.includes('GRADESCALE'),'GradeScale named range exists.','This is satisfied when you create the GradeScale named range in Task 9.');
     check(15,4,'COUNTIF for A grades',H.cellVal(grades,'P6')===0,'COUNTIF correctly counts A grades (should be 0).','Use COUNTIF near cell P6 to count cells in Letter column (L4:L11) containing A.');
     check(16,3,'TODAY report date',H.cellVal(grades,'R1')>40000||fn('TODAY(','NOW('),'TODAY produces a date.','Put =TODAY() in cell R1 next to the Report Generated label.');
 
