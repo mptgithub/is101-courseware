@@ -924,32 +924,41 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     const results=[]; let earned=0, total=0;
     const check=(task,pts,desc,passed,fp,ff)=>{total+=pts;if(passed)earned+=pts;results.push({task,pts_possible:pts,pts_earned:passed?pts:0,description:desc,passed,feedback:passed?fp:ff});};
 
-    check(1,3,'Freeze header row and name column',grades.includes('state="frozen"'),'Panes frozen.','Freeze the header row and student-name column.');
-    check(2,3,'Add comment on curve column',H.hasComments,'Comment added.','Add a comment on the curve column.');
-    check(3,2,'Percent format on percentage columns',/formatCode="[^"]*%[^"]*"/.test(H.styles)||H.XFS.some((x,i)=>H.usedStyles(grades).has(i)&&/numFmtId="(9|10)"/.test(x)),'Percent applied.','Format the percentage columns with Percent format.');
-    check(4,3,'Conditional formatting on failing scores',grades.includes('<conditionalFormatting'),'Conditional formatting found.','Highlight failing scores (below 60) in red.');
-    check(5,3,'Name range "GradeScale"',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Define a named range called GradeScale.');
-    check(6,3,'Reference GradeScale in a formula',Fj.includes('GRADESCALE'),'Named range used.','Use the GradeScale named range inside a lookup formula.');
-    check(7,2,'Wrap text in feedback column',H.anyXf(grades,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the instructor-feedback column.');
-    check(8,3,'Convert grade data to Table',H.tables.length>=1,'Table created.','Convert the grade data to an Excel Table (Ctrl+T).');
-    check(9,3,'Sort by final grade then last name',(grades.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&((grades.match(/<sortCondition/g)||[]).length>=2||H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Sort by final grade (desc) then last name (asc): Data → Sort → Add Level.');
-    check(10,6,'SUM and AVERAGE',H.cellVal(grades,'H4')===236&&H.cellVal(grades,'H11')===137&&Math.abs((H.cellVal(grades,'I4')||0)-47.2)<0.1,'SUM and AVERAGE produce correct totals and averages.','Use SUM in column H to total scores (C through G). Use AVERAGE in column I. Copy down for all students.');
-    check(11,4,'COUNT / COUNTA',H.cellVal(grades,'N4')===5&&H.cellVal(grades,'N11')===5,'COUNTA correctly counts submitted assignments.','Use COUNTA in column N to count non-empty score cells (C through G) for each student.');
-    check(12,4,'Absolute reference',F.some(f=>f.indexOf('$')>=0)&&Math.abs((H.cellVal(grades,'J4')||0)-0.7867)<0.01,'Absolute reference produces correct percentage.','Use $ on the Total Points Possible cell (P2) in the Percent formula in column J.');
-    check(13,5,'IF Pass/Fail',(H.cellStr(grades,'K4')||'').toLowerCase()==='pass'&&(H.cellStr(grades,'K11')||'').toLowerCase()==='fail','IF correctly marks Pass and Fail.','Use IF in column K: if Total (column H) >= 180, show Pass; otherwise Fail.');
-    check(14,6,'Nested IF letter grade',(H.cellStr(grades,'L4')||'')==='C'&&(H.cellStr(grades,'L6')||'')==='B'&&(H.cellStr(grades,'L8')||'')==='F','Nested IF assigns correct letter grades.','Use nested IF in column L checking Total (H) against 270=A, 240=B, 210=C, 180=D, below=F.');
+    // SETUP (T1-T5)
+    check(1,3,'Freeze header row and name column',grades.includes('state="frozen"'),'Panes frozen.','Click cell B4, then View → Freeze Panes → Freeze Panes.');
+    check(2,3,'Add comment on feedback column',H.hasComments,'Comment added.','Right-click any cell in the Feedback column (M) → Insert Comment.');
+    check(3,3,'Bold and shade header row',H.anyXf(grades,x=>(/applyFill="(1|true)"/.test(x))&&((x.match(/fillId="(\d+)"/)||[])[1]!=='0')),'Header shaded.','Bold and shade the header row.');
+    check(4,8,'Center score columns',H.anyXf(grades,x=>x.includes('horizontal="center"')),'Scores centered.','Center the score columns (C through G).');
+    check(5,2,'Wrap text in feedback column',H.anyXf(grades,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the Feedback column (M).');
+
+    // FORMULAS (T6-T16)
+    check(6,6,'SUM and AVERAGE',H.cellVal(grades,'H4')===236&&H.cellVal(grades,'H11')===137&&Math.abs((H.cellVal(grades,'I4')||0)-47.2)<0.1,'SUM and AVERAGE produce correct totals and averages.','Use SUM in column H to total scores (C through G). Use AVERAGE in column I. Copy down for all students.');
+    check(7,4,'COUNT / COUNTA',H.cellVal(grades,'N4')===5&&H.cellVal(grades,'N11')===5,'COUNTA correctly counts submitted assignments.','Use COUNTA in column N to count non-empty score cells (C through G) for each student.');
+    check(8,4,'Absolute reference in Percent formula',F.some(f=>f.indexOf('$')>=0)&&Math.abs((H.cellVal(grades,'J4')||0)-0.7867)<0.01,'Absolute reference produces correct percentage.','Divide Total (H) by Total Points Possible (P2) using $ on the P2 reference. Place in column J.');
+    check(9,3,'Name range GradeScale',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Click the GradeScale sheet tab, select A4:B8, type GradeScale in the Name Box, press Enter.');
+    check(10,5,'IF Pass/Fail',(H.cellStr(grades,'K4')||'').toLowerCase()==='pass'&&(H.cellStr(grades,'K11')||'').toLowerCase()==='fail','IF correctly marks Pass and Fail.','Use IF in column K: if Total (column H) >= 180, show Pass; otherwise Fail.');
+    check(11,6,'Nested IF letter grade',(H.cellStr(grades,'L4')||'')==='C'&&(H.cellStr(grades,'L6')||'')==='B'&&(H.cellStr(grades,'L8')||'')==='F','Nested IF assigns correct letter grades.','Use nested IF in column L checking Total (H) against 270=A, 240=B, 210=C, 180=D, below=F.');
+    check(12,6,'VLOOKUP letter grade',F.some(f=>f.toUpperCase().indexOf('VLOOKUP(')>=0&&f.toUpperCase().indexOf('GRADESCALE')>=0),'VLOOKUP uses GradeScale named range.','Use VLOOKUP referencing Total (column H) and the GradeScale named range with TRUE for approximate match.');
+    check(13,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().indexOf('IFERROR(')>=0&&f.toUpperCase().indexOf('VLOOKUP(')>=0),'IFERROR wraps VLOOKUP correctly.','Wrap VLOOKUP in IFERROR in the same cell. Two parameters: the VLOOKUP, and a fallback like Check.');
+    check(14,3,'Reference GradeScale in a formula',Fj.includes('GRADESCALE'),'Named range used in formula.','This is satisfied when you complete Task 12 using the GradeScale name.');
     check(15,4,'COUNTIF for A grades',H.cellVal(grades,'P6')===0,'COUNTIF correctly counts A grades (should be 0).','Use COUNTIF near cell P6 to count cells in Letter column (L4:L11) containing A.');
-    check(16,6,'VLOOKUP letter grade',F.some(f=>f.toUpperCase().indexOf('VLOOKUP(')>=0&&f.toUpperCase().indexOf('GRADESCALE')>=0),'VLOOKUP uses GradeScale named range.','Use VLOOKUP referencing Total (column H) and the GradeScale named range with TRUE for approximate match.');
-    check(17,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().indexOf('IFERROR(')>=0&&f.toUpperCase().indexOf('VLOOKUP(')>=0),'IFERROR wraps VLOOKUP correctly.','Wrap VLOOKUP in IFERROR in the same cell. Two parameters: the VLOOKUP, and a fallback like Check.');
-    check(18,3,'TODAY() report date',H.cellVal(grades,'R1')>40000||fn('TODAY(','NOW('),'TODAY produces a date.','Put =TODAY() in cell R1 next to the Report Generated label.');
-    check(19,4,'Create Column chart',H.charts.length>=1,'Chart created.','Create a Column chart of class average by assignment.');
-    check(20,4,'Add data labels and chart title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and a chart title.');
-    check(21,3,'Add chart alt text',/descr="[^"]{5,}"/.test(H.drawings),'Alt text added.','Add alternative text to the class-average chart.');
-    check(22,3,'Bold and shade header row',H.anyXf(grades,x=>(/applyFill="(1|true)"/.test(x))&&((x.match(/fillId="(\d+)"/)||[])[1]!=='0')),'Header shaded.','Bold and shade the header row.');
-    check(23,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(grades)||(grades.includes('Grade Book')&&grades.includes('<oddHeader')),'Header/footer added.','Add a header with the course name and a footer page number.');
-    check(24,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author workbook properties.');
-    check(25,3,'Filter to failing students',grades.includes('<filterColumn')||H.tables.some(t=>t.includes('<filterColumn')),'Filter applied.','Filter to students currently failing: click the Grade dropdown → select F.');
-    check(26,8,'Center score columns',H.anyXf(grades,x=>x.includes('horizontal="center"')),'Scores centered.','Center the score columns.');
+    check(16,3,'TODAY report date',H.cellVal(grades,'R1')>40000||fn('TODAY(','NOW('),'TODAY produces a date.','Put =TODAY() in cell R1 next to the Report Generated label.');
+
+    // FORMATTING (T17-T21)
+    check(17,2,'Percent format on percentage columns',/formatCode="[^"]*%[^"]*"/.test(H.styles)||H.XFS.some((x,i)=>H.usedStyles(grades).has(i)&&/numFmtId="(9|10)"/.test(x)),'Percent applied.','Format the Percent column (J) with Percent format.');
+    check(18,3,'Conditional formatting on failing totals',grades.includes('<conditionalFormatting'),'Conditional formatting found.','Highlight Total scores (column H) below 180 with a red fill.');
+    check(19,3,'Convert grade data to Table',H.tables.length>=1,'Table created.','Click in the grade data → Ctrl+T, Insert → Table, or Home → Format as Table.');
+    check(20,3,'Sort by Total then Last Name',(grades.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&((grades.match(/<sortCondition/g)||[]).length>=2||H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Data → Sort → Sort by Total (Largest to Smallest) → Add Level → Then by Last Name (A to Z).');
+    check(21,3,'Filter to failing students',grades.includes('<filterColumn')||H.tables.some(t=>t.includes('<filterColumn')),'Filter applied.','Filter the Letter column (L) to show only F grades.');
+
+    // CHARTS (T22-T24)
+    check(22,4,'Create Column chart',H.charts.length>=1,'Chart created.','Create a Column chart of class average by assignment.');
+    check(23,4,'Add data labels and chart title',H.chartXml.includes('<c:dLbls>')&&H.chartXml.includes('<c:title>'),'Chart elements added.','Add data labels and a chart title.');
+    check(24,3,'Add chart alt text',/descr="[^"]{5,}"/.test(H.drawings),'Alt text added.','Add alt text to the chart (right-click → Edit Alt Text).');
+
+    // FINISHING (T25-T26)
+    check(25,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(grades)||(grades.includes('Grade Book')&&grades.includes('<oddHeader')),'Header/footer added.','Page Layout → Page Setup dialog → Header/Footer tab. Do NOT use Insert → Header & Footer.');
+    check(26,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','File → Info → set Title and Author.');
 
     const pct=Math.round(earned/total*100);
     stmts.savePracticeGrade.run(req.nsheId,'ExcelVar1',null,earned,total,JSON.stringify(results));
