@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // IS101 Courseware Server — v2 (32-task grader)
 // College of Southern Nevada © Dr. Mark Taormino · All Rights Reserved
-// Updated: August 8, 2026 — 8:00 PM
+// Updated: August 8, 2026 — 8:15 PM
 // ─────────────────────────────────────────────────────────────────────────────
 'use strict';
 
@@ -1011,11 +1011,11 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
     check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
-    check(8,6,'Structured reference for line total',(function(){
+    check(8,6,'Calculate Line Total',(function(){
       var expect=new Set([420,180,150,100,280,360,176,84]); var found=new Set();
       for(var r=4;r<=11;r++){var v=H.cellVal(inv,'F'+r);if(v)found.add(v);}
       var ok=true; expect.forEach(function(e){if(!found.has(e))ok=false;}); return ok;
-    })(),'Line Totals are correct.','In cell F4, use a structured reference: =[@Qty]*[@[Unit Cost]]. Complete Task 13 first so Unit Cost has values.');
+    })(),'Line Totals are correct.','In cell F4, multiply Qty (D4) by Unit Cost (E4). Copy down for all rows. Complete Task 13 first so Unit Cost has values.');
     check(9,6,'SUMIF spend per category',H.cellVal(inv,'P4')===600&&H.cellVal(inv,'P5')===150&&H.cellVal(inv,'P6')===184&&H.cellVal(inv,'P7')===280&&H.cellVal(inv,'P8')===360&&H.cellVal(inv,'P9')===176,'SUMIF totals are correct.','Use SUMIF in P4:P9. Criteria range: Category column (C4:C11). Criteria: the category name in column O. Sum range: Line Total column (F4:F11).');
     check(10,4,'LEFT/RIGHT/MID for SKU',F.some(f=>(/LEFT\(|RIGHT\(|MID\(/i.test(f)))&&(function(){
       var count=0; for(var r=4;r<=11;r++){var v=H.cellStr(inv,'G'+r);if(v&&v.length>=3)count++;} return count>=6;
