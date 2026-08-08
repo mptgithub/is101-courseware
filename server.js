@@ -959,10 +959,10 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(2,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author properties.');
     check(3,3,'SEQUENCE for line-item IDs',fn('SEQUENCE(','RANDBETWEEN('),'SEQUENCE used.','Use SEQUENCE to generate the line-item ID column.');
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
-    check(5,3,'Convert inventory to Table',H.tables.some(t=>t.includes('InvTable')),'Table created.','Convert the inventory list to an Excel Table.');
-    check(6,4,'Add Line Total column to table',H.tables.some(t=>t.includes('InvTable')&&/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
-    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('InvTable')&&(t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"'))),'Total row added.','Add a Total Row to the inventory table (Table Design > Total Row).');
-    check(8,6,'Structured reference for line total',F.some(f=>/INVTABLE\[/i.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference: =[@Qty]*[@[Unit Cost]] or =InvTable[Qty]*InvTable[Unit Cost].');
+    check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
+    check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
+    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
+    check(8,6,'Structured reference for line total',F.some(f=>/\w+\[/i.test(f)&&/\*/.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference in the Line Total column: =[@Qty]*[@[Unit Cost]].');
     check(9,6,'SUMIF spend per category',fn('SUMIF('),'SUMIF used.','Use SUMIF to total spend per item category.');
     check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
     check(11,4,'UPPER and LEN for category code',fn('UPPER(','LOWER(','LEN('),'UPPER/LEN used.','Use UPPER and LEN for category codes.');
@@ -977,7 +977,7 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(20,4,'Apply a chart style',H.chartXml.includes('<c:style ')||(H.chartXml.includes('<mc:Choice')&&H.chartXml.toLowerCase().includes('style')),'Chart style applied.','Apply a chart style to the spend chart.');
     check(21,3,'Add chart alt text',/descr="[^"]{5,}"/.test(H.drawings),'Alt text added.','Add alternative text to the spend chart.');
     check(22,4,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(inv)||(inv.includes('Oasis')&&inv.includes('<oddHeader')),'Header/footer added.','Add a header with the company name and a footer page number.');
-    check(23,3,'Merge & center title banner',inv.includes('<mergeCell ref="A1:I1"'),'Banner merged.','Merge and center the workbook title banner.');
+    check(23,3,'Merge & center title banner',inv.includes('<mergeCell ref="A1:'),'Banner merged.','Merge and center the title banner starting at A1 across the data columns.');
     check(24,3,'Freeze header row',inv.includes('state="frozen"'),'Panes frozen.','Freeze the inventory header row.');
     check(25,3,'Sort by category then item name',(inv.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&((inv.match(/<sortCondition/g)||[]).length>=2||H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Sort inventory by category then item name: Data → Sort → Add Level.');
 
