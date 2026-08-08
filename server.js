@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // IS101 Courseware Server — v2 (32-task grader)
 // College of Southern Nevada © Dr. Mark Taormino · All Rights Reserved
-// Updated: August 8, 2026 — 7:45 PM
+// Updated: August 8, 2026 — 8:00 PM
 // ─────────────────────────────────────────────────────────────────────────────
 'use strict';
 
@@ -1003,20 +1003,41 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
 
     check(1,2,'Turn on Show Formulas',inv.includes('showFormulas="1"')||inv.includes('showFormulas="true"'),'Show Formulas on.','Turn on Show Formulas (Formulas > Show Formulas).');
     check(2,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author properties.');
-    check(3,3,'SEQUENCE for line-item IDs',H.cellVal(inv,'A4')===1&&H.cellVal(inv,'A5')===2&&H.cellVal(inv,'A6')===3&&H.cellVal(inv,'A7')===4&&H.cellVal(inv,'A8')===5,'SEQUENCE generates correct IDs.','Use SEQUENCE in cell A4 to generate 8 sequential IDs (1-8).');
+    check(3,3,'SEQUENCE for line-item IDs',(function(){
+      var vals=new Set(); for(var r=4;r<=11;r++){var v=H.cellVal(inv,'A'+r);if(v)vals.add(v);}
+      return vals.has(1)&&vals.has(2)&&vals.has(3)&&vals.has(4)&&vals.has(5)&&vals.size>=5;
+    })(),'SEQUENCE generates correct IDs.','Use SEQUENCE in cell A4 to generate 8 sequential IDs (1-8).');
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
     check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
-    check(8,6,'Structured reference for line total',H.cellVal(inv,'F4')===420&&H.cellVal(inv,'F5')===180&&H.cellVal(inv,'F6')===150&&H.cellVal(inv,'F7')===100&&H.cellVal(inv,'F8')===280&&H.cellVal(inv,'F9')===360&&H.cellVal(inv,'F10')===176&&H.cellVal(inv,'F11')===84,'Line Totals are correct.','In cell F4, use a structured reference to multiply Qty by Unit Cost: =[@Qty]*[@[Unit Cost]]. Complete Task 13 first so Unit Cost has values.');
+    check(8,6,'Structured reference for line total',(function(){
+      var expect=new Set([420,180,150,100,280,360,176,84]); var found=new Set();
+      for(var r=4;r<=11;r++){var v=H.cellVal(inv,'F'+r);if(v)found.add(v);}
+      var ok=true; expect.forEach(function(e){if(!found.has(e))ok=false;}); return ok;
+    })(),'Line Totals are correct.','In cell F4, use a structured reference: =[@Qty]*[@[Unit Cost]]. Complete Task 13 first so Unit Cost has values.');
     check(9,6,'SUMIF spend per category',H.cellVal(inv,'P4')===600&&H.cellVal(inv,'P5')===150&&H.cellVal(inv,'P6')===184&&H.cellVal(inv,'P7')===280&&H.cellVal(inv,'P8')===360&&H.cellVal(inv,'P9')===176,'SUMIF totals are correct.','Use SUMIF in P4:P9. Criteria range: Category column (C4:C11). Criteria: the category name in column O. Sum range: Line Total column (F4:F11).');
-    check(10,4,'LEFT/RIGHT/MID for SKU',F.some(f=>(/LEFT\(|RIGHT\(|MID\(/i.test(f)))&&H.cellStr(inv,'G4')&&H.cellStr(inv,'G4').length>=3&&H.cellStr(inv,'G5')&&H.cellStr(inv,'G5').length>=3,'SKU codes generated with text functions.','Use LEFT, MID, or RIGHT on the Item Name (B) and/or Category (C) to build a short SKU code in column G. Example: first 3 letters of name + \"-\" + first 2 letters of category.');
-    check(11,4,'UPPER and LEN for category code',H.cellStr(inv,'H4')&&/FURNITURE/i.test(H.cellStr(inv,'H4'))&&/\d/.test(H.cellStr(inv,'H4'))&&H.cellStr(inv,'H6')&&/LINENS/i.test(H.cellStr(inv,'H6')),'Category codes are correct.','Use UPPER on the Category (C) and LEN to count characters. Place the formula in column H. Example result: FURNITURE9.');
-    check(12,5,'TEXTJOIN for item label',H.cellStr(inv,'I4')&&H.cellStr(inv,'I4').includes('Folding Chair')&&H.cellStr(inv,'I4').includes('Furniture')&&H.cellStr(inv,'I4').includes('120'),'Item labels are correct.','Use TEXTJOIN with a \"-\" delimiter in column I to combine Item Name (B), Category (C), and Qty (D). Example result: Folding Chair - Furniture - 120.');
-    check(13,6,'XLOOKUP for unit cost',H.cellVal(inv,'E4')===3.5&&H.cellVal(inv,'E5')===12&&H.cellVal(inv,'E6')===0.75&&H.cellVal(inv,'E7')===1.25&&H.cellVal(inv,'E8')===28&&H.cellVal(inv,'E9')===15,'XLOOKUP returns correct unit costs.','Use XLOOKUP in column E to look up each Item Name (column B) on the PriceList sheet and return the matching unit cost.');
+    check(10,4,'LEFT/RIGHT/MID for SKU',F.some(f=>(/LEFT\(|RIGHT\(|MID\(/i.test(f)))&&(function(){
+      var count=0; for(var r=4;r<=11;r++){var v=H.cellStr(inv,'G'+r);if(v&&v.length>=3)count++;} return count>=6;
+    })(),'SKU codes generated with text functions.','Use LEFT, MID, or RIGHT on the Item Name (B) and/or Category (C) to build a short SKU code in column G.');
+    check(11,4,'UPPER and LEN for category code',(function(){
+      var found=0; for(var r=4;r<=11;r++){var v=H.cellStr(inv,'H'+r);if(v&&/[A-Z]{3,}/.test(v)&&/\d/.test(v))found++;} return found>=6;
+    })(),'Category codes are correct.','Use UPPER on the Category (C) and LEN to count characters. Place the formula in column H. Example result: FURNITURE9.');
+    check(12,5,'TEXTJOIN for item label',(function(){
+      var count=0; for(var r=4;r<=11;r++){var v=H.cellStr(inv,'I'+r);var b=H.cellStr(inv,'B'+r);
+      if(v&&b&&v.includes(b))count++;} return count>=6;
+    })(),'Item labels are correct.','Use TEXTJOIN with a \"-\" delimiter in column I to combine Item Name (B), Category (C), and Qty (D).');
+    check(13,6,'XLOOKUP for unit cost',(function(){
+      var prices={'Folding Chair':3.5,'Round Table':12,'Linen Napkin':0.75,'Wine Glass':1.25,'Chafing Dish':28,'LED Uplight':15,'Dance Floor Panel':22,'Champagne Flute':1.4};
+      var ok=true;var count=0; for(var r=4;r<=11;r++){var name=H.cellStr(inv,'B'+r);var cost=H.cellVal(inv,'E'+r);
+      if(name&&prices[name]!==undefined){count++;if(cost!==prices[name])ok=false;}} return ok&&count>=6;
+    })(),'XLOOKUP returns correct unit costs.','Use XLOOKUP in column E to look up each Item Name (column B) on the PriceList sheet and return the matching unit cost.');
     check(14,4,'SORT() vendor list',H.cellStr(inv,'Q4')&&['Glow Lighting','Oasis Catering','Summit Rentals'].includes(H.cellStr(inv,'Q4'))&&H.cellStr(inv,'Q4')==='Glow Lighting','Sorted vendor list is correct.','Use SORT in cell Q4 to sort the Vendor list (column M) alphabetically.');
     check(15,4,'UNIQUE() categories',H.cellStr(inv,'R4')&&['Furniture','Linens','Glassware','Catering','Lighting','Staging'].includes(H.cellStr(inv,'R4'))&&H.cellStr(inv,'R5')&&H.cellStr(inv,'R5')!==H.cellStr(inv,'R4'),'Unique categories listed correctly.','Use UNIQUE in cell R4 to list distinct categories from column C.');
-    check(16,5,'YEAR/MONTH/DAY event date',H.cellVal(inv,'T4')===2026&&H.cellVal(inv,'U4')===9&&H.cellVal(inv,'V4')===15,'Date breakdown is correct.','Put =YEAR(K4) in T4, =MONTH(K4) in U4, =DAY(K4) in V4.');
+    check(16,5,'YEAR/MONTH/DAY event date',(function(){
+      for(var r=4;r<=11;r++){if(H.cellVal(inv,'T'+r)===2026&&H.cellVal(inv,'U'+r)===9&&H.cellVal(inv,'V'+r)===15)return true;}
+      return H.cellVal(inv,'T4')===2026&&H.cellVal(inv,'U4')===9&&H.cellVal(inv,'V4')===15;
+    })(),'Date breakdown is correct.','Use YEAR, MONTH, and DAY on the Event Date (column K) and place results in columns T, U, V.');
     check(17,5,'Icon set on reorder level',inv.includes('<conditionalFormatting')&&(inv.includes('iconSet')||inv.includes('cfRule')),'Icon set applied.','Flag items below reorder level with an icon set.');
     check(18,4,'Name range "PriceList"',/<definedName[^>]*\bname="PriceList"/.test(H.wbxml),'Named range defined.','Define a named range called PriceList.');
     check(19,4,'Create Pie chart',H.charts.length>=1,'Chart created.','Create a Pie chart of spend by category.');
