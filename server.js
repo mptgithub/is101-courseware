@@ -912,7 +912,7 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(5,3,'Name range "GradeScale"',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Define a named range called GradeScale.');
     check(6,3,'Reference GradeScale in a formula',Fj.includes('GRADESCALE'),'Named range used.','Use the GradeScale named range inside a lookup formula.');
     check(7,2,'Wrap text in feedback column',H.anyXf(grades,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the instructor-feedback column.');
-    check(8,3,'Convert grade data to Table',H.tables.some(t=>t.includes('GradeTable')),'Table created.','Convert the grade data to an Excel Table.');
+    check(8,3,'Convert grade data to Table',H.tables.length>=1,'Table created.','Convert the grade data to an Excel Table (Ctrl+T).');
     check(9,3,'Sort by final grade then last name',(grades.includes('<sortState')||H.tables.some(t=>t.includes('<sortState')))&&((grades.match(/<sortCondition/g)||[]).length>=2||H.tables.some(t=>(t.match(/<sortCondition/g)||[]).length>=2)),'Multi-sort applied.','Sort by final grade (desc) then last name (asc): Data → Sort → Add Level.');
     check(10,6,'SUM and AVERAGE',fn('SUM(')&&fn('AVERAGE('),'SUM/AVERAGE used.','Use SUM and AVERAGE to total and average each student\u2019s scores.');
     check(11,4,'COUNT / COUNTA',fn('COUNT(','COUNTA(','COUNTBLANK('),'COUNT used.','Use COUNT/COUNTA to tally submitted assignments.');
