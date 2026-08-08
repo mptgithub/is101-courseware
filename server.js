@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // IS101 Courseware Server — v2 (32-task grader)
 // College of Southern Nevada © Dr. Mark Taormino · All Rights Reserved
-// Updated: August 8, 2026 — 7:30 PM
+// Updated: August 8, 2026 — 7:45 PM
 // ─────────────────────────────────────────────────────────────────────────────
 'use strict';
 
@@ -933,9 +933,19 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(5,2,'Wrap text in feedback column',H.anyXf(grades,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Wrap text in the Feedback column (M).');
 
     // FORMULAS (T6-T16)
-    check(6,6,'SUM and AVERAGE',H.cellVal(grades,'H4')===236&&H.cellVal(grades,'H11')===137&&Math.abs((H.cellVal(grades,'I4')||0)-47.2)<0.1,'SUM and AVERAGE produce correct totals and averages.','Use SUM in column H to total scores (C through G). Use AVERAGE in column I. Copy down for all students.');
-    check(7,4,'COUNT / COUNTA',H.cellVal(grades,'N4')===5&&H.cellVal(grades,'N11')===5,'COUNTA correctly counts submitted assignments.','Use COUNTA in column N to count non-empty score cells (C through G) for each student.');
-    check(8,4,'Absolute reference in Percent formula',F.some(f=>f.indexOf('$')>=0)&&Math.abs((H.cellVal(grades,'J4')||0)-0.7867)<0.01,'Absolute reference produces correct percentage.','Divide Total (H) by Total Points Possible (P2) using $ on the P2 reference. Place in column J.');
+    check(6,6,'SUM and AVERAGE',(function(){
+      var ok=true; var expect={236:47.2,207:41.4,254:50.8,157:31.4,226:45.2,246:49.2,192:38.4,137:27.4};
+      var found=0; for(var r=4;r<=11;r++){var t=H.cellVal(grades,'H'+r);var a=H.cellVal(grades,'I'+r);
+      if(t&&expect[t]!==undefined){found++;if(Math.abs((a||0)-expect[t])>0.2)ok=false;}}
+      return ok&&found>=8;
+    })(),'SUM and AVERAGE produce correct totals and averages.','Use SUM in column H to total scores (C through G). Use AVERAGE in column I. Copy down for all students.');
+    check(7,4,'COUNT / COUNTA',(function(){
+      var ok=true; for(var r=4;r<=11;r++){var v=H.cellVal(grades,'N'+r);if(v!==5)ok=false;} return ok;
+    })(),'COUNTA correctly counts submitted assignments.','Use COUNTA in column N to count non-empty score cells (C through G) for each student.');
+    check(8,4,'Absolute reference in Percent formula',F.some(f=>f.indexOf('$')>=0)&&(function(){
+      var ok=true; for(var r=4;r<=11;r++){var t=H.cellVal(grades,'H'+r);var j=H.cellVal(grades,'J'+r);
+      if(t&&j!==null&&Math.abs(j-t/300)>0.01)ok=false; if(t&&j===null)ok=false;} return ok;
+    })(),'Absolute reference produces correct percentage.','Divide Total (H) by Total Points Possible (P2) using $ on the P2 reference. Place in column J.');
     check(9,3,'Name range GradeScale',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Click the GradeScale sheet tab, select A4:B8, type GradeScale in the Name Box, press Enter.');
     check(10,5,'IF Pass/Fail',(function(){
       var ok=true; for(var r=4;r<=11;r++){var t=H.cellVal(grades,'H'+r);var pf=(H.cellStr(grades,'K'+r)||'').toLowerCase();
