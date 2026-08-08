@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // IS101 Courseware Server — v2 (32-task grader)
 // College of Southern Nevada © Dr. Mark Taormino · All Rights Reserved
-// Updated: August 8, 2026 — 7:15 PM
+// Updated: August 8, 2026 — 7:30 PM
 // ─────────────────────────────────────────────────────────────────────────────
 'use strict';
 
@@ -937,8 +937,15 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
     check(7,4,'COUNT / COUNTA',H.cellVal(grades,'N4')===5&&H.cellVal(grades,'N11')===5,'COUNTA correctly counts submitted assignments.','Use COUNTA in column N to count non-empty score cells (C through G) for each student.');
     check(8,4,'Absolute reference in Percent formula',F.some(f=>f.indexOf('$')>=0)&&Math.abs((H.cellVal(grades,'J4')||0)-0.7867)<0.01,'Absolute reference produces correct percentage.','Divide Total (H) by Total Points Possible (P2) using $ on the P2 reference. Place in column J.');
     check(9,3,'Name range GradeScale',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml),'Named range defined.','Click the GradeScale sheet tab, select A4:B8, type GradeScale in the Name Box, press Enter.');
-    check(10,5,'IF Pass/Fail',(H.cellStr(grades,'K4')||'').toLowerCase()==='pass'&&(H.cellStr(grades,'K11')||'').toLowerCase()==='fail','IF correctly marks Pass and Fail.','Use IF in column K: if Total (column H) >= 180, show Pass; otherwise Fail.');
-    check(11,6,'Nested IF letter grade',(H.cellStr(grades,'L4')||'')==='C'&&(H.cellStr(grades,'L6')||'')==='B'&&(H.cellStr(grades,'L8')||'')==='F','Nested IF assigns correct letter grades.','Use nested IF in column L checking Total (H) against 270=A, 240=B, 210=C, 180=D, below=F.');
+    check(10,5,'IF Pass/Fail',(function(){
+      var ok=true; for(var r=4;r<=11;r++){var t=H.cellVal(grades,'H'+r);var pf=(H.cellStr(grades,'K'+r)||'').toLowerCase();
+      if(t>=180&&pf!=='pass')ok=false; if(t&&t<180&&pf!=='fail')ok=false;} return ok&&H.cellStr(grades,'K4')!==null;
+    })(),'IF correctly marks Pass and Fail.','Use IF in column K: if Total (column H) >= 180, show Pass; otherwise Fail.');
+    check(11,6,'Nested IF letter grade',(function(){
+      var grades_ok=true; var expect={'236':'C','207':'D','254':'B','157':'F','226':'C','246':'B','192':'D','137':'F'};
+      for(var r=4;r<=11;r++){var t=H.cellVal(grades,'H'+r);var g=H.cellStr(grades,'L'+r);if(t&&expect[String(t)]&&g!==expect[String(t)])grades_ok=false;}
+      return grades_ok&&H.cellStr(grades,'L4')!==null;
+    })(),'Nested IF assigns correct letter grades.','Use nested IF in column L checking Total (H) against 270=A, 240=B, 210=C, 180=D, below=F.');
     check(12,6,'VLOOKUP student grade',(H.cellStr(grades,'P10')||'')==='B','VLOOKUP returns correct grade for Cruz.','Type Cruz in cell P9. In P10, write a VLOOKUP that searches for the name in P9, looks through the student data (A4:L11), and returns the letter grade from column 12. Use FALSE for exact match.');
     check(13,5,'IFERROR wrapping VLOOKUP',F.some(f=>f.toUpperCase().indexOf('IFERROR(')>=0&&f.toUpperCase().indexOf('VLOOKUP(')>=0),'IFERROR wraps VLOOKUP correctly.','Wrap your VLOOKUP in P10 with IFERROR. If the name is not found, show Not Found instead of an error.');
     check(14,3,'Reference GradeScale in a formula',/<definedName[^>]*\bname="GradeScale"/.test(H.wbxml)||Fj.includes('GRADESCALE'),'GradeScale named range exists.','This is satisfied when you create the GradeScale named range in Task 9.');
