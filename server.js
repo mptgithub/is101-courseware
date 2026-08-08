@@ -957,20 +957,20 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
 
     check(1,2,'Turn on Show Formulas',inv.includes('showFormulas="1"')||inv.includes('showFormulas="true"'),'Show Formulas on.','Turn on Show Formulas (Formulas > Show Formulas).');
     check(2,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author properties.');
-    check(3,3,'SEQUENCE for line-item IDs',fn('SEQUENCE(','RANDBETWEEN('),'SEQUENCE used.','Use SEQUENCE to generate the line-item ID column.');
+    check(3,3,'SEQUENCE for line-item IDs',F.some(f=>/SEQUENCE\(/i.test(f))&&inv.includes('<c r="A4"'),'SEQUENCE generates IDs in column A.','Use SEQUENCE in cell A4 to generate line-item IDs.');
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
     check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
     check(8,6,'Structured reference for line total',F.some(f=>/\w+\[/i.test(f)&&/\*/.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference in the Line Total column: =[@Qty]*[@[Unit Cost]].');
     check(9,6,'SUMIF spend per category',F.some(f=>/SUMIF\(/i.test(f)&&/C\d/i.test(f)&&/F\d/i.test(f)),'SUMIF correctly references Category and Line Total columns.','Use SUMIF to total spend per category: criteria range = Category column (C), sum range = Line Total column (F).');
-    check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
-    check(11,4,'UPPER and LEN for category code',fn('UPPER(','LOWER(','LEN('),'UPPER/LEN used.','Use UPPER and LEN for category codes.');
-    check(12,5,'TEXTJOIN for item label',fn('CONCAT(','TEXTJOIN('),'TEXTJOIN used.','Use TEXTJOIN to build a combined item label.');
-    check(13,6,'XLOOKUP for unit cost',fn('XLOOKUP('),'XLOOKUP used.','Use XLOOKUP against the price list for unit cost.');
-    check(14,4,'SORT() vendor list',fn('SORT('),'SORT used.','Use SORT() for a sorted vendor list.');
-    check(15,4,'UNIQUE() categories',fn('UNIQUE('),'UNIQUE used.','Use UNIQUE() to list distinct categories.');
-    check(16,5,'YEAR/MONTH/DAY event date',fn('YEAR(','MONTH(','DAY('),'Date functions used.','Use YEAR/MONTH/DAY to break out the event date.');
+    check(10,4,'LEFT/RIGHT/MID for SKU',F.some(f=>(/LEFT\(|RIGHT\(|MID\(/i.test(f))&&(/B\d|C\d|Item|Category/i.test(f))),'Text function references Item Name or Category for SKU.','Use LEFT/RIGHT/MID to build a SKU from the Item Name (B) and/or Category (C) columns.');
+    check(11,4,'UPPER and LEN for category code',F.some(f=>(/UPPER\(|LOWER\(/i.test(f))&&(/C\d|Category/i.test(f)))&&F.some(f=>/LEN\(/i.test(f)&&(/C\d|Category/i.test(f))),'UPPER and LEN reference Category column.','Use UPPER and LEN on the Category column (C) to build category codes in column H.');
+    check(12,5,'TEXTJOIN for item label',F.some(f=>(/TEXTJOIN\(|CONCAT\(/i.test(f))&&(/B\d/i.test(f)||/Item/i.test(f))&&(/C\d|D\d|Category|Qty/i.test(f))),'TEXTJOIN combines Item Name with other columns.','Use TEXTJOIN to build an item label in column I combining Item Name (B), Category (C), and Qty (D).');
+    check(13,6,'XLOOKUP for unit cost',F.some(f=>/XLOOKUP\(/i.test(f)&&(/B\d|Item/i.test(f))&&(/PriceList|Price/i.test(f))),'XLOOKUP looks up Item Name from PriceList.','Use XLOOKUP to look up each Item Name (column B) on the PriceList sheet and return the unit cost into column E.');
+    check(14,4,'SORT() vendor list',F.some(f=>/SORT\(/i.test(f)&&(/M\d|Vendor/i.test(f))),'SORT references Vendor column.','Use SORT() to produce a sorted vendor list from column M.');
+    check(15,4,'UNIQUE() categories',F.some(f=>/UNIQUE\(/i.test(f)&&(/C\d|Category/i.test(f))),'UNIQUE references Category column.','Use UNIQUE() to list distinct categories from column C.');
+    check(16,5,'YEAR/MONTH/DAY event date',F.some(f=>/YEAR\(/i.test(f)&&/K\d/i.test(f))&&F.some(f=>/MONTH\(/i.test(f)&&/K\d/i.test(f))&&F.some(f=>/DAY\(/i.test(f)&&/K\d/i.test(f)),'YEAR, MONTH, and DAY all reference Event Date column.','Use YEAR(K4), MONTH(K4), and DAY(K4) to break out the event date.');
     check(17,5,'Icon set on reorder level',inv.includes('<conditionalFormatting')&&(inv.includes('iconSet')||inv.includes('cfRule')),'Icon set applied.','Flag items below reorder level with an icon set.');
     check(18,4,'Name range "PriceList"',/<definedName[^>]*\bname="PriceList"/.test(H.wbxml),'Named range defined.','Define a named range called PriceList.');
     check(19,4,'Create Pie chart',H.charts.length>=1,'Chart created.','Create a Pie chart of spend by category.');
