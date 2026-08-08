@@ -794,13 +794,14 @@ function xlHelpers(zip) {
   // Cell value helpers - extract numeric or string value from a specific cell
   const sharedStrings = [...shared.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m=>m[1]);
   const cellVal = (sx, ref) => {
-    const m = sx.match(new RegExp('<c r="' + ref + '"[^>]*>([\s\S]*?)</c>'));
+    const re = new RegExp('<c r="' + ref + '"[^>]*>([^]*?)</c>');
+    const m = sx.match(re);
     if (!m) return null;
     const v = m[1].match(/<v>([^<]*)<\/v>/);
     return v ? parseFloat(v[1]) : null;
   };
   const cellStr = (sx, ref) => {
-    const m = sx.match(new RegExp('<c r="' + ref + '"([^>]*)>([\s\S]*?)</c>'));
+    const m = sx.match(new RegExp('<c r="' + ref + '"([^>]*)>([^]*?)</c>'));
     if (!m) return null;
     const isText = m[1].includes('t="s"');
     const isStr = m[1].includes('t="str"');
