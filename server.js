@@ -963,7 +963,7 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
     check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
     check(8,6,'Structured reference for line total',F.some(f=>/\w+\[/i.test(f)&&/\*/.test(f)||(/\[@/.test(f)&&/\*/.test(f))),'Structured reference used.','Use a structured reference in the Line Total column: =[@Qty]*[@[Unit Cost]].');
-    check(9,6,'SUMIF spend per category',fn('SUMIF('),'SUMIF used.','Use SUMIF to total spend per item category.');
+    check(9,6,'SUMIF spend per category',F.some(f=>/SUMIF\(/i.test(f)&&/C\d/i.test(f)&&/F\d/i.test(f)),'SUMIF correctly references Category and Line Total columns.','Use SUMIF to total spend per category: criteria range = Category column (C), sum range = Line Total column (F).');
     check(10,4,'LEFT/RIGHT/MID for SKU',fn('LEFT(','RIGHT(','MID('),'Text functions used.','Use LEFT/RIGHT/MID to build a SKU.');
     check(11,4,'UPPER and LEN for category code',fn('UPPER(','LOWER(','LEN('),'UPPER/LEN used.','Use UPPER and LEN for category codes.');
     check(12,5,'TEXTJOIN for item label',fn('CONCAT(','TEXTJOIN('),'TEXTJOIN used.','Use TEXTJOIN to build a combined item label.');
