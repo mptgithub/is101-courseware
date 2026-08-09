@@ -1858,6 +1858,11 @@ function openUnit(unitNum) {
   window.scrollTo(0, 0);
 }
 
+// ── Video links for skills (proof of concept — one skill) ──
+const SKILL_VIDEOS = {
+  'headers-footers': 'https://www.linkedin.com/learning/microsoft-office-specialist-excel-associate-microsoft-365-apps-cert-prep/import-txt-data-into-a-new-or-existing-workbook?contextUrn=urn%3Ali%3AlyndaLearningPath%3A65581684498e8df5002671f5&resume=false&u=110348522',
+};
+
 function renderUnitContent(unitNum) {
   const unit = UNITS[unitNum];
   const container = document.getElementById('skillGroupsContainer');
@@ -2137,11 +2142,6 @@ function goPractice() {
   if (currentUnit === 2) {
     // Word 365 — route to correct domain file based on skill group
     // Domain map: which skills belong to which domain file
-    // ── Video links for skills (proof of concept — one skill) ──
-    const SKILL_VIDEOS = {
-      'headers-footers': 'https://www.linkedin.com/learning/microsoft-office-specialist-excel-associate-microsoft-365-apps-cert-prep/import-txt-data-into-a-new-or-existing-workbook?contextUrn=urn%3Ali%3AlyndaLearningPath%3A65581684498e8df5002671f5&resume=false&u=110348522',
-    };
-
     const WORD_DOMAIN_MAP = {
       // D1 — Manage Documents
       'search-text':'D1','insert-hyperlink':'D1','goto':'D1','show-hide-formatting':'D1',
