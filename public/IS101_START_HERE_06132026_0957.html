@@ -705,6 +705,23 @@
   }
   .btn-video:hover { background: #162d4a; }
 
+  .video-info-bar {
+    background: #f4f2ec;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .video-info-label { color: #8a8070; font-weight: 500; }
+  .video-info-title { color: #2a2520; font-weight: 500; }
+  .video-info-section { color: #5a5243; }
+  .video-info-time { color: #8a8070; }
+  .video-info-sep { color: #ccc5b8; }
+
   /* skill group footer */
   .group-footer {
     padding: 12px 20px 16px;
@@ -1935,6 +1952,82 @@ const SKILL_VIDEOS = {
   'apply-chart-layouts': 'https://www.linkedin.com/learning/excel-introduction-to-charts-and-graphs-23743448/using-chart-styles-and-color-palettes?u=110348522',
 };
 
+const SKILL_VIDEO_INFO = {
+  'import-text': {video: 'Import TXT data into a new or existing workbook', section: '2. Manage Worksheets and Workbooks', time: '4:35'},
+  'import-online': {video: 'Import data from online sources', section: '2. Manage Worksheets and Workbooks', time: '4:45'},
+  'search-data': {video: 'Search for data within a workbook', section: '2. Manage Worksheets and Workbooks', time: '4:56'},
+  'navigate-named': {video: 'Navigate to named cells, ranges, or workbook elements', section: '2. Manage Worksheets and Workbooks', time: '6:14'},
+  'hyperlinks': {video: 'Insert and remove hyperlinks', section: '2. Manage Worksheets and Workbooks', time: '3:26'},
+  'page-setup': {video: 'Format worksheets and workbooks', section: '2. Manage Worksheets and Workbooks', time: '4:26'},
+  'headers-footers': {video: 'Customize headers and footers', section: '2. Manage Worksheets and Workbooks', time: '4:03'},
+  'options-views': {video: 'Manage the Quick Access Toolbar', section: '2. Manage Worksheets and Workbooks', time: '4:17'},
+  'customize-qat': {video: 'Manage the Quick Access Toolbar', section: '2. Manage Worksheets and Workbooks', time: '4:17'},
+  'worksheet-views': {video: 'Display and modify worksheets in different views', section: '2. Manage Worksheets and Workbooks', time: '6:01'},
+  'window-views': {video: 'Display and modify worksheets in different views', section: '2. Manage Worksheets and Workbooks', time: '6:01'},
+  'workbook-properties': {video: 'Modify built-in workbook properties', section: '2. Manage Worksheets and Workbooks', time: '2:33'},
+  'display-formulas': {video: 'Display and modify worksheets in different views', section: '2. Manage Worksheets and Workbooks', time: '6:01'},
+  'print-area': {video: 'Configure print settings', section: '2. Manage Worksheets and Workbooks', time: '5:54'},
+  'print-settings': {video: 'Configure print settings', section: '2. Manage Worksheets and Workbooks', time: '5:54'},
+  'save-format-xl': {video: 'Inspect and export workbooks', section: '2. Manage Worksheets and Workbooks', time: '5:54'},
+  'inspect-workbook': {video: 'Inspect and export workbooks', section: '2. Manage Worksheets and Workbooks', time: '5:54'},
+  'comments-notes': {video: 'Manage comments and notes', section: '2. Manage Worksheets and Workbooks', time: '4:52'},
+  'insert-delete-cols-rows': {video: 'Insert and delete columns, rows, and cells', section: '3. Manage Data Cells and Ranges', time: '3:26'},
+  'insert-delete-cells': {video: 'Insert and delete columns, rows, and cells', section: '3. Manage Data Cells and Ranges', time: '3:26'},
+  'randbetween-sequence': {video: 'Generate random and sequential data using Functions', section: '3. Manage Data Cells and Ranges', time: '4:55'},
+  'merge-unmerge': {video: 'Format cells and ranges', section: '3. Manage Data Cells and Ranges', time: '5:28'},
+  'cell-styles': {video: 'Apply styles to cells and ranges', section: '3. Manage Data Cells and Ranges', time: '7:49'},
+  'define-named-range': {video: 'Define and reference named ranges', section: '3. Manage Data Cells and Ranges', time: '3:39'},
+  'sparklines': {video: 'Insert sparklines', section: '3. Manage Data Cells and Ranges', time: '3:28'},
+  'conditional-formatting': {video: 'Summarize data visually with built-in conditional formatting', section: '3. Manage Data Cells and Ranges', time: '3:24'},
+  'create-table-xl': {video: 'Create and format tables', section: '4. Manage Tables and Table Data', time: '5:23'},
+  'table-styles': {video: 'Create and format tables', section: '4. Manage Tables and Table Data', time: '5:23'},
+  'convert-table-range': {video: 'Modify tables', section: '4. Manage Tables and Table Data', time: '3:31'},
+  'table-rows-cols': {video: 'Modify tables', section: '4. Manage Tables and Table Data', time: '3:31'},
+  'table-style-options': {video: 'Create and format tables', section: '4. Manage Tables and Table Data', time: '5:23'},
+  'total-row': {video: 'Modify tables', section: '4. Manage Tables and Table Data', time: '3:31'},
+  'filter-records': {video: 'Filter and sort table data', section: '4. Manage Tables and Table Data', time: '3:50'},
+  'sort-multi-column': {video: 'Filter and sort table data', section: '4. Manage Tables and Table Data', time: '3:50'},
+  'cell-references': {video: 'Insert relative, absolute, and mixed references', section: '5. Formulas and Functions', time: '6:03'},
+  'structured-references': {video: 'Use structured references in formulas', section: '5. Formulas and Functions', time: '4:56'},
+  'math-stats-fns': {video: 'Using the AVERAGE, MAX, MIN, and SUM functions', section: '5. Formulas and Functions', time: '2:32'},
+  'count-fns': {video: 'Count cells using COUNT, COUNTA, and COUNTBLANK', section: '5. Formulas and Functions', time: '2:51'},
+  'if-function': {video: 'Perform conditional operations using the IF function', section: '5. Formulas and Functions', time: '4:18'},
+  'sort-function': {video: 'Sort data and return unique values using SORT and UNIQUE', section: '5. Formulas and Functions', time: '5:05'},
+  'unique-function': {video: 'Sort data and return unique values using SORT and UNIQUE', section: '5. Formulas and Functions', time: '5:05'},
+  'left-right-mid': {video: 'Format text using the RIGHT, LEFT, and MID functions', section: '5. Formulas and Functions', time: '3:56'},
+  'upper-lower-len': {video: 'Format text using UPPER, LOWER, and LEN', section: '5. Formulas and Functions', time: '2:05'},
+  'concat-textjoin': {video: 'Format text using CONCAT and TEXTJOIN', section: '5. Formulas and Functions', time: '3:53'},
+  'create-chart': {video: 'Create and modify charts', section: '6. Manage Charts', time: '5:31'},
+  'chart-elements': {video: 'Add and modify chart elements', section: '6. Manage Charts', time: '4:24'},
+  'chart-styles': {video: 'Format charts', section: '6. Manage Charts', time: '4:30'},
+  'row-col-size': {video: 'Navigate and restructure your data', section: '2. Data Entry, Editing, and AutoFill', time: '4:45'},
+  'format-painter-xl': {video: 'Quick formatting for clean data', section: '2. Data Entry, Editing, and AutoFill', time: '5:29'},
+  'clear-formatting-xl': {video: 'Quick formatting for clean data', section: '2. Data Entry, Editing, and AutoFill', time: '5:29'},
+  'autofill': {video: 'AutoFill to repeat patterns', section: '2. Data Entry, Editing, and AutoFill', time: '4:46'},
+  'paste-special': {video: 'Paste Special: Values, formulas, and more', section: '5. Multiple Sheets and Paste Special', time: '4:22'},
+  'group-worksheets': {video: 'Group sheets for bulk edits', section: '5. Multiple Sheets and Paste Special', time: '4:14'},
+  'freeze-panes': {video: 'Freeze panes: Lock rows and columns', section: '6. Sort, Filter, Freeze, and Tables', time: '2:35'},
+  'today-now': {video: 'Enter dates and times efficiently', section: '2. Data Entry, Editing, and AutoFill', time: '4:01'},
+  'year-month-day': {video: 'Enter dates and times efficiently', section: '2. Data Entry, Editing, and AutoFill', time: '4:01'},
+  'nested-if': {video: 'Apply the IF function for logical tests', section: '4. IF, IFERROR, XLOOKUP', time: '7:04'},
+  'iferror': {video: 'IFERROR: Catch and fix errors', section: '4. IF, IFERROR, XLOOKUP', time: '2:29'},
+  'xlookup': {video: 'XLOOKUP: Find data instantly', section: '4. IF, IFERROR, XLOOKUP', time: '6:34'},
+  'vlookup': {video: 'XLOOKUP: Find data instantly', section: '4. IF, IFERROR, XLOOKUP', time: '6:34'},
+  'chart-alt-text': {video: 'Excel accessibility features', section: '1. Getting Started', time: '4:28'},
+  'reference-named-range': {video: 'Summarize data using named ranges', section: '3. Managing Named Ranges and Excel Tables', time: '6:41'},
+  'countif': {video: 'Create formulas to summarize cells conditionally', section: '2. Creating Basic Summary Functions', time: '7:09'},
+  'sumif': {video: 'Create formulas to summarize cells conditionally', section: '2. Creating Basic Summary Functions', time: '7:09'},
+  'cell-alignment': {video: 'Alignment options and what to avoid', section: '1. Cell Formats', time: '5:22'},
+  'wrap-text-xl': {video: 'Alignment options and what to avoid', section: '1. Cell Formats', time: '5:22'},
+  'number-formats': {video: 'Important number formats', section: '1. Cell Formats', time: '6:05'},
+  'format-cells': {video: 'Cell fill and borders', section: '1. Cell Formats', time: '3:50'},
+  'remove-conditional-formatting': {video: 'Manage rules', section: '4. Conditional Formatting', time: '3:50'},
+  'chart-sheets': {video: 'Moving and resizing a chart', section: '2. Modifying and Formatting Charts', time: '3:25'},
+  'add-data-series': {video: 'Adding and modifying a data series', section: '3. Advanced Chart Features', time: '5:10'},
+  'switch-row-column': {video: 'Filtering chart data dynamically', section: '3. Advanced Chart Features', time: '4:25'},
+  'apply-chart-layouts': {video: 'Using chart styles and color palettes', section: '2. Modifying and Formatting Charts', time: '3:40'},
+};
+
 function renderUnitContent(unitNum) {
   const unit = UNITS[unitNum];
   const container = document.getElementById('skillGroupsContainer');
@@ -2008,6 +2101,15 @@ function renderUnitContent(unitNum) {
                 `
               }
             </div>
+            ${SKILL_VIDEO_INFO[skill.id] ? `
+            <div class="video-info-bar">
+              <span class="video-info-label">Go to:</span>
+              <span class="video-info-title">${SKILL_VIDEO_INFO[skill.id].video}</span>
+              <span class="video-info-sep">·</span>
+              <span class="video-info-section">${SKILL_VIDEO_INFO[skill.id].section}</span>
+              <span class="video-info-sep">·</span>
+              <span class="video-info-time">${SKILL_VIDEO_INFO[skill.id].time}</span>
+            </div>` : ''}
           </div>
         `;
       }).join('');
