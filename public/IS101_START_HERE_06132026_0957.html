@@ -686,6 +686,11 @@
     transition: background 0.2s;
   }
   .btn-practice:hover { background: #ddd6c5; }
+  .btn-practice-done {
+    background: #217346;
+    color: #fff;
+  }
+  .btn-practice-done:hover { background: #185c37; }
 
   .btn-video {
     background: var(--navy);
@@ -2309,13 +2314,8 @@ function renderUnitContent(unitNum) {
               <div class="skill-hint">${skill.hint}${SKILL_VIDEO_INFO[skill.id] ? ` <span class="video-info-sep">|</span> <span class="video-info-section">${SKILL_VIDEO_INFO[skill.id].section}</span> <span class="video-info-arrow">→</span> <span class="video-info-title">${SKILL_VIDEO_INFO[skill.id].video}</span>` : ''}</div>
             </div>
             <div class="skill-actions">
-              ${done
-                ? `<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Complete</span>`
-                : `
                   ${SKILL_VIDEOS[skill.id] ? `<a class="btn-video" href="${SKILL_VIDEOS[skill.id]}" target="_blank" rel="noopener">▶ Watch video</a>` : ''}
-                  <button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>
-                `
-              }
+                  <button class="btn-practice ${done ? 'btn-practice-done' : ''}" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">${done ? '✓ Practice' : 'Practice'}</button>
             </div>
           </div>
         `;
