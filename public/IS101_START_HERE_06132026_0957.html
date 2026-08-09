@@ -705,22 +705,10 @@
   }
   .btn-video:hover { background: #162d4a; }
 
-  .video-info-bar {
-    background: #f4f2ec;
-    border-radius: 6px;
-    padding: 6px 12px;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    flex-wrap: wrap;
-  }
-  .video-info-label { color: #8a8070; font-weight: 500; }
-  .video-info-title { color: #2a2520; font-weight: 500; }
-  .video-info-section { color: #5a5243; }
-  .video-info-time { color: #8a8070; }
-  .video-info-sep { color: #ccc5b8; }
+  .video-info-sep { color: #ccc5b8; margin: 0 2px; }
+  .video-info-section { color: #5a5243; font-weight: 500; }
+  .video-info-arrow { color: #ccc5b8; margin: 0 2px; }
+  .video-info-title { color: #8a8070; }
 
   /* skill group footer */
   .group-footer {
@@ -2090,7 +2078,7 @@ function renderUnitContent(unitNum) {
             <div class="skill-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
             <div class="skill-name-col">
               <div class="skill-name">${skill.name}</div>
-              <div class="skill-hint">${skill.hint}</div>
+              <div class="skill-hint">${skill.hint}${SKILL_VIDEO_INFO[skill.id] ? ` <span class="video-info-sep">|</span> <span class="video-info-section">${SKILL_VIDEO_INFO[skill.id].section}</span> <span class="video-info-arrow">→</span> <span class="video-info-title">${SKILL_VIDEO_INFO[skill.id].video}</span>` : ''}</div>
             </div>
             <div class="skill-actions">
               ${done
@@ -2101,15 +2089,6 @@ function renderUnitContent(unitNum) {
                 `
               }
             </div>
-            ${SKILL_VIDEO_INFO[skill.id] ? `
-            <div class="video-info-bar">
-              <span class="video-info-label">Go to:</span>
-              <span class="video-info-title">${SKILL_VIDEO_INFO[skill.id].video}</span>
-              <span class="video-info-sep">·</span>
-              <span class="video-info-section">${SKILL_VIDEO_INFO[skill.id].section}</span>
-              <span class="video-info-sep">·</span>
-              <span class="video-info-time">${SKILL_VIDEO_INFO[skill.id].time}</span>
-            </div>` : ''}
           </div>
         `;
       }).join('');
