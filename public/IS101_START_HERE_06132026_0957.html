@@ -687,6 +687,24 @@
   }
   .btn-practice:hover { background: #ddd6c5; }
 
+  .btn-video {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-video:hover { background: #162d4a; }
+
   /* skill group footer */
   .group-footer {
     padding: 12px 20px 16px;
@@ -1908,6 +1926,7 @@ function renderUnitContent(unitNum) {
               ${done
                 ? `<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Complete</span>`
                 : `
+                  ${SKILL_VIDEOS[skill.id] ? `<a class="btn-video" href="${SKILL_VIDEOS[skill.id]}" target="_blank" rel="noopener">▶ Watch video</a>` : ''}
                   <button class="btn-practice" onclick="openTwoPath('${skill.id}', '${skill.name}', '${group.name}')">Practice</button>
                 `
               }
@@ -2118,6 +2137,11 @@ function goPractice() {
   if (currentUnit === 2) {
     // Word 365 — route to correct domain file based on skill group
     // Domain map: which skills belong to which domain file
+    // ── Video links for skills (proof of concept — one skill) ──
+    const SKILL_VIDEOS = {
+      'headers-footers': 'https://www.linkedin.com/learning/microsoft-office-specialist-excel-associate-microsoft-365-apps-cert-prep/import-txt-data-into-a-new-or-existing-workbook?contextUrn=urn%3Ali%3AlyndaLearningPath%3A65581684498e8df5002671f5&resume=false&u=110348522',
+    };
+
     const WORD_DOMAIN_MAP = {
       // D1 — Manage Documents
       'search-text':'D1','insert-hyperlink':'D1','goto':'D1','show-hide-formatting':'D1',
