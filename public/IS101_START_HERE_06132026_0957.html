@@ -2513,10 +2513,12 @@ function updateUnitOverviewProgress(unitNum) {
 //  NAVIGATION — STEPS / SKILLS
 // ─────────────────────────────────────────────
 function goToStep(stepId, href) {
-  // For demo: mark complete and navigate
-  // In production: navigate and let the target page call back progress
   if (href && href !== '#') {
-    window.location.href = href;
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      window.open(href, '_blank', 'noopener');
+    } else {
+      window.location.href = href;
+    }
   } else {
     // Demo fallback — mark as done
     saveStepProgress(stepId);
