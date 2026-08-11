@@ -1424,7 +1424,7 @@ const UNITS = {
     eyebrow: "Unit 1 — Artificial Intelligence",
     desc: "Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.",
     type: "topics",
-    totalSteps: 4,
+    totalSteps: 6,
     topics: [
       {
         id: "ai-t1",
@@ -1474,16 +1474,14 @@ const UNITS = {
         title: "Google NotebookLM: A Deep Dive",
         meta: "~2–3 hrs",
         steps: [
-          /* ── Add future watch lesson here ──
           {
             id: "ai-t2-watch",
             icon: "🎬",
             title: "Watch Lesson — NotebookLM",
-            desc: "Description here.",
+            desc: "Learn how to use Google NotebookLM as a grounded AI research tool. Explore uploading sources, generating summaries, and verifying citations.",
             cta: "Watch Now",
-            href: "your-link-here"
+            href: "https://nexus-scholar-guide.base44.app"
           },
-          ── End future lesson ── */
           {
             id: "ai-t2-checklist",
             icon: "📋",
@@ -1491,6 +1489,14 @@ const UNITS = {
             desc: "6 sections, 19 hands-on steps. Work through the tool yourself using the interactive checklist. Self-graded.",
             cta: "Open Checklist",
             href: "IS101_NotebookLM_Checklist_05272026_0928.html"
+          },
+          {
+            id: "ai-t2-assignment",
+            icon: "📝",
+            title: "Assignment — The Commuter's Dilemma: Hybrid vs. EV",
+            desc: "Use NotebookLM to research whether a Plug-in Hybrid or Electric Vehicle makes more sense for your commute. Upload 4–5 sources, explore AI study formats, then post your findings to the discussion board.",
+            cta: "View Assignment",
+            href: "IS101_Commuters_Dilemma_Assignment.html"
           }
         ]
       }
@@ -1816,7 +1822,7 @@ function saveStepProgress(stepId) {
 
 function renderAllProgress() {
   // Unit 1
-  const u1Steps = ['ai-t1-watch','ai-t1-read1','ai-t1-exam','ai-t2-checklist'];
+  const u1Steps = ['ai-t1-watch','ai-t1-read1','ai-t1-exam','ai-t2-watch','ai-t2-checklist','ai-t2-assignment'];
   const u1Done = u1Steps.filter(s => progress[s]).length;
   const u1Pct = Math.round(u1Done / u1Steps.length * 100);
   document.getElementById('u1Fill').style.width = u1Pct + '%';

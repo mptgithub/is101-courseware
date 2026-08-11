@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Commuter's Dilemma — Hybrid vs. EV | IS101</title>
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy-light: #1a3a5c;
+    --cream: #f7f2ea;
+    --cream-dark: #e8e2d6;
+    --gold: #c9943a;
+    --text: #2a2520;
+    --text-mid: #5a5243;
+    --text-muted: #8a8070;
+    --success: #217346;
+    --border: #d6cfc3;
+    --white: #ffffff;
+    --radius: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .skip-link {
+    position: absolute; top: -40px; left: 0;
+    background: var(--navy); color: var(--white);
+    padding: 8px 16px; z-index: 1000;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none; border-radius: 0 0 8px 0;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 24px 0;
+  }
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  header p {
+    font-size: 13px;
+    opacity: 0.75;
+  }
+  main {
+    padding: 32px 0 48px;
+  }
+  .section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 17px;
+    color: var(--navy-light);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--cream-dark);
+  }
+  h3 {
+    font-size: 14px;
+    color: var(--text);
+    margin: 16px 0 6px;
+  }
+  p { margin-bottom: 12px; font-size: 15px; }
+  ul {
+    margin: 8px 0 12px 24px;
+    font-size: 15px;
+  }
+  li { margin-bottom: 6px; }
+  .highlight {
+    background: #f0ebe0;
+    border-left: 4px solid var(--gold);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .step-badge {
+    display: inline-block;
+    background: var(--navy-light);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .paragraph-guide {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 8px 0 12px;
+  }
+  .paragraph-guide h3 {
+    color: var(--navy-light);
+    margin-top: 0;
+  }
+  a {
+    color: var(--navy-light);
+    text-decoration: underline;
+  }
+  a:hover { color: var(--gold); }
+  a:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 2px;
+  }
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--text-mid);
+  }
+  .back-link:hover { color: var(--navy-light); }
+  @media print {
+    body { background: white; }
+    .section { border: 1px solid #ccc; break-inside: avoid; }
+    .back-link { display: none; }
+    header { background: white; color: black; border-bottom: 2px solid black; }
+  }
+</style>
+</head>
+<body>
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<header role="banner">
+  <div class="container">
+    <h1>The Commuter's Dilemma — Hybrid vs. EV</h1>
+    <p>IS101 · Unit 1 · NotebookLM Assignment</p>
+  </div>
+</header>
+
+<main id="mainContent" class="container">
+
+  <a href="IS101_START_HERE_06132026_0957.html" class="back-link" aria-label="Back to courseware home">← Back to Courseware</a>
+
+  <section class="section" aria-labelledby="objective-heading">
+    <h2 id="objective-heading">Objective</h2>
+    <p>You will use AI and external research to determine whether a <strong>Plug-in Hybrid (PHEV)</strong> or a <strong>Battery Electric Vehicle (BEV)</strong> makes more financial and practical sense for your daily college commute. Through this exercise, you will explore a powerful AI workspace, test out different study formats, and evaluate its helpfulness as a college study tool.</p>
+  </section>
+
+  <section class="section" aria-labelledby="scenario-heading">
+    <h2 id="scenario-heading">The Scenario</h2>
+    <p>Imagine you are buying a vehicle to get you through the rest of your college years. You must choose between a <strong>Plug-in Hybrid</strong> (uses both gas and electricity) or a <strong>Full Electric Vehicle</strong> (runs purely on battery power).</p>
+  </section>
+
+  <section class="section" aria-labelledby="step1-heading">
+    <span class="step-badge" aria-hidden="true">Step 1</span>
+    <h2 id="step1-heading">Gather Your Sources</h2>
+    <p>Before using AI, you must find <strong>4 to 5 high-quality sources</strong> that provide hard data on car costs, local fuel prices, or charging logistics.</p>
+    <p><strong>Examples of good sources:</strong></p>
+    <ul>
+      <li><a href="https://www.kbb.com/" target="_blank" rel="noopener">Kelley Blue Book (kbb.com)</a></li>
+      <li>Consumer Reports</li>
+      <li><a href="https://www.fueleconomy.gov/" target="_blank" rel="noopener">U.S. Department of Energy (fueleconomy.gov)</a></li>
+      <li>Local utility rate charts</li>
+      <li>Gas price trackers</li>
+    </ul>
+    <div class="highlight" role="note">
+      <strong>Action:</strong> Upload these 4 to 5 sources (PDFs, downloaded articles, or pasted text) into a <strong>new notebook</strong> in Google NotebookLM.
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="step2-heading">
+    <span class="step-badge" aria-hidden="true">Step 2</span>
+    <h2 id="step2-heading">Explore the AI Workspace</h2>
+    <p>Once your sources are loaded, click into the <strong>Notebook Guide / Studio</strong> section. Your job is to act as an independent explorer. Do not just click the first thing you see — look around the interface, test different features, and see how the AI handles your research.</p>
+    <p>Depending on what you want to try, the platform offers options like:</p>
+    <ul>
+      <li><strong>Audio or Video Overviews</strong> — listen to or watch your data transformed into multimedia</li>
+      <li><strong>Study Guides, Quizzes, or Flashcards</strong> — test your comprehension of the sources</li>
+      <li><strong>Briefing Documents, FAQs, or Timelines</strong> — structure the facts</li>
+      <li><strong>Custom Chat Prompts</strong> — interview your data directly</li>
+    </ul>
+    <div class="highlight" role="note">
+      Take your time exploring. Run the tools that catch your eye, read or listen to what they create, and use your own judgment to see what helps you learn best.
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="step3-heading">
+    <span class="step-badge" aria-hidden="true">Step 3</span>
+    <h2 id="step3-heading">Post to the Threaded Discussion</h2>
+    <p>Once you have completed your exploration, post a reply to the discussion board. Write several paragraphs addressing the following:</p>
+
+    <div class="paragraph-guide">
+      <h3>Paragraph 1: The Formats</h3>
+      <p>Identify the different options you chose to explore. Name the <strong>two specific formats</strong> that interested you the most or that you felt were the most helpful in making the vehicle comparison clear. Explain why these two formats worked better for your learning style than the other options you tried.</p>
+    </div>
+
+    <div class="paragraph-guide">
+      <h3>Paragraph 2: The Car Choice</h3>
+      <p>Based on your research and your AI exploration, what is your <strong>final data-backed decision</strong> for your personal daily commute? Explain whether a Hybrid or an EV wins for your specific driving habits, financial budget, and charging logistics.</p>
+    </div>
+
+    <div class="paragraph-guide">
+      <h3>Paragraph 3: The Tool Review</h3>
+      <p>Give an <strong>honest review</strong> of Google NotebookLM as a college study tool. Do you think it is helpful for your other college classes? Why or why not? Be specific about what worked well during your workflow and what felt lacking or frustrating.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>© Dr. Mark Taormino · College of Southern Nevada · IS101 Introduction to Computing</p>
+</footer>
+
+</body>
+</html>
