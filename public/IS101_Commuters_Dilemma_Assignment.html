@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Commuter's Dilemma — Hybrid vs. EV | IS101</title>
+<title>The Commuter's Dilemma — ICE vs. Hybrid vs. Plug-in | IS101</title>
 <style>
   :root {
     --navy: #0d1b2e;
@@ -54,9 +54,7 @@
     font-size: 13px;
     opacity: 0.75;
   }
-  main {
-    padding: 32px 0 48px;
-  }
+  main { padding: 32px 0 48px; }
   .section {
     background: var(--white);
     border: 1px solid var(--border);
@@ -77,10 +75,7 @@
     margin: 16px 0 6px;
   }
   p { margin-bottom: 12px; font-size: 15px; }
-  ul {
-    margin: 8px 0 12px 24px;
-    font-size: 15px;
-  }
+  ul, ol { margin: 8px 0 12px 24px; font-size: 15px; }
   li { margin-bottom: 6px; }
   .highlight {
     background: #f0ebe0;
@@ -110,15 +105,59 @@
     color: var(--navy-light);
     margin-top: 0;
   }
-  a {
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .cost-table th {
+    background: var(--navy-light);
+    color: var(--white);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .cost-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cost-table tr:nth-child(even) td { background: #f9f6f1; }
+  .cost-table .total-row td {
+    font-weight: 700;
+    border-top: 2px solid var(--navy-light);
+    background: #eae5da;
+  }
+  .vehicle-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .vehicle-card {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .vehicle-card h3 {
     color: var(--navy-light);
-    text-decoration: underline;
+    margin: 0 0 6px;
+    font-size: 13px;
   }
+  .vehicle-card .engine {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .vehicle-card p {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin: 0;
+  }
+  a { color: var(--navy-light); text-decoration: underline; }
   a:hover { color: var(--gold); }
-  a:focus-visible {
-    outline: 3px solid var(--gold);
-    outline-offset: 2px;
-  }
+  a:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
   footer {
     text-align: center;
     padding: 20px;
@@ -134,6 +173,9 @@
     color: var(--text-mid);
   }
   .back-link:hover { color: var(--navy-light); }
+  @media (max-width: 600px) {
+    .vehicle-cards { grid-template-columns: 1fr; }
+  }
   @media print {
     body { background: white; }
     .section { border: 1px solid #ccc; break-inside: avoid; }
@@ -147,8 +189,8 @@
 
 <header role="banner">
   <div class="container">
-    <h1>The Commuter's Dilemma — Hybrid vs. EV</h1>
-    <p>IS101 · Unit 1 · NotebookLM Assignment</p>
+    <h1>The Commuter's Dilemma</h1>
+    <p>IS101 · Unit 1 · NotebookLM Assignment · 4-Year Total Cost of Ownership Analysis</p>
   </div>
 </header>
 
@@ -158,66 +200,157 @@
 
   <section class="section" aria-labelledby="objective-heading">
     <h2 id="objective-heading">Objective</h2>
-    <p>You will use AI and external research to determine whether a <strong>Plug-in Hybrid (PHEV)</strong> or a <strong>Battery Electric Vehicle (BEV)</strong> makes more financial and practical sense for your daily college commute. Through this exercise, you will explore a powerful AI workspace, test out different study formats, and evaluate its helpfulness as a college study tool.</p>
+    <p>You have decided to purchase a <strong>2026 Hyundai Tucson</strong>. Great choice — but which engine do you pick? The Tucson comes in three powertrain options, each with different fuel costs, maintenance requirements, and price tags. Your job is to figure out which version is the <strong>best overall value over four years of college</strong>.</p>
+    <p>You will use <strong>Google NotebookLM</strong> and external research to calculate the <strong>Total Cost of Ownership (TCO)</strong> for all three versions, then make a data-backed recommendation based on your personal driving situation here in Las Vegas.</p>
   </section>
 
-  <section class="section" aria-labelledby="scenario-heading">
-    <h2 id="scenario-heading">The Scenario</h2>
-    <p>Imagine you are buying a vehicle to get you through the rest of your college years. You must choose between a <strong>Plug-in Hybrid</strong> (uses both gas and electricity) or a <strong>Full Electric Vehicle</strong> (runs purely on battery power).</p>
+  <section class="section" aria-labelledby="vehicles-heading">
+    <h2 id="vehicles-heading">The Three Versions</h2>
+    <p>Same vehicle. Same size. Same features. The only difference is what powers it:</p>
+
+    <div class="vehicle-cards" role="list">
+      <div class="vehicle-card" role="listitem">
+        <div class="engine" aria-hidden="true">⛽</div>
+        <h3>Tucson ICE</h3>
+        <p>ICE stands for Internal Combustion Engine — a traditional gas-powered engine. Lowest sticker price. Highest fuel cost. Standard maintenance (oil changes, transmission, etc.).</p>
+      </div>
+      <div class="vehicle-card" role="listitem">
+        <div class="engine" aria-hidden="true">⛽🔋</div>
+        <h3>Tucson Hybrid</h3>
+        <p>Gas engine + electric motor. Better fuel economy than ICE. No plug-in charging needed — the battery recharges through braking.</p>
+      </div>
+      <div class="vehicle-card" role="listitem">
+        <div class="engine" aria-hidden="true">🔌🔋</div>
+        <h3>Tucson Plug-in Hybrid (PHEV)</h3>
+        <p>Gas engine + larger battery. Can drive ~33 miles on electricity alone. Highest sticker price, but may qualify for federal tax credits.</p>
+      </div>
+    </div>
+
+    <p>The question is simple: <strong>does the fuel savings of the Hybrid or PHEV justify the higher purchase price compared to the basic ICE version?</strong> The answer depends on your commute, your electricity rate, gas prices, and how long you plan to own the vehicle.</p>
+  </section>
+
+  <section class="section" aria-labelledby="tco-heading">
+    <h2 id="tco-heading">What You Need to Calculate: 4-Year Total Cost of Ownership</h2>
+    <p>The sticker price is just the beginning. Research and estimate the following for <strong>all three versions</strong> over four years:</p>
+
+    <table class="cost-table" aria-label="Total Cost of Ownership categories for all three Tucson versions">
+      <thead>
+        <tr>
+          <th scope="col">Cost Category</th>
+          <th scope="col">What to Research</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Purchase Price (MSRP)</strong></td>
+          <td>Starting MSRP for comparable trim levels across all three versions. Use the same trim (e.g., SEL) for a fair comparison.</td>
+        </tr>
+        <tr>
+          <td><strong>Federal &amp; State Tax Credits</strong></td>
+          <td>The PHEV may qualify for up to $7,500 in federal EV tax credits. Check eligibility — the ICE and standard Hybrid do not qualify. Include any Nevada incentives.</td>
+        </tr>
+        <tr>
+          <td><strong>Fuel Cost (4 years)</strong></td>
+          <td>Estimate your annual miles (e.g., 12,000). ICE: gas price ÷ MPG × miles × 4 years. Hybrid: same formula with better MPG. PHEV: electricity cost for short trips + gas cost for longer trips × 4 years.</td>
+        </tr>
+        <tr>
+          <td><strong>Home Charging Setup (PHEV only)</strong></td>
+          <td>Level 2 charger + installation ($500–$2,000), or cost of using public charging. The standard Hybrid does not need to be plugged in.</td>
+        </tr>
+        <tr>
+          <td><strong>Maintenance (4 years)</strong></td>
+          <td>ICE: oil changes, brake pads, transmission service, coolant, filters. Hybrid: similar but brakes last longer (regenerative braking). PHEV: same as Hybrid but may have additional battery-related service.</td>
+        </tr>
+        <tr>
+          <td><strong>Insurance (4 years)</strong></td>
+          <td>Get estimates for all three. The PHEV may cost more to insure due to the larger battery and higher vehicle value.</td>
+        </tr>
+        <tr>
+          <td><strong>Registration &amp; Fees (4 years)</strong></td>
+          <td>Nevada charges an annual EV/PHEV registration fee in lieu of gas tax revenue. The ICE pays through gas taxes instead.</td>
+        </tr>
+        <tr>
+          <td><strong>Depreciation / Resale Value</strong></td>
+          <td>What will each version be worth after 4 years? Hybrids and PHEVs may hold value differently than the ICE version.</td>
+        </tr>
+        <tr class="total-row">
+          <td>4-Year Total Cost of Ownership</td>
+          <td>All costs – tax credits – resale value = your true cost to own each version for 4 years</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight" role="note">
+      <strong>The key question:</strong> The Hybrid costs more than the ICE, and the PHEV costs more than the Hybrid. But each one saves you money on fuel. Does the fuel savings over 4 years make up for the higher purchase price? That is what your analysis should answer.
+    </div>
   </section>
 
   <section class="section" aria-labelledby="step1-heading">
     <span class="step-badge" aria-hidden="true">Step 1</span>
     <h2 id="step1-heading">Gather Your Sources</h2>
-    <p>Before using AI, you must find <strong>4 to 5 high-quality sources</strong> that provide hard data on car costs, local fuel prices, or charging logistics.</p>
-    <p><strong>Examples of good sources:</strong></p>
+    <p>Find <strong>4 to 5 high-quality sources</strong> that provide hard data on the 2026 Hyundai Tucson and the cost variables listed above.</p>
+    <p><strong>Recommended sources:</strong></p>
     <ul>
-      <li><a href="https://www.kbb.com/" target="_blank" rel="noopener">Kelley Blue Book (kbb.com)</a></li>
-      <li>Consumer Reports</li>
-      <li><a href="https://www.fueleconomy.gov/" target="_blank" rel="noopener">U.S. Department of Energy (fueleconomy.gov)</a></li>
-      <li>Local utility rate charts</li>
-      <li>Gas price trackers</li>
+      <li><a href="https://www.hyundaiusa.com/us/en/tucson" target="_blank" rel="noopener">Hyundai USA — Tucson page</a> — MSRP, specs, and MPG for all three versions</li>
+      <li><a href="https://www.kbb.com/" target="_blank" rel="noopener">Kelley Blue Book (kbb.com)</a> — pricing, 5-year cost-to-own, depreciation data</li>
+      <li><a href="https://www.fueleconomy.gov/" target="_blank" rel="noopener">fueleconomy.gov</a> — side-by-side MPG and kWh comparison, annual fuel cost estimates</li>
+      <li><a href="https://gasprices.aaa.com/" target="_blank" rel="noopener">AAA Gas Prices</a> — current Las Vegas gas prices</li>
+      <li><strong>NV Energy rate schedules</strong> — your local electricity cost per kWh for PHEV charging</li>
+      <li><a href="https://www.fueleconomy.gov/feg/taxevb.shtml" target="_blank" rel="noopener">Federal Tax Credit Lookup</a> — check whether the Tucson PHEV qualifies</li>
     </ul>
     <div class="highlight" role="note">
-      <strong>Action:</strong> Upload these 4 to 5 sources (PDFs, downloaded articles, or pasted text) into a <strong>new notebook</strong> in Google NotebookLM.
+      <strong>Action:</strong> Upload your 4–5 sources (PDFs, downloaded articles, or pasted text) into a <strong>new notebook</strong> in Google NotebookLM.
     </div>
   </section>
 
   <section class="section" aria-labelledby="step2-heading">
     <span class="step-badge" aria-hidden="true">Step 2</span>
-    <h2 id="step2-heading">Explore the AI Workspace</h2>
-    <p>Once your sources are loaded, click into the <strong>Notebook Guide / Studio</strong> section. Your job is to act as an independent explorer. Do not just click the first thing you see — look around the interface, test different features, and see how the AI handles your research.</p>
-    <p>Depending on what you want to try, the platform offers options like:</p>
+    <h2 id="step2-heading">Use AI to Analyze the Data</h2>
+    <p>Once your sources are loaded in NotebookLM, use the AI to help you make sense of the data. Try:</p>
     <ul>
-      <li><strong>Audio or Video Overviews</strong> — listen to or watch your data transformed into multimedia</li>
-      <li><strong>Study Guides, Quizzes, or Flashcards</strong> — test your comprehension of the sources</li>
-      <li><strong>Briefing Documents, FAQs, or Timelines</strong> — structure the facts</li>
-      <li><strong>Custom Chat Prompts</strong> — interview your data directly</li>
+      <li><strong>Ask for a side-by-side comparison</strong> — "Compare the 4-year cost of owning the Tucson ICE vs. Hybrid vs. PHEV based on my sources"</li>
+      <li><strong>Extract specific numbers</strong> — "What is the MPG for each version?" or "What is the MSRP difference between the ICE and the PHEV?"</li>
+      <li><strong>Calculate fuel costs</strong> — "If I drive 12,000 miles per year and gas costs $3.50/gallon, how much does each version cost to fuel per year?"</li>
+      <li><strong>Generate a briefing document or FAQ</strong> to organize all the cost factors</li>
+      <li><strong>Try an audio or video overview</strong> to hear the comparison presented as a discussion</li>
+      <li><strong>Create flashcards or a quiz</strong> to test your understanding of the cost differences</li>
     </ul>
     <div class="highlight" role="note">
-      Take your time exploring. Run the tools that catch your eye, read or listen to what they create, and use your own judgment to see what helps you learn best.
+      <strong>Important:</strong> Do not take AI answers at face value. Click the citations and verify the numbers against your sources. AI can misread data, mix up versions, or estimate when it should be quoting. <strong>You are responsible for the accuracy of your final numbers.</strong>
     </div>
   </section>
 
   <section class="section" aria-labelledby="step3-heading">
     <span class="step-badge" aria-hidden="true">Step 3</span>
     <h2 id="step3-heading">Post to the Threaded Discussion</h2>
-    <p>Once you have completed your exploration, post a reply to the discussion board. Write several paragraphs addressing the following:</p>
+    <p>Post a reply to the discussion board addressing the following:</p>
 
     <div class="paragraph-guide">
-      <h3>Paragraph 1: The Formats</h3>
-      <p>Identify the different options you chose to explore. Name the <strong>two specific formats</strong> that interested you the most or that you felt were the most helpful in making the vehicle comparison clear. Explain why these two formats worked better for your learning style than the other options you tried.</p>
+      <h3>Paragraph 1: The Numbers</h3>
+      <p>Present your <strong>4-year Total Cost of Ownership</strong> for all three versions of the 2026 Hyundai Tucson (ICE, Hybrid, PHEV). Show the key numbers: purchase price (after any tax credits), fuel or electricity cost over 4 years, estimated maintenance, insurance, and resale value. <strong>Show your math</strong> — for example: "At 26 MPG and $3.50/gallon, the ICE costs $1,615/year in gas, or $6,462 over 4 years."</p>
     </div>
 
     <div class="paragraph-guide">
-      <h3>Paragraph 2: The Car Choice</h3>
-      <p>Based on your research and your AI exploration, what is your <strong>final data-backed decision</strong> for your personal daily commute? Explain whether a Hybrid or an EV wins for your specific driving habits, financial budget, and charging logistics.</p>
+      <h3>Paragraph 2: The Verdict</h3>
+      <p>Which version is the <strong>best value over 4 years</strong>, and by how much? Does the Hybrid's fuel savings justify its higher price over the ICE? Does the PHEV's even higher price make sense after tax credits? Beyond cost, discuss <strong>practical factors</strong>: Do you have access to home charging for the PHEV? Is your daily commute short enough to run on electric-only mode? Would you actually buy this version? Why or why not?</p>
     </div>
 
     <div class="paragraph-guide">
-      <h3>Paragraph 3: The Tool Review</h3>
-      <p>Give an <strong>honest review</strong> of Google NotebookLM as a college study tool. Do you think it is helpful for your other college classes? Why or why not? Be specific about what worked well during your workflow and what felt lacking or frustrating.</p>
+      <h3>Paragraph 3: The AI Tool Review</h3>
+      <p>Give an <strong>honest review</strong> of Google NotebookLM as a research tool. Which features did you try? Which <strong>two formats</strong> were most helpful for analyzing cost data, and why? Did the AI accurately pull numbers from your sources, or did you find errors? Would you use this tool for research in your other college classes?</p>
     </div>
+  </section>
+
+  <section class="section" aria-labelledby="tips-heading">
+    <h2 id="tips-heading">Tips for Success</h2>
+    <ul>
+      <li><strong>Compare the same trim level</strong> — use SEL or a comparable trim across all three to keep the comparison fair.</li>
+      <li><strong>Use Las Vegas data</strong> — local gas prices, NV Energy electricity rates, and Nevada registration fees make your analysis real.</li>
+      <li><strong>Show your math</strong> — "The PHEV costs $4,200 more than the ICE, but saves $1,100/year on fuel, so it pays for itself in 3.8 years" is far more convincing than "the PHEV saves money on gas."</li>
+      <li><strong>Calculate the break-even point</strong> — how many years until the fuel savings cover the higher purchase price? Is it within your 4-year ownership window?</li>
+      <li><strong>Don't forget hidden costs</strong> — PHEV charging setup, EV registration fees, and potentially higher insurance can narrow the savings gap.</li>
+      <li><strong>Verify every AI claim</strong> — click the citations, check the numbers. Your grade depends on your accuracy, not the AI's confidence.</li>
+    </ul>
   </section>
 
 </main>
