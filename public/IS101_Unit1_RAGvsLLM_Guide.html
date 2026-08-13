@@ -29,6 +29,24 @@
   Self-contained: no external requests, no CDN, no API calls.
   Chart colors validated against this page's cream surface with the
   dataviz skill's validate_palette.js (see build notes in the project log).
+
+  BUG FIX (Aug 13 2026, reported by instructor as "corrupt" key
+  definitions): the three "Key definitions" flip cards never actually
+  flipped, and the front face looked cramped/overlapping. Root cause:
+  `.flip-inner` is a <span> (inline by default) with no explicit
+  `display` set, so its `width/height: 100%` were no-ops and its
+  `transform: rotateY(180deg)` had no effect at all (CSS transforms
+  don't apply to inline elements) — same bug family as the `.prob-fill`
+  fix in IS101_Unit1_WatchLearnAI.html. Fixed by adding `display: block`
+  to `.flip-inner`. Also fixed a second, related bug the first fix
+  exposed: the flip-back face centered its content vertically
+  (`justify-content: center`) inside a fixed 210px card, which silently
+  clipped the top of any definition taller than the card with no way to
+  scroll up to see it. Fixed by setting `.flip-back { justify-content:
+  flex-start }` and increasing `.flip-card` height to 300px so all
+  three definitions fit without scrolling at all. Verified with
+  Playwright: all three cards now flip, and each back face's
+  scrollHeight matches its clientHeight exactly (no clipped content).
 -->
 <style>
   :root {
@@ -150,19 +168,19 @@
   /* Flip cards */
   .flip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
   @media (max-width: 760px) { .flip-grid { grid-template-columns: 1fr; } }
-  .flip-card { perspective: 1200px; height: 210px; }
+  .flip-card { perspective: 1200px; height: 300px; }
   .flip-card button.flip-trigger {
     all: unset; display: block; width: 100%; height: 100%; cursor: pointer; position: relative;
     border-radius: 12px;
   }
-  .flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; border-radius: 12px; }
+  .flip-inner { display: block; position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; border-radius: 12px; }
   .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
   .flip-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
   .flip-front { background: var(--navy); color: #fff; align-items: center; text-align: center; }
   .flip-front .icon { font-size: 26px; margin-bottom: 8px; }
   .flip-front h4 { margin: 0 0 6px; font-size: 16px; }
   .flip-front .hint { font-size: 12px; color: var(--gold-light); margin-top: 10px; }
-  .flip-back { background: var(--cream-panel); border: 2px solid var(--gold); transform: rotateY(180deg); overflow-y: auto; }
+  .flip-back { background: var(--cream-panel); border: 2px solid var(--gold); transform: rotateY(180deg); overflow-y: auto; justify-content: flex-start; }
   .flip-back p { margin: 0; font-size: 13px; color: var(--ink); max-width: none; }
   .flip-back .term { font-weight: 700; color: var(--navy); font-size: 13px; margin-bottom: 4px; display: block; }
 

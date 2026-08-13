@@ -41,6 +41,17 @@
   Cross-links to IS101_Unit1_RAGvsLLM_Guide.html (Topic 1) and to Google's
   own NotebookLM support documentation are the only outbound references,
   both intentional content links, not broken placeholders.
+
+  BUG FIX (Aug 13 2026): while fixing a reported "corrupt" flip-card bug
+  in IS101_Unit1_RAGvsLLM_Guide.html (a <span>-is-inline-by-default CSS
+  bug), swept this file for the same pattern and found the source-library
+  accordion's `.chev` arrow had the identical issue: `transform:
+  rotate(180deg)` on a <span> with no explicit `display` set, so the
+  arrow never visually flipped when a card opened (cosmetic only — the
+  accordion itself worked correctly). Fixed by adding `display:
+  inline-block` to `.source-toggle .chev`. Verified with Playwright:
+  computed transform now actually changes from `none` to
+  `matrix(-1,0,0,-1,0,0)` on open.
 -->
 <style>
   :root {
@@ -166,7 +177,7 @@
   .source-toggle { all: unset; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; cursor: pointer; box-sizing: border-box; }
   .source-toggle h4 { margin: 0; font-size: 15px; color: var(--navy); }
   .source-toggle .sub { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 400; }
-  .source-toggle .chev { font-size: 13px; color: var(--gold); transition: transform 0.2s; flex-shrink: 0; margin-left: 10px; }
+  .source-toggle .chev { display: inline-block; font-size: 13px; color: var(--gold); transition: transform 0.2s; flex-shrink: 0; margin-left: 10px; }
   .source-card[data-open="true"] .chev { transform: rotate(180deg); }
   .source-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
   .source-card[data-open="true"] .source-body { max-height: 220px; }
