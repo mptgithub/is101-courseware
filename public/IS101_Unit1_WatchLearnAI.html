@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch &amp; Learn: How AI Actually Thinks | IS101 Unit 1</title>
+<!--
+  INSTRUCTOR / INTEGRATION NOTES
+  ================================
+  WIRED IN as of Aug 13 2026: this page replaces the external
+  "Watch — Learn AI Odds" link (https://learn-ai-odds.base44.app) as
+  Topic 1 → Step 1 in Unit 1: Understanding AI. It is fully
+  self-contained (no external requests, no CDN, no API calls) so it
+  satisfies the course's self-contained rule and won't 404 like the
+  old base44 link did.
+
+  IS101_START_HERE_06132026_0957.html's ai-t1-watch step now points
+  its href at "IS101_Unit1_WatchLearnAI.html" (this file, living
+  alongside START_HERE in public/). Since it's an internal relative
+  path, goToStep() uses window.location.href (same-tab), not
+  window.open() — matching the "External URLs open in new tabs" fix
+  from the Aug 8 2026 session log.
+
+  backLink, continueLink, and breadcrumbHome below now have real
+  hrefs pointing at IS101_START_HERE_06132026_0957.html and
+  IS101_Unit1_RAGvsLLM_Guide.html respectively.
+
+  KNOWN GAP (pre-existing, not introduced by this page): clicking
+  through does not mark this step complete on the dashboard.
+  goToStep() in START_HERE only calls saveStepProgress() for its
+  no-href "demo fallback" branch — real hrefs (this page, the PDF it
+  replaced, the AI exam) never trigger it. The AI exam page
+  (IS101_AI_Exam_05272026_0928.html) already tries
+  window.parent.postMessage({type:'stepDone',exam:'ai-exam'}) on a
+  passing score, but START_HERE has no 'message' event listener
+  anywhere, so that signal currently goes nowhere. Fixing this is a
+  separate task (needs either a message-listener + iframe embed, or
+  wiring content pages into the existing /api/progress/step backend
+  endpoint that already exists in server.js) — flagging it, not
+  fixing it here.
+
+  ADA: built to the same 12-fix pattern as IS101_START_HERE (skip
+  link, main landmark, aria-hidden on decorative glyphs, aria-live
+  regions on dynamic content, focus-visible outlines, sr-only class).
+-->
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy-light: #142943;
+    --cream: #f7f2ea;
+    --cream-panel: #fffdf8;
+    --gold: #c9943a;
+    --gold-light: #e0b465;
+    --ink: #0d1b2e;
+    --muted: #5f6b7a;
+    --border: rgba(13,27,46,0.12);
+    --series-1: #3987e5; /* blue   — validated vs navy surface, dark-mode step */
+    --series-2: #d95926; /* orange */
+    --series-3: #199e70; /* aqua   */
+    --series-4: #c98500; /* yellow */
+    --good: #217346;
+    --good-bg: #f3fbf6;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.55;
+  }
+  .skip-link {
+    position: absolute; top: -40px; left: 0;
+    background: var(--navy); color: #fff;
+    padding: 8px 16px; z-index: 1000;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none; border-radius: 0 0 8px 0;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  header.topbar {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 24px;
+  }
+  header.topbar .inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .brand { font-weight: 700; letter-spacing: 0.02em; }
+  .brand .gold { color: var(--gold-light); }
+  nav.breadcrumb ol {
+    list-style: none; display: flex; flex-wrap: wrap;
+    gap: 6px; margin: 0; padding: 0; font-size: 13px; color: #cdd7e3;
+  }
+  nav.breadcrumb li:not(:last-child)::after { content: "›"; margin-left: 6px; color: #7a8fa8; }
+  nav.breadcrumb a { color: #cdd7e3; text-decoration: none; }
+  nav.breadcrumb a:hover, nav.breadcrumb a:focus-visible { text-decoration: underline; }
+  nav.breadcrumb li:last-child { color: var(--gold-light); font-weight: 600; }
+
+  .back-row {
+    max-width: 900px; margin: 16px auto 0; padding: 0 24px;
+  }
+  .back-link {
+    color: var(--navy); font-weight: 600; text-decoration: none; font-size: 14px;
+  }
+  .back-link:hover, .back-link:focus-visible { text-decoration: underline; }
+
+  main#mainContent {
+    max-width: 900px; margin: 0 auto; padding: 24px 24px 80px;
+  }
+
+  .hero {
+    background: var(--navy);
+    color: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    margin-bottom: 28px;
+  }
+  .hero .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px;
+    color: var(--gold-light); font-weight: 700; margin: 0 0 10px;
+  }
+  .hero h1 { margin: 0 0 14px; font-size: 28px; line-height: 1.25; }
+  .hero p { margin: 0; color: #d7e0eb; font-size: 16px; max-width: 68ch; }
+
+  section { margin-bottom: 40px; }
+  section > h2 {
+    font-size: 21px; color: var(--navy); margin: 0 0 6px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  section > h2 .tag {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--gold); color: var(--navy); padding: 3px 8px; border-radius: 999px;
+    font-weight: 700;
+  }
+  section > .lede { color: var(--muted); margin: 0 0 16px; max-width: 68ch; }
+  section p { max-width: 68ch; }
+
+  .panel {
+    background: var(--cream-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 2px rgba(13,27,46,0.05);
+  }
+  .panel + .panel { margin-top: 18px; }
+  .panel h3 { margin: 0 0 4px; font-size: 17px; color: var(--navy); }
+  .panel .instructions { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+
+  .prompt-card {
+    background: var(--navy-light); color: #fff;
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;
+    font-size: 15px;
+  }
+  .prompt-card .label { display: block; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--gold-light); font-weight: 700; margin-bottom: 4px; }
+
+  /* Probability bar list — accessible, no images/canvas: each item is real
+     text (word + percent) so a screen reader gets the same info a sighted
+     user gets from the bar length. */
+  ul.prob-list { list-style: none; margin: 0 0 18px; padding: 0; }
+  ul.prob-list li { margin-bottom: 10px; }
+  .prob-row { display: flex; align-items: center; gap: 10px; }
+  .prob-label { flex: 0 0 150px; font-weight: 600; font-size: 14px; }
+  .prob-track {
+    flex: 1 1 auto; background: rgba(13,27,46,0.08); border-radius: 999px;
+    height: 18px; overflow: hidden; position: relative;
+  }
+  .prob-fill {
+    display: block;
+    height: 100%; border-radius: 999px 0 0 999px;
+    min-width: 6px;
+  }
+  .prob-pct {
+    flex: 0 0 48px; text-align: right; font-size: 13px; font-weight: 700;
+    color: var(--ink);
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--navy); color: #fff; border: none;
+    padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--navy-light); }
+  .btn.secondary { background: transparent; color: var(--navy); border: 2px solid var(--navy); padding: 8px 16px; }
+  .btn.secondary:hover { background: rgba(13,27,46,0.06); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  .live-note {
+    margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+    background: var(--good-bg); border: 1px solid rgba(33,115,70,0.25);
+    color: #16532f; font-size: 14px;
+  }
+  .live-note:empty { display: none; }
+
+  .tally { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .tally ul { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .tally li { background: rgba(13,27,46,0.06); border-radius: 999px; padding: 4px 10px; }
+
+  .toggle-group { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toggle-btn {
+    background: #fff; border: 2px solid var(--border); color: var(--navy);
+    padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .toggle-btn[aria-pressed="true"] {
+    background: var(--navy); border-color: var(--navy); color: #fff;
+  }
+
+  .chat-log { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; min-height: 20px; }
+  .chat-bubble {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-size: 14px; max-width: 60ch;
+  }
+  .chat-bubble .who { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--gold); font-weight: 700; display: block; margin-bottom: 4px; }
+
+  .check-item {
+    border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px;
+    background: #fff;
+  }
+  .check-item p.statement { font-weight: 600; margin: 0 0 10px; }
+  .check-answers { display: flex; gap: 8px; }
+  .check-feedback {
+    margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 14px; display: none;
+  }
+  .check-feedback.show { display: block; }
+  .check-feedback.correct { background: var(--good-bg); color: #16532f; border: 1px solid rgba(33,115,70,0.25); }
+  .check-feedback.incorrect { background: #fcebeb; color: #7a1420; border: 1px solid rgba(176,0,32,0.25); }
+
+  footer.page-footer {
+    max-width: 900px; margin: 0 auto; padding: 20px 24px 60px;
+    color: var(--muted); font-size: 13px; text-align: center;
+  }
+  .continue-row { text-align: center; margin: 8px 0 36px; }
+
+  [aria-hidden="true"] { pointer-events: none; }
+
+  @media print {
+    header.topbar, .back-row, .btn, .btn-row, .toggle-group, .continue-row, .skip-link { display: none !important; }
+    body { background: #fff; }
+    .hero { background: #fff; color: #000; border: 2px solid #000; }
+    .hero p, .hero .eyebrow { color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<header class="topbar" role="banner">
+  <div class="inner">
+    <div class="brand">IS101 <span class="gold">Courseware</span></div>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="IS101_START_HERE_06132026_0957.html" id="breadcrumbHome">Unit 1: Understanding AI</a></li>
+        <li>Watch &amp; Learn</li>
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<div class="back-row">
+  <a href="IS101_START_HERE_06132026_0957.html" class="back-link" id="backLink">&larr; Back to Courseware</a>
+</div>
+
+<main id="mainContent">
+
+  <div class="hero">
+    <p class="eyebrow">Unit 1 &middot; Topic 1: Understanding AI &middot; Step 1 of 3</p>
+    <h1>Why can AI give different answers to the same question?</h1>
+    <p>AI doesn't look up a single correct answer. It predicts the most likely one — and "likely" isn't "certain." In this lab you'll see how that works, play with it, and learn to think critically about AI output.</p>
+  </div>
+
+  <section aria-labelledby="h-probabilistic">
+    <h2 id="h-probabilistic"><span class="tag" aria-hidden="true">Idea 1</span> Generative AI is probabilistic</h2>
+    <p class="lede">A large language model doesn't "know" the one right next word. Every time it writes, it's ranking many possible next words by how likely each one is to come next — then picking one. That's what <strong>probabilistic</strong> means: the output is drawn from a distribution of possibilities, not looked up from a fact table.</p>
+
+    <div class="panel">
+      <h3>Try it: Probability Playground</h3>
+      <p class="instructions">Here's a simplified version of what's happening inside the model. Given the sentence stem below, the AI has ranked four possible next words by likelihood. Click <strong>Generate</strong> and watch which one gets picked — then do it several times.</p>
+
+      <div class="prompt-card">
+        <span class="label">Sentence stem</span>
+        "The best pizza topping is ___."
+      </div>
+
+      <ul class="prob-list" id="pizzaList" aria-label="Candidate next words and their probabilities"></ul>
+
+      <div class="btn-row">
+        <button type="button" class="btn" id="pizzaGenerate">Generate</button>
+        <button type="button" class="btn secondary" id="pizzaReset">Reset</button>
+      </div>
+
+      <div class="live-note" id="pizzaLive" role="status" aria-live="polite"></div>
+      <div class="tally" id="pizzaTally" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-nondeterministic">
+    <h2 id="h-nondeterministic"><span class="tag" aria-hidden="true">Idea 2</span> Generative AI is non-deterministic</h2>
+    <p class="lede">Because the model is sampling from a probability distribution instead of running a fixed lookup, asking the <em>exact same question</em> twice can produce two <em>different</em> answers. That's what <strong>non-deterministic</strong> means: same input, not-guaranteed-same output.</p>
+
+    <div class="panel">
+      <h3>Try it: Ask It Three Times</h3>
+      <p class="instructions">Below is one question, asked three times in a row — nothing about the question changes between asks. Click <strong>Ask AI</strong> and watch the three answers come in.</p>
+
+      <div class="prompt-card">
+        <span class="label">Question (asked 3 times, unchanged)</span>
+        "What's the best way to study for an exam?"
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn" id="askGenerate">Ask AI (3 times)</button>
+        <button type="button" class="btn secondary" id="askReset">Clear</button>
+      </div>
+
+      <div class="chat-log" id="chatLog" aria-live="polite"></div>
+      <div class="live-note" id="askLive" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-prompts">
+    <h2 id="h-prompts"><span class="tag" aria-hidden="true">Idea 3</span> How this affects your prompts</h2>
+    <p class="lede">You can't make AI fully deterministic, but you can narrow its options. A vague prompt leaves the model choosing from a wide, flat spread of possibilities — lots of variation. A specific prompt (format, constraints, examples) collapses that spread onto a few strong candidates — much more consistent, though still not identical every time.</p>
+
+    <div class="panel">
+      <h3>Try it: Narrow the Spread</h3>
+      <p class="instructions">Same underlying topic, two different prompts. Switch between them and watch how the probability spread changes — then hit Generate a few times on each to see how much the results vary.</p>
+
+      <div class="toggle-group" role="group" aria-label="Choose a prompt style">
+        <button type="button" class="toggle-btn" id="btnVague" aria-pressed="true">Vague prompt</button>
+        <button type="button" class="toggle-btn" id="btnSpecific" aria-pressed="false">Specific prompt</button>
+      </div>
+
+      <div class="prompt-card" id="spreadPromptCard">
+        <span class="label">Prompt</span>
+        <span id="spreadPromptText">"Write about dogs."</span>
+      </div>
+
+      <ul class="prob-list" id="spreadList" aria-label="Candidate outputs and their probabilities"></ul>
+
+      <div class="btn-row">
+        <button type="button" class="btn" id="spreadGenerate">Generate</button>
+        <button type="button" class="btn secondary" id="spreadReset">Reset tally</button>
+      </div>
+
+      <div class="live-note" id="spreadLive" role="status" aria-live="polite"></div>
+      <div class="tally" id="spreadTally" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-check">
+    <h2 id="h-check"><span class="tag" aria-hidden="true">Check</span> Quick self-check</h2>
+    <p class="lede">Not graded — just a gut check before you move on. Pick True or False for each statement.</p>
+
+    <div class="check-item" id="check1">
+      <p class="statement">1. If you ask an AI the same question twice, you should expect a word-for-word identical answer both times.</p>
+      <div class="check-answers" role="group" aria-label="Answer for statement 1">
+        <button type="button" class="btn secondary" data-answer="true">True</button>
+        <button type="button" class="btn secondary" data-answer="false">False</button>
+      </div>
+      <div class="check-feedback" data-correct="false">
+        <strong>False.</strong> Because generation is non-deterministic, the exact wording can change from one attempt to the next — even though the underlying idea is often similar.
+      </div>
+    </div>
+
+    <div class="check-item" id="check2">
+      <p class="statement">2. An AI chooses its response by looking up the single correct answer in a database.</p>
+      <div class="check-answers" role="group" aria-label="Answer for statement 2">
+        <button type="button" class="btn secondary" data-answer="true">True</button>
+        <button type="button" class="btn secondary" data-answer="false">False</button>
+      </div>
+      <div class="check-feedback" data-correct="false">
+        <strong>False.</strong> It's predicting the most likely next words based on patterns it learned — there's no single stored "correct answer" it's retrieving.
+      </div>
+    </div>
+
+    <div class="check-item" id="check3">
+      <p class="statement">3. Giving an AI more specific instructions can make its answers more consistent.</p>
+      <div class="check-answers" role="group" aria-label="Answer for statement 3">
+        <button type="button" class="btn secondary" data-answer="true">True</button>
+        <button type="button" class="btn secondary" data-answer="false">False</button>
+      </div>
+      <div class="check-feedback" data-correct="true">
+        <strong>True.</strong> Specific prompts narrow the probability spread the model is sampling from, so outputs cluster more tightly — though "more consistent" still isn't "identical."
+      </div>
+    </div>
+  </section>
+
+  <div class="continue-row">
+    <a href="IS101_Unit1_RAGvsLLM_Guide.html" class="btn" id="continueLink">Continue to LLMs and Academic Research &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="page-footer">
+  &copy; Dr. Mark Taormino &middot; All Rights Reserved &middot; College of Southern Nevada &middot; IS101 Introduction to Computing
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- shared helpers ----------
+
+  function weightedPick(items) {
+    // items: [{key, pct}], pct values should sum to ~100
+    var r = Math.random() * 100;
+    var acc = 0;
+    for (var i = 0; i < items.length; i++) {
+      acc += items[i].pct;
+      if (r <= acc) return items[i];
+    }
+    return items[items.length - 1];
+  }
+
+  var SERIES_COLORS = ["var(--series-1)", "var(--series-2)", "var(--series-3)", "var(--series-4)"];
+
+  function renderProbList(listEl, items) {
+    listEl.innerHTML = "";
+    items.forEach(function (item, i) {
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "prob-row";
+
+      var label = document.createElement("span");
+      label.className = "prob-label";
+      label.textContent = item.label;
+
+      var track = document.createElement("span");
+      track.className = "prob-track";
+
+      var fill = document.createElement("span");
+      fill.className = "prob-fill";
+      fill.style.width = item.pct + "%";
+      fill.style.background = SERIES_COLORS[i % SERIES_COLORS.length];
+
+      var pct = document.createElement("span");
+      pct.className = "prob-pct";
+      pct.textContent = item.pct + "%";
+
+      track.appendChild(fill);
+      row.appendChild(label);
+      row.appendChild(track);
+      row.appendChild(pct);
+      li.appendChild(row);
+      listEl.appendChild(li);
+    });
+  }
+
+  function renderTally(el, counts, order) {
+    var total = 0;
+    order.forEach(function (k) { total += (counts[k] || 0); });
+    if (total === 0) { el.innerHTML = ""; return; }
+    var html = "Results so far (" + total + "): <ul>";
+    order.forEach(function (k) {
+      var n = counts[k] || 0;
+      if (n > 0) html += "<li>" + k + " &times; " + n + "</li>";
+    });
+    html += "</ul>";
+    el.innerHTML = html;
+  }
+
+  // ---------- Exercise 1: Probability Playground ----------
+
+  var pizzaItems = [
+    { key: "pepperoni", label: "pepperoni", pct: 35 },
+    { key: "cheese",    label: "cheese",    pct: 30 },
+    { key: "mushroom",  label: "mushroom",  pct: 20 },
+    { key: "pineapple", label: "pineapple", pct: 15 }
+  ];
+  var pizzaCounts = {};
+  var pizzaTotal = 0;
+  var pizzaListEl = document.getElementById("pizzaList");
+  var pizzaLiveEl = document.getElementById("pizzaLive");
+  var pizzaTallyEl = document.getElementById("pizzaTally");
+
+  function pizzaRender() { renderProbList(pizzaListEl, pizzaItems); }
+  pizzaRender();
+
+  document.getElementById("pizzaGenerate").addEventListener("click", function () {
+    var pick = weightedPick(pizzaItems);
+    pizzaTotal++;
+    pizzaCounts[pick.key] = (pizzaCounts[pick.key] || 0) + 1;
+    pizzaLiveEl.textContent = 'Generated: "' + pick.key + '" (attempt ' + pizzaTotal + ')' +
+      (pizzaTotal >= 5 ? ' — notice the highest-probability word comes up most often, but not every time. That unpredictability is the "non-deterministic" part.' : '');
+    renderTally(pizzaTallyEl, pizzaCounts, pizzaItems.map(function (i) { return i.key; }));
+  });
+
+  document.getElementById("pizzaReset").addEventListener("click", function () {
+    pizzaCounts = {}; pizzaTotal = 0;
+    pizzaLiveEl.textContent = "Tally reset.";
+    pizzaTallyEl.innerHTML = "";
+  });
+
+  // ---------- Exercise 2: Ask It Three Times ----------
+
+  var studyAnswers = [
+    "Space your review sessions out over several days instead of cramming — spaced repetition beats one long session.",
+    "Test yourself with practice questions. Actively recalling information sticks better than just rereading notes.",
+    "Get enough sleep the night before. Memory consolidation happens while you sleep, so an all-nighter can backfire.",
+    "Study in short, focused blocks with breaks in between — sustained focus fades faster than most people expect.",
+    "Explain the material out loud as if teaching someone else. Gaps in your explanation reveal gaps in your understanding.",
+    "Mix up topics instead of studying one subject for hours straight — interleaving improves long-term retention."
+  ];
+  var chatLogEl = document.getElementById("chatLog");
+  var askLiveEl = document.getElementById("askLive");
+
+  function pickThreeWithRepeatChance() {
+    var picks = [];
+    for (var i = 0; i < 3; i++) {
+      picks.push(studyAnswers[Math.floor(Math.random() * studyAnswers.length)]);
+    }
+    return picks;
+  }
+
+  document.getElementById("askGenerate").addEventListener("click", function () {
+    chatLogEl.innerHTML = "";
+    askLiveEl.textContent = "";
+    var picks = pickThreeWithRepeatChance();
+    picks.forEach(function (answer, i) {
+      setTimeout(function () {
+        var bubble = document.createElement("div");
+        bubble.className = "chat-bubble";
+        var who = document.createElement("span");
+        who.className = "who";
+        who.textContent = "AI — response " + (i + 1) + " of 3";
+        bubble.appendChild(who);
+        bubble.appendChild(document.createTextNode(answer));
+        chatLogEl.appendChild(bubble);
+        if (i === picks.length - 1) {
+          var uniqueCount = new Set(picks).size;
+          if (uniqueCount === 1) {
+            askLiveEl.textContent = "All three answers happened to match this time — that can happen, but it's not guaranteed. Try again.";
+          } else if (uniqueCount === picks.length) {
+            askLiveEl.textContent = "Same question, three different answers. Nothing about the question changed — that's non-determinism.";
+          } else {
+            askLiveEl.textContent = "Two of the three matched and one didn't — same question each time, but the wording still isn't guaranteed to repeat. Try again.";
+          }
+        }
+      }, i * 500);
+    });
+  });
+
+  document.getElementById("askReset").addEventListener("click", function () {
+    chatLogEl.innerHTML = "";
+    askLiveEl.textContent = "Cleared.";
+  });
+
+  // ---------- Exercise 3: Narrow the Spread ----------
+
+  var spreadDatasets = {
+    vague: {
+      prompt: '"Write about dogs."',
+      items: [
+        { key: "dog breeds",   label: "dog breeds",   pct: 18 },
+        { key: "dog training", label: "dog training", pct: 17 },
+        { key: "dog nutrition",label: "dog nutrition", pct: 17 },
+        { key: "dog history",  label: "dog history",  pct: 16 },
+        { key: "dog behavior", label: "dog behavior", pct: 16 },
+        { key: "dog health",   label: "dog health",   pct: 16 }
+      ]
+    },
+    specific: {
+      prompt: '"List 3 benefits of daily exercise for adult dogs, one sentence each, under 20 words per sentence."',
+      items: [
+        { key: "3-item exercise-benefits list", label: "3-item list", pct: 70 },
+        { key: "2-item list (misses format)",   label: "2-item list", pct: 20 },
+        { key: "off-topic tangent",             label: "off-topic",   pct: 10 }
+      ]
+    }
+  };
+  var spreadMode = "vague";
+  var spreadCounts = {};
+  var spreadTotal = 0;
+  var spreadListEl = document.getElementById("spreadList");
+  var spreadLiveEl = document.getElementById("spreadLive");
+  var spreadTallyEl = document.getElementById("spreadTally");
+  var spreadPromptText = document.getElementById("spreadPromptText");
+  var btnVague = document.getElementById("btnVague");
+  var btnSpecific = document.getElementById("btnSpecific");
+
+  function spreadRender() {
+    var ds = spreadDatasets[spreadMode];
+    spreadPromptText.textContent = ds.prompt;
+    renderProbList(spreadListEl, ds.items);
+  }
+  spreadRender();
+
+  function setSpreadMode(mode) {
+    spreadMode = mode;
+    btnVague.setAttribute("aria-pressed", String(mode === "vague"));
+    btnSpecific.setAttribute("aria-pressed", String(mode === "specific"));
+    spreadCounts = {}; spreadTotal = 0;
+    spreadTallyEl.innerHTML = "";
+    spreadLiveEl.textContent = mode === "vague"
+      ? "Vague prompt selected — six roughly equal candidates. Expect a lot of variation."
+      : "Specific prompt selected — one candidate dominates. Expect much more consistent results.";
+    spreadRender();
+  }
+
+  btnVague.addEventListener("click", function () { setSpreadMode("vague"); });
+  btnSpecific.addEventListener("click", function () { setSpreadMode("specific"); });
+
+  document.getElementById("spreadGenerate").addEventListener("click", function () {
+    var ds = spreadDatasets[spreadMode];
+    var pick = weightedPick(ds.items);
+    spreadTotal++;
+    spreadCounts[pick.key] = (spreadCounts[pick.key] || 0) + 1;
+    spreadLiveEl.textContent = 'Generated: "' + pick.key + '" (attempt ' + spreadTotal + ', ' + spreadMode + ' prompt)';
+    renderTally(spreadTallyEl, spreadCounts, ds.items.map(function (i) { return i.key; }));
+  });
+
+  document.getElementById("spreadReset").addEventListener("click", function () {
+    spreadCounts = {}; spreadTotal = 0;
+    spreadTallyEl.innerHTML = "";
+    spreadLiveEl.textContent = "Tally reset.";
+  });
+
+  // ---------- Quick self-check ----------
+
+  document.querySelectorAll(".check-item").forEach(function (item) {
+    var buttons = item.querySelectorAll(".check-answers button");
+    var feedback = item.querySelector(".check-feedback");
+    var correct = feedback.getAttribute("data-correct") === "true";
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var chose = btn.getAttribute("data-answer") === "true";
+        var gotItRight = chose === correct;
+        feedback.classList.add("show");
+        feedback.classList.toggle("correct", gotItRight);
+        feedback.classList.toggle("incorrect", !gotItRight);
+        buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
+      });
+    });
+  });
+
+  // ---------- Navigation ----------
+  // backLink, continueLink, and breadcrumbHome now point at real files in
+  // this repo's public/ folder (see hrefs above). Note: clicking through to
+  // another page here does NOT mark this step complete on the dashboard —
+  // goToStep() in START_HERE only calls saveStepProgress() for its no-href
+  // "demo fallback" case, and there's no postMessage listener wired up to
+  // catch completion signals from content pages. That gap predates this
+  // page (the AI exam page's own postMessage call has the same problem) —
+  // flagging it here rather than silently working around it.
+
+})();
+</script>
+
+</body>
+</html>

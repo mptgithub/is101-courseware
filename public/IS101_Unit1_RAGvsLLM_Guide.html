@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG vs. General-Purpose LLMs: Academic Research Guide | IS101 Unit 1</title>
+<!--
+  INSTRUCTOR / INTEGRATION NOTES
+  ================================
+  WIRED IN as of Aug 13 2026: this page replaces the PDF "RAG vs General
+  LLMs Academic Research Guide" as Topic 1 → Step 2 in Unit 1: Understanding
+  AI (see the Aug 8 2026 session log's Unit 1 redesign). It converts the
+  full PDF content into a self-contained, interactive HTML page — same ADA
+  pattern and navy/cream/gold theme as IS101_Unit1_WatchLearnAI.html (step 1).
+
+  IS101_START_HERE_06132026_0957.html's ai-t1-read1 step now points its
+  href at "IS101_Unit1_RAGvsLLM_Guide.html" (this file) instead of the
+  static PDF. backLink and breadcrumbHome below have real hrefs. The
+  Continue button (previously removed because it had no real target) is
+  back, now pointing at the actual exam page:
+  "IS101_AI_Exam_05272026_0928.html#ai-t1" — Topic 1, step 3.
+
+  KNOWN GAP (pre-existing, not introduced by this page): clicking through
+  does not mark this step complete on the dashboard — see the matching
+  note in IS101_Unit1_WatchLearnAI.html for details. The exam page itself
+  has the same problem despite trying to signal completion via
+  postMessage.
+
+  Self-contained: no external requests, no CDN, no API calls.
+  Chart colors validated against this page's cream surface with the
+  dataviz skill's validate_palette.js (see build notes in the project log).
+-->
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy-light: #142943;
+    --cream: #f7f2ea;
+    --cream-panel: #fffdf8;
+    --gold: #c9943a;
+    --gold-light: #e0b465;
+    --ink: #0d1b2e;
+    --muted: #5f6b7a;
+    --border: rgba(13,27,46,0.12);
+    --rag: #2a78d6;      /* series: RAG-based tools — validated vs cream surface */
+    --llm: #eb6834;      /* series: general-purpose LLMs — validated vs cream surface */
+    --good: #217346; --good-bg: #f3fbf6; --good-border: rgba(33,115,70,0.25);
+    --bad: #b00020; --bad-bg: #fcebeb; --bad-border: rgba(176,0,32,0.25);
+    --caution: #7a5200; --caution-bg: #fff6e0; --caution-border: rgba(122,82,0,0.3);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.55;
+  }
+  .skip-link {
+    position: absolute; top: -40px; left: 0;
+    background: var(--navy); color: #fff;
+    padding: 8px 16px; z-index: 1000;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none; border-radius: 0 0 8px 0;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  button:focus-visible, a:focus-visible, [tabindex]:focus-visible, input:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  header.topbar { background: var(--navy); color: #fff; padding: 14px 24px; }
+  header.topbar .inner {
+    max-width: 960px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .brand { font-weight: 700; letter-spacing: 0.02em; }
+  .brand .gold { color: var(--gold-light); }
+  nav.breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; font-size: 13px; color: #cdd7e3; }
+  nav.breadcrumb li:not(:last-child)::after { content: "›"; margin-left: 6px; color: #7a8fa8; }
+  nav.breadcrumb a { color: #cdd7e3; text-decoration: none; }
+  nav.breadcrumb a:hover, nav.breadcrumb a:focus-visible { text-decoration: underline; }
+  nav.breadcrumb li:last-child { color: var(--gold-light); font-weight: 600; }
+
+  .back-row { max-width: 960px; margin: 16px auto 0; padding: 0 24px; }
+  .back-link { color: var(--navy); font-weight: 600; text-decoration: none; font-size: 14px; }
+  .back-link:hover, .back-link:focus-visible { text-decoration: underline; }
+
+  main#mainContent { max-width: 960px; margin: 0 auto; padding: 24px 24px 80px; }
+
+  .hero { background: var(--navy); color: #fff; border-radius: 16px; padding: 32px 28px; margin-bottom: 28px; }
+  .hero .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; color: var(--gold-light); font-weight: 700; margin: 0 0 10px; }
+  .hero h1 { margin: 0 0 14px; font-size: 27px; line-height: 1.25; }
+  .hero p { margin: 0; color: #d7e0eb; font-size: 16px; max-width: 70ch; }
+
+  section { margin-bottom: 42px; }
+  section > h2 { font-size: 21px; color: var(--navy); margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+  section > h2 .tag {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--gold); color: var(--navy); padding: 3px 8px; border-radius: 999px; font-weight: 700;
+  }
+  section > .lede { color: var(--muted); margin: 0 0 16px; max-width: 72ch; }
+  section h3 { font-size: 17px; color: var(--navy); margin: 22px 0 6px; }
+  section p { max-width: 72ch; }
+
+  .panel { background: var(--cream-panel); border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(13,27,46,0.05); }
+  .panel + .panel { margin-top: 14px; }
+  .panel h3:first-child { margin-top: 0; }
+  .panel .instructions { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+
+  /* Intro type cards */
+  .type-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+  @media (max-width: 640px) { .type-cards { grid-template-columns: 1fr; } }
+  .type-card { border-radius: 12px; padding: 18px 20px; color: #fff; }
+  .type-card.rag { background: linear-gradient(160deg, #1d5aa8, #0f3868); }
+  .type-card.llm { background: linear-gradient(160deg, #b6491f, #7a3014); }
+  .type-card .kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .type-card h4 { margin: 4px 0 8px; font-size: 18px; }
+  .type-card p { margin: 0; font-size: 14px; opacity: 0.95; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .btn:hover { background: var(--navy-light); }
+  .btn.secondary { background: transparent; color: var(--navy); border: 2px solid var(--navy); padding: 8px 16px; }
+  .btn.secondary:hover { background: rgba(13,27,46,0.06); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  .live-note { margin-top: 14px; padding: 12px 14px; border-radius: 8px; background: var(--good-bg); border: 1px solid var(--good-border); color: #16532f; font-size: 14px; }
+  .live-note:empty { display: none; }
+  .live-note.bad { background: var(--bad-bg); border-color: var(--bad-border); color: #7a1420; }
+  .live-note.caution { background: var(--caution-bg); border-color: var(--caution-border); color: var(--caution); }
+
+  /* Autocomplete detective demo */
+  .mode-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toggle-btn { background: #fff; border: 2px solid var(--border); color: var(--navy); padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .toggle-btn[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .query-card { background: var(--navy-light); color: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 15px; }
+  .query-card .label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-light); font-weight: 700; margin-bottom: 4px; }
+  .result-log { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; min-height: 20px; }
+  .result-bubble { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+  .result-bubble .who { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold); font-weight: 700; display: block; margin-bottom: 3px; }
+
+  /* Flip cards */
+  .flip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
+  @media (max-width: 760px) { .flip-grid { grid-template-columns: 1fr; } }
+  .flip-card { perspective: 1200px; height: 210px; }
+  .flip-card button.flip-trigger {
+    all: unset; display: block; width: 100%; height: 100%; cursor: pointer; position: relative;
+    border-radius: 12px;
+  }
+  .flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; border-radius: 12px; }
+  .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
+  .flip-front { background: var(--navy); color: #fff; align-items: center; text-align: center; }
+  .flip-front .icon { font-size: 26px; margin-bottom: 8px; }
+  .flip-front h4 { margin: 0 0 6px; font-size: 16px; }
+  .flip-front .hint { font-size: 12px; color: var(--gold-light); margin-top: 10px; }
+  .flip-back { background: var(--cream-panel); border: 2px solid var(--gold); transform: rotateY(180deg); overflow-y: auto; }
+  .flip-back p { margin: 0; font-size: 13px; color: var(--ink); max-width: none; }
+  .flip-back .term { font-weight: 700; color: var(--navy); font-size: 13px; margin-bottom: 4px; display: block; }
+
+  /* Comparison table */
+  .table-controls { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  table.compare { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--cream-panel); border-radius: 10px; overflow: hidden; }
+  table.compare caption { text-align: left; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  table.compare th, table.compare td { padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  table.compare thead th { background: var(--navy); color: #fff; font-size: 13px; }
+  table.compare tbody th { font-weight: 700; white-space: nowrap; }
+  table.compare td.col-rag { transition: background 0.2s, opacity 0.2s; }
+  table.compare td.col-llm { transition: background 0.2s, opacity 0.2s; }
+  table.compare.spotlight-rag td.col-llm, table.compare.spotlight-rag th.col-llm { opacity: 0.35; }
+  table.compare.spotlight-llm td.col-rag, table.compare.spotlight-llm th.col-rag { opacity: 0.35; }
+  table.compare.spotlight-rag td.col-rag { background: #eaf2fc; }
+  table.compare.spotlight-llm td.col-llm { background: #fdeee5; }
+  .wrap-table { overflow-x: auto; }
+
+  /* Decision helper */
+  .quiz-step { display: none; }
+  .quiz-step.active { display: block; }
+  .quiz-q { font-weight: 700; margin: 0 0 10px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .quiz-option { display: flex; align-items: flex-start; gap: 10px; border: 2px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: pointer; background: #fff; }
+  .quiz-option:has(input:checked) { border-color: var(--navy); background: #eef2f6; }
+  .quiz-option input { margin-top: 3px; }
+  .quiz-progress { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .result-card { border-radius: 12px; padding: 20px; color: #fff; margin-top: 6px; }
+  .result-card.rag-result { background: linear-gradient(160deg, #1d5aa8, #0f3868); }
+  .result-card.llm-result { background: linear-gradient(160deg, #b6491f, #7a3014); }
+  .result-card.caution-result { background: linear-gradient(160deg, #6b5417, #4a3a10); }
+  .result-card h4 { margin: 0 0 8px; font-size: 19px; }
+  .result-card p { margin: 0; font-size: 14px; max-width: none; }
+
+  /* Stat tiles */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+  @media (max-width: 760px) { .stat-grid { grid-template-columns: 1fr; } }
+  .stat-tile { background: var(--cream-panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .stat-tile h4 { margin: 0 0 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+  .bar-row .bar-label { flex: 0 0 108px; }
+  .bar-track { flex: 1 1 auto; background: rgba(13,27,46,0.08); border-radius: 999px; height: 14px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; border-radius: 999px; }
+  .bar-fill.rag { background: var(--rag); }
+  .bar-fill.llm { background: var(--llm); }
+  .bar-pct { flex: 0 0 40px; text-align: right; font-weight: 700; }
+  .stat-tile .source { font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .badge-stat { text-align: center; }
+  .badge-stat .big { font-size: 34px; font-weight: 800; color: var(--rag); }
+  .badge-stat .cap { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Citation checker */
+  .citation-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #fff; margin-bottom: 14px; }
+  .citation-card .claim { font-weight: 700; margin: 0 0 8px; }
+  .citation-card .passage { background: var(--cream); border-left: 3px solid var(--gold); padding: 8px 12px; font-size: 13px; font-style: italic; color: var(--muted); margin: 0 0 12px; }
+  .citation-feedback { margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: none; }
+  .citation-feedback.show { display: block; }
+
+  /* Privacy table + selector */
+  .account-select { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  table.privacy { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--cream-panel); border-radius: 10px; overflow: hidden; }
+  table.privacy th, table.privacy td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.privacy thead th { background: var(--navy); color: #fff; font-size: 13px; }
+  table.privacy tbody tr.highlighted { background: #fff6e0; }
+
+  /* Checklist */
+  .check-fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; background: var(--cream-panel); }
+  .check-fieldset legend { font-weight: 700; padding: 0 6px; font-size: 14px; }
+  .check-fieldset.safe legend { color: var(--good); }
+  .check-fieldset.caution legend { color: var(--caution); }
+  .check-fieldset.risk legend { color: var(--bad); }
+  .check-fieldset label { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 14px; cursor: pointer; }
+  .check-fieldset input { margin-top: 3px; }
+  .verdict-banner { border-radius: 12px; padding: 18px 20px; font-weight: 600; font-size: 15px; margin-top: 8px; }
+  .verdict-banner.safe { background: var(--good-bg); color: #16532f; border: 2px solid var(--good); }
+  .verdict-banner.caution { background: var(--caution-bg); color: var(--caution); border: 2px solid var(--caution); }
+  .verdict-banner.risk { background: var(--bad-bg); color: #7a1420; border: 2px solid var(--bad); }
+  .verdict-banner.neutral { background: #eef2f6; color: var(--navy); border: 2px solid var(--border); }
+
+  /* Takeaways */
+  .takeaway-list { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 12px; }
+  .takeaway-list li { background: var(--cream-panel); border-left: 4px solid var(--gold); border-radius: 8px; padding: 14px 16px; }
+  .takeaway-list strong { color: var(--navy); }
+
+  footer.page-footer { max-width: 960px; margin: 0 auto; padding: 20px 24px 60px; color: var(--muted); font-size: 13px; text-align: center; }
+  footer.page-footer .disclaimer { max-width: 70ch; margin: 0 auto 10px; }
+  .continue-row { text-align: center; margin: 8px 0 36px; }
+
+  [aria-hidden="true"] { pointer-events: none; }
+
+  @media print {
+    header.topbar, .back-row, .btn, .btn-row, .mode-toggle, .table-controls, .account-select, .continue-row, .skip-link, .quiz-options input { display: none !important; }
+    body { background: #fff; }
+    .hero { background: #fff; color: #000; border: 2px solid #000; }
+    .hero p, .hero .eyebrow { color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<header class="topbar" role="banner">
+  <div class="inner">
+    <div class="brand">IS101 <span class="gold">Courseware</span></div>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="IS101_START_HERE_06132026_0957.html" id="breadcrumbHome">Unit 1: Understanding AI</a></li>
+        <li>RAG vs. LLMs Guide</li>
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<div class="back-row">
+  <a href="IS101_Unit1_WatchLearnAI.html" class="back-link" id="backLink">&larr; Back to Watch &amp; Learn</a>
+</div>
+
+<main id="mainContent">
+
+  <div class="hero">
+    <p class="eyebrow">Unit 1 &middot; Topic 1: Understanding AI &middot; Step 2 of 3</p>
+    <h1>RAG-Based Tools vs. General-Purpose LLMs for Academic Research</h1>
+    <p>Not all AI tools are created equal for academic research. Some — like Google NotebookLM — restrict their answers to documents you provide and cite every claim back to a passage you can check. Others — like ChatGPT, Claude, and Gemini — draw on broad training data, which makes them flexible but also prone to fabricating sources. Neither one removes your job as the researcher: checking every claim.</p>
+  </div>
+
+  <section aria-labelledby="h-meet">
+    <h2 id="h-meet"><span class="tag" aria-hidden="true">Start here</span> Meet the two tool types</h2>
+    <p class="lede">Two very different engines are hiding under "AI chatbot." Knowing which one you're using changes how much you should trust it.</p>
+    <div class="type-cards">
+      <div class="type-card rag">
+        <p class="kicker">Source-grounded</p>
+        <h4>RAG-Based Tools</h4>
+        <p>e.g. Google NotebookLM. Retrieves passages from documents <em>you</em> upload, then answers only from those passages — with a clickable citation on every claim.</p>
+      </div>
+      <div class="type-card llm">
+        <p class="kicker">General-purpose</p>
+        <h4>General-Purpose LLMs</h4>
+        <p>e.g. ChatGPT, Claude, Gemini. Draws on broad training data to generate flexible answers — but with no source constraint and no reliable citations.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-howworks">
+    <h2 id="h-howworks"><span class="tag" aria-hidden="true">Recap</span> How AI language models actually work</h2>
+    <p class="lede">You met these two ideas in Watch &amp; Learn — here's the fuller explanation, plus one more way to see it in action.</p>
+
+    <h3>AI is probabilistic — not intelligent</h3>
+    <p>Despite how impressive AI responses can appear, large language models are fundamentally <strong>word-prediction machines</strong>. When you type a prompt, the model does not understand your question the way a human would. Instead, it looks at the sequence of words you typed and calculates the probability of which word is most likely to come next, then the next, then the next — one word at a time.</p>
+    <p>Think of it like a very sophisticated autocomplete. When your phone suggests the next word in a text message, it's doing a simpler version of the same thing. An LLM does this at a massive scale — trained on billions of sentences, it has learned statistical patterns about which words tend to follow which other words in what contexts. It is matching patterns, not reasoning.</p>
+    <p>This means AI does not "know" facts. It has no memory, no beliefs, and no understanding. When it produces a correct answer, it's because the statistical patterns in its training data happen to lead to the right words in the right order. When it produces a wrong answer — or fabricates a source that doesn't exist — it's because that same word-prediction process generated plausible-sounding words that happen to be false. The model cannot tell the difference.</p>
+
+    <h3>Non-determinism — the same prompt can produce different results</h3>
+    <p>Because AI is probabilistic, it introduces randomness into its word selection. At each step, instead of always picking the single most likely next word, the model randomly samples from among the top candidates — a setting called <strong>temperature</strong> controls how much randomness. The practical consequence is <strong>non-determinism</strong>: the exact same prompt, typed twice, can produce two different answers. Both may be correct, both may be wrong, or one may be correct and the other fabricated.</p>
+
+    <div class="panel">
+      <h3>Try it: Search Engine vs. LLM</h3>
+      <p class="instructions">The guide's own example: searching Google for "capital of France" gives the same result every time. Asking an LLM usually gets you "Paris" too — but watch what happens to the details around it. Pick a mode, then run the same query three times.</p>
+
+      <div class="mode-toggle" role="group" aria-label="Choose a mode">
+        <button type="button" class="toggle-btn" id="btnSearch" aria-pressed="true">Search Engine mode</button>
+        <button type="button" class="toggle-btn" id="btnLLM" aria-pressed="false">LLM mode</button>
+      </div>
+
+      <div class="query-card">
+        <span class="label">Query (run 3 times, unchanged)</span>
+        "What is the capital of France?"
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn" id="detectiveRun">Run query 3 times</button>
+        <button type="button" class="btn secondary" id="detectiveClear">Clear</button>
+      </div>
+
+      <div class="result-log" id="detectiveLog" aria-live="polite"></div>
+      <div class="live-note" id="detectiveLive" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-defs">
+    <h2 id="h-defs"><span class="tag" aria-hidden="true">Key terms</span> Key definitions</h2>
+    <p class="lede">Tap a card to flip it and reveal the definition.</p>
+
+    <div class="flip-grid">
+      <div class="flip-card" id="flipCard1">
+        <button type="button" class="flip-trigger" id="flipBtn1" aria-expanded="false">
+          <span class="flip-inner">
+            <span class="flip-face flip-front">
+              <span class="icon" aria-hidden="true">🤖</span>
+              <h4>General-Purpose LLM</h4>
+              <span class="hint">Tap to reveal definition</span>
+            </span>
+            <span class="flip-face flip-back" aria-hidden="true">
+              <span class="term">General-Purpose LLM</span>
+              <p>A large language model trained on vast amounts of internet text. It generates answers by predicting one word after another based on statistical patterns — it doesn't look anything up in real time (unless a search feature is enabled) and can't reliably tell you where a fact came from. Same question, possibly different answers each time. Examples: ChatGPT, Claude, standard Gemini chat.</p>
+            </span>
+          </span>
+        </button>
+      </div>
+
+      <div class="flip-card" id="flipCard2">
+        <button type="button" class="flip-trigger" id="flipBtn2" aria-expanded="false">
+          <span class="flip-inner">
+            <span class="flip-face flip-front">
+              <span class="icon" aria-hidden="true">📎</span>
+              <h4>RAG-Based Tool</h4>
+              <span class="hint">Tap to reveal definition</span>
+            </span>
+            <span class="flip-face flip-back" aria-hidden="true">
+              <span class="term">RAG-Based Tool (Retrieval-Augmented Generation)</span>
+              <p>Works in stages: (1) chunks your uploaded documents into passages, (2) converts those passages into searchable vectors, (3) retrieves the most relevant passages for your question, and (4) generates an answer constrained to those passages, with a citation on each claim. NotebookLM is the most prominent example.</p>
+            </span>
+          </span>
+        </button>
+      </div>
+
+      <div class="flip-card" id="flipCard3">
+        <button type="button" class="flip-trigger" id="flipBtn3" aria-expanded="false">
+          <span class="flip-inner">
+            <span class="flip-face flip-front">
+              <span class="icon" aria-hidden="true">🔗</span>
+              <h4>Source Grounding</h4>
+              <span class="hint">Tap to reveal definition</span>
+            </span>
+            <span class="flip-face flip-back" aria-hidden="true">
+              <span class="term">Source Grounding</span>
+              <p>The model is required to anchor its answers to user-provided documents rather than free-associating from training data. Claims in a NotebookLM answer typically carry a numbered citation linking to the relevant passage — click any citation to jump to the original text and verify it yourself.</p>
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-compare">
+    <h2 id="h-compare"><span class="tag" aria-hidden="true">Compare</span> Comparison table</h2>
+    <p class="lede">Same nine dimensions the guide uses. Use the buttons to spotlight one column at a time.</p>
+
+    <div class="table-controls" role="group" aria-label="Highlight a column">
+      <button type="button" class="toggle-btn" id="spotlightBoth" aria-pressed="true">Show both</button>
+      <button type="button" class="toggle-btn" id="spotlightRag" aria-pressed="false">Spotlight RAG</button>
+      <button type="button" class="toggle-btn" id="spotlightLlm" aria-pressed="false">Spotlight LLM</button>
+    </div>
+
+    <div class="wrap-table">
+      <table class="compare" id="compareTable">
+        <caption>How RAG-based tools and general-purpose LLMs differ, dimension by dimension.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Dimension</th>
+            <th scope="col" class="col-rag">RAG-Based Tools (e.g., NotebookLM)</th>
+            <th scope="col" class="col-llm">General-Purpose LLMs (e.g., ChatGPT, Claude)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">How it works</th>
+            <td class="col-rag">Retrieves passages from your documents, then generates an answer constrained to those passages</td>
+            <td class="col-llm">Predicts the next word based on statistical patterns from training data — probabilistic, not deterministic</td>
+          </tr>
+          <tr>
+            <th scope="row">Knowledge source</th>
+            <td class="col-rag">Documents you upload and select</td>
+            <td class="col-llm">Broad training data from the internet</td>
+          </tr>
+          <tr>
+            <th scope="row">Grounding</th>
+            <td class="col-rag">Answers designed to be grounded in your selected sources</td>
+            <td class="col-llm">No source constraint; generates from learned patterns</td>
+          </tr>
+          <tr>
+            <th scope="row">Citations</th>
+            <td class="col-rag">Claims typically cite a specific passage you can click and verify</td>
+            <td class="col-llm">No reliable citations; may fabricate sources entirely</td>
+          </tr>
+          <tr>
+            <th scope="row">Consistency</th>
+            <td class="col-rag">More consistent because answers are anchored to specific passages</td>
+            <td class="col-llm">Non-deterministic: same prompt may produce different answers each time</td>
+          </tr>
+          <tr>
+            <th scope="row">Hallucination risk</th>
+            <td class="col-rag">Reduced but not eliminated (~13% unsupported vs ~40% for open chatbots)</td>
+            <td class="col-llm">Higher; fabricates facts, quotes, and references</td>
+          </tr>
+          <tr>
+            <th scope="row">"I don't know"</th>
+            <td class="col-rag">Will often say sources do not cover a topic</td>
+            <td class="col-llm">Tends to generate plausible-sounding answers even when uncertain</td>
+          </tr>
+          <tr>
+            <th scope="row">Best for</th>
+            <td class="col-rag">Summarizing readings, finding themes, checking comprehension, study aids</td>
+            <td class="col-llm">Brainstorming, explaining concepts, drafting outlines</td>
+          </tr>
+          <tr>
+            <th scope="row">Academic integrity</th>
+            <td class="col-rag">Lower risk if used for comprehension and organization</td>
+            <td class="col-llm">High risk if used to generate content presented as your own work</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-decision">
+    <h2 id="h-decision"><span class="tag" aria-hidden="true">Try it</span> Which tool should I use?</h2>
+    <p class="lede">Answer three quick questions about your task and get a recommendation. This is a study aid, not a rule — always follow your instructor's actual policy.</p>
+
+    <div class="panel">
+      <div class="quiz-progress" id="quizProgress" aria-live="polite">Question 1 of 3</div>
+
+      <div class="quiz-step active" data-step="1">
+        <p class="quiz-q">1. What are you mainly trying to do?</p>
+        <div class="quiz-options" role="radiogroup" aria-label="Question 1">
+          <label class="quiz-option"><input type="radio" name="q1" value="rag"> Summarize or organize readings I've already done</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="llm"> Brainstorm ideas or get a concept explained</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="risk"> Write content I plan to submit as my own</label>
+        </div>
+        <div class="btn-row"><button type="button" class="btn" id="q1Next" disabled>Next</button></div>
+      </div>
+
+      <div class="quiz-step" data-step="2">
+        <p class="quiz-q">2. Do you need to verify every claim against a specific passage?</p>
+        <div class="quiz-options" role="radiogroup" aria-label="Question 2">
+          <label class="quiz-option"><input type="radio" name="q2" value="rag"> Yes — I need a citation I can click and check</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="either"> Not really — I just want ideas or an explanation</label>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" id="q2Back">Back</button>
+          <button type="button" class="btn" id="q2Next" disabled>Next</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="3">
+        <p class="quiz-q">3. Where does your source material come from?</p>
+        <div class="quiz-options" role="radiogroup" aria-label="Question 3">
+          <label class="quiz-option"><input type="radio" name="q3" value="rag"> My own uploaded documents (readings, notes, articles)</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="llm"> The open internet / general knowledge</label>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" id="q3Back">Back</button>
+          <button type="button" class="btn" id="q3Submit" disabled>Get my recommendation</button>
+        </div>
+      </div>
+
+      <div id="quizResult" aria-live="polite"></div>
+      <div class="btn-row" id="quizResetRow" style="display:none;">
+        <button type="button" class="btn secondary" id="quizReset">Start over</button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-hallucinations">
+    <h2 id="h-hallucinations"><span class="tag" aria-hidden="true">Deep dive</span> How source-grounded systems handle hallucinations</h2>
+
+    <h3>RAG reduces hallucinations — but does not eliminate them</h3>
+    <p>RAG systems mitigate hallucinations by retrieving real passages from your documents before answering and attaching a citation to each claim. A 2025 study found that RAG with reliable information sources significantly reduced hallucination rates — with GPT-4 showing 0% hallucination when using a curated source, compared to 6% when using open web results (PubMed). Another framework, MEGA-RAG, demonstrated over 40% reduction in hallucination rates compared to baseline models (PMC).</p>
+
+    <div class="stat-grid">
+      <div class="stat-tile">
+        <h4>GPT-4 hallucination rate, by source type</h4>
+        <div class="bar-row">
+          <span class="bar-label">Curated source</span>
+          <span class="bar-track"><span class="bar-fill rag" style="width:2%"></span></span>
+          <span class="bar-pct">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Open web results</span>
+          <span class="bar-track"><span class="bar-fill llm" style="width:15%"></span></span>
+          <span class="bar-pct">6%</span>
+        </div>
+        <p class="source">Source: PubMed, 2025</p>
+      </div>
+      <div class="stat-tile">
+        <h4>Unsupported-claim rate</h4>
+        <div class="bar-row">
+          <span class="bar-label">RAG tools</span>
+          <span class="bar-track"><span class="bar-fill rag" style="width:13%"></span></span>
+          <span class="bar-pct">~13%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Open chatbots</span>
+          <span class="bar-track"><span class="bar-fill llm" style="width:40%"></span></span>
+          <span class="bar-pct">~40%</span>
+        </div>
+        <p class="source">Roughly 1 in 8 RAG claims vs. roughly 2 in 5 open-chatbot claims.</p>
+      </div>
+      <div class="stat-tile badge-stat">
+        <h4>MEGA-RAG framework</h4>
+        <div class="big">40%+</div>
+        <div class="cap">reduction in hallucination rate vs. baseline models</div>
+        <p class="source">Source: PMC</p>
+      </div>
+    </div>
+
+    <h3>The paradox: RAG can also increase hallucinations</h3>
+    <p>A May 2025 study from Google Research found that while RAG generally improves performance, it paradoxically <em>reduces</em> the model's ability to abstain from answering when appropriate. When context is merely relevant but insufficient, models still try to answer.</p>
+
+    <div class="stat-tile" style="margin-bottom: 16px;">
+      <h4>Gemma: incorrect-answer rate</h4>
+      <div class="bar-row">
+        <span class="bar-label">No context given</span>
+        <span class="bar-track"><span class="bar-fill rag" style="width:10.2%"></span></span>
+        <span class="bar-pct">10.2%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Insufficient context</span>
+        <span class="bar-track"><span class="bar-fill llm" style="width:66.1%"></span></span>
+        <span class="bar-pct">66.1%</span>
+      </div>
+      <p class="source">Source: Google Research, May 2025. A little bit of the wrong context is worse than none at all.</p>
+    </div>
+
+    <h3>Garbage in, garbage out</h3>
+    <p>If you add a low-quality, biased, or factually wrong source, NotebookLM will faithfully cite the bad information. It will not fact-check your sources for you. The quality of your source collection directly determines the quality of the output.</p>
+
+    <h3>Citation drift</h3>
+    <p>The main failure mode occurs when a citation points to a passage that is <em>related</em> to the claim but doesn't actually <em>support</em> it. The citation number looks reassuring either way — only reading the passage tells you which case you have.</p>
+
+    <div class="panel">
+      <h3>Try it: Citation Checker</h3>
+      <p class="instructions">Here are two claim-and-citation pairs. For each one, read the actual passage, then decide: does it really support the claim?</p>
+
+      <div class="citation-card" id="cite1">
+        <p class="claim">Claim: "The study found that spaced repetition improves retention by 40%." <sup>[12]</sup></p>
+        <p class="passage">Passage [12]: "Participants using spaced repetition scored significantly higher on delayed recall tests than the massed-practice group."</p>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" data-cite-answer="yes">Yes, it supports the claim</button>
+          <button type="button" class="btn secondary" data-cite-answer="no">No, this is citation drift</button>
+        </div>
+        <div class="citation-feedback" data-correct="no"></div>
+      </div>
+
+      <div class="citation-card" id="cite2">
+        <p class="claim">Claim: "Sleep deprivation impairs memory consolidation." <sup>[7]</sup></p>
+        <p class="passage">Passage [7]: "Participants who slept less than 5 hours showed measurably worse performance on next-day memory consolidation tasks than the 8-hour group."</p>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" data-cite-answer="yes">Yes, it supports the claim</button>
+          <button type="button" class="btn secondary" data-cite-answer="no">No, this is citation drift</button>
+        </div>
+        <div class="citation-feedback" data-correct="yes"></div>
+      </div>
+    </div>
+
+    <h3>General-purpose LLMs: fabricated citations</h3>
+    <p>General-purpose LLMs have a well-documented tendency to fabricate citations — generating plausible-looking references to papers, authors, and journals that do not exist. American University warns that "any submitted work referring to fabricated sources may constitute a violation, including material resulting from generative AI hallucinations" (American University).</p>
+  </section>
+
+  <section aria-labelledby="h-privacy">
+    <h2 id="h-privacy"><span class="tag" aria-hidden="true">Know this</span> Data privacy</h2>
+    <p class="lede">What happens to what you upload depends entirely on which account you're signed in with.</p>
+
+    <div class="account-select" role="group" aria-label="Highlight your account type">
+      <button type="button" class="toggle-btn" data-row="edu">I use Google Workspace for Education</button>
+      <button type="button" class="toggle-btn" data-row="work">I use Google Workspace (work)</button>
+      <button type="button" class="toggle-btn" data-row="personal">I use a personal Google account</button>
+    </div>
+    <div class="live-note" id="privacyLive" role="status" aria-live="polite"></div>
+
+    <div class="wrap-table">
+      <table class="privacy" id="privacyTable">
+        <caption class="sr-only">Data privacy by Google account type</caption>
+        <thead>
+          <tr><th scope="col">Account Type</th><th scope="col">Human Review</th><th scope="col">Used for AI Training</th></tr>
+        </thead>
+        <tbody>
+          <tr data-account="edu"><th scope="row">Google Workspace for Education</th><td>Not reviewed by humans, even with feedback</td><td>Not used to train AI models</td></tr>
+          <tr data-account="work"><th scope="row">Google Workspace (work)</th><td>Same protections as Education</td><td>Not used to train AI models</td></tr>
+          <tr data-account="personal"><th scope="row">Personal Google Account</th><td>Feedback may be reviewed; retained up to 3 years</td><td>Not used unless feedback is provided</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-checklist">
+    <h2 id="h-checklist"><span class="tag" aria-hidden="true">Self-check</span> Student checklist: safe, caution, or high risk?</h2>
+    <p class="lede">Check every box that applies to how you're planning to use AI on an assignment. The banner below updates as you go.</p>
+
+    <div class="panel">
+      <fieldset class="check-fieldset safe">
+        <legend>✓ Safe — use the tool when ALL of these are true</legend>
+        <label><input type="checkbox" data-group="safe"> Your instructor has explicitly permitted AI use for this assignment</label>
+        <label><input type="checkbox" data-group="safe"> You're using it for comprehension, organization, or study aids — not to generate submitted prose</label>
+        <label><input type="checkbox" data-group="safe"> You click through and verify every citation on load-bearing claims</label>
+        <label><input type="checkbox" data-group="safe"> You are not uploading confidential, unpublished, or restricted data</label>
+        <label><input type="checkbox" data-group="safe"> You disclose your AI use if your institution requires it</label>
+        <label><input type="checkbox" data-group="safe"> The final submitted work represents your own thinking, analysis, and writing</label>
+      </fieldset>
+
+      <fieldset class="check-fieldset caution">
+        <legend>■ Caution — check if ANY of these apply</legend>
+        <label><input type="checkbox" data-group="caution"> The tool is writing or rewriting prose you plan to submit</label>
+        <label><input type="checkbox" data-group="caution"> You're summarizing sources you haven't actually read yourself</label>
+        <label><input type="checkbox" data-group="caution"> The tool is generating interpretations you can't independently verify</label>
+        <label><input type="checkbox" data-group="caution"> You're working with unpublished data or confidential information</label>
+        <label><input type="checkbox" data-group="caution"> Your institution's AI policy or your instructor's rules are unclear</label>
+      </fieldset>
+
+      <fieldset class="check-fieldset risk">
+        <legend>✗ High risk — likely an academic integrity violation</legend>
+        <label><input type="checkbox" data-group="risk"> AI completes graded work for you (essays, code, exams, problem sets)</label>
+        <label><input type="checkbox" data-group="risk"> You include fabricated or unchecked citations generated by an AI tool</label>
+        <label><input type="checkbox" data-group="risk"> AI replaces required reading or research you were supposed to do yourself</label>
+        <label><input type="checkbox" data-group="risk"> You violate an explicit "no AI" rule in the syllabus</label>
+        <label><input type="checkbox" data-group="risk"> You present AI-generated content as your own original work without disclosure</label>
+        <label><input type="checkbox" data-group="risk"> You use AI during a closed-book exam without explicit permission</label>
+      </fieldset>
+
+      <div class="verdict-banner neutral" id="verdictBanner" role="status" aria-live="polite">
+        Check the boxes above that apply to see where your plan lands.
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-takeaways">
+    <h2 id="h-takeaways"><span class="tag" aria-hidden="true">Wrap-up</span> Key takeaways</h2>
+    <ul class="takeaway-list">
+      <li><strong>AI is probabilistic, not intelligent.</strong> It predicts the next word based on statistical patterns. Correct and fabricated answers come from the same process.</li>
+      <li><strong>AI is non-deterministic.</strong> The same prompt can produce different answers each time. Every output must be independently verified.</li>
+      <li><strong>RAG tools are not hallucination-free.</strong> They reduce unsupported claims, but roughly one in eight may still not be fully supported.</li>
+      <li><strong>Citation exists does not mean citation supports.</strong> Always click through and verify.</li>
+      <li><strong>Privacy depends on account type.</strong> Education accounts offer strong protections; personal accounts may involve human review.</li>
+      <li><strong>You are always responsible for what you submit.</strong> Fabricated citations and unauthorized AI use are violations at most institutions.</li>
+    </ul>
+  </section>
+
+  <div class="continue-row">
+    <a href="IS101_AI_Exam_05272026_0928.html#ai-t1" class="btn" id="continueLink">Continue to Knowledge Check &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="page-footer">
+  <p class="disclaimer">This guide is for educational purposes and reflects policies and research available as of August 2026. Always consult your institution's current policies and your instructor's guidance.</p>
+  &copy; Dr. Mark Taormino &middot; College of Southern Nevada &middot; IS101 Introduction to Computing
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Search Engine vs. LLM detective ----------
+  var mode = "search";
+  var btnSearch = document.getElementById("btnSearch");
+  var btnLLM = document.getElementById("btnLLM");
+  var logEl = document.getElementById("detectiveLog");
+  var liveEl = document.getElementById("detectiveLive");
+
+  var llmExtras = [
+    "Paris has been the capital since 508 CE, under Clovis I.",
+    "Paris is also the most populous city in France.",
+    "Fun fact: Paris was briefly considered for renaming to “Ville-Lumière” as an official title in 1858 (this detail is fabricated — it never happened).",
+    "Paris sits on the Seine River in north-central France.",
+    "Paris became the capital in 987 CE under Hugh Capet (this date is incorrect — a fabricated-sounding detail)."
+  ];
+
+  function setMode(next) {
+    mode = next;
+    btnSearch.setAttribute("aria-pressed", String(next === "search"));
+    btnLLM.setAttribute("aria-pressed", String(next === "llm"));
+    logEl.innerHTML = "";
+    liveEl.textContent = next === "search"
+      ? "Search Engine mode selected. A database lookup returns the same result every time."
+      : "LLM mode selected. The core fact usually holds, but the surrounding details are generated fresh each time — and aren't guaranteed to be true.";
+  }
+  btnSearch.addEventListener("click", function () { setMode("search"); });
+  btnLLM.addEventListener("click", function () { setMode("llm"); });
+
+  document.getElementById("detectiveRun").addEventListener("click", function () {
+    logEl.innerHTML = "";
+    liveEl.textContent = "";
+    for (var i = 0; i < 3; i++) {
+      (function (i) {
+        setTimeout(function () {
+          var bubble = document.createElement("div");
+          bubble.className = "result-bubble";
+          var who = document.createElement("span");
+          who.className = "who";
+          who.textContent = (mode === "search" ? "Search result " : "LLM answer ") + (i + 1) + " of 3";
+          bubble.appendChild(who);
+          var text;
+          if (mode === "search") {
+            text = "Paris — capital of France. (Wikipedia)";
+          } else {
+            var extra = llmExtras[Math.floor(Math.random() * llmExtras.length)];
+            text = "Paris. " + extra;
+          }
+          bubble.appendChild(document.createTextNode(text));
+          logEl.appendChild(bubble);
+          if (i === 2) {
+            liveEl.textContent = mode === "search"
+              ? "Notice: identical result all three times — a database lookup doesn't vary."
+              : "Notice: “Paris” stayed put, but the extra detail changed each run — and sometimes it's simply made up. That's exactly why every AI-generated fact needs independent verification.";
+          }
+        }, i * 450);
+      })(i);
+    }
+  });
+  document.getElementById("detectiveClear").addEventListener("click", function () {
+    logEl.innerHTML = ""; liveEl.textContent = "Cleared.";
+  });
+
+  // ---------- Flip cards ----------
+  [1, 2, 3].forEach(function (n) {
+    var card = document.getElementById("flipCard" + n);
+    var btn = document.getElementById("flipBtn" + n);
+    var back = card.querySelector(".flip-back");
+    btn.addEventListener("click", function () {
+      var flipped = card.classList.toggle("flipped");
+      btn.setAttribute("aria-expanded", String(flipped));
+      back.setAttribute("aria-hidden", String(!flipped));
+    });
+  });
+
+  // ---------- Comparison table spotlight ----------
+  var compareTable = document.getElementById("compareTable");
+  var spotBoth = document.getElementById("spotlightBoth");
+  var spotRag = document.getElementById("spotlightRag");
+  var spotLlm = document.getElementById("spotlightLlm");
+  function setSpotlight(which) {
+    compareTable.classList.remove("spotlight-rag", "spotlight-llm");
+    if (which === "rag") compareTable.classList.add("spotlight-rag");
+    if (which === "llm") compareTable.classList.add("spotlight-llm");
+    spotBoth.setAttribute("aria-pressed", String(which === "both"));
+    spotRag.setAttribute("aria-pressed", String(which === "rag"));
+    spotLlm.setAttribute("aria-pressed", String(which === "llm"));
+  }
+  spotBoth.addEventListener("click", function () { setSpotlight("both"); });
+  spotRag.addEventListener("click", function () { setSpotlight("rag"); });
+  spotLlm.addEventListener("click", function () { setSpotlight("llm"); });
+
+  // ---------- Decision helper quiz ----------
+  var quizAnswers = {};
+  var steps = document.querySelectorAll(".quiz-step");
+  var progressEl = document.getElementById("quizProgress");
+
+  function showStep(n) {
+    steps.forEach(function (s) { s.classList.toggle("active", s.getAttribute("data-step") === String(n)); });
+    progressEl.textContent = "Question " + n + " of 3";
+  }
+
+  function wireQuestion(name, nextBtnId) {
+    var radios = document.querySelectorAll('input[name="' + name + '"]');
+    var nextBtn = document.getElementById(nextBtnId);
+    radios.forEach(function (r) {
+      r.addEventListener("change", function () {
+        quizAnswers[name] = r.value;
+        nextBtn.disabled = false;
+      });
+    });
+  }
+  wireQuestion("q1", "q1Next");
+  wireQuestion("q2", "q2Next");
+  wireQuestion("q3", "q3Submit");
+
+  document.getElementById("q1Next").addEventListener("click", function () { showStep(2); });
+  document.getElementById("q2Back").addEventListener("click", function () { showStep(1); });
+  document.getElementById("q2Next").addEventListener("click", function () { showStep(3); });
+  document.getElementById("q3Back").addEventListener("click", function () { showStep(2); });
+
+  document.getElementById("q3Submit").addEventListener("click", function () {
+    steps.forEach(function (s) { s.classList.remove("active"); });
+    progressEl.textContent = "Result";
+    var resultEl = document.getElementById("quizResult");
+    var resetRow = document.getElementById("quizResetRow");
+    resetRow.style.display = "flex";
+
+    var card = document.createElement("div");
+    if (quizAnswers.q1 === "risk") {
+      card.className = "result-card caution-result";
+      card.innerHTML = "<h4>Neither tool — talk to your instructor first</h4><p>If AI would be writing content you plan to submit as your own, that's a high-risk use regardless of which tool you pick. Check your syllabus's AI policy before using either one for this task.</p>";
+    } else {
+      var ragScore = [quizAnswers.q1, quizAnswers.q2, quizAnswers.q3].filter(function (a) { return a === "rag"; }).length;
+      var llmScore = [quizAnswers.q1, quizAnswers.q2, quizAnswers.q3].filter(function (a) { return a === "llm"; }).length;
+      if (ragScore >= llmScore) {
+        card.className = "result-card rag-result";
+        card.innerHTML = "<h4>Try a RAG-based tool (e.g., NotebookLM)</h4><p>Your task sounds like it's about working with sources you already have and being able to verify claims. Upload your readings and let the citations do the checking — then actually click them.</p>";
+      } else {
+        card.className = "result-card llm-result";
+        card.innerHTML = "<h4>A general-purpose LLM (e.g., ChatGPT, Claude) could help</h4><p>Sounds like you're brainstorming or want a concept explained — a general-purpose LLM is a reasonable starting point. Just don't treat anything it tells you as a verified fact or citation without checking elsewhere.</p>";
+      }
+    }
+    resultEl.innerHTML = "";
+    resultEl.appendChild(card);
+  });
+
+  document.getElementById("quizReset").addEventListener("click", function () {
+    quizAnswers = {};
+    document.querySelectorAll('.quiz-options input[type="radio"]').forEach(function (r) { r.checked = false; });
+    ["q1Next", "q2Next", "q3Submit"].forEach(function (id) { document.getElementById(id).disabled = true; });
+    document.getElementById("quizResult").innerHTML = "";
+    document.getElementById("quizResetRow").style.display = "none";
+    showStep(1);
+  });
+
+  // ---------- Citation checker ----------
+  document.querySelectorAll(".citation-card").forEach(function (card) {
+    var buttons = card.querySelectorAll("[data-cite-answer]");
+    var feedback = card.querySelector(".citation-feedback");
+    var correct = feedback.getAttribute("data-correct");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var chose = btn.getAttribute("data-cite-answer");
+        var right = chose === correct;
+        feedback.classList.add("show");
+        feedback.classList.remove("live-note", "bad", "caution");
+        feedback.className = "citation-feedback show live-note" + (right ? "" : " bad");
+        if (correct === "no") {
+          feedback.textContent = right
+            ? "Correct — this is citation drift. The passage supports “spaced repetition improves retention” in general, but never states a 40% figure. That number appears to be fabricated or misattributed."
+            : "Not quite — read the passage again. It supports the general idea of spaced repetition helping retention, but it never mentions a 40% figure. A specific number with no matching source is a red flag: this is citation drift.";
+        } else {
+          feedback.textContent = right
+            ? "Correct — this passage directly supports the claim. That's what solid source grounding looks like."
+            : "Actually, this one holds up — the passage directly describes worse memory consolidation performance after less sleep, which is exactly what the claim says. Not every citation is drift.";
+        }
+      });
+    });
+  });
+
+  // ---------- Privacy row highlight ----------
+  var privacyLive = document.getElementById("privacyLive");
+  document.querySelectorAll(".account-select button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var which = btn.getAttribute("data-row");
+      document.querySelectorAll("#privacyTable tbody tr").forEach(function (tr) {
+        tr.classList.toggle("highlighted", tr.getAttribute("data-account") === which);
+      });
+      privacyLive.textContent = "Highlighted: " + btn.textContent + ".";
+    });
+  });
+
+  // ---------- Self-assessment checklist ----------
+  var verdictBanner = document.getElementById("verdictBanner");
+  function recomputeVerdict() {
+    var risk = document.querySelectorAll('input[data-group="risk"]:checked').length;
+    var caution = document.querySelectorAll('input[data-group="caution"]:checked').length;
+    var safeTotal = document.querySelectorAll('input[data-group="safe"]').length;
+    var safeChecked = document.querySelectorAll('input[data-group="safe"]:checked').length;
+
+    verdictBanner.className = "verdict-banner";
+    if (risk > 0) {
+      verdictBanner.classList.add("risk");
+      verdictBanner.textContent = "⚠ High risk — this looks like it could be an academic integrity violation. Stop and talk to your instructor before proceeding.";
+    } else if (caution > 0) {
+      verdictBanner.classList.add("caution");
+      verdictBanner.textContent = "Use caution — double-check these points before you proceed. None of them are automatic violations, but they're worth resolving first.";
+    } else if (safeChecked === safeTotal && safeTotal > 0) {
+      verdictBanner.classList.add("safe");
+      verdictBanner.textContent = "Looks safe — you've confirmed every safe-use condition and flagged no risk factors.";
+    } else {
+      verdictBanner.classList.add("neutral");
+      verdictBanner.textContent = "Check the safe-use boxes that apply to confirm you're in the clear (" + safeChecked + " of " + safeTotal + " confirmed so far).";
+    }
+  }
+  document.querySelectorAll(".check-fieldset input[type=\"checkbox\"]").forEach(function (cb) {
+    cb.addEventListener("change", recomputeVerdict);
+  });
+
+  // ---------- Navigation ----------
+  // backLink, continueLink, and breadcrumbHome now point at real files in
+  // this repo's public/ folder (see hrefs above). See the top-of-file
+  // instructor notes for the known completion-tracking gap.
+
+})();
+</script>
+
+</body>
+</html>
