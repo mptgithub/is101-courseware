@@ -1010,7 +1010,14 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
-    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
+    check(7,4,'Total Row summing Line Total',
+  H.tables.some(t=>{
+    if(!(t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"'))) return false;
+    var cols = t.match(/<tableColumn\b[^>]*\/>/g) || [];
+    return cols.some(c=>/name="Line Total"/.test(c) && /totalsRowFunction="sum"/i.test(c));
+  }),
+  'Total Row is summing Line Total.',
+  'The Total Row is on, but Sum isn\'t set under Line Total (F). Click the Total Row cell under Line Total → dropdown arrow → Sum.');
     check(8,6,'Calculate Line Total',(function(){
       var expect=new Set([420,180,150,100,280,360,176,84]); var found=new Set();
       for(var r=4;r<=11;r++){var v=H.cellVal(inv,'F'+r);if(v)found.add(v);}
