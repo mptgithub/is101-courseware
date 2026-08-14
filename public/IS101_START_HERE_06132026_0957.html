@@ -407,10 +407,27 @@
   }
 
   /* ── UNIT OVERVIEW VIEW ── */
-  .view-inner {
-    max-width: 800px;
+  .unit-shell {
+    display: flex;
+    align-items: flex-start;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 2rem 60px;
+  }
+  .unit-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--navy);
+    color: #fff;
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    min-height: 100vh;
+  }
+  .unit-content {
+    flex: 1;
+    min-width: 0;
+    padding: 40px 2.5rem 60px;
   }
 
   .breadcrumb {
@@ -516,31 +533,88 @@
     transition: width 0.8s ease;
   }
 
-  /* jump to projects */
+  /* jump to projects — lives in the unit sidebar now */
   .jump-projects-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: 1.5px solid var(--gold);
-    color: var(--gold);
-    padding: 9px 18px;
+    display: block;
+    width: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    color: var(--navy);
+    border: none;
+    padding: 16px 18px;
     border-radius: var(--radius-sm);
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
     cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(201,148,58,0.35);
   }
-  .jump-projects-btn:hover { background: var(--gold); color: var(--navy); }
+  .jump-projects-btn:not(.locked):hover { filter: brightness(1.05); }
+  .jump-projects-btn .jp-txt::before { content: ''; }
+  .jump-projects-btn .jp-sub { display: block; font-weight: 500; font-size: 11.5px; margin-top: 3px; }
+  .jump-projects-btn .jp-hint { display: block; font-weight: 500; font-style: italic; font-size: 10.5px; margin-top: 6px; line-height: 1.4; }
+  .jump-projects-btn.locked {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.4);
+    cursor: not-allowed;
+    box-shadow: none;
+    border: 1px dashed rgba(255,255,255,0.18);
+  }
+  .jump-projects-btn.locked .jp-hint { color: rgba(255,255,255,0.4); }
+
+  @keyframes jpUnlockPulse {
+    0% { box-shadow: 0 0 0 0 rgba(46,125,79,0.55); }
+    70% { box-shadow: 0 0 0 16px rgba(46,125,79,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,125,79,0); }
+  }
+  .jump-projects-btn.just-unlocked { animation: jpUnlockPulse 0.9s ease-out 2; }
+
+  /* sidebar group/topic navigation */
+  .sidebar-nav-label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.4); font-weight: 700; margin-bottom: 10px;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px;
+    margin-bottom: 4px; cursor: pointer; border: 1px solid transparent; transition: background 0.15s;
+  }
+  .sidebar-link:hover, .sidebar-link.active { background: rgba(255,255,255,0.08); }
+  .sidebar-link.is-done { border-color: rgba(46,125,79,0.5); background: rgba(46,125,79,0.16); }
+  .sidebar-link .sl-icon {
+    width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+  }
+  .sidebar-link.is-done .sl-icon { background: var(--success); }
+  .sidebar-link .sl-t { flex: 1; min-width: 0; }
+  .sidebar-link .sl-name { font-size: 12.5px; font-weight: 600; color: #fff; }
+  .sidebar-link .sl-prow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 1px; }
+  .sidebar-link .sl-count { font-size: 10.5px; color: rgba(255,255,255,0.45); }
+  .sidebar-link .sl-pct { font-size: 10.5px; font-weight: 700; color: var(--gold-bright); }
+  .sidebar-link.is-done .sl-pct { color: #7fd9a0; }
+  .sidebar-track { width: 100%; height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; margin-top: 5px; }
+  .sidebar-fill { height: 100%; background: var(--gold-bright); }
+  .sidebar-link.is-done .sidebar-fill { background: #7fd9a0; }
+
+  /* content toolbar (collapse/expand all) */
+  .content-toolbar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 14px; }
+  .toolbar-btn {
+    font-size: 11.5px; font-weight: 600; padding: 6px 12px; border-radius: 6px;
+    border: 1px solid var(--border); background: #fff; color: var(--text-mid); cursor: pointer;
+  }
+  .toolbar-btn:hover { background: var(--cream); }
 
   /* skill groups */
   .skill-groups {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    columns: 2;
+    column-gap: 18px;
   }
+  .skill-group-card { break-inside: avoid; margin-bottom: 14px; }
+  .skill-group-card.group-complete { border-color: rgba(46,125,79,0.4); }
+  .skill-group-card.group-complete .group-icon { background: var(--success); color: #fff; }
+  .skill-group-card.group-complete .mini-pct { color: var(--success); }
+  .skill-group-card.group-complete .mini-fill { background: var(--success); }
 
   .skill-group-card {
     background: var(--white);
@@ -646,7 +720,9 @@
     color: transparent;
     background: var(--white);
     transition: all 0.2s;
+    cursor: pointer;
   }
+  .skill-check:hover { border-color: var(--gold); }
   .skill-check.done {
     background: var(--success);
     border-color: var(--success);
@@ -1066,9 +1142,14 @@
   .toast.warning { background: var(--warn); }
 
   /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .unit-shell { flex-direction: column; }
+    .unit-sidebar { width: 100%; position: relative; top: auto; min-height: auto; }
+    .skill-groups { columns: 1; }
+  }
   @media (max-width: 600px) {
     .units-grid { grid-template-columns: 1fr; padding: 20px 1rem 40px; }
-    .view-inner { padding: 24px 1rem 40px; }
+    .unit-content { padding: 24px 1rem 40px; }
     .home-hero { padding: 36px 1rem 32px; }
     .overall-progress { padding: 10px 1rem; }
     .site-header { padding: 0 1rem; }
@@ -1310,55 +1391,68 @@
      VIEW: UNIT OVERVIEW
 ══════════════════════════════════════════════ -->
 <div class="view" id="viewUnit">
-  <div class="view-inner">
+  <div class="unit-shell">
 
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a onclick="showView('home')" role="link" tabindex="0"><span aria-hidden="true">🏠</span> Home</a>
-      <span class="sep" aria-hidden="true">›</span>
-      <span class="current" id="unitBreadcrumb" aria-current="page">Unit 1</span>
-    </nav>
+    <!-- Sidebar: Jump to Projects + group/topic navigation -->
+    <aside class="unit-sidebar">
+      <button class="jump-projects-btn" id="jumpProjectsBtn" onclick="jumpToProjects()">
+        <span class="jp-txt">Jump to Projects</span>
+      </button>
+      <div class="sidebar-nav-label" id="sidebarNavLabel">Skill Groups</div>
+      <div id="sidebarGroupNav"><!-- filled dynamically --></div>
+    </aside>
 
-    <!-- Unit Header -->
-    <div class="unit-overview-header">
-      <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
-      <h2 id="unitHeading">It is Real!</h2>
-      <p id="unitDesc">Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.</p>
-    </div>
+    <div class="unit-content">
 
-    <!-- Progress Block -->
-    <div class="overview-progress-block">
-      <div class="progress-stat">
-        <div class="big-num" id="overviewStepsDone">0</div>
-        <div class="small-label">Complete</div>
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a onclick="showView('home')" role="link" tabindex="0"><span aria-hidden="true">🏠</span> Home</a>
+        <span class="sep" aria-hidden="true">›</span>
+        <span class="current" id="unitBreadcrumb" aria-current="page">Unit 1</span>
+      </nav>
+
+      <!-- Unit Header -->
+      <div class="unit-overview-header">
+        <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
+        <h2 id="unitHeading">It is Real!</h2>
+        <p id="unitDesc">Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.</p>
       </div>
-      <div class="divider"></div>
-      <div class="progress-stat">
-        <div class="big-num" id="overviewStepsTotal">4</div>
-        <div class="small-label">Total Steps</div>
-      </div>
-      <div class="divider"></div>
-      <div class="overview-progress-track-wrap">
-        <div class="label-row">
-          <span>Unit Progress</span>
-          <span id="overviewPct">0%</span>
+
+      <!-- Progress Block -->
+      <div class="overview-progress-block">
+        <div class="progress-stat">
+          <div class="big-num" id="overviewStepsDone">0</div>
+          <div class="small-label">Complete</div>
         </div>
-        <div class="overview-big-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit progress">
-          <div class="overview-big-fill" id="overviewFill" style="width:0%"></div>
+        <div class="divider"></div>
+        <div class="progress-stat">
+          <div class="big-num" id="overviewStepsTotal">4</div>
+          <div class="small-label">Total Steps</div>
+        </div>
+        <div class="divider"></div>
+        <div class="overview-progress-track-wrap">
+          <div class="label-row">
+            <span>Unit Progress</span>
+            <span id="overviewPct">0%</span>
+          </div>
+          <div class="overview-big-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit progress">
+            <div class="overview-big-fill" id="overviewFill" style="width:0%"></div>
+          </div>
         </div>
       </div>
+
+      <!-- Collapse/Expand all (skill-group units only) -->
+      <div class="content-toolbar" id="contentToolbar" style="display:none;">
+        <button class="toolbar-btn" onclick="collapseAllGroups()">Collapse all</button>
+        <button class="toolbar-btn" onclick="expandAllGroups()">Expand all</button>
+      </div>
+
+      <!-- Skill Groups / Topics -->
+      <div class="skill-groups" id="skillGroupsContainer">
+        <!-- filled dynamically -->
+      </div>
+
     </div>
-
-    <!-- Jump to Projects -->
-    <button class="jump-projects-btn" id="jumpProjectsBtn" onclick="jumpToProjects()">
-      ⚡ Jump to Projects — skip practice, go straight to submission
-    </button>
-
-    <!-- Skill Groups / Topics -->
-    <div class="skill-groups" id="skillGroupsContainer">
-      <!-- filled dynamically -->
-    </div>
-
   </div>
 </div><!-- /viewUnit -->
 
@@ -1752,6 +1846,13 @@ const UNITS = {
   }
 };
 
+// Which skill groups are expanded in the Unit Overview accordion — persists across
+// re-renders (e.g. after a self-check) instead of resetting to "only the first group open".
+let openGroupIds = new Set();
+Object.values(UNITS).forEach(u => {
+  if (u.type !== 'topics' && u.groups && u.groups[0]) openGroupIds.add('group-' + u.groups[0].id);
+});
+
 // ─────────────────────────────────────────────
 //  LOGIN
 // ─────────────────────────────────────────────
@@ -1884,10 +1985,16 @@ function openUnit(unitNum) {
 
   // Show/hide jump button
   const jumpBtn = document.getElementById('jumpProjectsBtn');
-  jumpBtn.style.display = unit.jumpTarget ? 'inline-flex' : 'none';
+  jumpBtn.style.display = unit.jumpTarget ? 'block' : 'none';
+
+  // Collapse/expand-all toolbar only makes sense for skill-group units (2 & 3)
+  document.getElementById('contentToolbar').style.display = unit.type === 'topics' ? 'none' : 'flex';
+  document.getElementById('sidebarNavLabel').textContent = unit.type === 'topics' ? 'Topics' : 'Skill Groups';
 
   renderUnitContent(unitNum);
   updateUnitOverviewProgress(unitNum);
+  renderSidebarNav(unitNum);
+  updateJumpProjectsLock(unitNum);
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('viewUnit').classList.add('active');
@@ -2309,7 +2416,7 @@ function renderUnitContent(unitNum) {
       }).join('');
 
       container.innerHTML += `
-        <div class="topic-card">
+        <div class="topic-card" id="topic-${topic.num}">
           <div class="topic-header">
             <div class="topic-num">${topic.num}</div>
             <div class="topic-info">
@@ -2334,7 +2441,7 @@ function renderUnitContent(unitNum) {
         const done = !!progress[skill.id];
         return `
           <div class="skill-row">
-            <div class="skill-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
+            <div class="skill-check ${done ? 'done' : ''}" onclick="toggleSkillSelfCheck('${skill.id}', event)" title="Self-check: click to mark complete">${done ? '✓' : ''}</div>
             <div class="skill-name-col">
               <div class="skill-name">${skill.name}</div>
               <div class="skill-hint">${skill.hint}${SKILL_VIDEO_INFO[skill.id] ? ` <span class="video-info-sep">|</span> <span class="video-info-section">${SKILL_VIDEO_INFO[skill.id].section}</span> <span class="video-info-arrow">→</span> <span class="video-info-title">${SKILL_VIDEO_INFO[skill.id].video}</span>` : ''}</div>
@@ -2347,10 +2454,11 @@ function renderUnitContent(unitNum) {
         `;
       }).join('');
 
+      const isGroupComplete = pct === 100;
       container.innerHTML += `
-        <div class="skill-group-card ${gi === 0 ? 'open' : ''}" id="group-${group.id}">
+        <div class="skill-group-card ${openGroupIds.has('group-' + group.id) ? 'open' : ''} ${isGroupComplete ? 'group-complete' : ''}" id="group-${group.id}">
           <div class="skill-group-header" onclick="toggleGroup('group-${group.id}')">
-            <div class="group-icon">${group.icon}</div>
+            <div class="group-icon">${isGroupComplete ? '✓' : group.icon}</div>
             <div class="group-info">
               <div class="group-name">${group.name}</div>
               <div class="group-sub">${totalCount} skills</div>
@@ -2376,7 +2484,7 @@ function renderUnitContent(unitNum) {
       container.innerHTML += `
         <div id="word-practice-submit" style="
           background:#fff;border:1px solid #dde3ee;border-radius:8px;
-          padding:20px 24px;margin-top:8px;
+          padding:20px 24px;margin-top:8px;column-span:all;break-inside:avoid;
         ">
           <div style="font-size:15px;font-weight:700;color:#2b579a;margin-bottom:6px">
             ✅ Check Your Word Practice Work
@@ -2438,7 +2546,7 @@ function renderUnitContent(unitNum) {
       container.innerHTML += `
         <div id="excel-practice-submit" style="
           background:#fff;border:1px solid #dde3ee;border-radius:8px;
-          padding:20px 24px;margin-top:8px;
+          padding:20px 24px;margin-top:8px;column-span:all;break-inside:avoid;
         ">
           <div style="font-size:15px;font-weight:700;color:#217346;margin-bottom:6px">
             ✅ Check Your Excel Practice Work
@@ -2495,7 +2603,23 @@ function renderUnitContent(unitNum) {
   }
 
 function toggleGroup(id) {
-  document.getElementById(id).classList.toggle('open');
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) openGroupIds.add(id); else openGroupIds.delete(id);
+}
+
+function collapseAllGroups() {
+  document.querySelectorAll('#skillGroupsContainer .skill-group-card').forEach(c => {
+    c.classList.remove('open');
+    openGroupIds.delete(c.id);
+  });
+}
+
+function expandAllGroups() {
+  document.querySelectorAll('#skillGroupsContainer .skill-group-card').forEach(c => {
+    c.classList.add('open');
+    openGroupIds.add(c.id);
+  });
 }
 
 function updateUnitOverviewProgress(unitNum) {
@@ -2516,6 +2640,139 @@ function updateUnitOverviewProgress(unitNum) {
 }
 
 // ─────────────────────────────────────────────
+//  UNIT SIDEBAR NAV + JUMP-TO-PROJECTS LOCK
+// ─────────────────────────────────────────────
+function renderSidebarNav(unitNum) {
+  const unit = UNITS[unitNum];
+  const nav = document.getElementById('sidebarGroupNav');
+  if (!nav) return;
+  let html = '';
+
+  if (unit.type === 'topics') {
+    unit.topics.forEach(topic => {
+      const done = topic.steps.filter(s => progress[s.id]).length;
+      const total = topic.steps.length;
+      const pct = Math.round(done / total * 100);
+      const isDone = done === total;
+      html += `
+        <div class="sidebar-link ${isDone ? 'is-done' : ''}" onclick="scrollToSection('topic-${topic.num}', this)">
+          <div class="sl-icon">${isDone ? '✓' : topic.num}</div>
+          <div class="sl-t">
+            <div class="sl-name">${topic.title}</div>
+            <div class="sl-prow"><div class="sl-count">${done}/${total} steps</div><div class="sl-pct">${isDone ? '✓ Complete' : pct + '%'}</div></div>
+            <div class="sidebar-track"><div class="sidebar-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>`;
+    });
+  } else {
+    unit.groups.forEach(group => {
+      const done = group.skills.filter(s => progress[s.id]).length;
+      const total = group.skills.length;
+      const pct = Math.round(done / total * 100);
+      const isDone = done === total;
+      html += `
+        <div class="sidebar-link ${isDone ? 'is-done' : ''}" onclick="scrollToSection('group-${group.id}', this)">
+          <div class="sl-icon">${isDone ? '✓' : group.icon}</div>
+          <div class="sl-t">
+            <div class="sl-name">${group.name}</div>
+            <div class="sl-prow"><div class="sl-count">${done}/${total} skills</div><div class="sl-pct">${isDone ? '✓ Complete' : pct + '%'}</div></div>
+            <div class="sidebar-track"><div class="sidebar-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>`;
+    });
+  }
+  nav.innerHTML = html;
+}
+
+function scrollToSection(id, linkEl) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+  const el = document.getElementById(id);
+  if (el) {
+    // make sure a collapsed skill group is opened before scrolling to it
+    if (el.classList.contains('skill-group-card') && !el.classList.contains('open')) {
+      el.classList.add('open');
+      openGroupIds.add(el.id);
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function allStepIdsForUnit(unitNum) {
+  const unit = UNITS[unitNum];
+  const ids = [];
+  if (unit.type === 'topics') {
+    unit.topics.forEach(t => t.steps.forEach(s => ids.push(s.id)));
+  } else {
+    unit.groups.forEach(g => g.skills.forEach(s => ids.push(s.id)));
+  }
+  return ids;
+}
+
+function updateJumpProjectsLock(unitNum) {
+  const unit = UNITS[unitNum];
+  const btn = document.getElementById('jumpProjectsBtn');
+  if (!btn || !unit.jumpTarget) return;
+
+  const ids = allStepIdsForUnit(unitNum);
+  const done = ids.filter(id => progress[id]).length;
+  const isComplete = ids.length > 0 && done === ids.length;
+  const wasLocked = btn.classList.contains('locked');
+
+  if (isComplete) {
+    btn.classList.remove('locked');
+    btn.innerHTML = '<span class="jp-txt">✓ Go to Projects</span><span class="jp-sub">All practice complete — you\'re ready</span>';
+    if (wasLocked) {
+      btn.classList.add('just-unlocked');
+      setTimeout(() => btn.classList.remove('just-unlocked'), 1900);
+    }
+  } else {
+    btn.classList.add('locked');
+    btn.innerHTML = '<span class="jp-txt">Jump to Projects</span><span class="jp-sub">Locked until you check off every skill below as complete</span><span class="jp-hint">Self-check — already know it? Just mark it complete. Low effort, but worth double-checking.</span>';
+  }
+}
+
+function showRemainingGroups(unitNum) {
+  const unit = UNITS[unitNum];
+  const names = [];
+  if (unit.type === 'topics') {
+    unit.topics.forEach(t => {
+      const done = t.steps.filter(s => progress[s.id]).length;
+      if (done < t.steps.length) names.push(t.title);
+    });
+  } else {
+    unit.groups.forEach(g => {
+      const done = g.skills.filter(s => progress[s.id]).length;
+      if (done < g.skills.length) names.push(g.name.split('—')[0].trim());
+    });
+  }
+  showToast('Still need: ' + names.join(', '), 'warning');
+}
+
+// Self-check: click a skill's round checkbox right on this page to mark/unmark it
+// complete, without leaving for the practice page. Low-effort, self-reported — the
+// same "if you already know it, just check it off" idea as the Jump to Projects copy.
+function toggleSkillSelfCheck(skillId, e) {
+  if (e) e.stopPropagation();
+  const wasDone = !!progress[skillId];
+  if (wasDone) {
+    delete progress[skillId];
+  } else {
+    progress[skillId] = true;
+  }
+  try {
+    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
+  } catch (err) {}
+
+  renderAllProgress();
+  renderUnitContent(currentUnit);
+  updateUnitOverviewProgress(currentUnit);
+  renderSidebarNav(currentUnit);
+  updateJumpProjectsLock(currentUnit);
+  showToast(wasDone ? 'Unmarked skill' : 'Marked complete (self-check)', wasDone ? '' : 'success');
+}
+
+// ─────────────────────────────────────────────
 //  NAVIGATION — STEPS / SKILLS
 // ─────────────────────────────────────────────
 function goToStep(stepId, href) {
@@ -2530,6 +2787,8 @@ function goToStep(stepId, href) {
     saveStepProgress(stepId);
     renderUnitContent(currentUnit);
     updateUnitOverviewProgress(currentUnit);
+    renderSidebarNav(currentUnit);
+    updateJumpProjectsLock(currentUnit);
     showToast('Step marked complete!', 'success');
   }
 }
@@ -2637,6 +2896,11 @@ function goPractice() {
 
 function jumpToProjects() {
   const unit = UNITS[currentUnit];
+  const btn = document.getElementById('jumpProjectsBtn');
+  if (btn && btn.classList.contains('locked')) {
+    showRemainingGroups(currentUnit);
+    return;
+  }
   if (unit && unit.jumpTarget) {
     window.location.href = unit.jumpTarget;
   } else {
