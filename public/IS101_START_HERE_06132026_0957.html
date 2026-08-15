@@ -1356,7 +1356,7 @@
     </div>
 
     <!-- UNIT 4 -->
-    <div class="unit-card u4 locked" id="unit4Card" aria-disabled="true">
+    <div class="unit-card u4" onclick="openUnit(4)">
       <div class="card-accent"></div>
       <div class="card-body">
         <div class="card-header-row">
@@ -1364,22 +1364,20 @@
             <div class="unit-number">Unit 4</div>
             <div class="unit-title">Presentations:<br>AI-Powered Tools and PowerPoint</div>
           </div>
-          <span class="unit-status-badge badge-coming">Coming Soon</span>
+          <span class="unit-status-badge badge-active" id="u4Badge">Active</span>
         </div>
-        <p class="unit-desc">Design professional presentations using AI tools and PowerPoint. You will design and produce a real presentation.</p>
-        <div class="card-meta">
-          <span class="meta-item"><span class="meta-icon" aria-hidden="true">🎯</span> Skills</span>
-          <span class="meta-item"><span class="meta-icon" aria-hidden="true">⏱</span> ~3 hrs</span>
-          <span class="meta-item"><span class="meta-icon" aria-hidden="true">📁</span> Projects</span>
-        </div>
+        <p class="unit-desc">Design professional presentations using AI tools and PowerPoint. Two assignments so far — more will be added throughout the unit.</p>
         <div class="card-progress">
           <div class="card-progress-header">
-            <span>Not yet available</span>
+            <span id="u4ProgressLabel">0 of 2 steps complete</span>
+            <span id="u4Pct">0%</span>
           </div>
-          <div class="card-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit 4 progress"><div class="card-fill" style="width:0%"></div></div>
+          <div class="card-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit 4 progress">
+            <div class="card-fill" id="u4Fill" style="width:0%"></div>
+          </div>
         </div>
         <div class="card-cta">
-          <div class="locked-overlay"><span aria-hidden="true">🔒</span> Available soon</div>
+          <button class="btn-primary" id="u4CTA" onclick="openUnit(4)">Start Unit 4</button>
         </div>
       </div>
     </div>
@@ -1843,6 +1841,39 @@ const UNITS = {
         ]
       }
     ]
+  },
+  4: {
+    title: "Presentations: AI-Powered Tools and PowerPoint",
+    eyebrow: "Unit 4 — Presentations",
+    desc: "Design professional presentations using AI tools and PowerPoint. This unit is still growing — more assignments and practice skills will be added.",
+    type: "topics",
+    totalSteps: 2,
+    topics: [
+      {
+        id: "u4-t1",
+        num: 1,
+        title: "AI-Generated Projects",
+        meta: "~4–5 hrs",
+        steps: [
+          {
+            id: "u4-ai-presentation",
+            icon: "📝",
+            title: "Assignment — AI-Powered Presentations: History of Writing Instruments",
+            desc: "Use the same prompt in three different AI tools to generate a 10-slide deck, then compare the results and write up your analysis.",
+            cta: "View Assignment",
+            href: "IS101_Unit4_AI_Presentation_Assignment.html"
+          },
+          {
+            id: "u4-ai-excel",
+            icon: "📝",
+            title: "Assignment — AI vs. You: Can AI Complete a Real Excel Project?",
+            desc: "Hand your Variation 1 Excel project starter file and instructions to an AI tool, then compare its result to your own original submission.",
+            cta: "View Assignment",
+            href: "IS101_Unit4_AI_Excel_Project_Assignment.html"
+          }
+        ]
+      }
+    ]
   }
 };
 
@@ -1949,8 +1980,17 @@ function renderAllProgress() {
   document.getElementById('u3ProgressLabel').textContent = u3Done + ' of ' + u3Skills.length + ' skills complete';
   document.getElementById('u3CTA').textContent = u3Done > 0 ? 'Continue Unit 3' : 'Start Unit 3';
 
+  // Unit 4
+  const u4Steps = allStepIdsForUnit(4);
+  const u4Done = u4Steps.filter(s => progress[s]).length;
+  const u4Pct = Math.round(u4Done / u4Steps.length * 100);
+  document.getElementById('u4Fill').style.width = u4Pct + '%';
+  document.getElementById('u4Pct').textContent = u4Pct + '%';
+  document.getElementById('u4ProgressLabel').textContent = u4Done + ' of ' + u4Steps.length + ' steps complete';
+  document.getElementById('u4CTA').textContent = u4Done > 0 ? 'Continue Unit 4' : 'Start Unit 4';
+
   // Overall
-  const allSteps = [...u1Steps, ...u2Skills, ...u3Skills];
+  const allSteps = [...u1Steps, ...u2Skills, ...u3Skills, ...u4Steps];
   const allDone = allSteps.filter(s => progress[s]).length;
   const allPct = Math.round(allDone / allSteps.length * 100);
   document.getElementById('overallFill').style.width = allPct + '%';
@@ -1960,6 +2000,7 @@ function renderAllProgress() {
   if (u1Pct === 100) document.getElementById('u1Badge').textContent = '✓ Complete';
   if (u2Pct === 100) document.getElementById('u2Badge').textContent = '✓ Complete';
   if (u3Pct === 100) document.getElementById('u3Badge').textContent = '✓ Complete';
+  if (u4Pct === 100) document.getElementById('u4Badge').textContent = '✓ Complete';
 }
 
 // ─────────────────────────────────────────────
