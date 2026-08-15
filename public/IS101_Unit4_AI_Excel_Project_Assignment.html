@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI vs. You: Can AI Complete a Real Excel Project? | IS101</title>
+<style>
+  :root {
+    --purple: #3b1264;
+    --purple-light: #7e22ce;
+    --purple-accent: #9333ea;
+    --lilac: #c084fc;
+    --cream: #f7f2ea;
+    --cream-dark: #e8e2d6;
+    --text: #2a2520;
+    --text-mid: #5a5243;
+    --text-muted: #8a8070;
+    --success: #217346;
+    --border: #d6cfc3;
+    --white: #ffffff;
+    --radius: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .skip-link {
+    position: absolute; top: -40px; left: 0;
+    background: var(--purple); color: var(--white);
+    padding: 8px 16px; z-index: 1000;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none; border-radius: 0 0 8px 0;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+  header {
+    background: var(--purple);
+    color: var(--white);
+    padding: 24px 0;
+  }
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  header p {
+    font-size: 13px;
+    opacity: 0.8;
+  }
+  main { padding: 32px 0 48px; }
+  .section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 17px;
+    color: var(--purple-light);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--cream-dark);
+  }
+  h3 {
+    font-size: 14px;
+    color: var(--text);
+    margin: 16px 0 6px;
+  }
+  p { margin-bottom: 12px; font-size: 15px; }
+  ul, ol { margin: 8px 0 12px 24px; font-size: 15px; }
+  li { margin-bottom: 6px; }
+  .highlight {
+    background: #f3ecfa;
+    border-left: 4px solid var(--purple-accent);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .warning {
+    background: #fdf1e8;
+    border-left: 4px solid #c9702e;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .step-badge {
+    display: inline-block;
+    background: var(--purple-light);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .prompt-box {
+    background: var(--purple);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin: 14px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    position: relative;
+  }
+  .prompt-box .prompt-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lilac);
+    margin-bottom: 8px;
+  }
+  .prompt-box p { color: var(--white); margin-bottom: 0; font-style: italic; }
+  .paragraph-guide {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 8px 0 12px;
+  }
+  .paragraph-guide h3 {
+    color: var(--purple-light);
+    margin-top: 0;
+  }
+  .file-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .file-card {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .file-card .fi { font-size: 22px; }
+  .file-card h3 { margin: 0 0 2px; font-size: 13px; color: var(--purple-light); }
+  .file-card p { margin: 0; font-size: 12px; color: var(--text-mid); }
+  .task-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .task-table th {
+    background: var(--purple-light);
+    color: var(--white);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .task-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .task-table tr:nth-child(even) td { background: #f9f6f1; }
+  a { color: var(--purple-light); text-decoration: underline; }
+  a:hover { color: var(--purple-accent); }
+  a:focus-visible { outline: 3px solid var(--purple-accent); outline-offset: 2px; }
+  button:focus-visible { outline: 3px solid var(--purple-accent); outline-offset: 2px; }
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--text-mid);
+  }
+  .back-link:hover { color: var(--purple-light); }
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li {
+    padding-left: 26px;
+    position: relative;
+  }
+  .checklist li::before {
+    content: "☐";
+    position: absolute;
+    left: 0;
+    color: var(--purple-light);
+    font-size: 16px;
+  }
+  @media (max-width: 700px) {
+    .file-cards { grid-template-columns: 1fr; }
+    .task-table { display: block; overflow-x: auto; }
+  }
+  @media print {
+    body { background: white; }
+    .section { border: 1px solid #ccc; break-inside: avoid; }
+    .back-link { display: none; }
+    header { background: white; color: black; border-bottom: 2px solid black; }
+    .prompt-box { background: white; color: black; border: 1px solid black; }
+    .prompt-box p { color: black; }
+  }
+</style>
+</head>
+<body>
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<header role="banner">
+  <div class="container">
+    <h1>AI vs. You: Can AI Complete a Real Excel Project?</h1>
+    <p>IS101 · Unit 4 · AI Excel Accuracy Assignment</p>
+  </div>
+</header>
+
+<main id="mainContent" class="container">
+
+  <a href="IS101_START_HERE_06132026_0957.html" class="back-link" aria-label="Back to courseware home">← Back to Courseware</a>
+
+  <section class="section" aria-labelledby="objective-heading">
+    <h2 id="objective-heading">Objective</h2>
+    <p>Back in Unit 3, you built the <strong>Variation 1</strong> Excel project yourself — writing formulas like <code>SUM</code>, <code>IF</code>, nested <code>IF</code>, <code>COUNTIF</code>, <code>VLOOKUP</code>, and <code>IFERROR</code> by hand, and your workbook was graded automatically against exact criteria.</p>
+    <p>This time, you're handing the same job to an AI tool. You'll give a general-purpose AI the exact same starting materials you had — the blank starter file and the instructions — and see whether it can independently produce a correct, complete workbook. Then you'll compare its work to your own, formula by formula, to judge how well it actually did.</p>
+  </section>
+
+  <section class="section" aria-labelledby="step1-heading">
+    <span class="step-badge" aria-hidden="true">Step 1</span>
+    <h2 id="step1-heading">Re-Download Your Original Materials</h2>
+    <p>Go to <a href="IS101_Excel_Projects_06222026_1122.html" target="_blank" rel="noopener">Excel Projects</a>, find the <strong>Variation 1</strong> card under Variation Projects, and download both files again — the same ones you used the first time:</p>
+    <div class="file-cards" role="list">
+      <div class="file-card" role="listitem">
+        <span class="fi" aria-hidden="true">⬇️</span>
+        <div><h3>Excel_Var1_Starter.xlsx</h3><p>The original blank starter workbook</p></div>
+      </div>
+      <div class="file-card" role="listitem">
+        <span class="fi" aria-hidden="true">📄</span>
+        <div><h3>Excel_Var1_Instructions.pdf</h3><p>The task instructions — 26 tasks, 100 points</p></div>
+      </div>
+    </div>
+    <div class="highlight" role="note">
+      <strong>Use a fresh copy of the starter file</strong> — not your completed submission. The AI tool should be starting from the same blank point you did.
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="step2-heading">
+    <span class="step-badge" aria-hidden="true">Step 2</span>
+    <h2 id="step2-heading">Let an AI Tool Complete the Project</h2>
+    <p>Open any AI tool that can accept file uploads and work with them directly — for example ChatGPT, Gemini, or Copilot. Upload <strong>both files</strong> (the starter workbook and the instructions PDF) and ask it to complete the project. A prompt like this works well:</p>
+    <div class="prompt-box">
+      <span class="prompt-label">Prompt</span>
+      <p>"Read the attached instructions PDF and complete every task in the attached Excel starter file according to those instructions. Return the completed workbook."</p>
+    </div>
+    <p>Download the completed workbook the AI tool gives you back.</p>
+  </section>
+
+  <section class="section" aria-labelledby="step3-heading">
+    <span class="step-badge" aria-hidden="true">Step 3</span>
+    <h2 id="step3-heading">Compare the Two Results — Visually, By Hand</h2>
+    <div class="warning" role="note">
+      <strong>You cannot run the AI's file through the automated grader.</strong> The grader checks for specific formula structures and values tied to your original completed submission, so it isn't a valid or fair way to score a workbook built independently by an AI tool. This comparison has to be done by you, visually.
+    </div>
+    <p>Open both workbooks side by side — the AI's completed file, and your own originally-graded Variation 1 submission. Use the instructions PDF as your checklist, and go <strong>task by task</strong>, not just glancing at whether the final numbers look plausible:</p>
+    <table class="task-table" aria-label="What to check for each task">
+      <thead>
+        <tr>
+          <th scope="col">Check</th>
+          <th scope="col">What to look for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>The formula itself</td><td>Click each relevant cell and read the actual formula the AI wrote — not just the displayed value. Did it use the correct function (SUM, IF, nested IF, COUNTIF, VLOOKUP, IFERROR)?</td></tr>
+        <tr><td>Cell references</td><td>Are the ranges and lookups pointing at the right cells, or did it reference the wrong row/column?</td></tr>
+        <tr><td>Real data vs. invented data</td><td>Did the AI compute values from the source data, or did it "hallucinate" plausible-looking numbers instead of calculating them?</td></tr>
+        <tr><td>Formatting</td><td>Number formats, headers, and any formatting instructions from the PDF — did it follow them?</td></tr>
+        <tr><td>Completeness</td><td>Did it attempt all 26 tasks, or skip/ignore any?</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section" aria-labelledby="step4-heading">
+    <span class="step-badge" aria-hidden="true">Step 4</span>
+    <h2 id="step4-heading">Write Your Analysis</h2>
+
+    <div class="paragraph-guide">
+      <h3>1. The Verdict</h3>
+      <p>Did your AI tool complete the assignment completely, partially, or not at all? Give a task-by-task breakdown — which of the 26 tasks did it get fully correct, which were partially right, and which were wrong or missing entirely?</p>
+    </div>
+
+    <div class="paragraph-guide">
+      <h3>2. What Kind of Mistakes Did It Make (If Any)?</h3>
+      <p>Were the errors formula-logic mistakes, wrong cell references, misread instructions, formatting misses, or invented data? Give specific cell/task examples.</p>
+    </div>
+
+    <div class="paragraph-guide">
+      <h3>3. Different Path, Same Answer?</h3>
+      <p>Did the AI ever solve a task with a different (but still valid) formula than the one you used, and still land on the correct result? Note any places its approach differed from yours even when the outcome was right.</p>
+    </div>
+
+    <div class="paragraph-guide">
+      <h3>4. Would You Trust It?</h3>
+      <p>Based on what you saw, would you trust this AI tool to complete real spreadsheet work unsupervised — for a job, for example? Why or why not?</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="submit-heading">
+    <h2 id="submit-heading">What to Submit</h2>
+    <ul class="checklist">
+      <li>The <strong>AI-completed Excel workbook</strong>, exactly as the AI tool returned it (no corrections from you)</li>
+      <li>Your <strong>written analysis</strong> covering all four points in Step 4 above</li>
+    </ul>
+  </section>
+
+  <section class="section" aria-labelledby="tips-heading">
+    <h2 id="tips-heading">Tips for Success</h2>
+    <ul>
+      <li><strong>Your originally-graded submission is your answer key</strong> — it already passed the grader, so trust it as the correct reference when judging the AI's version.</li>
+      <li><strong>Check formulas, not just numbers</strong> — an AI tool can land on the right number with the wrong (or even hardcoded) formula. Click into cells to see what's actually there.</li>
+      <li><strong>Watch for confident wrong answers</strong> — AI tools rarely say "I'm not sure." A wrong value will look just as polished as a correct one.</li>
+      <li><strong>Screenshot mismatches as you find them</strong> — it'll make writing your task-by-task breakdown in Step 4 much easier.</li>
+      <li><strong>Don't fix the AI's file before submitting it</strong> — we want to see exactly what it produced, mistakes included.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <p>© Dr. Mark Taormino · College of Southern Nevada · IS101 Introduction to Computing</p>
+</footer>
+
+</body>
+</html>
