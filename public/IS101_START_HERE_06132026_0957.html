@@ -1506,6 +1506,7 @@ let currentStudent = null;
 let currentUnit = null;
 let progress = {};
 let selectedSkill = null;
+let sessionToken = null; // server session token — lets this page read/write skill progress from the database, not just localStorage
 
 // ─────────────────────────────────────────────
 //  UNIT DATA
@@ -1688,7 +1689,7 @@ const UNITS = {
         skills: [
           { id: "insert-shape", name: "Insert Shape", hint: "Insert → Illustrations → Shapes" },
           { id: "insert-picture", name: "Insert Picture", hint: "Insert → Illustrations → Pictures" },
-          { id: "insert-3d-model", name: "Insert 3D Model", hint: "Insert → Illustrations → 3D Models" },
+          { id: "insert-3d-model", name: "Insert 3D Model", hint: "Insert → Illustrations → 3D Models (Windows only — not available in Word for Mac; skip if you're on a Mac)" },
           { id: "insert-smartart", name: "Insert SmartArt", hint: "Insert → Illustrations → SmartArt" },
           { id: "insert-screenshot", name: "Insert Screenshot", hint: "Insert → Illustrations → Screenshot" },
           { id: "insert-text-box", name: "Insert Text Box", hint: "Insert → Text → Text Box" },
@@ -1899,10 +1900,35 @@ async function handleLogin() {
   }
   errorEl.textContent = '';
 
-  // localStorage mode — no server required for testing
   currentStudent = nshe;
   localStorage.setItem('is101_nshe', nshe);
+  await establishSession(nshe);
   afterLogin();
+}
+
+// Logs in to the server (no password — just the NSHE ID, same as the domain
+// reference pages) to get a session token, so this dashboard can read/write
+// real skill progress from the database instead of only local storage.
+// Safe to call every page load: cheap, idempotent, and if the server is
+// unreachable (offline, sandbox testing, etc.) it just fails quietly and the
+// page falls back to local-storage-only mode, same as before this existed.
+async function establishSession(nshe) {
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nsheId: nshe })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      sessionToken = data.token;
+      localStorage.setItem('is101_token', sessionToken);
+    } else {
+      sessionToken = null;
+    }
+  } catch (e) {
+    sessionToken = null;
+  }
 }
 
 function afterLogin() {
@@ -1915,7 +1941,11 @@ function afterLogin() {
 
 function handleLogout() {
   try { if (typeof ApiClient !== 'undefined') ApiClient.logout(); } catch(e){}
+  if (sessionToken) {
+    fetch('/api/logout', { method: 'POST', headers: { 'x-session-token': sessionToken } }).catch(() => {});
+  }
   currentStudent = null;
+  sessionToken = null;
   progress = {};
   document.getElementById('loginGate').classList.add('show');
   document.getElementById('siteHeader').style.display = 'none';
@@ -1933,8 +1963,8 @@ document.getElementById('nsheInput').addEventListener('keydown', (e) => {
 //  PROGRESS
 // ─────────────────────────────────────────────
 async function loadProgress() {
-  // Pure localStorage mode — no server calls from START_HERE
-  // Progress saves locally in the browser; server sync is not required
+  // Render from local storage immediately so the dashboard isn't blocked on
+  // the network — then reconcile with the server's record below.
   try {
     const stored = localStorage.getItem('is101_progress_' + currentStudent);
     progress = stored ? JSON.parse(stored) : {};
@@ -1942,6 +1972,43 @@ async function loadProgress() {
     progress = {};
   }
   renderAllProgress();
+  if (currentUnit) {
+    renderUnitContent(currentUnit);
+    updateUnitOverviewProgress(currentUnit);
+    renderSidebarNav(currentUnit);
+    updateJumpProjectsLock(currentUnit);
+  }
+
+  // Reconcile with the server's record of skill completions (Word/Excel
+  // domains). This is what survives a cleared browser or a new device — the
+  // server is the source of truth for skills; local storage is just a cache.
+  // Only ADDS completions, never removes any — so it can't clobber Unit 1/4
+  // step progress (readings, exams, assignments) which isn't tracked
+  // server-side today and lives in this same local progress object.
+  if (sessionToken) {
+    try {
+      const res = await fetch('/api/progress', { headers: { 'x-session-token': sessionToken } });
+      if (res.ok) {
+        const data = await res.json();
+        let changed = false;
+        (data.skills || []).forEach(s => {
+          if (!progress[s.skill_id]) { progress[s.skill_id] = true; changed = true; }
+        });
+        if (changed) {
+          try { localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress)); } catch(e) {}
+          renderAllProgress();
+          if (currentUnit) {
+            renderUnitContent(currentUnit);
+            updateUnitOverviewProgress(currentUnit);
+            renderSidebarNav(currentUnit);
+            updateJumpProjectsLock(currentUnit);
+          }
+        }
+      }
+    } catch (e) {
+      // Offline or server unreachable — local progress already rendered above, nothing more to do
+    }
+  }
 }
 
 function saveStepProgress(stepId) {
@@ -2041,6 +2108,76 @@ function openUnit(unitNum) {
   document.getElementById('viewUnit').classList.add('active');
   window.scrollTo(0, 0);
 }
+
+// ── Skill → domain maps (Word D1–D6, Excel E1–E5) ──
+// Used to sync self-check clicks made on this dashboard to the server, tagged
+// with the right domain, the same way the individual domain reference pages do.
+// Kept as two separate maps (not merged) and dispatched by unit — a few skill
+// ids like 'clear-formatting' are reused between Word and Excel, so merging
+// them into one object would silently let the Excel entry clobber the Word
+// one (or vice versa). This mirrors how goPractice() already keeps its own
+// WORD_DOMAIN_MAP / EXCEL_DOMAIN_MAP separate and picks one by currentUnit —
+// kept as its own copy here on purpose so this sync feature can't affect that
+// existing, working navigation logic.
+const WORD_SKILL_DOMAIN_MAP = {
+  // D1 — Manage Documents
+  'search-text':'D1','insert-hyperlink':'D1','goto':'D1','show-hide-formatting':'D1',
+  'set-margins':'D1','set-orientation':'D1','set-paper-size':'D1','apply-style-set':'D1',
+  'insert-header':'D1','insert-footer':'D1','insert-page-numbers':'D1','add-watermark':'D1',
+  'set-page-color':'D1','add-page-borders':'D1','save-as-format':'D1','modify-doc-properties':'D1',
+  'modify-print-settings':'D1','share-document':'D1','remove-hidden-properties':'D1',
+  'check-accessibility':'D1','check-compatibility':'D1',
+  // D2 — Insert & Format Text, Paragraphs, Sections
+  'find-replace':'D2','insert-symbol':'D2','apply-text-effects':'D2','format-painter':'D2',
+  'set-line-spacing':'D2','set-paragraph-spacing':'D2','set-indentation':'D2',
+  'apply-character-style':'D2','apply-paragraph-style':'D2','clear-formatting':'D2',
+  'format-columns':'D2','insert-page-break':'D2','insert-section-break':'D2',
+  'insert-column-break':'D2','change-section-page-setup':'D2',
+  // D3 — Tables & Lists
+  'create-table':'D3','convert-text-table':'D3','convert-table-text':'D3','sort-table':'D3',
+  'cell-margins-spacing':'D3','merge-cells':'D3','split-cells':'D3','resize-table':'D3',
+  'split-table':'D3','repeat-header-row':'D3','numbered-list':'D3','bulleted-list':'D3',
+  'change-list-format':'D3','increase-list-level':'D3','restart-list-numbering':'D3',
+  // D4 — References
+  'insert-footnote':'D4','insert-endnote':'D4','modify-footnote-endnote':'D4',
+  'insert-toc':'D4','customize-toc':'D4',
+  // D5 — Graphic Elements
+  'insert-shape':'D5','insert-picture':'D5','insert-3d-model':'D5','insert-smartart':'D5',
+  'insert-screenshot':'D5','insert-text-box':'D5','insert-icon':'D5',
+  'apply-artistic-effects':'D5','apply-picture-styles':'D5','remove-background':'D5',
+  'format-shape':'D5','format-smartart':'D5','format-3d-model':'D5',
+  'add-text-text-box':'D5','add-text-shape':'D5','modify-smartart-content':'D5',
+  'position-object':'D5','wrap-text':'D5','add-alt-text':'D5',
+  // D6 — Document Collaboration
+  'add-comment':'D6','review-reply-comment':'D6','resolve-comment':'D6','delete-comment':'D6',
+  'track-changes':'D6','review-tracked-changes':'D6','accept-tracked-change':'D6',
+  'reject-tracked-change':'D6','lock-track-changes':'D6',
+};
+const EXCEL_SKILL_DOMAIN_MAP = {
+  // E1 — Manage Worksheets and Workbooks
+  'import-text':'E1','import-online':'E1','search-data':'E1','navigate-named':'E1',
+  'hyperlinks':'E1','page-setup':'E1','row-col-size':'E1','headers-footers':'E1',
+  'options-views':'E1','customize-qat':'E1','worksheet-views':'E1','freeze-panes':'E1',
+  'window-views':'E1','workbook-properties':'E1','display-formulas':'E1','print-area':'E1',
+  'save-format-xl':'E1','print-settings':'E1','inspect-workbook':'E1','comments-notes':'E1',
+  // E2 — Manage Data Cells and Ranges
+  'paste-special':'E2','autofill':'E2','insert-delete-cols-rows':'E2','insert-delete-cells':'E2',
+  'randbetween-sequence':'E2','merge-unmerge':'E2','cell-alignment':'E2','format-painter-xl':'E2',
+  'wrap-text-xl':'E2','number-formats':'E2','format-cells':'E2','cell-styles':'E2',
+  'clear-formatting':'E2','group-worksheets':'E2','define-named-range':'E2','reference-named-range':'E2',
+  'sparklines':'E2','conditional-formatting':'E2','remove-conditional-formatting':'E2',
+  // E3 — Manage Tables and Table Data
+  'create-table-xl':'E3','table-styles':'E3','convert-table-range':'E3','table-rows-cols':'E3',
+  'table-style-options':'E3','total-row':'E3','filter-records':'E3','sort-multi-column':'E3',
+  // E4 — Formulas and Functions
+  'cell-references':'E4','structured-references':'E4','math-stats-fns':'E4','count-fns':'E4',
+  'if-function':'E4','sort-function':'E4','unique-function':'E4','left-right-mid':'E4',
+  'upper-lower-len':'E4','concat-textjoin':'E4','nested-if':'E4','countif':'E4','sumif':'E4',
+  'today-now':'E4','year-month-day':'E4','vlookup':'E4','xlookup':'E4','iferror':'E4',
+  // E5 — Manage Charts
+  'create-chart':'E5','chart-sheets':'E5','add-data-series':'E5','switch-row-column':'E5',
+  'chart-elements':'E5','apply-chart-layouts':'E5','chart-styles':'E5','chart-alt-text':'E5',
+};
 
 // ── Video links for skills (proof of concept — one skill) ──
 const SKILL_VIDEOS = {
@@ -2811,6 +2948,24 @@ function toggleSkillSelfCheck(skillId, e) {
   renderSidebarNav(currentUnit);
   updateJumpProjectsLock(currentUnit);
   showToast(wasDone ? 'Unmarked skill' : 'Marked complete (self-check)', wasDone ? '' : 'success');
+
+  // Push to the server too, so a self-check made here survives a cleared
+  // browser or a new device — same endpoint the domain reference pages use.
+  // Best-effort: if this fails (offline, etc.) the local checkmark above
+  // still stands; it just won't be recoverable from the server until the
+  // student checks it again with a connection, or checks it from the
+  // matching domain reference page instead.
+  if (sessionToken) {
+    const domainMap = currentUnit === 2 ? WORD_SKILL_DOMAIN_MAP : currentUnit === 3 ? EXCEL_SKILL_DOMAIN_MAP : null;
+    const domain = domainMap ? domainMap[skillId] : null;
+    if (domain) {
+      fetch('/api/progress/skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': sessionToken },
+        body: JSON.stringify({ domain, skillId, completed: !wasDone })
+      }).catch(() => {});
+    }
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -2969,11 +3124,15 @@ function showToast(msg, type = '') {
 // ─────────────────────────────────────────────
 //  CHECK SESSION ON LOAD
 // ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   // Check localStorage for existing session
   const saved = localStorage.getItem('is101_nshe');
   if (saved && /^\d{10}$/.test(saved)) {
     currentStudent = saved;
+    // Re-establish a server session every load (tokens expire after 8 hours,
+    // and this call needs no password — just the NSHE ID — so it's safe and
+    // cheap to refresh silently rather than try to persist the old token).
+    await establishSession(saved);
     afterLogin();
   } else {
     document.getElementById('loginGate').classList.add('show');
