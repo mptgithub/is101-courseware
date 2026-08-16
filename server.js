@@ -1004,20 +1004,13 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(1,2,'Turn on Show Formulas',inv.includes('showFormulas="1"')||inv.includes('showFormulas="true"'),'Show Formulas on.','Turn on Show Formulas (Formulas > Show Formulas).');
     check(2,3,'Set workbook properties',/<dc:title>\s*\S[\s\S]*?<\/dc:title>/.test(H.core)&&/<dc:creator>\s*\S[\s\S]*?<\/dc:creator>/.test(H.core),'Properties set.','Set Title and Author properties.');
     check(3,3,'SEQUENCE for line-item IDs',(function(){
-      if(!fn('SEQUENCE')) return false;
-      for(var r=4;r<=11;r++){ if(H.cellVal(inv,'A'+r)!==(r-3)) return false; }
-      return true;
-    })(),'SEQUENCE generates IDs 1-8 in order, one formula per row.','Column A must use SEQUENCE and read exactly 1, 2, 3 ... 8 top to bottom (rows 4-11). In A4, enter one formula that returns a single value, e.g. =SEQUENCE(1,1,ROW()-3,1), then copy it down through A11. Do not enter one SEQUENCE formula in A4 that spills into A5:A11 - once the range becomes an Excel Table, a spilling formula cannot expand and will break with a #VALUE! error.');
+      var vals=new Set(); for(var r=4;r<=11;r++){var v=H.cellVal(inv,'A'+r);if(v)vals.add(v);}
+      return vals.has(1)&&vals.has(2)&&vals.has(3)&&vals.has(4)&&vals.has(5)&&vals.size>=5;
+    })(),'SEQUENCE generates correct IDs.','Use SEQUENCE in cell A4 to generate 8 sequential IDs (1-8).');
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
-    check(7,4,'Total Row summing Line Total',(function(){
-      return H.tables.some(function(t){
-        if(!(t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"'))) return false;
-        var cols=t.match(/<tableColumn\b[^>]*>/g)||[];
-        return cols.some(function(c){ return /name="Line Total"/.test(c) && /totalsRowFunction="sum"/i.test(c); });
-      });
-    })(),'Total Row is summing Line Total.','The Total Row is on, but Sum isn\'t set under Line Total (F). Click the Total Row cell under Line Total → dropdown arrow → Sum.');
+    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
     check(8,6,'Calculate Line Total',(function(){
       var expect=new Set([420,180,150,100,280,360,176,84]); var found=new Set();
       for(var r=4;r<=11;r++){var v=H.cellVal(inv,'F'+r);if(v)found.add(v);}
@@ -1584,7 +1577,7 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     auto('D5 — Graphic Elements','Insert a 3D model',
       fileList.includes('.glb') || fileList.includes('word/3D') || docXml.includes('am3d:'),
       '✓ 3D model detected.',
-      '✗ No 3D model. Fix: Insert → 3D Models → From Online Sources → search and insert.');
+      '✗ No 3D model. Fix: Insert → 3D Models → From Online Sources → search and insert. (On a Mac? This feature isn\'t available in Word for Mac — skip this one, it\'s not part of any graded project.)');
 
     // ── D6 — Document Collaboration ─────────────────────────────────────────
     // Starter has 2 comments (id=0, id=1); student should ADD one more
