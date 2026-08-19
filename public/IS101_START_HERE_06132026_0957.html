@@ -134,7 +134,7 @@
   /* ── OVERALL PROGRESS BAR ── */
   .overall-progress {
     background: var(--navy-mid);
-    padding: 12px 2rem;
+    padding: 8px 2rem;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -178,8 +178,7 @@
   .home-hero {
     background: var(--navy);
     color: var(--white);
-    padding: 56px 2rem 48px;
-    text-align: center;
+    padding: 30px 2rem 26px;
     position: relative;
     overflow: hidden;
   }
@@ -190,38 +189,112 @@
     background: radial-gradient(ellipse 70% 80% at 50% 110%, rgba(201,148,58,0.18) 0%, transparent 70%);
     pointer-events: none;
   }
-  .home-hero .eyebrow {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 12px;
+  .hero-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  .hero-main {
+    flex: 1 1 480px;
+    min-width: 280px;
+  }
+  .home-hero .hero-byline {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--gold-bright);
+    margin-bottom: 6px;
   }
   .home-hero h1 {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(28px, 5vw, 42px);
+    font-size: clamp(26px, 3vw, 36px);
     font-weight: 400;
     color: var(--white);
-    line-height: 1.15;
-    margin-bottom: 14px;
+    line-height: 1.1;
+    margin-bottom: 6px;
   }
   .home-hero h1 em {
     font-style: italic;
     color: var(--gold-pale);
   }
   .home-hero .subtitle {
-    font-size: 15px;
+    font-size: 14.5px;
     color: rgba(255,255,255,0.6);
     max-width: 480px;
-    margin: 0 auto;
-    line-height: 1.6;
+    line-height: 1.5;
+  }
+  .hero-side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    position: relative;
+  }
+  .hero-objectives-cta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    color: var(--navy);
+    text-decoration: none;
+    padding: 13px 20px;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(201,148,58,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 280px;
+  }
+  .hero-objectives-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(201,148,58,0.45);
+  }
+  .hero-objectives-cta .cta-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .hero-objectives-cta .cta-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+  .hero-objectives-cta .cta-title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .hero-objectives-cta .cta-desc {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: rgba(13,27,46,0.7);
+  }
+  .hero-objectives-cta .cta-arrow {
+    margin-left: auto;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .copyright-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
   }
 
   .units-grid {
     max-width: 960px;
     margin: 0 auto;
-    padding: 40px 2rem 60px;
+    padding: 28px 2rem 60px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: 20px;
@@ -532,6 +605,62 @@
     border-radius: 5px;
     transition: width 0.8s ease;
   }
+
+  /* unit-page learning objectives recap */
+  .unit-objectives-panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 18px 24px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .unit-objectives-panel.u2 { border-left-color: #2563eb; }
+  .unit-objectives-panel.u3 { border-left-color: #16a34a; }
+  .unit-objectives-panel.u4 { border-left-color: #9333ea; }
+  .obj-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .obj-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dark);
+  }
+  .obj-toggle-left .obj-icon { font-size: 15px; }
+  .obj-chevron {
+    color: var(--text-muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+  .unit-objectives-panel.open .obj-chevron { transform: rotate(180deg); }
+  .obj-list {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: none;
+  }
+  .unit-objectives-panel.open .obj-list { display: block; }
+  .obj-item {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.55;
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+  }
+  .obj-item:first-child { border-top: none; padding-top: 0; }
+  .obj-verb { font-weight: 700; color: var(--text-dark); }
+  .obj-tag { font-style: italic; color: var(--text-muted); font-size: 12.5px; }
 
   /* jump to projects — lives in the unit sidebar now */
   .jump-projects-btn {
@@ -1147,13 +1276,24 @@
     .unit-sidebar { width: 100%; position: relative; top: auto; min-height: auto; }
     .skill-groups { columns: 1; }
   }
+  @media (max-width: 860px) {
+    .hero-inner { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 28px; }
+    .hero-main { flex: 0 0 auto; min-width: 0; width: 100%; }
+    .hero-side { align-items: flex-start; width: 100%; }
+    .hero-objectives-cta { width: 100%; min-width: 0; }
+  }
   @media (max-width: 600px) {
     .units-grid { grid-template-columns: 1fr; padding: 20px 1rem 40px; }
     .unit-content { padding: 24px 1rem 40px; }
-    .home-hero { padding: 36px 1rem 32px; }
-    .overall-progress { padding: 10px 1rem; }
-    .site-header { padding: 0 1rem; }
+    .home-hero { padding: 22px 1rem 20px; }
+    .overall-progress { padding: 8px 1rem; }
+    .site-header { padding: 0 0.75rem; }
     .modal-body .modal-choices { gap: 8px; }
+    .home-hero .hero-byline { font-size: 15px; }
+    .header-right { gap: 6px; }
+    .student-badge { max-width: 110px; padding: 5px 10px; }
+    .student-badge #studentLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 74px; }
+    .logout-btn { padding: 5px 8px; font-size: 11px; }
   }
 
   /* ── ANIMATIONS ── */
@@ -1254,9 +1394,24 @@
 ══════════════════════════════════════════════ -->
 <div class="view active" id="viewHome">
   <div class="home-hero">
-    <div class="eyebrow">Designed and Created by Dr. Mark Taormino</div>
-    <h1>Introduction to<br><em>Computing</em></h1>
-    <p class="subtitle">Modern, up-to-date courseware for beginning college students.</p>
+    <div class="hero-inner">
+      <div class="hero-main">
+        <div class="hero-byline">Designed and Created by Dr. Mark Taormino</div>
+        <h1>Introduction to <em>Computing</em></h1>
+        <p class="subtitle">Modern, up-to-date courseware for beginning college students.</p>
+      </div>
+      <div class="hero-side">
+        <a class="hero-objectives-cta" href="IS101_Learning_Objectives.html">
+          <span class="cta-icon" aria-hidden="true">🎯</span>
+          <span class="cta-text">
+            <span class="cta-title">Learning Objectives</span>
+            <span class="cta-desc">See what you'll master in every unit</span>
+          </span>
+          <span class="cta-arrow" aria-hidden="true">→</span>
+        </a>
+        <div class="copyright-badge">© Dr. Mark Taormino</div>
+      </div>
+    </div>
   </div>
 
   <div class="units-grid">
@@ -1362,11 +1517,11 @@
         <div class="card-header-row">
           <div>
             <div class="unit-number">Unit 4</div>
-            <div class="unit-title">Presentations:<br>AI-Powered Tools and PowerPoint</div>
+            <div class="unit-title">Presentations:<br>AI-Powered Tools and Presentation Software</div>
           </div>
           <span class="unit-status-badge badge-active" id="u4Badge">Active</span>
         </div>
-        <p class="unit-desc">Design professional presentations using AI tools and PowerPoint. Two assignments so far — more will be added throughout the unit.</p>
+        <p class="unit-desc">Design professional presentations using AI tools and presentation software. Two assignments so far — more will be added throughout the unit.</p>
         <div class="card-progress">
           <div class="card-progress-header">
             <span id="u4ProgressLabel">0 of 2 steps complete</span>
@@ -1414,6 +1569,15 @@
         <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
         <h2 id="unitHeading">It is Real!</h2>
         <p id="unitDesc">Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.</p>
+      </div>
+
+      <!-- Learning Objectives recap -->
+      <div class="unit-objectives-panel open" id="unitObjectivesPanel">
+        <div class="obj-toggle" onclick="toggleUnitObjectives()">
+          <div class="obj-toggle-left"><span class="obj-icon" aria-hidden="true">🎯</span> Learning Objectives</div>
+          <span class="obj-chevron" aria-hidden="true">▼</span>
+        </div>
+        <ul class="obj-list" id="unitObjectivesList"><!-- filled dynamically --></ul>
       </div>
 
       <!-- Progress Block -->
@@ -1844,9 +2008,9 @@ const UNITS = {
     ]
   },
   4: {
-    title: "Presentations: AI-Powered Tools and PowerPoint",
+    title: "Presentations: AI-Powered Tools and Presentation Software",
     eyebrow: "Unit 4 — Presentations",
-    desc: "Design professional presentations using AI tools and PowerPoint. This unit is still growing — more assignments and practice skills will be added.",
+    desc: "Design professional presentations using AI tools and presentation software. This unit is still growing — more assignments and practice skills will be added.",
     type: "topics",
     totalSteps: 2,
     topics: [
@@ -1877,6 +2041,62 @@ const UNITS = {
     ]
   }
 };
+
+// ─────────────────────────────────────────────
+//  LEARNING OBJECTIVES (per unit)
+// ─────────────────────────────────────────────
+// Bloom's-verb-led objectives shown as a recap panel on each unit's overview
+// page (see renderUnitObjectives()) and, in full, on IS101_Learning_Objectives.html.
+// Units 2 & 3 are domain-level (one per D1–D6 / E1–E5) plus a capstone; keep
+// these two files in sync if either is edited.
+const UNIT_OBJECTIVES = {
+  1: [
+    { verb: "Explain", rest: " how LLMs predict text word-by-word, producing non-deterministic, sometimes confidently wrong answers." },
+    { verb: "Distinguish", rest: " RAG-based tools (NotebookLM) from general-purpose LLMs (ChatGPT) by how each handles sources and hallucination risk." },
+    { verb: "Verify", rest: " an AI-generated claim by tracing its citation back to the source." },
+    { verb: "Apply", rest: " an ethical framework to judge when AI use is appropriate." },
+    { verb: "Use", rest: " NotebookLM to research and study from a set of grounded sources." },
+  ],
+  2: [
+    { verb: "Apply", rest: " document-level settings — margins, style sets, headers/footers, watermarks, and properties — to prepare a professional document.", tag: "D1 — Manage Documents" },
+    { verb: "Organize", rest: " text and paragraphs into a structured document using styles, spacing, and section/page/column breaks.", tag: "D2 — Format Text, Paragraphs & Sections" },
+    { verb: "Design", rest: " tables and lists that organize and present information clearly.", tag: "D3 — Manage Tables and Lists" },
+    { verb: "Integrate", rest: " reference tools — a table of contents, footnotes, and endnotes — to support navigation and citation.", tag: "D4 — References" },
+    { verb: "Compose", rest: " a visual layout that combines pictures, shapes, and text boxes with proper wrapping and alt text.", tag: "D5 — Graphic Elements" },
+    { verb: "Evaluate", rest: " feedback on a document and respond to it using comments and Track Changes.", tag: "D6 — Collaboration" },
+    { verb: "Produce", rest: " a complete, professional business document that combines all six domains into one deliverable.", tag: "Capstone — Word Projects" },
+  ],
+  3: [
+    { verb: "Organize", rest: " worksheets and workbooks — layout, navigation, and page setup — for a usable spreadsheet.", tag: "E1 — Manage Worksheets and Workbooks" },
+    { verb: "Apply", rest: " formatting and range-management techniques to prepare spreadsheet data for use.", tag: "E2 — Manage Data Cells and Ranges" },
+    { verb: "Structure", rest: " raw data into Excel Tables, then filter and sort it to support analysis.", tag: "E3 — Manage Tables and Table Data" },
+    { verb: "Construct", rest: " formulas and functions — including logical, lookup, and text functions — to solve calculation problems.", tag: "E4 — Formulas and Functions" },
+    { verb: "Create", rest: " charts that visually communicate spreadsheet data.", tag: "E5 — Manage Charts" },
+    { verb: "Produce", rest: " a complete, functional workbook that applies worksheet management, data formatting, tables, formulas, and charts to a real business scenario.", tag: "Capstone — Excel Projects" },
+  ],
+  4: [
+    { verb: "Generate", rest: " presentation content from a single prompt using multiple AI tools." },
+    { verb: "Compare", rest: " the outputs different AI tools produce from the same prompt." },
+    { verb: "Evaluate", rest: " how completely and accurately an AI tool completes a real, structured project against a known solution." },
+    { verb: "Critique", rest: " AI-generated work in writing, weighing its strengths, errors, and trustworthiness." },
+  ],
+};
+
+function renderUnitObjectives(unitNum) {
+  const objectives = UNIT_OBJECTIVES[unitNum] || [];
+  const panel = document.getElementById('unitObjectivesPanel');
+  const list = document.getElementById('unitObjectivesList');
+  panel.className = 'unit-objectives-panel open u' + unitNum;
+  list.innerHTML = objectives.map(o => `
+    <li class="obj-item">
+      <span class="obj-verb">${o.verb}</span>${o.rest}${o.tag ? ` <span class="obj-tag">(${o.tag})</span>` : ''}
+    </li>
+  `).join('');
+}
+
+function toggleUnitObjectives() {
+  document.getElementById('unitObjectivesPanel').classList.toggle('open');
+}
 
 // Which skill groups are expanded in the Unit Overview accordion — persists across
 // re-renders (e.g. after a self-check) instead of resetting to "only the first group open".
@@ -2090,6 +2310,7 @@ function openUnit(unitNum) {
   document.getElementById('unitHeading').textContent = unit.title;
   document.getElementById('unitDesc').textContent = unit.desc;
   document.getElementById('overviewStepsTotal').textContent = unit.totalSteps;
+  renderUnitObjectives(unitNum);
 
   // Show/hide jump button
   const jumpBtn = document.getElementById('jumpProjectsBtn');
@@ -3125,6 +3346,17 @@ function showToast(msg, type = '') {
 //  CHECK SESSION ON LOAD
 // ─────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  // LTI handoff — arriving here right after a Canvas launch (see lti/lti.js)
+  // carries the resolved NSHE ID as a query param. Stash it exactly like a
+  // normal returning visit would and let the existing session logic below
+  // (which only ever needed the NSHE ID, no password) take it from there.
+  const ltiParams = new URLSearchParams(window.location.search);
+  const ltiNshe = ltiParams.get('lti_nshe');
+  if (ltiNshe && /^\d{10}$/.test(ltiNshe)) {
+    localStorage.setItem('is101_nshe', ltiNshe);
+    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+  }
+
   // Check localStorage for existing session
   const saved = localStorage.getItem('is101_nshe');
   if (saved && /^\d{10}$/.test(saved)) {
