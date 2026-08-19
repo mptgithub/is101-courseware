@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Objectives | IS101 — CSN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy-mid: #152540;
+    --navy-light: #1e3358;
+    --gold: #c9943a;
+    --gold-bright: #e8b04b;
+    --gold-pale: #f5d98a;
+    --cream: #f7f2ea;
+    --cream-dark: #ede5d4;
+    --white: #ffffff;
+    --text-dark: #0d1b2e;
+    --text-mid: #3a4e6b;
+    --text-muted: #7a8fa8;
+    --border: rgba(13,27,46,0.12);
+    --shadow-sm: 0 2px 8px rgba(13,27,46,0.08);
+    --shadow-md: 0 6px 24px rgba(13,27,46,0.12);
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+  a.back-link {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  a.back-link:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .hero {
+    background: var(--navy);
+    color: var(--white);
+    padding: 76px 2rem 44px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% 110%, rgba(201,148,58,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .hero p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.65);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 1.5rem 80px;
+  }
+
+  .unit-section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 28px 30px;
+    margin-bottom: 24px;
+    border-top: 4px solid var(--gold);
+  }
+  .unit-section.u2 { border-top-color: #2563eb; }
+  .unit-section.u3 { border-top-color: #16a34a; }
+  .unit-section.u4 { border-top-color: #9333ea; }
+
+  .unit-section .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .unit-section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  .unit-section .unit-note {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .obj-list {
+    list-style: none;
+  }
+  .obj-item {
+    font-size: 14.5px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+  }
+  .obj-item:first-child { border-top: none; padding-top: 0; }
+  .obj-verb { font-weight: 700; color: var(--text-dark); }
+  .obj-tag { font-style: italic; color: var(--text-muted); font-size: 12.5px; }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 10px 0 40px;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 90px 1.25rem 36px; }
+    .unit-section { padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="IS101_START_HERE_06132026_0957.html" class="back-link" aria-label="Back to courseware home">← Back to Courseware</a>
+
+<div class="hero">
+  <div class="eyebrow">IS101 — Introduction to Computing</div>
+  <h1>Learning Objectives</h1>
+  <p>What you'll be able to do by the end of each unit. Objectives are written with the action verb bolded, ordered from foundational to higher-order skills within each unit.</p>
+</div>
+
+<main>
+
+  <div class="unit-section u1">
+    <div class="eyebrow">Unit 1 — Artificial Intelligence</div>
+    <h2>It is Real!</h2>
+    <ul class="obj-list">
+      <li class="obj-item"><span class="obj-verb">Explain</span> how LLMs predict text word-by-word, producing non-deterministic, sometimes confidently wrong answers.</li>
+      <li class="obj-item"><span class="obj-verb">Distinguish</span> RAG-based tools (NotebookLM) from general-purpose LLMs (ChatGPT) by how each handles sources and hallucination risk.</li>
+      <li class="obj-item"><span class="obj-verb">Verify</span> an AI-generated claim by tracing its citation back to the source.</li>
+      <li class="obj-item"><span class="obj-verb">Apply</span> an ethical framework to judge when AI use is appropriate.</li>
+      <li class="obj-item"><span class="obj-verb">Use</span> NotebookLM to research and study from a set of grounded sources.</li>
+    </ul>
+  </div>
+
+  <div class="unit-section u2">
+    <div class="eyebrow">Unit 2 — Microsoft Word 365</div>
+    <h2>Word Processing</h2>
+    <div class="unit-note">One objective per skill domain, plus a capstone for the applied project.</div>
+    <ul class="obj-list">
+      <li class="obj-item"><span class="obj-verb">Apply</span> document-level settings — margins, style sets, headers/footers, watermarks, and properties — to prepare a professional document. <span class="obj-tag">(D1 — Manage Documents)</span></li>
+      <li class="obj-item"><span class="obj-verb">Organize</span> text and paragraphs into a structured document using styles, spacing, and section/page/column breaks. <span class="obj-tag">(D2 — Format Text, Paragraphs & Sections)</span></li>
+      <li class="obj-item"><span class="obj-verb">Design</span> tables and lists that organize and present information clearly. <span class="obj-tag">(D3 — Manage Tables and Lists)</span></li>
+      <li class="obj-item"><span class="obj-verb">Integrate</span> reference tools — a table of contents, footnotes, and endnotes — to support navigation and citation. <span class="obj-tag">(D4 — References)</span></li>
+      <li class="obj-item"><span class="obj-verb">Compose</span> a visual layout that combines pictures, shapes, and text boxes with proper wrapping and alt text. <span class="obj-tag">(D5 — Graphic Elements)</span></li>
+      <li class="obj-item"><span class="obj-verb">Evaluate</span> feedback on a document and respond to it using comments and Track Changes. <span class="obj-tag">(D6 — Collaboration)</span></li>
+      <li class="obj-item"><span class="obj-verb">Produce</span> a complete, professional business document that combines all six domains into one deliverable. <span class="obj-tag">(Capstone — Word Projects)</span></li>
+    </ul>
+  </div>
+
+  <div class="unit-section u3">
+    <div class="eyebrow">Unit 3 — Microsoft Excel 365</div>
+    <h2>Spreadsheets</h2>
+    <div class="unit-note">One objective per skill domain, plus a capstone for the applied project.</div>
+    <ul class="obj-list">
+      <li class="obj-item"><span class="obj-verb">Organize</span> worksheets and workbooks — layout, navigation, and page setup — for a usable spreadsheet. <span class="obj-tag">(E1 — Manage Worksheets and Workbooks)</span></li>
+      <li class="obj-item"><span class="obj-verb">Apply</span> formatting and range-management techniques to prepare spreadsheet data for use. <span class="obj-tag">(E2 — Manage Data Cells and Ranges)</span></li>
+      <li class="obj-item"><span class="obj-verb">Structure</span> raw data into Excel Tables, then filter and sort it to support analysis. <span class="obj-tag">(E3 — Manage Tables and Table Data)</span></li>
+      <li class="obj-item"><span class="obj-verb">Construct</span> formulas and functions — including logical, lookup, and text functions — to solve calculation problems. <span class="obj-tag">(E4 — Formulas and Functions)</span></li>
+      <li class="obj-item"><span class="obj-verb">Create</span> charts that visually communicate spreadsheet data. <span class="obj-tag">(E5 — Manage Charts)</span></li>
+      <li class="obj-item"><span class="obj-verb">Produce</span> a complete, functional workbook that applies worksheet management, data formatting, tables, formulas, and charts to a real business scenario. <span class="obj-tag">(Capstone — Excel Projects)</span></li>
+    </ul>
+  </div>
+
+  <div class="unit-section u4">
+    <div class="eyebrow">Unit 4 — Presentations</div>
+    <h2>AI-Powered Tools and Presentation Software</h2>
+    <div class="unit-note">This unit is still growing — these objectives reflect the two AI-focused assignments currently available.</div>
+    <ul class="obj-list">
+      <li class="obj-item"><span class="obj-verb">Generate</span> presentation content from a single prompt using multiple AI tools.</li>
+      <li class="obj-item"><span class="obj-verb">Compare</span> the outputs different AI tools produce from the same prompt.</li>
+      <li class="obj-item"><span class="obj-verb">Evaluate</span> how completely and accurately an AI tool completes a real, structured project against a known solution.</li>
+      <li class="obj-item"><span class="obj-verb">Critique</span> AI-generated work in writing, weighing its strengths, errors, and trustworthiness.</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>College of Southern Nevada · IS101 · Designed and Created by Dr. Mark Taormino</footer>
+
+</body>
+</html>
