@@ -644,6 +644,44 @@
     transition: transform 0.2s;
   }
   .unit-objectives-panel.open .obj-chevron { transform: rotate(180deg); }
+  .course-outcome {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--cream-dark);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+  }
+  .unit-objectives-panel.u2 .course-outcome { background: #eef4ff; }
+  .unit-objectives-panel.u3 .course-outcome { background: #eefaf1; }
+  .unit-objectives-panel.u4 .course-outcome { background: #f6effc; }
+  .course-outcome .co-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .course-outcome .co-body { flex: 1; }
+  .course-outcome .co-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+  .course-outcome .co-text {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.4;
+  }
+  .course-outcome .co-text + .co-text { margin-top: 4px; }
+  .course-outcome .co-num {
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-right: 3px;
+  }
   .obj-list {
     list-style: none;
     margin: 16px 0 0;
@@ -1423,7 +1461,7 @@
         <div class="card-header-row">
           <div>
             <div class="unit-number">Unit 1</div>
-            <div class="unit-title">Artificial Intelligence:<br>It is Real!</div>
+            <div class="unit-title">Artificial Intelligence:<br>Getting Started with AI</div>
           </div>
           <span class="unit-status-badge badge-active" id="u1Badge">Active</span>
         </div>
@@ -1567,7 +1605,7 @@
       <!-- Unit Header -->
       <div class="unit-overview-header">
         <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
-        <h2 id="unitHeading">It is Real!</h2>
+        <h2 id="unitHeading">Getting Started with AI</h2>
         <p id="unitDesc">Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.</p>
       </div>
 
@@ -1577,6 +1615,7 @@
           <div class="obj-toggle-left"><span class="obj-icon" aria-hidden="true">🎯</span> Learning Objectives</div>
           <span class="obj-chevron" aria-hidden="true">▼</span>
         </div>
+        <div class="course-outcome" id="unitCourseOutcome"><!-- filled dynamically --></div>
         <ul class="obj-list" id="unitObjectivesList"><!-- filled dynamically --></ul>
       </div>
 
@@ -1677,7 +1716,7 @@ let sessionToken = null; // server session token — lets this page read/write s
 // ─────────────────────────────────────────────
 const UNITS = {
   1: {
-    title: "It is Real!",
+    title: "Getting Started with AI",
     eyebrow: "Unit 1 — Artificial Intelligence",
     desc: "Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.",
     type: "topics",
@@ -2082,11 +2121,41 @@ const UNIT_OBJECTIVES = {
   ],
 };
 
+// Course-level Student Learning Outcomes each unit addresses — shown as a
+// callout above the unit's Bloom's objectives. Keep in sync with
+// IS101_Learning_Objectives.html and IS101_Learning_Objectives_Units1-4_DRAFT.md.
+const COURSE_OUTCOMES = {
+  1: [
+    "Model activities to operate and use a personal computer.",
+    "Model skills necessary to interface effectively with the global digital community.",
+  ],
+  2: [
+    "Create documents using a word processor.",
+  ],
+  3: [
+    "Create spreadsheets using a spreadsheet program.",
+  ],
+  4: [
+    "Create presentations using presentation software.",
+    "Model skills necessary to interface effectively with the global digital community.",
+  ],
+};
+
 function renderUnitObjectives(unitNum) {
   const objectives = UNIT_OBJECTIVES[unitNum] || [];
+  const outcomes = COURSE_OUTCOMES[unitNum] || [];
   const panel = document.getElementById('unitObjectivesPanel');
   const list = document.getElementById('unitObjectivesList');
+  const outcomeBox = document.getElementById('unitCourseOutcome');
   panel.className = 'unit-objectives-panel open u' + unitNum;
+  const label = outcomes.length > 1 ? 'Course Learning Outcomes' : 'Course Learning Outcome';
+  outcomeBox.innerHTML = `
+    <span class="co-icon" aria-hidden="true">🎓</span>
+    <div class="co-body">
+      <div class="co-label">${label}</div>
+      ${outcomes.map((o, i) => `<div class="co-text">${outcomes.length > 1 ? `<span class="co-num">${i + 1}.</span>` : ''}${o}</div>`).join('')}
+    </div>
+  `;
   list.innerHTML = objectives.map(o => `
     <li class="obj-item">
       <span class="obj-verb">${o.verb}</span>${o.rest}${o.tag ? ` <span class="obj-tag">(${o.tag})</span>` : ''}
@@ -2200,11 +2269,12 @@ async function loadProgress() {
   }
 
   // Reconcile with the server's record of skill completions (Word/Excel
-  // domains). This is what survives a cleared browser or a new device — the
-  // server is the source of truth for skills; local storage is just a cache.
-  // Only ADDS completions, never removes any — so it can't clobber Unit 1/4
-  // step progress (readings, exams, assignments) which isn't tracked
-  // server-side today and lives in this same local progress object.
+  // domains) and Unit 1/4 step completions. This is what survives a cleared
+  // browser or a new device — the server is the source of truth; local
+  // storage is just a cache. Only ADDS completions, never removes any, so an
+  // unmark made on another device doesn't get silently re-applied here — the
+  // unmark itself already went straight to the server via toggleStepComplete
+  // / toggleSkillSelfCheck.
   if (sessionToken) {
     try {
       const res = await fetch('/api/progress', { headers: { 'x-session-token': sessionToken } });
@@ -2213,6 +2283,10 @@ async function loadProgress() {
         let changed = false;
         (data.skills || []).forEach(s => {
           if (!progress[s.skill_id]) { progress[s.skill_id] = true; changed = true; }
+        });
+        (data.steps || []).forEach(s => {
+          const stepId = stepIdFromLocation(s.unit_id, s.topic_id, s.step_idx);
+          if (stepId && !progress[stepId]) { progress[stepId] = true; changed = true; }
         });
         if (changed) {
           try { localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress)); } catch(e) {}
@@ -2237,6 +2311,46 @@ function saveStepProgress(stepId) {
     localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
   } catch(e) {}
   renderAllProgress();
+}
+
+// Manual "mark complete" for topic/step-style units (Unit 1 and Unit 4).
+// These steps link out to real content pages (labs, guides, exams, checklists,
+// assignments) that don't report progress back on their own — clicking the
+// step's CTA button just navigates away (see goToStep()). This checkbox is
+// the only way progress ever gets recorded for these units today, mirroring
+// the self-check checkbox pattern already used for Unit 2/3 skills
+// (toggleSkillSelfCheck). Like that one, it also syncs to the server (the
+// step_progress table via /api/progress/step) so it's durable across a
+// cleared browser or a new device, not just local-storage.
+function toggleStepComplete(stepId, e) {
+  if (e) e.stopPropagation();
+  const wasDone = !!progress[stepId];
+  if (wasDone) {
+    delete progress[stepId];
+  } else {
+    progress[stepId] = true;
+  }
+  try {
+    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
+  } catch (err) {}
+
+  renderAllProgress();
+  renderUnitContent(currentUnit);
+  updateUnitOverviewProgress(currentUnit);
+  renderSidebarNav(currentUnit);
+  updateJumpProjectsLock(currentUnit);
+  showToast(wasDone ? 'Unmarked step' : 'Marked complete!', wasDone ? '' : 'success');
+
+  if (sessionToken) {
+    const loc = findStepLocation(stepId);
+    if (loc) {
+      fetch('/api/progress/step', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': sessionToken },
+        body: JSON.stringify({ unitId: loc.unitId, topicId: loc.topicId, stepIdx: loc.stepIdx, completed: !wasDone })
+      }).catch(() => {});
+    }
+  }
 }
 
 function renderAllProgress() {
@@ -2804,11 +2918,9 @@ function renderUnitContent(unitNum) {
               <div class="step-title">${step.title}</div>
               <div class="step-desc">${step.desc}</div>
             </div>
+            <div class="skill-check ${done ? 'done' : ''}" onclick="toggleStepComplete('${step.id}', event)" title="${done ? 'Click to unmark' : 'Mark this step complete'}">${done ? '✓' : ''}</div>
             <div class="step-cta">
-              ${done
-                ? `<button class="completed-btn">✓ Done</button>`
-                : `<button onclick="goToStep('${step.id}', '${step.href}')">${step.cta}</button>`
-              }
+              <button onclick="goToStep('${step.id}', '${step.href}')">${done ? '✓ ' + step.cta : step.cta}</button>
             </div>
           </div>
         `;
@@ -3106,6 +3218,33 @@ function allStepIdsForUnit(unitNum) {
     unit.groups.forEach(g => g.skills.forEach(s => ids.push(s.id)));
   }
   return ids;
+}
+
+// Maps a flat step id (e.g. "ai-t1-watch") to the (unitId, topicId, stepIdx)
+// composite key the step_progress table keys on. Used to sync Unit 1/4 step
+// completions to the server, mirroring how skill ids map to (domain, skillId)
+// for Unit 2/3 via WORD_SKILL_DOMAIN_MAP / EXCEL_SKILL_DOMAIN_MAP.
+function findStepLocation(stepId) {
+  for (const unitNum in UNITS) {
+    const unit = UNITS[unitNum];
+    if (unit.type !== 'topics') continue;
+    for (const topic of unit.topics) {
+      const idx = topic.steps.findIndex(s => s.id === stepId);
+      if (idx !== -1) return { unitId: unitNum, topicId: topic.id, stepIdx: idx };
+    }
+  }
+  return null;
+}
+
+// Reverse of findStepLocation — turns a step_progress row from the server
+// back into the flat step id used throughout the client's `progress` object.
+function stepIdFromLocation(unitId, topicId, stepIdx) {
+  const unit = UNITS[unitId];
+  if (!unit || unit.type !== 'topics') return null;
+  const topic = unit.topics.find(t => t.id === topicId);
+  if (!topic) return null;
+  const step = topic.steps[stepIdx];
+  return step ? step.id : null;
 }
 
 function updateJumpProjectsLock(unitNum) {
