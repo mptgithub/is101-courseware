@@ -105,6 +105,60 @@ db.exec(`
     graded_at    TEXT NOT NULL DEFAULT (datetime('now','localtime')),
     UNIQUE(nshe_id, domain)
   );
+
+  -- ── LTI 1.3 Advantage ────────────────────────────────────────────────────────
+  -- Generic key/value store backing ltijs's Database plugin interface (see
+  -- lti/sqliteStore.js). Holds platform registrations, signing keys, nonces,
+  -- OIDC state, and cached id/access tokens — the same things ltijs stores in
+  -- MongoDB by default, just kept in our existing SQLite file instead.
+  CREATE TABLE IF NOT EXISTS lti_store (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    collection TEXT NOT NULL,
+    doc        TEXT NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_lti_store_collection ON lti_store(collection);
+
+  -- Links a specific LTI identity (issuer + client_id + the platform's opaque
+  -- user id) to one of our NSHE IDs. Populated once per student via the
+  -- "confirm your NSHE ID" screen shown on their first LTI launch; every
+  -- launch after that is silent.
+  CREATE TABLE IF NOT EXISTS lti_user_links (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    iss          TEXT NOT NULL,
+    client_id    TEXT NOT NULL,
+    lti_user_id  TEXT NOT NULL,
+    nshe_id      TEXT NOT NULL,
+    linked_at    TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    UNIQUE(iss, client_id, lti_user_id)
+  );
+
+  -- Short-lived tokens used only to carry an unlinked LTI identity (and the
+  -- idtoken from that specific launch, if any) through the "confirm your
+  -- NSHE ID" form without trusting client-submitted values. project_key is
+  -- set only when the launch's custom parameters named a graded project.
+  CREATE TABLE IF NOT EXISTS lti_link_tokens (
+    token        TEXT PRIMARY KEY,
+    iss          TEXT NOT NULL,
+    client_id    TEXT NOT NULL,
+    lti_user_id  TEXT NOT NULL,
+    project_key  TEXT,
+    idtoken_json TEXT,
+    created_at   INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+  );
+
+  -- The most recent LTI launch context per (student, project) — this is what
+  -- makes grade passback possible outside the live launch request. Populated
+  -- whenever a launch carries a custom "project" parameter (set per Canvas
+  -- assignment placement); read back by sendGradeToLms() after grading.
+  CREATE TABLE IF NOT EXISTS lti_launch_context (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    nshe_id       TEXT NOT NULL,
+    project_key   TEXT NOT NULL,
+    idtoken_json  TEXT NOT NULL,
+    updated_at    TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    UNIQUE(nshe_id, project_key)
+  );
 `);
 
 // ── PREPARED STATEMENTS ───────────────────────────────────────────────────────
@@ -156,6 +210,9 @@ const stmts = {
   markStepDone: db.prepare(`
     INSERT OR IGNORE INTO step_progress (nshe_id, unit_id, topic_id, step_idx)
     VALUES (?, ?, ?, ?)
+  `),
+  unmarkStepDone: db.prepare(`
+    DELETE FROM step_progress WHERE nshe_id = ? AND unit_id = ? AND topic_id = ? AND step_idx = ?
   `),
   getStepProgress: db.prepare(`
     SELECT unit_id, topic_id, step_idx, done_at FROM step_progress WHERE nshe_id = ?
@@ -264,6 +321,38 @@ const stmts = {
     FROM practice_grades pg
     LEFT JOIN roster r ON r.nshe_id = pg.nshe_id
     ORDER BY pg.graded_at DESC
+  `),
+
+  // ── LTI 1.3 Advantage ──────────────────────────────────────────────────────
+  ltiStoreInsert: db.prepare(`INSERT INTO lti_store (collection, doc, created_at) VALUES (?, ?, ?)`),
+  ltiStoreAllInCollection: db.prepare(`SELECT id, doc, created_at FROM lti_store WHERE collection = ?`),
+  ltiStoreDeleteById: db.prepare(`DELETE FROM lti_store WHERE id = ?`),
+  ltiStoreReplaceById: db.prepare(`UPDATE lti_store SET doc = ? WHERE id = ?`),
+  ltiStorePruneOlderThan: db.prepare(`DELETE FROM lti_store WHERE collection = ? AND created_at < ?`),
+
+  getLtiUserLink: db.prepare(`
+    SELECT nshe_id FROM lti_user_links WHERE iss = ? AND client_id = ? AND lti_user_id = ?
+  `),
+  createLtiUserLink: db.prepare(`
+    INSERT OR IGNORE INTO lti_user_links (iss, client_id, lti_user_id, nshe_id) VALUES (?, ?, ?, ?)
+  `),
+
+  createLtiLinkToken: db.prepare(`
+    INSERT INTO lti_link_tokens (token, iss, client_id, lti_user_id, project_key, idtoken_json, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `),
+  getLtiLinkToken: db.prepare(`SELECT * FROM lti_link_tokens WHERE token = ?`),
+  deleteLtiLinkToken: db.prepare(`DELETE FROM lti_link_tokens WHERE token = ?`),
+  pruneLtiLinkTokensOlderThan: db.prepare(`DELETE FROM lti_link_tokens WHERE created_at < ?`),
+
+  saveLtiLaunchContext: db.prepare(`
+    INSERT INTO lti_launch_context (nshe_id, project_key, idtoken_json, updated_at)
+    VALUES (?, ?, ?, datetime('now','localtime'))
+    ON CONFLICT(nshe_id, project_key)
+    DO UPDATE SET idtoken_json = excluded.idtoken_json, updated_at = datetime('now','localtime')
+  `),
+  getLtiLaunchContext: db.prepare(`
+    SELECT idtoken_json FROM lti_launch_context WHERE nshe_id = ? AND project_key = ?
   `),
 
 };
