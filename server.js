@@ -12,27 +12,25 @@ const { v4: uuid } = require('uuid');
 const multer   = require('multer');
 const { stmts } = require('./database');
 
-// Render has occasionally not finished making a freshly-deployed subfolder
-// fully visible to a brand-new instance the instant it boots, which throws
-// a transient MODULE_NOT_FOUND on this require and crashes the process
-// before it ever gets a chance to work (confirmed via Render deploy logs:
-// a boot roughly 20-25 seconds later succeeds with zero code changes — this
-// isn't a per-process retry race, it's wall-clock time since the deploy
-// started, likely tied to the persistent disk finishing its mount). Retry
-// for up to ~45s with a 1s pause instead of crash-looping the whole deploy
-// over what is really just a one-time startup race.
-function requireWithRetry(modulePath, attempts = 45, delayMs = 1000) {
-  for (let i = 1; i <= attempts; i++) {
-    try {
-      return require(modulePath);
-    } catch (err) {
-      if (err.code !== 'MODULE_NOT_FOUND' || i === attempts) throw err;
-      console.warn(`[boot] ${modulePath} not visible yet (attempt ${i}/${attempts}) — retrying in ${delayMs}ms...`);
-      try { require('child_process').execSync('sleep ' + (delayMs / 1000)); } catch (e) {}
-    }
-  }
+// The LTI 1.3 / Canvas integration (./lti/lti.js) is an optional subsystem —
+// the core courseware must boot and serve students even when it isn't
+// present. It is loaded defensively here: if the module is missing or fails
+// to load for any reason, LTI_ENABLED is set to false and every LTI-specific
+// route below no-ops instead of crashing the whole server. (Previously this
+// was an unconditional `require('./lti/lti')` — a genuinely missing folder,
+// not a transient timing issue, was crash-looping every deploy.)
+let lti, registerCanvasPlatform, completeLtiLink, sendGradeToLms;
+let LTI_ENABLED = true;
+try {
+  ({ lti, registerCanvasPlatform, completeLtiLink, sendGradeToLms } = require('./lti/lti'));
+} catch (err) {
+  LTI_ENABLED = false;
+  console.warn('[LTI] ./lti/lti not available — Canvas/LTI integration disabled, core courseware will still run:', err.message);
 }
-const { lti, registerCanvasPlatform, completeLtiLink, sendGradeToLms } = requireWithRetry('./lti/lti');
+// Grading routes call sendGradeToLms(...).catch(()=>{}) unconditionally after
+// every submission — give it a harmless no-op when LTI is disabled so those
+// routes (core Word/Excel project grading, unrelated to Canvas) don't throw.
+if (!LTI_ENABLED) sendGradeToLms = () => Promise.resolve();
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -110,6 +108,8 @@ app.post('/api/logout', (req, res) => {
 // that redirects here on a student's first Canvas launch)
 // ─────────────────────────────────────────────────────────────────────────────
 app.post('/api/lti/link', async (req, res) => {
+  if (!LTI_ENABLED)
+    return res.status(503).json({ error: 'Canvas integration is not currently available. Please contact your instructor.' });
   const { token, nsheId } = req.body || {};
   if (!token || !nsheId || !NSHE_ID_PATTERN.test(String(nsheId).trim()))
     return res.status(400).json({ error: 'Please enter a valid 10-digit NSHE ID number.' });
@@ -2156,7 +2156,7 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
 // seeing — or mishandling — any other request.
 const LTI_ROUTES = new Set(['/login', '/launch', '/jwks']);
 app.use((req, res, next) => {
-  if (LTI_ROUTES.has(req.path)) return lti.app(req, res, next);
+  if (LTI_ENABLED && LTI_ROUTES.has(req.path)) return lti.app(req, res, next);
   return next();
 });
 
@@ -2168,11 +2168,13 @@ app.get('*', (req, res) => {
 
 // ── START ─────────────────────────────────────────────────────────────────────
 (async () => {
-  try {
-    await lti.deploy({ serverless: true });
-    await registerCanvasPlatform();
-  } catch (err) {
-    console.error('[LTI] Startup error — Canvas launches will not work until this is fixed:', err.message);
+  if (LTI_ENABLED) {
+    try {
+      await lti.deploy({ serverless: true });
+      await registerCanvasPlatform();
+    } catch (err) {
+      console.error('[LTI] Startup error — Canvas launches will not work until this is fixed:', err.message);
+    }
   }
 
   app.listen(PORT, () => {
