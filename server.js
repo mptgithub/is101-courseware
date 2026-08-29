@@ -11,6 +11,7 @@ const fs       = require('fs');
 const { v4: uuid } = require('uuid');
 const multer   = require('multer');
 const { stmts } = require('./database');
+const { lti, registerCanvasPlatform, completeLtiLink, sendGradeToLms } = require('./lti/lti');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +82,26 @@ app.post('/api/logout', (req, res) => {
   const token = req.headers['x-session-token'];
   if (token) stmts.deleteSession.run(token);
   res.json({ success: true });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LTI 1.3 — one-time identity linking (see lti/lti.js for the launch handling
+// that redirects here on a student's first Canvas launch)
+// ─────────────────────────────────────────────────────────────────────────────
+app.post('/api/lti/link', async (req, res) => {
+  const { token, nsheId } = req.body || {};
+  if (!token || !nsheId || !NSHE_ID_PATTERN.test(String(nsheId).trim()))
+    return res.status(400).json({ error: 'Please enter a valid 10-digit NSHE ID number.' });
+  try {
+    stmts.upsertStudent.run(String(nsheId).trim());
+    const result = await completeLtiLink(token, String(nsheId).trim());
+    res.json({ success: true, ...result });
+  } catch (err) {
+    if (err.code === 'LINK_TOKEN_INVALID')
+      return res.status(410).json({ error: 'This link has expired. Please go back to Canvas and click the assignment link again.' });
+    console.error('LTI link error:', err);
+    res.status(500).json({ error: 'Something went wrong connecting your Canvas account. Please try again or contact your instructor.' });
+  }
 });
 
 app.get('/api/progress', requireStudent, (req, res) => {
@@ -398,6 +419,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Core1',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'Core1',earned,total).catch(()=>{});
     res.json(output);
   } catch(err) {
     console.error('Core1 grading error:',err.stack||err);
@@ -489,6 +511,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Core2',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'Core2',earned,total).catch(()=>{});
     res.json(output);
   } catch(err) {
     console.error('Core2 grading error:',err);
@@ -569,6 +592,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Var1',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'Var1',earned,total).catch(()=>{});
     res.json(output);
   } catch(err) {
     console.error('Var1 grading error:',err);
@@ -648,6 +672,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     const pct=Math.round(earned/total*100);
     const output={score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results};
     stmts.savePracticeGrade.run(req.nsheId,'Var2',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'Var2',earned,total).catch(()=>{});
     res.json(output);
   } catch(err) {
     console.error('Var2 grading error:',err);
@@ -749,6 +774,12 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       docXml.includes('wps:')||docXml.includes('roundRect')||docXml.includes('mc:AlternateContent'),
       '✓ Shape found.','✗ No shape found. Fix: Insert → Shapes → Rounded Rectangle → draw around emergency contact text.');
 
+    // NOTE: this save call was missing here (unlike every other project grader,
+    // which all persist to practice_grades right before responding) — added
+    // alongside the LTI work below since it also feeds the new grade-passback
+    // call and the instructor dashboard's grade views.
+    stmts.savePracticeGrade.run(req.nsheId,'Project5',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'Project5',earned,total).catch(()=>{});
     res.json({ score: earned, total, pct: Math.round((earned/total)*100), passed: results.filter(r=>r.passed).length, failed: results.filter(r=>!r.passed).length, results });
   } catch(err) {
     try { fs.unlinkSync(req.file.path); } catch(e) {}
@@ -857,6 +888,7 @@ app.post('/api/grade/excel-core1', requireStudent, upload.single('file'), async 
 
     const pct=Math.round(earned/total*100);
     stmts.savePracticeGrade.run(req.nsheId,'ExcelCore1',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'ExcelCore1',earned,total).catch(()=>{});
     res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
   } catch(err) { console.error('ExcelCore1 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
 });
@@ -904,6 +936,7 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
 
     const pct=Math.round(earned/total*100);
     stmts.savePracticeGrade.run(req.nsheId,'ExcelCore2',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'ExcelCore2',earned,total).catch(()=>{});
     res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
   } catch(err) { console.error('ExcelCore2 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
 });
@@ -980,6 +1013,7 @@ app.post('/api/grade/excel-var1', requireStudent, upload.single('file'), async (
 
     const pct=Math.round(earned/total*100);
     stmts.savePracticeGrade.run(req.nsheId,'ExcelVar1',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'ExcelVar1',earned,total).catch(()=>{});
     res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
   } catch(err) { console.error('ExcelVar1 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
 });
@@ -1050,6 +1084,7 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
 
     const pct=Math.round(earned/total*100);
     stmts.savePracticeGrade.run(req.nsheId,'ExcelVar2',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'ExcelVar2',earned,total).catch(()=>{});
     res.json({score:earned,total,pct,passed:results.filter(r=>r.passed).length,failed:results.filter(r=>!r.passed).length,results});
   } catch(err) { console.error('ExcelVar2 grading error:',err.stack||err); try{fs.unlinkSync(req.file.path);}catch(e){} res.status(500).json({error:'Grading failed: '+(err.message||String(err))}); }
 });
@@ -2088,6 +2123,21 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
   }
 });
 
+// ── LTI 1.3 ───────────────────────────────────────────────────────────────────
+// Forward ONLY the three paths ltijs owns into lti.app. This is not just an
+// optimization: ltijs's internal session validator treats every path that
+// reaches it as an LTI request and 401s anything without a valid ltik/token
+// (confirmed by testing `app.use(lti.app)` unconditionally — it broke the
+// catch-all route below for any genuinely unmatched path). Routing only
+// these three paths in keeps ltijs fully self-contained (its own
+// body-parser/cookie-parser/helmet/cors apply only here) without it ever
+// seeing — or mishandling — any other request.
+const LTI_ROUTES = new Set(['/login', '/launch', '/jwks']);
+app.use((req, res, next) => {
+  if (LTI_ROUTES.has(req.path)) return lti.app(req, res, next);
+  return next();
+});
+
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -2095,12 +2145,21 @@ app.get('*', (req, res) => {
 });
 
 // ── START ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n  IS101 Courseware Server`);
-  console.log(`  College of Southern Nevada`);
-  console.log(`  © Dr. Mark Taormino · All Rights Reserved\n`);
-  console.log(`  Running at:  http://localhost:${PORT}`);
-  console.log(`  Submissions: ${SUBMISSIONS_DIR}`);
-  console.log(`  Instructor:  http://localhost:${PORT}/instructor.html\n`);
-  console.log(`  Press Ctrl+C to stop\n`);
-});
+(async () => {
+  try {
+    await lti.deploy({ serverless: true });
+    await registerCanvasPlatform();
+  } catch (err) {
+    console.error('[LTI] Startup error — Canvas launches will not work until this is fixed:', err.message);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`\n  IS101 Courseware Server`);
+    console.log(`  College of Southern Nevada`);
+    console.log(`  © Dr. Mark Taormino · All Rights Reserved\n`);
+    console.log(`  Running at:  http://localhost:${PORT}`);
+    console.log(`  Submissions: ${SUBMISSIONS_DIR}`);
+    console.log(`  Instructor:  http://localhost:${PORT}/instructor.html\n`);
+    console.log(`  Press Ctrl+C to stop\n`);
+  });
+})();
