@@ -11,7 +11,26 @@ const fs       = require('fs');
 const { v4: uuid } = require('uuid');
 const multer   = require('multer');
 const { stmts } = require('./database');
-const { lti, registerCanvasPlatform, completeLtiLink, sendGradeToLms } = require('./lti/lti');
+
+// Render has occasionally not finished making a freshly-deployed subfolder
+// fully visible to a brand-new instance the instant it boots, which throws
+// a transient MODULE_NOT_FOUND on this require and crashes the process
+// before it ever gets a chance to work (confirmed via Render deploy logs:
+// the very next boot attempt, moments later, succeeds with zero code
+// changes). Retry a few times with a short pause instead of crash-looping
+// the whole deploy over what is really just a startup race.
+function requireWithRetry(modulePath, attempts = 6, delayMs = 750) {
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return require(modulePath);
+    } catch (err) {
+      if (err.code !== 'MODULE_NOT_FOUND' || i === attempts) throw err;
+      console.warn(`[boot] ${modulePath} not visible yet (attempt ${i}/${attempts}) — retrying in ${delayMs}ms...`);
+      try { require('child_process').execSync('sleep ' + (delayMs / 1000)); } catch (e) {}
+    }
+  }
+}
+const { lti, registerCanvasPlatform, completeLtiLink, sendGradeToLms } = requireWithRetry('./lti/lti');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -117,10 +136,11 @@ app.get('/api/progress', requireStudent, (req, res) => {
 });
 
 app.post('/api/progress/step', requireStudent, (req, res) => {
-  const { unitId, topicId, stepIdx } = req.body;
+  const { unitId, topicId, stepIdx, completed } = req.body;
   if (!unitId || !topicId || stepIdx === undefined)
     return res.status(400).json({ error: 'Missing fields' });
-  stmts.markStepDone.run(req.nsheId, unitId, topicId, stepIdx);
+  if (completed === false) stmts.unmarkStepDone.run(req.nsheId, unitId, topicId, stepIdx);
+  else                      stmts.markStepDone.run(req.nsheId, unitId, topicId, stepIdx);
   res.json({ success: true });
 });
 

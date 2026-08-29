@@ -1355,7 +1355,7 @@
     font-size: 0.82rem;
     letter-spacing: 0.3px;
   }
-  .site-footer p { margin: 0 auto; max-width: 760px; line-height: 1.6; }
+  .site-footer p { margin: 0; }
 
   /* ── ADA / WCAG 2.1 AA Accessibility ── */
   .skip-link {
@@ -2269,11 +2269,12 @@ async function loadProgress() {
   }
 
   // Reconcile with the server's record of skill completions (Word/Excel
-  // domains). This is what survives a cleared browser or a new device — the
-  // server is the source of truth for skills; local storage is just a cache.
-  // Only ADDS completions, never removes any — so it can't clobber Unit 1/4
-  // step progress (readings, exams, assignments) which isn't tracked
-  // server-side today and lives in this same local progress object.
+  // domains) and Unit 1/4 step completions. This is what survives a cleared
+  // browser or a new device — the server is the source of truth; local
+  // storage is just a cache. Only ADDS completions, never removes any, so
+  // an unmark made on another device doesn't get silently re-applied here —
+  // the unmark itself already went straight to the server via
+  // toggleStepComplete / toggleSkillSelfCheck.
   if (sessionToken) {
     try {
       const res = await fetch('/api/progress', { headers: { 'x-session-token': sessionToken } });
@@ -2282,6 +2283,10 @@ async function loadProgress() {
         let changed = false;
         (data.skills || []).forEach(s => {
           if (!progress[s.skill_id]) { progress[s.skill_id] = true; changed = true; }
+        });
+        (data.steps || []).forEach(s => {
+          const stepId = stepIdFromLocation(s.unit_id, s.topic_id, s.step_idx);
+          if (stepId && !progress[stepId]) { progress[stepId] = true; changed = true; }
         });
         if (changed) {
           try { localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress)); } catch(e) {}
@@ -2306,6 +2311,70 @@ function saveStepProgress(stepId) {
     localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
   } catch(e) {}
   renderAllProgress();
+}
+
+// Maps a flat step id (e.g. "ai-t1-watch") to the (unitId, topicId, stepIdx)
+// composite key the step_progress table keys on, and back. Used to sync
+// Unit 1/4 step completions to the server, mirroring how skill ids map to
+// (domain, skillId) for Unit 2/3 via WORD_SKILL_DOMAIN_MAP / EXCEL_SKILL_DOMAIN_MAP.
+function findStepLocation(stepId) {
+  for (const unitNum in UNITS) {
+    const unit = UNITS[unitNum];
+    if (unit.type !== 'topics') continue;
+    for (const topic of unit.topics) {
+      const idx = topic.steps.findIndex(s => s.id === stepId);
+      if (idx !== -1) return { unitId: unitNum, topicId: topic.id, stepIdx: idx };
+    }
+  }
+  return null;
+}
+function stepIdFromLocation(unitId, topicId, stepIdx) {
+  const unit = UNITS[unitId];
+  if (!unit || unit.type !== 'topics') return null;
+  const topic = unit.topics.find(t => t.id === topicId);
+  if (!topic) return null;
+  const step = topic.steps[stepIdx];
+  return step ? step.id : null;
+}
+
+// Manual "mark complete" for topic/step-style units (Unit 1 and Unit 4).
+// These steps link out to real content pages (labs, guides, exams, checklists,
+// assignments) that don't report progress back on their own — clicking the
+// step's CTA button just navigates away (see goToStep()). This checkbox is
+// the only way progress ever gets recorded for these units today, mirroring
+// the self-check checkbox pattern already used for Unit 2/3 skills
+// (toggleSkillSelfCheck). It also syncs to the server (the step_progress
+// table via /api/progress/step) so it's durable across a cleared browser or
+// a new device, not just local-storage.
+function toggleStepComplete(stepId, e) {
+  if (e) e.stopPropagation();
+  const wasDone = !!progress[stepId];
+  if (wasDone) {
+    delete progress[stepId];
+  } else {
+    progress[stepId] = true;
+  }
+  try {
+    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
+  } catch (err) {}
+
+  renderAllProgress();
+  renderUnitContent(currentUnit);
+  updateUnitOverviewProgress(currentUnit);
+  renderSidebarNav(currentUnit);
+  updateJumpProjectsLock(currentUnit);
+  showToast(wasDone ? 'Unmarked step' : 'Marked complete!', wasDone ? '' : 'success');
+
+  if (sessionToken) {
+    const loc = findStepLocation(stepId);
+    if (loc) {
+      fetch('/api/progress/step', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': sessionToken },
+        body: JSON.stringify({ unitId: loc.unitId, topicId: loc.topicId, stepIdx: loc.stepIdx, completed: !wasDone })
+      }).catch(() => {});
+    }
+  }
 }
 
 function renderAllProgress() {
@@ -2873,11 +2942,9 @@ function renderUnitContent(unitNum) {
               <div class="step-title">${step.title}</div>
               <div class="step-desc">${step.desc}</div>
             </div>
+            <div class="skill-check ${done ? 'done' : ''}" onclick="toggleStepComplete('${step.id}', event)" title="${done ? 'Click to unmark' : 'Mark this step complete'}">${done ? '✓' : ''}</div>
             <div class="step-cta">
-              ${done
-                ? `<button class="completed-btn">✓ Done</button>`
-                : `<button onclick="goToStep('${step.id}', '${step.href}')">${step.cta}</button>`
-              }
+              <button onclick="goToStep('${step.id}', '${step.href}')">${done ? '✓ ' + step.cta : step.cta}</button>
             </div>
           </div>
         `;
@@ -3651,7 +3718,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 </main>
 
 <footer class="site-footer">
-  <p>&copy; 2026 Dr. Mark Taormino. All Rights Reserved. This proprietary educational system, including its technical design, sequence, individual assignments, assignment structure, and instructions, is the exclusive intellectual property of the author under Nevada System of Higher Education (NSHE) Title 4, Chapter 12. No part of this system may be replicated, archived, shared, or utilized for future institutional instruction without express written consent.</p>
+  <p>&copy; Dr. Mark Taormino &middot; All Rights Reserved</p>
 </footer>
 
 </body>
