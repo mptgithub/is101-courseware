@@ -16,10 +16,12 @@ const { stmts } = require('./database');
 // fully visible to a brand-new instance the instant it boots, which throws
 // a transient MODULE_NOT_FOUND on this require and crashes the process
 // before it ever gets a chance to work (confirmed via Render deploy logs:
-// the very next boot attempt, moments later, succeeds with zero code
-// changes). Retry a few times with a short pause instead of crash-looping
-// the whole deploy over what is really just a startup race.
-function requireWithRetry(modulePath, attempts = 6, delayMs = 750) {
+// a boot roughly 20-25 seconds later succeeds with zero code changes — this
+// isn't a per-process retry race, it's wall-clock time since the deploy
+// started, likely tied to the persistent disk finishing its mount). Retry
+// for up to ~45s with a 1s pause instead of crash-looping the whole deploy
+// over what is really just a one-time startup race.
+function requireWithRetry(modulePath, attempts = 45, delayMs = 1000) {
   for (let i = 1; i <= attempts; i++) {
     try {
       return require(modulePath);
