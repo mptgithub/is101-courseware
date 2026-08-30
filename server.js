@@ -1189,6 +1189,22 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       return false;
     };
 
+    // Scopes a substring search to the <w:p>...</w:p> paragraph that
+    // actually contains a marker, rather than a fixed-length character
+    // window from the marker's position -- a window can bleed into a
+    // neighboring paragraph, or miss a run's own <w:rPr> (which always
+    // comes BEFORE its <w:t> in the XML, i.e. earlier than a forward-only
+    // window could ever see). Defined here (before D1) so both D1's and
+    // D2's checks below can use it.
+    const paragraphContaining = (xml, marker) => {
+      const idx = xml.indexOf(marker);
+      if (idx < 0) return '';
+      const pStart = Math.max(xml.lastIndexOf('<w:p ', idx), xml.lastIndexOf('<w:p>', idx));
+      const pEnd = xml.indexOf('</w:p>', idx);
+      if (pStart < 0 || pEnd < 0) return '';
+      return xml.slice(pStart, pEnd + 6);
+    };
+
     // ── D1 — Manage Documents ───────────────────────────────────────────────
     // The starter ships with 2880-twip (2") margins on all four sides. The
     // previous check only accepted margins landing within 0.1" of exactly
@@ -1352,18 +1368,33 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // unrelated tracked change happens to be in -- a student who correctly
     // accepts/rejects D1's own change but hasn't reached D6 yet would fail
     // here even though the D1 task is done. D6's own checks already scope
-    // correctly to its own id (see below); D1's is fixed the same way.
-    const d1TCGone = !docXml.includes('<w:del w:id="10"') && !docXml.includes('<w:del w:id="11"') &&
-      !docXml.includes('<w:ins w:id="10"') && !docXml.includes('<w:ins w:id="11"');
+    // correctly to its own id; D1's is fixed the same way here.
+    //
+    // Second, deeper bug found in this same pair: even scoped correctly,
+    // "Accept" and "Reject" both tested the identical signal (the del/ins
+    // id 10/11 wrapper being gone), which happens either way the change is
+    // resolved -- so the two checks could never actually distinguish which
+    // action the student took, the same class of bug already fixed for
+    // D6's del id="20" pair. This is a real replace-type edit (a Manager
+    // suggests correcting "12" to "15" full-time consultants), so the
+    // genuine distinguishing signal is the same as D6's: which number
+    // survives as plain, untracked text. Scoped to this specific sentence
+    // (not a bare "12"/"15" substring match, which could collide with
+    // other numbers anywhere else in a 250KB document).
+    const d1TCMarkersGone = !docXml.includes('<w:del w:id="10"') && !docXml.includes('<w:ins w:id="11"');
+    const workforcePara = paragraphContaining(docXml, 'expanded its workforce by');
+    const workforceParaNoDelText = workforcePara.replace(/<w:delText[^>]*>[\s\S]*?<\/w:delText>/g, '');
+    const d1Accepted = d1TCMarkersGone && />15</.test(workforceParaNoDelText) && !/>12</.test(workforceParaNoDelText);
+    const d1Rejected = d1TCMarkersGone && />12</.test(workforceParaNoDelText) && !/>15</.test(workforceParaNoDelText);
     auto('D1 — Manage Documents','Accept a tracked change',
-      d1TCGone,
-      '✓ Tracked change markup removed — change accepted.',
-      '✗ Tracked changes still present. Fix: Review → Accept → Accept This Change.');
+      d1Accepted,
+      '✓ Tracked change accepted — corrected number (15) kept permanently.',
+      '✗ Not detected. Fix: Click the tracked change near "full-time consultants" → Review → Accept.');
 
     auto('D1 — Manage Documents','Reject a tracked change',
-      d1TCGone,
-      '✓ Tracked change markup removed — change accepted or rejected.',
-      '✗ Tracked changes still present. Fix: Review → Reject → Reject This Change.');
+      d1Rejected,
+      '✓ Tracked change rejected — original number (12) restored.',
+      '✗ Not detected. Fix: Click the tracked change near "full-time consultants" → Review → Reject.');
 
     const trackLocked = settXml.includes('w:documentProtection') && settXml.includes('trackedChanges');
     auto('D1 — Manage Documents','Lock or unlock track changes',
@@ -1501,15 +1532,9 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // happens to follow -- here, a Heading2 divider, which is always
     // bold, making "Clear formatting" fail even when done correctly, for
     // every student, regardless of what they did. Scoping to the actual
-    // enclosing <w:p>...</w:p> block fixes both.
-    const paragraphContaining = (xml, marker) => {
-      const idx = xml.indexOf(marker);
-      if (idx < 0) return '';
-      const pStart = Math.max(xml.lastIndexOf('<w:p ', idx), xml.lastIndexOf('<w:p>', idx));
-      const pEnd = xml.indexOf('</w:p>', idx);
-      if (pStart < 0 || pEnd < 0) return '';
-      return xml.slice(pStart, pEnd + 6);
-    };
+    // enclosing <w:p>...</w:p> block fixes both. (paragraphContaining is
+    // defined once, above, before the D1 section, since D1's tracked-
+    // change checks need it too.)
 
     // Format Painter: TARGET TEXT paragraph should have FF0000 red color
     // AFTER the student applies it, anywhere within its own paragraph.
