@@ -1141,6 +1141,54 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     const self = (domain, name, hint) =>
       skills.push({ domain, name, type:'self', passed:null, hint });
 
+    // Real Word writes a genuine "split cells" as either (a) a nested table
+    // inside a single <w:tc> (Word's usual fallback when a split doesn't
+    // touch the whole table's shared grid), or (b) a table where rows don't
+    // all have the same number of <w:tc> cells (the shared-grid case, where
+    // the split row gained real cells and other rows compensate with
+    // gridSpan). Neither of the previous checks (a nonexistent
+    // "w:splitPgBreak" element, or w:vMerge -- vertical merge, a different
+    // operation) reflects either of those, so a student who does the
+    // assigned task exactly as instructed could never pass. This replaces
+    // it with the two real structural signatures.
+    const hasSplitCellEvidence = (xml) => {
+      // (a) nested table inside a cell
+      if (/<w:tc>(?:(?!<\/w:tc>)[\s\S])*?<w:tbl>/.test(xml)) return true;
+      // (b) any table whose rows have differing <w:tc> counts
+      const tables = xml.match(/<w:tbl>[\s\S]*?<\/w:tbl>/g) || [];
+      for (const t of tables) {
+        const rows = t.match(/<w:tr[ >][\s\S]*?<\/w:tr>/g) || [];
+        const counts = rows.map(r => (r.match(/<w:tc>/g) || []).length).filter(c => c > 0);
+        if (new Set(counts).size > 1) return true;
+      }
+      return false;
+    };
+
+    // Word does not tag converted-table text with any marker -- after
+    // Table Layout -> Convert to Text, the former cells just become plain
+    // paragraphs joined by whatever separator the student chose (most
+    // commonly tabs). The previous check required the literal string
+    // "convertedFromTable", which no real Word action ever writes, so it
+    // could never pass for genuine student work. This instead looks for
+    // the real, if imperfect, signature: 2+ consecutive paragraphs outside
+    // any actual table, each containing 2+ tab characters -- i.e. text
+    // that reads like a table's rows once it's no longer one.
+    const hasConvertedTableEvidence = (xml) => {
+      const withoutTables = xml.replace(/<w:tbl>[\s\S]*?<\/w:tbl>/g, '');
+      const paras = withoutTables.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || [];
+      let consecutive = 0;
+      for (const p of paras) {
+        const tabCount = (p.match(/<w:tab\/>/g) || []).length;
+        if (tabCount >= 2) {
+          consecutive++;
+          if (consecutive >= 2) return true;
+        } else {
+          consecutive = 0;
+        }
+      }
+      return false;
+    };
+
     // ── D1 — Manage Documents ───────────────────────────────────────────────
     const pgMar = docXml.match(/w:pgMar([^/]*?)\//);
     let mOk = false;
@@ -1410,8 +1458,8 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✗ No table found. Fix: Select tab-separated data → Insert → Table → Convert Text to Table.');
 
     auto('D3 — Tables & Lists','Convert a table to text',
-      docXml.includes('<w:tbl>') && docXml.includes('convertedFromTable'),
-      '✓ Table-to-text conversion detected.',
+      hasConvertedTableEvidence(docXml),
+      '✓ Table-to-text conversion detected (tab-separated text found outside any table).',
       '✗ Not detected. Fix: Click in table → Table Layout → Convert to Text.');
 
     auto('D3 — Tables & Lists','Sort table data',
@@ -1425,8 +1473,8 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✗ No merged cells. Fix: Select cells → Table Layout → Merge Cells.');
 
     auto('D3 — Tables & Lists','Split cells',
-      docXml.includes('<w:splitPgBreak') || docXml.includes('w:vMerge') || docXml.count > 0,
-      '✓ Split/modified cell structure detected.',
+      hasSplitCellEvidence(docXml),
+      '✓ Split cell structure detected (nested table or uneven row cell counts).',
       '✗ Not detected. Fix: Click in cell → Table Layout → Split Cells.');
 
     auto('D3 — Tables & Lists','Split a table',
@@ -1440,9 +1488,14 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Table with column widths detected.',
       '✗ No table found. Fix: Drag column borders or use Table Layout → Width.');
 
-    // Cell margins
+    // Cell margins -- the Table Layout ribbon's "Cell Margins" button opens
+    // the Table Options dialog, which (when applied to the whole table, the
+    // common case) writes table-wide w:tblCellMar, not per-cell w:tcMar.
+    // The previous check only accepted the per-cell/spacing forms, so a
+    // student using the exact button named in this skill's own fix message
+    // would still fail. Now accepts all three genuine representations.
     auto('D3 — Tables & Lists','Configure cell margins and spacing',
-      docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing'),
+      docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing') || docXml.includes('w:tblCellMar'),
       '✓ Custom cell margins detected.',
       '✗ No custom cell margins. Fix: Table Layout → Cell Margins.');
 
@@ -1487,9 +1540,22 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Indented list level detected.',
       '✗ No sub-levels. Fix: Select sub-items → Home → Increase Indent.');
 
-    // Restart numbering: check docXml (student-created lists) not numXml baseline
+    // Restart numbering -- per the OOXML spec, w:startOverride is only ever
+    // written inside a <w:num> definition in numbering.xml; it never
+    // appears in document.xml, so the previous docXml check could never
+    // pass for any real restart, done any way, by anyone.
+    // numXml is the right file -- but the starter template itself already
+    // ships with one baked-in w:startOverride (an unused artifact on
+    // numId="1" that's never referenced anywhere in the starter's own
+    // document.xml, confirmed present -- and identical -- in both the
+    // combined starter and the standalone D3 starter). A plain
+    // numXml.includes() check would therefore pass on an untouched
+    // submission. Require a second occurrence, since a genuine student
+    // restart adds its own <w:num>/<w:startOverride> on top of that
+    // baseline one.
+    const startOverrideCount = (numXml.match(/w:startOverride/g) || []).length;
     auto('D3 — Tables & Lists','Start, restart, or continue list numbering',
-      docXml.includes('w:startOverride'),
+      startOverrideCount >= 2,
       '✓ List numbering restart detected.',
       '✗ Not detected. Fix: Right-click first item of second list → Restart at 1.');
 
