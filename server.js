@@ -1904,7 +1904,7 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // student whose genuine tracked edit happened to be a deletion (no
     // new inserted text at all) would show as "no track changes" even
     // though they correctly turned it on and edited with it active.
-    const seededAuthors = ['Manager', 'Finance Manager'];
+    const seededAuthors = ['Manager', 'Finance Manager', 'HR Manager'];
     const studentInserted = [...docXml.matchAll(/<w:(?:ins|del)[^>]*w:author="([^"]+)"/g)]
       .some(m => !seededAuthors.includes(m[1]));
     auto('D6 — Collaboration','Turn on Track Changes',
@@ -1916,29 +1916,35 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // paired w:ins) of the sentence "Annual compliance training is
     // mandatory for all staff. Reports are filed quarterly with the
     // Nevada Secretary of State." -- NOT a replace pair like D1's. The
-    // previous checks had two bugs: (1) "Accept" incorrectly required
-    // D1's own del id="10" to ALSO be gone, coupling D6's pass/fail to an
-    // unrelated domain's state, the same class of bug already fixed for
-    // D1 earlier; and (2) Accept and Reject both fired on the identical
-    // signal (the <w:del id="20"> marker being gone), which happens
-    // either way a tracked deletion is resolved -- Word removes the
-    // wrapper in both cases, so that alone can't tell accept from reject.
-    // The real distinguishing signal is the deleted TEXT itself: Accept
-    // permanently removes it from the document; Reject restores it as
-    // normal, untracked text. So this checks whether that sentence still
-    // appears as plain text anywhere outside a w:delText span.
+    // real distinguishing signal for REJECT is the deleted TEXT itself:
+    // rejecting restores it as normal, untracked text outside any
+    // w:delText span.
     const d6DelMarkerGone = !docXml.includes('<w:del w:id="20"');
     const docXmlNoDelText = docXml.replace(/<w:delText[^>]*>[\s\S]*?<\/w:delText>/g, '');
     const d6TextRestored = docXmlNoDelText.includes('Annual compliance training is mandatory');
-    auto('D6 — Collaboration','Accept a tracked change',
-      d6DelMarkerGone && !d6TextRestored,
-      '✓ Tracked deletion accepted — text permanently removed.',
-      '✗ Not detected. Fix: Click on that tracked change → Review → Accept.');
-
     auto('D6 — Collaboration','Reject a tracked change',
       d6DelMarkerGone && d6TextRestored,
       '✓ Tracked deletion rejected — deleted text restored.',
       '✗ Not detected. Fix: Click on that tracked change → Review → Reject.');
+
+    // "Accept a tracked change" cannot reuse id="20" -- the curriculum
+    // explicitly instructs REJECTING that one (to restore compliance
+    // text), so no real student could ever satisfy an accept-id-20 check.
+    // A genuine accept signal needs its own seeded tracked change: an HR
+    // Manager suggested insertion in the PTO paragraph (ins id="30"),
+    // added in the starter as an active, unresolved w:ins. Accepting it
+    // removes the wrapper and merges the text in permanently -- the same
+    // "wrapper gone + text present as plain content" pattern used
+    // elsewhere (D1's Accept, this domain's own Reject above). Checking
+    // for the wrapper's absence (not just the text, which would also
+    // read as "present" while still sitting inside an unresolved w:ins)
+    // is what actually distinguishes accepted from not-yet-accepted.
+    const d6HrInsGone = !docXml.includes('<w:ins w:id="30"');
+    const d6HrTextPresent = docXml.includes('Part-time employees receive a prorated amount based on hours worked');
+    auto('D6 — Collaboration','Accept a tracked change',
+      d6HrInsGone && d6HrTextPresent,
+      '✓ HR Manager\'s suggested addition accepted — text permanently added.',
+      '✗ Not detected. Fix: Click the HR Manager suggestion in the PTO paragraph → Review → Accept.');
 
     self('D6 — Collaboration','Review tracked changes',
       'Review → Show Markup to see all changes. Use Previous/Next to step through them. This action leaves no file trace.');
