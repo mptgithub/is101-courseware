@@ -1190,12 +1190,19 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     };
 
     // ── D1 — Manage Documents ───────────────────────────────────────────────
+    // The starter ships with 2880-twip (2") margins on all four sides. The
+    // previous check only accepted margins landing within 0.1" of exactly
+    // 1440 twips (1"), so a student who legitimately chose 1.25", 1.5", or
+    // any other custom value -- not just the "Normal" 1" preset -- would
+    // fail despite genuinely changing the margins as instructed. Now
+    // checks for any real change away from the starter's known baseline.
+    const STARTER_MARGIN = 2880;
     const pgMar = docXml.match(/w:pgMar([^/]*?)\//);
     let mOk = false;
     if (pgMar) {
       const a = pgMar[1];
       const vals = ['top','bottom','left','right'].map(s => parseInt((a.match(new RegExp(`w:${s}="(\\d+)"`)) || [0,'0'])[1]));
-      mOk = vals.every(v => v > 0 && Math.abs(v - INCH) < 144);
+      mOk = vals.every(v => v > 0) && vals.some(v => v !== STARTER_MARGIN);
     }
     auto('D1 — Manage Documents','Set page margins', mOk,
       '✓ Margins changed from the default.',
@@ -1210,8 +1217,14 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ US Letter size detected.',
       '✗ Paper size not Letter. Fix: Layout → Size → Letter.');
 
+    // Design -> Page Color writes a <w:background> element as a direct
+    // child of the <w:document> root in document.xml (a sibling of
+    // <w:body>, per the OOXML CT_Document schema) -- not "<w:bg>" (not a
+    // real element in either WordprocessingML or this document) and not
+    // settings.xml, so the previous check could never match real Word
+    // output no matter what a student did.
     auto('D1 — Manage Documents','Set page color',
-      docXml.includes('<w:bg ') || settXml.includes('w:background'),
+      docXml.includes('<w:background'),
       '✓ Page background color detected.',
       '✗ No page color. Fix: Design → Page Color → choose a color.');
 
@@ -1269,10 +1282,19 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     self('D1 — Manage Documents','Show/Hide formatting marks',
       'Press Ctrl+* or Home → ¶. This is a display setting — it is not saved to the file.');
 
-    auto('D1 — Manage Documents','Modify print settings',
-      docXml.includes('<w:pageSetup') && (docXml.includes('w:paperSize="') || docXml.includes('w:scale=') || docXml.includes('w:fitToWidth')),
-      '✓ Print settings change detected.',
-      '✗ No print settings change. Fix: File → Print → Page Setup → adjust settings.');
+    // "<w:pageSetup>" / "w:paperSize" / "w:scale" / "w:fitToWidth" are
+    // SpreadsheetML (Excel) names, not WordprocessingML -- this check
+    // appears to have been copied from the Excel grader without being
+    // translated, so it could never pass on any real Word document (that
+    // element name doesn't exist in Word's schema). More fundamentally,
+    // Word's File → Print → Page Setup dialog is the *same* margins/
+    // orientation/paper-size dialog as the Layout ribbon -- it writes the
+    // identical <w:pgMar>/<w:pgSz> elements already covered by "Set page
+    // margins," "Set page orientation," and "Set paper size to Letter"
+    // above, so there's no separate signal to detect here at all. Moved
+    // to self-check rather than left as an unpassable auto-check.
+    self('D1 — Manage Documents','Modify print settings',
+      'File → Print → Page Setup opens the same dialog as Layout → Margins/Orientation/Size — there is nothing distinct to verify here beyond those other checks. Confirm your settings look right in the Print preview.');
 
     self('D1 — Manage Documents','Save as a different file format',
       'File → Save As → choose PDF or another format. The .docx cannot confirm this — verify the saved file on your computer.');
@@ -1283,19 +1305,37 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     self('D1 — Manage Documents','Check Compatibility',
       'File → Info → Check for Issues → Check Compatibility. Review any features not supported in older formats.');
 
-    const titleGone = !/<dc:title>[^<]+<\/dc:title>/.test(coreXml);
+    // This previously required BOTH dc:title AND cp:keywords to be gone --
+    // but the "Modify document properties" check just above requires
+    // dc:title to be present and CHANGED. Those two are mutually
+    // exclusive on the same field: no document, however carefully done,
+    // can have a title that is both "present and edited" and "removed
+    // entirely." Swapped to check dc:creator (Author) instead of
+    // dc:title -- the starter's real personal-info field (creator="Mark
+    // Taormino"), which Document Inspector removes independently of the
+    // Title field, so both skills can now genuinely both be satisfied.
+    const creatorGone = !/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml);
     const keywordsGone = !/<cp:keywords>[^<]+<\/cp:keywords>/.test(coreXml);
     auto('D1 — Manage Documents','Remove hidden properties / personal info',
-      titleGone && keywordsGone,
-      '✓ Starter\'s known properties (Title, Keywords) removed.',
+      creatorGone && keywordsGone,
+      '✓ Starter\'s known personal-info properties (Author, Keywords) removed.',
       '✗ Original properties still present. Fix: File → Info → Check for Issues → Inspect Document → Remove All.');
 
-    // Starter has 2 comments (id=0 Manager, id=1 Finance Manager)
-    // Delete comment: student removes one; resolve: student marks one resolved
-    const commentCount = (cmmXml.match(/<w:comment /g) || []).length;
+    // Starter has 2 comments (id=0 Manager, id=1 Finance Manager). This
+    // used to require the FINAL total comment count to drop below 2 --
+    // but D6's "Add a comment" (further down, same cmmXml) requires the
+    // final total to be 3 or more. Both conditions read the identical
+    // final comments.xml, so a single submitted file could never be both
+    // "< 2 comments" and ">= 3 comments" at once -- these two skills were
+    // mutually exclusive by construction, the same class of bug as the
+    // title/creator contradiction fixed earlier. The real, ID-specific
+    // signal for "a starter comment was deleted" is whether EITHER of
+    // the two known seeded ids (0 or 1) is now missing, independent of
+    // how many new comments were added afterward for the other task.
+    const seededCommentGone = !(cmmXml.includes('<w:comment w:id="0" ') && cmmXml.includes('<w:comment w:id="1" '));
     auto('D1 — Manage Documents','Delete a comment',
-      commentCount < 2,
-      `✓ A comment was deleted (${commentCount} remaining).`,
+      seededCommentGone,
+      '✓ A starter comment was deleted.',
       '✗ Both starter comments still present. Fix: right-click a comment bubble → Delete Comment.');
 
     auto('D1 — Manage Documents','Resolve a comment',
@@ -1306,17 +1346,22 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     self('D1 — Manage Documents','Review tracked changes',
       'Review → Show Markup to view changes. Use Previous/Next to step through them. Reviewing leaves no file trace.');
 
-    // Starter has del id=10/11 in D1 and del id=20 in D6
-    // Accept: all tracked change markup gone
-    // Reject: markup also gone (either action removes it)
-    const hasAnyTC = docXml.includes('<w:ins ') || docXml.includes('<w:del ');
+    // Starter has del id=10/11 in D1 and a separate del id=20 in D6. The
+    // previous check required NO w:ins/w:del anywhere in the whole
+    // document, which ties D1's own pass/fail to whatever state D6's
+    // unrelated tracked change happens to be in -- a student who correctly
+    // accepts/rejects D1's own change but hasn't reached D6 yet would fail
+    // here even though the D1 task is done. D6's own checks already scope
+    // correctly to its own id (see below); D1's is fixed the same way.
+    const d1TCGone = !docXml.includes('<w:del w:id="10"') && !docXml.includes('<w:del w:id="11"') &&
+      !docXml.includes('<w:ins w:id="10"') && !docXml.includes('<w:ins w:id="11"');
     auto('D1 — Manage Documents','Accept a tracked change',
-      !hasAnyTC,
+      d1TCGone,
       '✓ Tracked change markup removed — change accepted.',
       '✗ Tracked changes still present. Fix: Review → Accept → Accept This Change.');
 
     auto('D1 — Manage Documents','Reject a tracked change',
-      !hasAnyTC,
+      d1TCGone,
       '✓ Tracked change markup removed — change accepted or rejected.',
       '✗ Tracked changes still present. Fix: Review → Reject → Reject This Change.');
 
@@ -1334,15 +1379,42 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ No "DSC" abbreviations found — all replaced.',
       `✗ ${dscCount} instance(s) of "DSC" still present. Fix: Ctrl+H → Find "DSC" → Replace with "Desert Sun Consulting" → Replace All.`);
 
-    // Apply symbol: check for w:sym element
+    // Insert symbol -- <w:sym> is only used for legacy symbol-font glyphs
+    // (Wingdings etc.) that have no standard Unicode mapping. For an
+    // ordinary Unicode character like the instructed © (U+00A9), modern
+    // Word inserts the literal character straight into <w:t>, never a
+    // <w:sym> element -- so a student following the exact instruction
+    // ("insert the copyright symbol © using Insert → Symbol") would
+    // always fail the old check. The starter's own instruction text
+    // already contains one literal © (as an example inside the
+    // instructions themselves), so a plain "does © appear" check would
+    // false-positive on an untouched submission; this requires a second
+    // occurrence, the same baseline-artifact pattern as the D3 restart-
+    // numbering fix.
+    const copyrightCount = (docXml.match(/©/g) || []).length;
     auto('D2 — Format Text & Paragraphs','Insert a symbol or special character',
-      docXml.includes('<w:sym '),
+      docXml.includes('<w:sym ') || copyrightCount >= 2,
       '✓ Special character/symbol detected.',
       '✗ No symbol found. Fix: Insert → Symbol → More Symbols → choose © or another symbol.');
 
-    // Apply text effects: shadow/glow/reflection on title
+    // Apply text effects -- a:outerShdw/a:glow/a:reflection are DrawingML
+    // shape/picture-effect elements (this file's own D5 section uses the
+    // exact same names for "Apply picture effects and styles" on inline
+    // images/shapes). A plain document-wide substring search for them
+    // here meant that completing the UNRELATED D5 picture-effects task
+    // would also flip this D2 text-effects check to true. Word's actual
+    // run-level Font -> Text Effects (Shadow/Glow/Reflection/Outline)
+    // writes the Word 2010+ extended run-property elements in the w14
+    // namespace inside <w:rPr>, so this now scopes the search to rPr
+    // blocks and only looks for the run-level markers (w14:* plus the
+    // legacy real w:rPr child <w:shadow/>), dropping the DrawingML
+    // shape-effect names that caused the cross-contamination.
+    const rPrBlocks = [...docXml.matchAll(/<w:rPr>([\s\S]*?)<\/w:rPr>/g)].map(m => m[1]);
+    const hasTextEffect = rPrBlocks.some(rpr =>
+      rpr.includes('w14:shadow') || rpr.includes('w14:glow') || rpr.includes('w14:reflection') ||
+      rpr.includes('w14:textOutline') || rpr.includes('<w:shadow/>') || rpr.includes('<w:shadow '));
     auto('D2 — Format Text & Paragraphs','Apply text effects',
-      docXml.includes('w:shadow') || docXml.includes('a:outerShdw') || docXml.includes('a:glow') || docXml.includes('a:reflection'),
+      hasTextEffect,
       '✓ Text effect detected.',
       '✗ No text effect. Fix: Select title → Home → Font → Text Effects → Shadow or Glow.');
 
@@ -1419,28 +1491,50 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Section with different page setup detected.',
       '✗ No section page setup change. Fix: Insert section break first, then Layout → Orientation → Landscape in that section.');
 
-    // Format Painter: TARGET TEXT paragraph should have FF0000 red color AFTER the student applies it
-    // Source paragraph (FF0000) comes BEFORE Target paragraph in the document
-    // So correct detection: FF0000 appears within 300 chars AFTER "TARGET TEXT"
-    const targetIdx = docXml.indexOf('TARGET TEXT');
-    const targetHasRed = targetIdx >= 0 && /FF0000/.test(docXml.slice(targetIdx, targetIdx + 300));
+    // Both of the next two checks used a fixed character window starting
+    // AT the marker text and only looking forward. That's wrong in two
+    // ways: (1) a run's own <w:rPr> (where its color/bold/italic live)
+    // always comes BEFORE its <w:t> text in the XML, so a fixed-forward
+    // window can never see the marker run's OWN formatting, only some
+    // later run's; and (2) a window long enough to reach past the end of
+    // the marker's own (short) paragraph bleeds into whatever paragraph
+    // happens to follow -- here, a Heading2 divider, which is always
+    // bold, making "Clear formatting" fail even when done correctly, for
+    // every student, regardless of what they did. Scoping to the actual
+    // enclosing <w:p>...</w:p> block fixes both.
+    const paragraphContaining = (xml, marker) => {
+      const idx = xml.indexOf(marker);
+      if (idx < 0) return '';
+      const pStart = Math.max(xml.lastIndexOf('<w:p ', idx), xml.lastIndexOf('<w:p>', idx));
+      const pEnd = xml.indexOf('</w:p>', idx);
+      if (pStart < 0 || pEnd < 0) return '';
+      return xml.slice(pStart, pEnd + 6);
+    };
+
+    // Format Painter: TARGET TEXT paragraph should have FF0000 red color
+    // AFTER the student applies it, anywhere within its own paragraph.
+    const targetPara = paragraphContaining(docXml, 'TARGET TEXT');
+    const targetHasRed = /FF0000/.test(targetPara);
     auto('D2 — Format Text & Paragraphs','Use Format Painter',
       targetHasRed,
       '✓ Target text now has matching red formatting — Format Painter used.',
       '✗ Target text formatting not changed. Fix: Click source text → Home → Format Painter brush → click target text.');
 
     // Clear formatting: "CLEAR THIS" paragraph should now have no bold/italic/color
-    const clearStillFormatted = /<w:b\/>/.test(docXml.slice(docXml.indexOf('CLEAR THIS'), docXml.indexOf('CLEAR THIS') + 400)) ||
-      /<w:i\/>/.test(docXml.slice(docXml.indexOf('CLEAR THIS'), docXml.indexOf('CLEAR THIS') + 400)) ||
-      /0563C1/.test(docXml.slice(docXml.indexOf('CLEAR THIS'), docXml.indexOf('CLEAR THIS') + 400));
+    const clearPara = paragraphContaining(docXml, 'CLEAR THIS');
+    const clearStillFormatted = /<w:b\/>/.test(clearPara) || /<w:i\/>/.test(clearPara) || /0563C1/.test(clearPara);
     auto('D2 — Format Text & Paragraphs','Clear formatting',
       !clearStillFormatted,
       '✓ Formatting cleared from the "CLEAR THIS" paragraph.',
       '✗ "CLEAR THIS" paragraph still has Bold/Italic/Blue. Fix: Select it → Home → Clear All Formatting.');
 
-    // Modify footnote properties: starter has decimal numbering (default)
-    // After modification, numFmt should be something other than decimal
-    const fnNumFmt = (fnXml.match(/<w:numFmt w:val="([^"]+)"/) || [])[1] || 'decimal';
+    // Modify footnote properties: starter has decimal numbering (default).
+    // Per the OOXML spec, document-wide footnote numbering format
+    // (w:footnotePr/w:numFmt) is stored in word/settings.xml, never in
+    // word/footnotes.xml (which only holds footnote CONTENT) -- so the
+    // previous check, which read fnXml, could never find this element and
+    // could never pass for any real student, no matter what they did.
+    const fnNumFmt = (settXml.match(/<w:footnotePr>[\s\S]*?<w:numFmt w:val="([^"]+)"/) || [])[1] || 'decimal';
     auto('D2 — Format Text & Paragraphs','Modify footnote/endnote properties',
       fnNumFmt !== 'decimal' && fnNumFmt !== '',
       `✓ Footnote numbering changed to ${fnNumFmt}.`,
@@ -1560,8 +1654,17 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✗ Not detected. Fix: Right-click first item of second list → Restart at 1.');
 
     // ── D4 — References ─────────────────────────────────────────────────────
+    // The starter already ships with one seeded, real footnote (id="2",
+    // the Nevada Business Review citation) in addition to the separator/
+    // continuationSeparator entries (id="-1"/"0", which use w:type before
+    // w:id and so never match this literal substring). That baseline is
+    // 1 match. The previous ">3" threshold required 3 real footnotes
+    // (i.e. the student adding TWO new ones) to ever pass, when the
+    // assigned task is to add a single new footnote -- correct threshold
+    // is "more than the 1-footnote baseline".
+    const footnoteMatches = (fnXml.match(/<w:footnote w:id=/g) || []).length;
     auto('D4 — References','Insert a footnote',
-      fnXml.split('<w:footnote w:id=').length > 3 && docXml.includes('w:footnoteReference'),
+      footnoteMatches >= 2 && docXml.includes('w:footnoteReference'),
       '✓ New footnote detected.',
       '✗ No new footnote. Fix: References → Insert Footnote → type citation text.');
 
@@ -1616,14 +1719,19 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Shape fill color detected — shape was formatted.',
       '✗ PracticeShape still has no fill. Fix: Click the shape → Shape Format → Shape Fill → choose a color.');
 
-    // Insert a text box: seeded textboxes (ids 10,11) exist but are empty
-    // Detect a student-inserted textbox by id > 11 OR any txbxContent with non-empty text
-    // Use proper scoping to avoid greedy cross-boundary matches
+    // Insert a text box: seeded textbox/shape (ids 10,11) already exist,
+    // and the SEPARATE "Add text to a text box" task below expects the
+    // student to type into that pre-existing, empty seeded textbox. The
+    // previous "|| anyTbText" fallback here meant simply doing THAT
+    // unrelated task (typing into the already-present box) also credited
+    // "Insert a text box", without the student ever inserting anything
+    // new. A genuinely new text box always gets its own new wp:docPr id,
+    // same as any newly-inserted drawing object, so that's the only
+    // reliable signal that something new was actually inserted.
     const tbBlocks = [...docXml.matchAll(/<w:txbxContent>([\s\S]*?)<\/w:txbxContent>/g)].map(m => m[1]);
-    const anyTbText = tbBlocks.some(block => /<w:t>[^<]+<\/w:t>/.test(block));
     auto('D5 — Graphic Elements','Insert a text box',
-      shapeIds.some(id => id > 11) || anyTbText,
-      '✓ Text box with content detected.',
+      shapeIds.some(id => id > 11),
+      '✓ New text box / drawing object detected.',
       '✗ No text box inserted. Fix: Insert → Text Box → Draw Text Box → type your text.');
 
     // Add text to text box: starter textbox is empty; check for non-empty w:t inside PracticeTextBox
@@ -1635,9 +1743,19 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Text detected inside the practice text box.',
       '✗ Practice text box still empty. Fix: Click inside the text box → type your tagline.');
 
+    // The second half of the old OR ("fileList.split('|').some(f =>
+    // f.includes('media/'))") tested the exact same fileList string the
+    // left-hand "fileList.includes('word/media/')" already required, so
+    // it was always true whenever the left side was -- the whole check
+    // collapsed to "any media file exists," making it indistinguishable
+    // from "Insert a picture" (any inserted photo also flipped this to
+    // true). Word's Insert -> Icons feature embeds the icon as an SVG
+    // blip carried in a DrawingML extension list (a:extLst) on the
+    // picture, which a plain inserted photo does not have, so requiring
+    // that marker is the actual distinguishing signal.
     auto('D5 — Graphic Elements','Insert an icon',
-      fileList.includes('word/media/') && (docXml.includes('a:extLst') || fileList.split('|').some(f => f.includes('media/'))),
-      '✓ Media file detected — icon likely inserted.',
+      fileList.includes('word/media/') && docXml.includes('a:extLst'),
+      '✓ Media file with extension data detected — icon likely inserted.',
       '✗ No icon detected. Fix: Insert → Icons → search for a business icon → Insert.');
 
     // Add text to shape: seeded shapes have empty wps:txbx blocks
@@ -1710,9 +1828,14 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       `✓ ${totalComments} comments found — new comment added.`,
       '✗ No new comment detected. Fix: Select text → Review → New Comment → type your note.');
 
-    // Reply: commentsExtended has a parentId attribute linking reply to parent
+    // Reply: commentsExtended has a parentId attribute linking reply to
+    // parent. The old "|| totalComments >= 3" fallback meant simply
+    // adding a new TOP-LEVEL comment (the separate "Add a comment" task
+    // right above) also credited this reply check, without the student
+    // ever clicking Reply on anything -- w15:paraIdParent is the one
+    // real, unambiguous signature Word writes for an actual reply.
     auto('D6 — Collaboration','Review and reply to a comment',
-      cmmExtXml.includes('w15:paraIdParent=') || totalComments >= 3,
+      cmmExtXml.includes('w15:paraIdParent='),
       '✓ Comment reply detected.',
       '✗ No reply detected. Fix: Click a comment → Reply button → type your response.');
 
@@ -1722,36 +1845,57 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Resolved comment detected.',
       '✗ No resolved comment. Fix: Hover a comment → click the ✓ button to resolve it.');
 
-    // Delete a comment: starter has 2; after delete fewer remain
+    // Delete a comment: same fix as D1's "Delete a comment" above -- a
+    // raw "< 2 total" threshold directly contradicts THIS SAME domain's
+    // "Add a comment" check just above (">= 3 total"), on the identical
+    // final cmmXml. Scoped to the real signal instead: at least one of
+    // the two known seeded ids (0 or 1) is now missing.
+    const seededCommentGoneD6 = !(cmmXml.includes('<w:comment w:id="0" ') && cmmXml.includes('<w:comment w:id="1" '));
     auto('D6 — Collaboration','Delete a comment',
-      totalComments < 2,
-      '✓ A comment was deleted.',
+      seededCommentGoneD6,
+      '✓ A starter comment was deleted.',
       '✗ Both starter comments still present. Fix: Right-click comment → Delete Comment.');
 
-    // Turn on Track Changes: check for w:ins NOT authored by the seeded authors
+    // Turn on Track Changes: check for w:ins or w:del NOT authored by the
+    // seeded authors. The previous version only looked at w:ins, so a
+    // student whose genuine tracked edit happened to be a deletion (no
+    // new inserted text at all) would show as "no track changes" even
+    // though they correctly turned it on and edited with it active.
     const seededAuthors = ['Manager', 'Finance Manager'];
-    const studentInserted = [...docXml.matchAll(/<w:ins[^>]*w:author="([^"]+)"/g)]
+    const studentInserted = [...docXml.matchAll(/<w:(?:ins|del)[^>]*w:author="([^"]+)"/g)]
       .some(m => !seededAuthors.includes(m[1]));
     auto('D6 — Collaboration','Turn on Track Changes',
       studentInserted,
       '✓ Student-authored tracked changes detected.',
       '✗ No student tracked changes. Fix: Review → Track Changes (Ctrl+Shift+E) → make edits in the document.');
 
-    // Accept tracked change: D1 starter had del id=10+11, D6 has del id=20
-    // After accept, those dels are gone
-    const starterDelGone = !docXml.includes('<w:del w:id="10"') && !docXml.includes('<w:del w:id="20"');
+    // D6's own tracked change is a standalone deletion (del id="20", no
+    // paired w:ins) of the sentence "Annual compliance training is
+    // mandatory for all staff. Reports are filed quarterly with the
+    // Nevada Secretary of State." -- NOT a replace pair like D1's. The
+    // previous checks had two bugs: (1) "Accept" incorrectly required
+    // D1's own del id="10" to ALSO be gone, coupling D6's pass/fail to an
+    // unrelated domain's state, the same class of bug already fixed for
+    // D1 earlier; and (2) Accept and Reject both fired on the identical
+    // signal (the <w:del id="20"> marker being gone), which happens
+    // either way a tracked deletion is resolved -- Word removes the
+    // wrapper in both cases, so that alone can't tell accept from reject.
+    // The real distinguishing signal is the deleted TEXT itself: Accept
+    // permanently removes it from the document; Reject restores it as
+    // normal, untracked text. So this checks whether that sentence still
+    // appears as plain text anywhere outside a w:delText span.
+    const d6DelMarkerGone = !docXml.includes('<w:del w:id="20"');
+    const docXmlNoDelText = docXml.replace(/<w:delText[^>]*>[\s\S]*?<\/w:delText>/g, '');
+    const d6TextRestored = docXmlNoDelText.includes('Annual compliance training is mandatory');
     auto('D6 — Collaboration','Accept a tracked change',
-      starterDelGone,
-      '✓ Starter\'s tracked deletions were accepted.',
-      '✗ Seeded tracked changes still present. Fix: Click a tracked change → Review → Accept.');
+      d6DelMarkerGone && !d6TextRestored,
+      '✓ Tracked deletion accepted — text permanently removed.',
+      '✗ Not detected. Fix: Click on that tracked change → Review → Accept.');
 
-    // Reject tracked change: D6 has del id=20 (Finance Manager deleted compliance text)
-    // After REJECT, that deleted text is RESTORED — the del id=20 marker disappears
-    const d6DelGone = !docXml.includes('<w:del w:id="20"');
     auto('D6 — Collaboration','Reject a tracked change',
-      d6DelGone,
-      '✓ D6 tracked deletion rejected — deleted text restored.',
-      '✗ The D6 Finance Manager deletion is still present. Fix: Click on that tracked change → Review → Reject.');
+      d6DelMarkerGone && d6TextRestored,
+      '✓ Tracked deletion rejected — deleted text restored.',
+      '✗ Not detected. Fix: Click on that tracked change → Review → Reject.');
 
     self('D6 — Collaboration','Review tracked changes',
       'Review → Show Markup to see all changes. Use Previous/Next to step through them. This action leaves no file trace.');
