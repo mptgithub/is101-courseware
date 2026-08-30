@@ -1790,15 +1790,27 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ SmartArt detected.',
       '✗ No SmartArt. Fix: Insert → SmartArt → choose a layout → OK.');
 
-    // Screenshot/picture
-    auto('D5 — Graphic Elements','Insert a screenshot or screen clipping',
-      docXml.includes('w:drawing') && fileList.split('|').some(f => f.match(/word\/media\/image\d/)),
-      '✓ Image file in document detected (screenshot or picture).',
-      '✗ No screenshot. Fix: Open a window → Insert → Screenshot → choose a window or Screen Clipping.');
+    // Screenshot/picture -- a real Word screenshot (Insert -> Screenshot)
+    // and a regular inserted picture produce byte-for-byte identical
+    // drawing/blip XML; there is no structural marker anywhere in the
+    // file that distinguishes "came from the Screenshot tool" from
+    // "came from Insert > Pictures." The previous check just tested for
+    // any inserted image, making it indistinguishable from (and
+    // redundant with) "Insert a picture." Moved to self-check rather
+    // than pretend to verify something the file format can't show.
+    self('D5 — Graphic Elements','Insert a screenshot or screen clipping',
+      'Open any window (or a webpage) → Insert → Screenshot → choose a window thumbnail or Screen Clipping. A screenshot and a regular picture look identical in the saved file, so this can\'t be auto-verified — confirm you used the Screenshot tool specifically.');
 
-    // Artistic effects
+    // Artistic effects -- real Word writes one of 22 specific named
+    // elements (a14:artisticPencilSketch, a14:artisticLineDrawing,
+    // a14:artisticBlur, a14:artisticCutout, etc.) inside a14:imgEffect.
+    // There is no generic "artisticFilter" wrapper element in the OOXML
+    // extension spec (MS-ODRAWXML CT_PictureEffect) -- that string never
+    // appears in a real Word file, so the old check could never pass for
+    // any genuine student submission. Fixed to match the real shared
+    // prefix used by every artistic-effect element name.
     auto('D5 — Graphic Elements','Apply artistic effects to a picture',
-      docXml.includes('a14:artisticFilter') || docXml.includes('artisticFilter'),
+      /a14:artistic[A-Za-z]+/.test(docXml),
       '✓ Artistic effect detected.',
       '✗ No artistic effect. Fix: Click image → Picture Format → Artistic Effects → choose one.');
 
@@ -1814,11 +1826,17 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Background removal detected.',
       '✗ Not detected. Fix: Click image → Picture Format → Remove Background → Mark Areas to Keep/Remove → Keep Changes.');
 
-    // 3D model
-    auto('D5 — Graphic Elements','Insert a 3D model',
-      fileList.includes('.glb') || fileList.includes('word/3D') || docXml.includes('am3d:'),
-      '✓ 3D model detected.',
-      '✗ No 3D model. Fix: Insert → 3D Models → From Online Sources → search and insert. (On a Mac? This feature isn\'t available in Word for Mac — skip this one, it\'s not part of any graded project.)');
+    // 3D model -- not available in Word for Mac at all (the fail
+    // message already told Mac students to skip it), and genuine 3D-
+    // model XML is the most involved of any D5 skill to produce
+    // authentically (an embedded .glb/.gltf, a rendered thumbnail
+    // fallback image, and the model3d graphicData namespace all have to
+    // be present and consistent, or Word treats it as corrupt). Given a
+    // meaningful share of students can't even attempt this feature,
+    // moved to self-check rather than an auto-check some can never pass
+    // for reasons unrelated to their own work.
+    self('D5 — Graphic Elements','Insert a 3D model',
+      'Insert → 3D Models → From Online Sources → search and insert; rotate and resize it. Not available in Word for Mac — if you\'re on a Mac, this one isn\'t required.');
 
     // ── D6 — Document Collaboration ─────────────────────────────────────────
     // Starter has 2 comments (id=0, id=1); student should ADD one more
