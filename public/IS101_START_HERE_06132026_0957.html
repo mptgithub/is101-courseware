@@ -134,7 +134,7 @@
   /* ── OVERALL PROGRESS BAR ── */
   .overall-progress {
     background: var(--navy-mid);
-    padding: 8px 2rem;
+    padding: 12px 2rem;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -178,7 +178,8 @@
   .home-hero {
     background: var(--navy);
     color: var(--white);
-    padding: 30px 2rem 26px;
+    padding: 56px 2rem 48px;
+    text-align: center;
     position: relative;
     overflow: hidden;
   }
@@ -189,112 +190,38 @@
     background: radial-gradient(ellipse 70% 80% at 50% 110%, rgba(201,148,58,0.18) 0%, transparent 70%);
     pointer-events: none;
   }
-  .hero-inner {
-    max-width: 1180px;
-    margin: 0 auto;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 48px;
-    flex-wrap: wrap;
-  }
-  .hero-main {
-    flex: 1 1 480px;
-    min-width: 280px;
-  }
-  .home-hero .hero-byline {
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: var(--gold-bright);
-    margin-bottom: 6px;
+  .home-hero .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
   }
   .home-hero h1 {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(26px, 3vw, 36px);
+    font-size: clamp(28px, 5vw, 42px);
     font-weight: 400;
     color: var(--white);
-    line-height: 1.1;
-    margin-bottom: 6px;
+    line-height: 1.15;
+    margin-bottom: 14px;
   }
   .home-hero h1 em {
     font-style: italic;
     color: var(--gold-pale);
   }
   .home-hero .subtitle {
-    font-size: 14.5px;
+    font-size: 15px;
     color: rgba(255,255,255,0.6);
     max-width: 480px;
-    line-height: 1.5;
-  }
-  .hero-side {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 14px;
-    position: relative;
-  }
-  .hero-objectives-cta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-    color: var(--navy);
-    text-decoration: none;
-    padding: 13px 20px;
-    border-radius: 14px;
-    box-shadow: 0 8px 22px rgba(201,148,58,0.35);
-    transition: transform 0.2s, box-shadow 0.2s;
-    min-width: 280px;
-  }
-  .hero-objectives-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(201,148,58,0.45);
-  }
-  .hero-objectives-cta .cta-icon {
-    font-size: 22px;
-    flex-shrink: 0;
-  }
-  .hero-objectives-cta .cta-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.3;
-  }
-  .hero-objectives-cta .cta-title {
-    font-size: 15px;
-    font-weight: 700;
-  }
-  .hero-objectives-cta .cta-desc {
-    font-size: 11.5px;
-    font-weight: 500;
-    color: rgba(13,27,46,0.7);
-  }
-  .hero-objectives-cta .cta-arrow {
-    margin-left: auto;
-    font-size: 16px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .copyright-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.6);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 5px 12px;
-    border-radius: 20px;
-    white-space: nowrap;
+    margin: 0 auto;
+    line-height: 1.6;
   }
 
   .units-grid {
     max-width: 960px;
     margin: 0 auto;
-    padding: 28px 2rem 60px;
+    padding: 40px 2rem 60px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: 20px;
@@ -480,27 +407,10 @@
   }
 
   /* ── UNIT OVERVIEW VIEW ── */
-  .unit-shell {
-    display: flex;
-    align-items: flex-start;
-    max-width: 1400px;
+  .view-inner {
+    max-width: 800px;
     margin: 0 auto;
-  }
-  .unit-sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    background: var(--navy);
-    color: #fff;
-    padding: 28px 20px;
-    position: sticky;
-    top: 0;
-    align-self: flex-start;
-    min-height: 100vh;
-  }
-  .unit-content {
-    flex: 1;
-    min-width: 0;
-    padding: 40px 2.5rem 60px;
+    padding: 40px 2rem 60px;
   }
 
   .breadcrumb {
@@ -606,182 +516,31 @@
     transition: width 0.8s ease;
   }
 
-  /* unit-page learning objectives recap */
-  .unit-objectives-panel {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--gold);
-    border-radius: var(--radius);
-    padding: 18px 24px;
-    margin-bottom: 28px;
-    box-shadow: var(--shadow-sm);
-  }
-  .unit-objectives-panel.u2 { border-left-color: #2563eb; }
-  .unit-objectives-panel.u3 { border-left-color: #16a34a; }
-  .unit-objectives-panel.u4 { border-left-color: #9333ea; }
-  .obj-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  .obj-toggle-left {
-    display: flex;
+  /* jump to projects */
+  .jump-projects-btn {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-dark);
-  }
-  .obj-toggle-left .obj-icon { font-size: 15px; }
-  .obj-chevron {
-    color: var(--text-muted);
-    font-size: 12px;
-    transition: transform 0.2s;
-  }
-  .unit-objectives-panel.open .obj-chevron { transform: rotate(180deg); }
-  .course-outcome {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    background: var(--cream-dark);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    margin-top: 14px;
-  }
-  .unit-objectives-panel.u2 .course-outcome { background: #eef4ff; }
-  .unit-objectives-panel.u3 .course-outcome { background: #eefaf1; }
-  .unit-objectives-panel.u4 .course-outcome { background: #f6effc; }
-  .course-outcome .co-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .course-outcome .co-body { flex: 1; }
-  .course-outcome .co-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 3px;
-  }
-  .course-outcome .co-text {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--text-dark);
-    line-height: 1.4;
-  }
-  .course-outcome .co-text + .co-text { margin-top: 4px; }
-  .course-outcome .co-num {
-    color: var(--text-muted);
-    font-weight: 700;
-    margin-right: 3px;
-  }
-  .obj-list {
-    list-style: none;
-    margin: 16px 0 0;
-    padding: 0;
-    display: none;
-  }
-  .unit-objectives-panel.open .obj-list { display: block; }
-  .obj-item {
-    font-size: 14px;
-    color: var(--text-mid);
-    line-height: 1.55;
-    padding: 7px 0;
-    border-top: 1px solid var(--border);
-  }
-  .obj-item:first-child { border-top: none; padding-top: 0; }
-  .obj-verb { font-weight: 700; color: var(--text-dark); }
-  .obj-tag { font-style: italic; color: var(--text-muted); font-size: 12.5px; }
-
-  /* jump to projects — lives in the unit sidebar now */
-  .jump-projects-btn {
-    display: block;
-    width: 100%;
-    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
-    color: var(--navy);
-    border: none;
-    padding: 16px 18px;
+    background: none;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    padding: 9px 18px;
     border-radius: var(--radius-sm);
     font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 14px rgba(201,148,58,0.35);
+    margin-bottom: 28px;
   }
-  .jump-projects-btn:not(.locked):hover { filter: brightness(1.05); }
-  .jump-projects-btn .jp-txt::before { content: ''; }
-  .jump-projects-btn .jp-sub { display: block; font-weight: 500; font-size: 11.5px; margin-top: 3px; }
-  .jump-projects-btn .jp-hint { display: block; font-weight: 500; font-style: italic; font-size: 10.5px; margin-top: 6px; line-height: 1.4; }
-  .jump-projects-btn.locked {
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.4);
-    cursor: not-allowed;
-    box-shadow: none;
-    border: 1px dashed rgba(255,255,255,0.18);
-  }
-  .jump-projects-btn.locked .jp-hint { color: rgba(255,255,255,0.4); }
-
-  @keyframes jpUnlockPulse {
-    0% { box-shadow: 0 0 0 0 rgba(46,125,79,0.55); }
-    70% { box-shadow: 0 0 0 16px rgba(46,125,79,0); }
-    100% { box-shadow: 0 0 0 0 rgba(46,125,79,0); }
-  }
-  .jump-projects-btn.just-unlocked { animation: jpUnlockPulse 0.9s ease-out 2; }
-
-  /* sidebar group/topic navigation */
-  .sidebar-nav-label {
-    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.4); font-weight: 700; margin-bottom: 10px;
-  }
-  .sidebar-link {
-    display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px;
-    margin-bottom: 4px; cursor: pointer; border: 1px solid transparent; transition: background 0.15s;
-  }
-  .sidebar-link:hover, .sidebar-link.active { background: rgba(255,255,255,0.08); }
-  .sidebar-link.is-done { border-color: rgba(46,125,79,0.5); background: rgba(46,125,79,0.16); }
-  .sidebar-link .sl-icon {
-    width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
-  }
-  .sidebar-link.is-done .sl-icon { background: var(--success); }
-  .sidebar-link .sl-t { flex: 1; min-width: 0; }
-  .sidebar-link .sl-name { font-size: 12.5px; font-weight: 600; color: #fff; }
-  .sidebar-link .sl-prow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 1px; }
-  .sidebar-link .sl-count { font-size: 10.5px; color: rgba(255,255,255,0.45); }
-  .sidebar-link .sl-pct { font-size: 10.5px; font-weight: 700; color: var(--gold-bright); }
-  .sidebar-link.is-done .sl-pct { color: #7fd9a0; }
-  .sidebar-track { width: 100%; height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; margin-top: 5px; }
-  .sidebar-fill { height: 100%; background: var(--gold-bright); }
-  .sidebar-link.is-done .sidebar-fill { background: #7fd9a0; }
-
-  /* content toolbar (collapse/expand all) */
-  .content-toolbar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 14px; }
-  .toolbar-btn {
-    font-size: 11.5px; font-weight: 600; padding: 6px 12px; border-radius: 6px;
-    border: 1px solid var(--border); background: #fff; color: var(--text-mid); cursor: pointer;
-  }
-  .toolbar-btn:hover { background: var(--cream); }
+  .jump-projects-btn:hover { background: var(--gold); color: var(--navy); }
 
   /* skill groups */
   .skill-groups {
-    columns: 2;
-    column-gap: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
-  .skill-group-card { break-inside: avoid; margin-bottom: 14px; }
-  .skill-group-card.group-complete { border-color: rgba(46,125,79,0.4); }
-  .skill-group-card.group-complete .group-icon { background: var(--success); color: #fff; }
-  .skill-group-card.group-complete .mini-pct { color: var(--success); }
-  .skill-group-card.group-complete .mini-fill { background: var(--success); }
 
   .skill-group-card {
     background: var(--white);
@@ -887,9 +646,7 @@
     color: transparent;
     background: var(--white);
     transition: all 0.2s;
-    cursor: pointer;
   }
-  .skill-check:hover { border-color: var(--gold); }
   .skill-check.done {
     background: var(--success);
     border-color: var(--success);
@@ -1309,29 +1066,13 @@
   .toast.warning { background: var(--warn); }
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .unit-shell { flex-direction: column; }
-    .unit-sidebar { width: 100%; position: relative; top: auto; min-height: auto; }
-    .skill-groups { columns: 1; }
-  }
-  @media (max-width: 860px) {
-    .hero-inner { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 28px; }
-    .hero-main { flex: 0 0 auto; min-width: 0; width: 100%; }
-    .hero-side { align-items: flex-start; width: 100%; }
-    .hero-objectives-cta { width: 100%; min-width: 0; }
-  }
   @media (max-width: 600px) {
     .units-grid { grid-template-columns: 1fr; padding: 20px 1rem 40px; }
-    .unit-content { padding: 24px 1rem 40px; }
-    .home-hero { padding: 22px 1rem 20px; }
-    .overall-progress { padding: 8px 1rem; }
-    .site-header { padding: 0 0.75rem; }
+    .view-inner { padding: 24px 1rem 40px; }
+    .home-hero { padding: 36px 1rem 32px; }
+    .overall-progress { padding: 10px 1rem; }
+    .site-header { padding: 0 1rem; }
     .modal-body .modal-choices { gap: 8px; }
-    .home-hero .hero-byline { font-size: 15px; }
-    .header-right { gap: 6px; }
-    .student-badge { max-width: 110px; padding: 5px 10px; }
-    .student-badge #studentLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 74px; }
-    .logout-btn { padding: 5px 8px; font-size: 11px; }
   }
 
   /* ── ANIMATIONS ── */
@@ -1432,24 +1173,9 @@
 ══════════════════════════════════════════════ -->
 <div class="view active" id="viewHome">
   <div class="home-hero">
-    <div class="hero-inner">
-      <div class="hero-main">
-        <div class="hero-byline">Designed and Created by Dr. Mark Taormino</div>
-        <h1>Introduction to <em>Computing</em></h1>
-        <p class="subtitle">Modern, up-to-date courseware for beginning college students.</p>
-      </div>
-      <div class="hero-side">
-        <a class="hero-objectives-cta" href="IS101_Learning_Objectives.html">
-          <span class="cta-icon" aria-hidden="true">🎯</span>
-          <span class="cta-text">
-            <span class="cta-title">Learning Objectives</span>
-            <span class="cta-desc">See what you'll master in every unit</span>
-          </span>
-          <span class="cta-arrow" aria-hidden="true">→</span>
-        </a>
-        <div class="copyright-badge">© Dr. Mark Taormino</div>
-      </div>
-    </div>
+    <div class="eyebrow">Designed and Created by Dr. Mark Taormino</div>
+    <h1>Introduction to<br><em>Computing</em></h1>
+    <p class="subtitle">Modern, up-to-date courseware for beginning college students.</p>
   </div>
 
   <div class="units-grid">
@@ -1461,7 +1187,7 @@
         <div class="card-header-row">
           <div>
             <div class="unit-number">Unit 1</div>
-            <div class="unit-title">Artificial Intelligence:<br>Getting Started with AI</div>
+            <div class="unit-title">Artificial Intelligence:<br>It is Real!</div>
           </div>
           <span class="unit-status-badge badge-active" id="u1Badge">Active</span>
         </div>
@@ -1549,28 +1275,30 @@
     </div>
 
     <!-- UNIT 4 -->
-    <div class="unit-card u4" onclick="openUnit(4)">
+    <div class="unit-card u4 locked" id="unit4Card" aria-disabled="true">
       <div class="card-accent"></div>
       <div class="card-body">
         <div class="card-header-row">
           <div>
             <div class="unit-number">Unit 4</div>
-            <div class="unit-title">Presentations:<br>AI-Powered Tools and Presentation Software</div>
+            <div class="unit-title">Presentations:<br>AI-Powered Tools and PowerPoint</div>
           </div>
-          <span class="unit-status-badge badge-active" id="u4Badge">Active</span>
+          <span class="unit-status-badge badge-coming">Coming Soon</span>
         </div>
-        <p class="unit-desc">Design professional presentations using AI tools and presentation software. Two assignments so far — more will be added throughout the unit.</p>
+        <p class="unit-desc">Design professional presentations using AI tools and PowerPoint. You will design and produce a real presentation.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon" aria-hidden="true">🎯</span> Skills</span>
+          <span class="meta-item"><span class="meta-icon" aria-hidden="true">⏱</span> ~3 hrs</span>
+          <span class="meta-item"><span class="meta-icon" aria-hidden="true">📁</span> Projects</span>
+        </div>
         <div class="card-progress">
           <div class="card-progress-header">
-            <span id="u4ProgressLabel">0 of 2 steps complete</span>
-            <span id="u4Pct">0%</span>
+            <span>Not yet available</span>
           </div>
-          <div class="card-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit 4 progress">
-            <div class="card-fill" id="u4Fill" style="width:0%"></div>
-          </div>
+          <div class="card-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit 4 progress"><div class="card-fill" style="width:0%"></div></div>
         </div>
         <div class="card-cta">
-          <button class="btn-primary" id="u4CTA" onclick="openUnit(4)">Start Unit 4</button>
+          <div class="locked-overlay"><span aria-hidden="true">🔒</span> Available soon</div>
         </div>
       </div>
     </div>
@@ -1582,78 +1310,55 @@
      VIEW: UNIT OVERVIEW
 ══════════════════════════════════════════════ -->
 <div class="view" id="viewUnit">
-  <div class="unit-shell">
+  <div class="view-inner">
 
-    <!-- Sidebar: Jump to Projects + group/topic navigation -->
-    <aside class="unit-sidebar">
-      <button class="jump-projects-btn" id="jumpProjectsBtn" onclick="jumpToProjects()">
-        <span class="jp-txt">Jump to Projects</span>
-      </button>
-      <div class="sidebar-nav-label" id="sidebarNavLabel">Skill Groups</div>
-      <div id="sidebarGroupNav"><!-- filled dynamically --></div>
-    </aside>
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a onclick="showView('home')" role="link" tabindex="0"><span aria-hidden="true">🏠</span> Home</a>
+      <span class="sep" aria-hidden="true">›</span>
+      <span class="current" id="unitBreadcrumb" aria-current="page">Unit 1</span>
+    </nav>
 
-    <div class="unit-content">
-
-      <!-- Breadcrumb -->
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a onclick="showView('home')" role="link" tabindex="0"><span aria-hidden="true">🏠</span> Home</a>
-        <span class="sep" aria-hidden="true">›</span>
-        <span class="current" id="unitBreadcrumb" aria-current="page">Unit 1</span>
-      </nav>
-
-      <!-- Unit Header -->
-      <div class="unit-overview-header">
-        <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
-        <h2 id="unitHeading">Getting Started with AI</h2>
-        <p id="unitDesc">Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.</p>
-      </div>
-
-      <!-- Learning Objectives recap -->
-      <div class="unit-objectives-panel open" id="unitObjectivesPanel">
-        <div class="obj-toggle" onclick="toggleUnitObjectives()">
-          <div class="obj-toggle-left"><span class="obj-icon" aria-hidden="true">🎯</span> Learning Objectives</div>
-          <span class="obj-chevron" aria-hidden="true">▼</span>
-        </div>
-        <div class="course-outcome" id="unitCourseOutcome"><!-- filled dynamically --></div>
-        <ul class="obj-list" id="unitObjectivesList"><!-- filled dynamically --></ul>
-      </div>
-
-      <!-- Progress Block -->
-      <div class="overview-progress-block">
-        <div class="progress-stat">
-          <div class="big-num" id="overviewStepsDone">0</div>
-          <div class="small-label">Complete</div>
-        </div>
-        <div class="divider"></div>
-        <div class="progress-stat">
-          <div class="big-num" id="overviewStepsTotal">4</div>
-          <div class="small-label">Total Steps</div>
-        </div>
-        <div class="divider"></div>
-        <div class="overview-progress-track-wrap">
-          <div class="label-row">
-            <span>Unit Progress</span>
-            <span id="overviewPct">0%</span>
-          </div>
-          <div class="overview-big-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit progress">
-            <div class="overview-big-fill" id="overviewFill" style="width:0%"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Collapse/Expand all (skill-group units only) -->
-      <div class="content-toolbar" id="contentToolbar" style="display:none;">
-        <button class="toolbar-btn" onclick="collapseAllGroups()">Collapse all</button>
-        <button class="toolbar-btn" onclick="expandAllGroups()">Expand all</button>
-      </div>
-
-      <!-- Skill Groups / Topics -->
-      <div class="skill-groups" id="skillGroupsContainer">
-        <!-- filled dynamically -->
-      </div>
-
+    <!-- Unit Header -->
+    <div class="unit-overview-header">
+      <div class="eyebrow" id="unitEyebrow">Unit 1 — Artificial Intelligence</div>
+      <h2 id="unitHeading">It is Real!</h2>
+      <p id="unitDesc">Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.</p>
     </div>
+
+    <!-- Progress Block -->
+    <div class="overview-progress-block">
+      <div class="progress-stat">
+        <div class="big-num" id="overviewStepsDone">0</div>
+        <div class="small-label">Complete</div>
+      </div>
+      <div class="divider"></div>
+      <div class="progress-stat">
+        <div class="big-num" id="overviewStepsTotal">4</div>
+        <div class="small-label">Total Steps</div>
+      </div>
+      <div class="divider"></div>
+      <div class="overview-progress-track-wrap">
+        <div class="label-row">
+          <span>Unit Progress</span>
+          <span id="overviewPct">0%</span>
+        </div>
+        <div class="overview-big-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Unit progress">
+          <div class="overview-big-fill" id="overviewFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jump to Projects -->
+    <button class="jump-projects-btn" id="jumpProjectsBtn" onclick="jumpToProjects()">
+      ⚡ Jump to Projects — skip practice, go straight to submission
+    </button>
+
+    <!-- Skill Groups / Topics -->
+    <div class="skill-groups" id="skillGroupsContainer">
+      <!-- filled dynamically -->
+    </div>
+
   </div>
 </div><!-- /viewUnit -->
 
@@ -1709,14 +1414,13 @@ let currentStudent = null;
 let currentUnit = null;
 let progress = {};
 let selectedSkill = null;
-let sessionToken = null; // server session token — lets this page read/write skill progress from the database, not just localStorage
 
 // ─────────────────────────────────────────────
 //  UNIT DATA
 // ─────────────────────────────────────────────
 const UNITS = {
   1: {
-    title: "Getting Started with AI",
+    title: "It is Real!",
     eyebrow: "Unit 1 — Artificial Intelligence",
     desc: "Understand how AI works, particularly for students. Learn how to use AI as a cognitive support tool to enhance your learning and study productivity.",
     type: "topics",
@@ -1892,7 +1596,7 @@ const UNITS = {
         skills: [
           { id: "insert-shape", name: "Insert Shape", hint: "Insert → Illustrations → Shapes" },
           { id: "insert-picture", name: "Insert Picture", hint: "Insert → Illustrations → Pictures" },
-          { id: "insert-3d-model", name: "Insert 3D Model", hint: "Insert → Illustrations → 3D Models (Windows only — not available in Word for Mac; skip if you're on a Mac)" },
+          { id: "insert-3d-model", name: "Insert 3D Model", hint: "Insert → Illustrations → 3D Models" },
           { id: "insert-smartart", name: "Insert SmartArt", hint: "Insert → Illustrations → SmartArt" },
           { id: "insert-screenshot", name: "Insert Screenshot", hint: "Insert → Illustrations → Screenshot" },
           { id: "insert-text-box", name: "Insert Text Box", hint: "Insert → Text → Text Box" },
@@ -2045,134 +1749,8 @@ const UNITS = {
         ]
       }
     ]
-  },
-  4: {
-    title: "Presentations: AI-Powered Tools and Presentation Software",
-    eyebrow: "Unit 4 — Presentations",
-    desc: "Design professional presentations using AI tools and presentation software. This unit is still growing — more assignments and practice skills will be added.",
-    type: "topics",
-    totalSteps: 2,
-    topics: [
-      {
-        id: "u4-t1",
-        num: 1,
-        title: "AI-Generated Projects",
-        meta: "~4–5 hrs",
-        steps: [
-          {
-            id: "u4-ai-presentation",
-            icon: "📝",
-            title: "Assignment — AI-Powered Presentations: History of Writing Instruments",
-            desc: "Use the same prompt in three different AI tools to generate a 10-slide deck, then compare the results and write up your analysis.",
-            cta: "View Assignment",
-            href: "IS101_Unit4_AI_Presentation_Assignment.html"
-          },
-          {
-            id: "u4-ai-excel",
-            icon: "📝",
-            title: "Assignment — AI vs. You: Can AI Complete a Real Excel Project?",
-            desc: "Hand your Variation 1 Excel project starter file and instructions to an AI tool, then compare its result to your own original submission.",
-            cta: "View Assignment",
-            href: "IS101_Unit4_AI_Excel_Project_Assignment.html"
-          }
-        ]
-      }
-    ]
   }
 };
-
-// ─────────────────────────────────────────────
-//  LEARNING OBJECTIVES (per unit)
-// ─────────────────────────────────────────────
-// Bloom's-verb-led objectives shown as a recap panel on each unit's overview
-// page (see renderUnitObjectives()) and, in full, on IS101_Learning_Objectives.html.
-// Units 2 & 3 are domain-level (one per D1–D6 / E1–E5) plus a capstone; keep
-// these two files in sync if either is edited.
-const UNIT_OBJECTIVES = {
-  1: [
-    { verb: "Explain", rest: " how LLMs predict text word-by-word, producing non-deterministic, sometimes confidently wrong answers." },
-    { verb: "Distinguish", rest: " RAG-based tools (NotebookLM) from general-purpose LLMs (ChatGPT) by how each handles sources and hallucination risk." },
-    { verb: "Verify", rest: " an AI-generated claim by tracing its citation back to the source." },
-    { verb: "Apply", rest: " an ethical framework to judge when AI use is appropriate." },
-    { verb: "Use", rest: " NotebookLM to research and study from a set of grounded sources." },
-  ],
-  2: [
-    { verb: "Apply", rest: " document-level settings — margins, style sets, headers/footers, watermarks, and properties — to prepare a professional document.", tag: "D1 — Manage Documents" },
-    { verb: "Organize", rest: " text and paragraphs into a structured document using styles, spacing, and section/page/column breaks.", tag: "D2 — Format Text, Paragraphs & Sections" },
-    { verb: "Design", rest: " tables and lists that organize and present information clearly.", tag: "D3 — Manage Tables and Lists" },
-    { verb: "Integrate", rest: " reference tools — a table of contents, footnotes, and endnotes — to support navigation and citation.", tag: "D4 — References" },
-    { verb: "Compose", rest: " a visual layout that combines pictures, shapes, and text boxes with proper wrapping and alt text.", tag: "D5 — Graphic Elements" },
-    { verb: "Evaluate", rest: " feedback on a document and respond to it using comments and Track Changes.", tag: "D6 — Collaboration" },
-    { verb: "Produce", rest: " a complete, professional business document that combines all six domains into one deliverable.", tag: "Capstone — Word Projects" },
-  ],
-  3: [
-    { verb: "Organize", rest: " worksheets and workbooks — layout, navigation, and page setup — for a usable spreadsheet.", tag: "E1 — Manage Worksheets and Workbooks" },
-    { verb: "Apply", rest: " formatting and range-management techniques to prepare spreadsheet data for use.", tag: "E2 — Manage Data Cells and Ranges" },
-    { verb: "Structure", rest: " raw data into Excel Tables, then filter and sort it to support analysis.", tag: "E3 — Manage Tables and Table Data" },
-    { verb: "Construct", rest: " formulas and functions — including logical, lookup, and text functions — to solve calculation problems.", tag: "E4 — Formulas and Functions" },
-    { verb: "Create", rest: " charts that visually communicate spreadsheet data.", tag: "E5 — Manage Charts" },
-    { verb: "Produce", rest: " a complete, functional workbook that applies worksheet management, data formatting, tables, formulas, and charts to a real business scenario.", tag: "Capstone — Excel Projects" },
-  ],
-  4: [
-    { verb: "Generate", rest: " presentation content from a single prompt using multiple AI tools." },
-    { verb: "Compare", rest: " the outputs different AI tools produce from the same prompt." },
-    { verb: "Evaluate", rest: " how completely and accurately an AI tool completes a real, structured project against a known solution." },
-    { verb: "Critique", rest: " AI-generated work in writing, weighing its strengths, errors, and trustworthiness." },
-  ],
-};
-
-// Course-level Student Learning Outcomes each unit addresses — shown as a
-// callout above the unit's Bloom's objectives. Keep in sync with
-// IS101_Learning_Objectives.html and IS101_Learning_Objectives_Units1-4_DRAFT.md.
-const COURSE_OUTCOMES = {
-  1: [
-    "Model activities to operate and use a personal computer.",
-    "Model skills necessary to interface effectively with the global digital community.",
-  ],
-  2: [
-    "Create documents using a word processor.",
-  ],
-  3: [
-    "Create spreadsheets using a spreadsheet program.",
-  ],
-  4: [
-    "Create presentations using presentation software.",
-    "Model skills necessary to interface effectively with the global digital community.",
-  ],
-};
-
-function renderUnitObjectives(unitNum) {
-  const objectives = UNIT_OBJECTIVES[unitNum] || [];
-  const outcomes = COURSE_OUTCOMES[unitNum] || [];
-  const panel = document.getElementById('unitObjectivesPanel');
-  const list = document.getElementById('unitObjectivesList');
-  const outcomeBox = document.getElementById('unitCourseOutcome');
-  panel.className = 'unit-objectives-panel open u' + unitNum;
-  const label = outcomes.length > 1 ? 'Course Learning Outcomes' : 'Course Learning Outcome';
-  outcomeBox.innerHTML = `
-    <span class="co-icon" aria-hidden="true">🎓</span>
-    <div class="co-body">
-      <div class="co-label">${label}</div>
-      ${outcomes.map((o, i) => `<div class="co-text">${outcomes.length > 1 ? `<span class="co-num">${i + 1}.</span>` : ''}${o}</div>`).join('')}
-    </div>
-  `;
-  list.innerHTML = objectives.map(o => `
-    <li class="obj-item">
-      <span class="obj-verb">${o.verb}</span>${o.rest}${o.tag ? ` <span class="obj-tag">(${o.tag})</span>` : ''}
-    </li>
-  `).join('');
-}
-
-function toggleUnitObjectives() {
-  document.getElementById('unitObjectivesPanel').classList.toggle('open');
-}
-
-// Which skill groups are expanded in the Unit Overview accordion — persists across
-// re-renders (e.g. after a self-check) instead of resetting to "only the first group open".
-let openGroupIds = new Set();
-Object.values(UNITS).forEach(u => {
-  if (u.type !== 'topics' && u.groups && u.groups[0]) openGroupIds.add('group-' + u.groups[0].id);
-});
 
 // ─────────────────────────────────────────────
 //  LOGIN
@@ -2189,35 +1767,10 @@ async function handleLogin() {
   }
   errorEl.textContent = '';
 
+  // localStorage mode — no server required for testing
   currentStudent = nshe;
   localStorage.setItem('is101_nshe', nshe);
-  await establishSession(nshe);
   afterLogin();
-}
-
-// Logs in to the server (no password — just the NSHE ID, same as the domain
-// reference pages) to get a session token, so this dashboard can read/write
-// real skill progress from the database instead of only local storage.
-// Safe to call every page load: cheap, idempotent, and if the server is
-// unreachable (offline, sandbox testing, etc.) it just fails quietly and the
-// page falls back to local-storage-only mode, same as before this existed.
-async function establishSession(nshe) {
-  try {
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nsheId: nshe })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      sessionToken = data.token;
-      localStorage.setItem('is101_token', sessionToken);
-    } else {
-      sessionToken = null;
-    }
-  } catch (e) {
-    sessionToken = null;
-  }
 }
 
 function afterLogin() {
@@ -2230,11 +1783,7 @@ function afterLogin() {
 
 function handleLogout() {
   try { if (typeof ApiClient !== 'undefined') ApiClient.logout(); } catch(e){}
-  if (sessionToken) {
-    fetch('/api/logout', { method: 'POST', headers: { 'x-session-token': sessionToken } }).catch(() => {});
-  }
   currentStudent = null;
-  sessionToken = null;
   progress = {};
   document.getElementById('loginGate').classList.add('show');
   document.getElementById('siteHeader').style.display = 'none';
@@ -2252,8 +1801,8 @@ document.getElementById('nsheInput').addEventListener('keydown', (e) => {
 //  PROGRESS
 // ─────────────────────────────────────────────
 async function loadProgress() {
-  // Render from local storage immediately so the dashboard isn't blocked on
-  // the network — then reconcile with the server's record below.
+  // Pure localStorage mode — no server calls from START_HERE
+  // Progress saves locally in the browser; server sync is not required
   try {
     const stored = localStorage.getItem('is101_progress_' + currentStudent);
     progress = stored ? JSON.parse(stored) : {};
@@ -2261,48 +1810,6 @@ async function loadProgress() {
     progress = {};
   }
   renderAllProgress();
-  if (currentUnit) {
-    renderUnitContent(currentUnit);
-    updateUnitOverviewProgress(currentUnit);
-    renderSidebarNav(currentUnit);
-    updateJumpProjectsLock(currentUnit);
-  }
-
-  // Reconcile with the server's record of skill completions (Word/Excel
-  // domains) and Unit 1/4 step completions. This is what survives a cleared
-  // browser or a new device — the server is the source of truth; local
-  // storage is just a cache. Only ADDS completions, never removes any, so
-  // an unmark made on another device doesn't get silently re-applied here —
-  // the unmark itself already went straight to the server via
-  // toggleStepComplete / toggleSkillSelfCheck.
-  if (sessionToken) {
-    try {
-      const res = await fetch('/api/progress', { headers: { 'x-session-token': sessionToken } });
-      if (res.ok) {
-        const data = await res.json();
-        let changed = false;
-        (data.skills || []).forEach(s => {
-          if (!progress[s.skill_id]) { progress[s.skill_id] = true; changed = true; }
-        });
-        (data.steps || []).forEach(s => {
-          const stepId = stepIdFromLocation(s.unit_id, s.topic_id, s.step_idx);
-          if (stepId && !progress[stepId]) { progress[stepId] = true; changed = true; }
-        });
-        if (changed) {
-          try { localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress)); } catch(e) {}
-          renderAllProgress();
-          if (currentUnit) {
-            renderUnitContent(currentUnit);
-            updateUnitOverviewProgress(currentUnit);
-            renderSidebarNav(currentUnit);
-            updateJumpProjectsLock(currentUnit);
-          }
-        }
-      }
-    } catch (e) {
-      // Offline or server unreachable — local progress already rendered above, nothing more to do
-    }
-  }
 }
 
 function saveStepProgress(stepId) {
@@ -2311,70 +1818,6 @@ function saveStepProgress(stepId) {
     localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
   } catch(e) {}
   renderAllProgress();
-}
-
-// Maps a flat step id (e.g. "ai-t1-watch") to the (unitId, topicId, stepIdx)
-// composite key the step_progress table keys on, and back. Used to sync
-// Unit 1/4 step completions to the server, mirroring how skill ids map to
-// (domain, skillId) for Unit 2/3 via WORD_SKILL_DOMAIN_MAP / EXCEL_SKILL_DOMAIN_MAP.
-function findStepLocation(stepId) {
-  for (const unitNum in UNITS) {
-    const unit = UNITS[unitNum];
-    if (unit.type !== 'topics') continue;
-    for (const topic of unit.topics) {
-      const idx = topic.steps.findIndex(s => s.id === stepId);
-      if (idx !== -1) return { unitId: unitNum, topicId: topic.id, stepIdx: idx };
-    }
-  }
-  return null;
-}
-function stepIdFromLocation(unitId, topicId, stepIdx) {
-  const unit = UNITS[unitId];
-  if (!unit || unit.type !== 'topics') return null;
-  const topic = unit.topics.find(t => t.id === topicId);
-  if (!topic) return null;
-  const step = topic.steps[stepIdx];
-  return step ? step.id : null;
-}
-
-// Manual "mark complete" for topic/step-style units (Unit 1 and Unit 4).
-// These steps link out to real content pages (labs, guides, exams, checklists,
-// assignments) that don't report progress back on their own — clicking the
-// step's CTA button just navigates away (see goToStep()). This checkbox is
-// the only way progress ever gets recorded for these units today, mirroring
-// the self-check checkbox pattern already used for Unit 2/3 skills
-// (toggleSkillSelfCheck). It also syncs to the server (the step_progress
-// table via /api/progress/step) so it's durable across a cleared browser or
-// a new device, not just local-storage.
-function toggleStepComplete(stepId, e) {
-  if (e) e.stopPropagation();
-  const wasDone = !!progress[stepId];
-  if (wasDone) {
-    delete progress[stepId];
-  } else {
-    progress[stepId] = true;
-  }
-  try {
-    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
-  } catch (err) {}
-
-  renderAllProgress();
-  renderUnitContent(currentUnit);
-  updateUnitOverviewProgress(currentUnit);
-  renderSidebarNav(currentUnit);
-  updateJumpProjectsLock(currentUnit);
-  showToast(wasDone ? 'Unmarked step' : 'Marked complete!', wasDone ? '' : 'success');
-
-  if (sessionToken) {
-    const loc = findStepLocation(stepId);
-    if (loc) {
-      fetch('/api/progress/step', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-session-token': sessionToken },
-        body: JSON.stringify({ unitId: loc.unitId, topicId: loc.topicId, stepIdx: loc.stepIdx, completed: !wasDone })
-      }).catch(() => {});
-    }
-  }
 }
 
 function renderAllProgress() {
@@ -2405,17 +1848,8 @@ function renderAllProgress() {
   document.getElementById('u3ProgressLabel').textContent = u3Done + ' of ' + u3Skills.length + ' skills complete';
   document.getElementById('u3CTA').textContent = u3Done > 0 ? 'Continue Unit 3' : 'Start Unit 3';
 
-  // Unit 4
-  const u4Steps = allStepIdsForUnit(4);
-  const u4Done = u4Steps.filter(s => progress[s]).length;
-  const u4Pct = Math.round(u4Done / u4Steps.length * 100);
-  document.getElementById('u4Fill').style.width = u4Pct + '%';
-  document.getElementById('u4Pct').textContent = u4Pct + '%';
-  document.getElementById('u4ProgressLabel').textContent = u4Done + ' of ' + u4Steps.length + ' steps complete';
-  document.getElementById('u4CTA').textContent = u4Done > 0 ? 'Continue Unit 4' : 'Start Unit 4';
-
   // Overall
-  const allSteps = [...u1Steps, ...u2Skills, ...u3Skills, ...u4Steps];
+  const allSteps = [...u1Steps, ...u2Skills, ...u3Skills];
   const allDone = allSteps.filter(s => progress[s]).length;
   const allPct = Math.round(allDone / allSteps.length * 100);
   document.getElementById('overallFill').style.width = allPct + '%';
@@ -2425,7 +1859,6 @@ function renderAllProgress() {
   if (u1Pct === 100) document.getElementById('u1Badge').textContent = '✓ Complete';
   if (u2Pct === 100) document.getElementById('u2Badge').textContent = '✓ Complete';
   if (u3Pct === 100) document.getElementById('u3Badge').textContent = '✓ Complete';
-  if (u4Pct === 100) document.getElementById('u4Badge').textContent = '✓ Complete';
 }
 
 // ─────────────────────────────────────────────
@@ -2448,95 +1881,18 @@ function openUnit(unitNum) {
   document.getElementById('unitHeading').textContent = unit.title;
   document.getElementById('unitDesc').textContent = unit.desc;
   document.getElementById('overviewStepsTotal').textContent = unit.totalSteps;
-  renderUnitObjectives(unitNum);
 
   // Show/hide jump button
   const jumpBtn = document.getElementById('jumpProjectsBtn');
-  jumpBtn.style.display = unit.jumpTarget ? 'block' : 'none';
-
-  // Collapse/expand-all toolbar only makes sense for skill-group units (2 & 3)
-  document.getElementById('contentToolbar').style.display = unit.type === 'topics' ? 'none' : 'flex';
-  document.getElementById('sidebarNavLabel').textContent = unit.type === 'topics' ? 'Topics' : 'Skill Groups';
+  jumpBtn.style.display = unit.jumpTarget ? 'inline-flex' : 'none';
 
   renderUnitContent(unitNum);
   updateUnitOverviewProgress(unitNum);
-  renderSidebarNav(unitNum);
-  updateJumpProjectsLock(unitNum);
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('viewUnit').classList.add('active');
   window.scrollTo(0, 0);
 }
-
-// ── Skill → domain maps (Word D1–D6, Excel E1–E5) ──
-// Used to sync self-check clicks made on this dashboard to the server, tagged
-// with the right domain, the same way the individual domain reference pages do.
-// Kept as two separate maps (not merged) and dispatched by unit — a few skill
-// ids like 'clear-formatting' are reused between Word and Excel, so merging
-// them into one object would silently let the Excel entry clobber the Word
-// one (or vice versa). This mirrors how goPractice() already keeps its own
-// WORD_DOMAIN_MAP / EXCEL_DOMAIN_MAP separate and picks one by currentUnit —
-// kept as its own copy here on purpose so this sync feature can't affect that
-// existing, working navigation logic.
-const WORD_SKILL_DOMAIN_MAP = {
-  // D1 — Manage Documents
-  'search-text':'D1','insert-hyperlink':'D1','goto':'D1','show-hide-formatting':'D1',
-  'set-margins':'D1','set-orientation':'D1','set-paper-size':'D1','apply-style-set':'D1',
-  'insert-header':'D1','insert-footer':'D1','insert-page-numbers':'D1','add-watermark':'D1',
-  'set-page-color':'D1','add-page-borders':'D1','save-as-format':'D1','modify-doc-properties':'D1',
-  'modify-print-settings':'D1','share-document':'D1','remove-hidden-properties':'D1',
-  'check-accessibility':'D1','check-compatibility':'D1',
-  // D2 — Insert & Format Text, Paragraphs, Sections
-  'find-replace':'D2','insert-symbol':'D2','apply-text-effects':'D2','format-painter':'D2',
-  'set-line-spacing':'D2','set-paragraph-spacing':'D2','set-indentation':'D2',
-  'apply-character-style':'D2','apply-paragraph-style':'D2','clear-formatting':'D2',
-  'format-columns':'D2','insert-page-break':'D2','insert-section-break':'D2',
-  'insert-column-break':'D2','change-section-page-setup':'D2',
-  // D3 — Tables & Lists
-  'create-table':'D3','convert-text-table':'D3','convert-table-text':'D3','sort-table':'D3',
-  'cell-margins-spacing':'D3','merge-cells':'D3','split-cells':'D3','resize-table':'D3',
-  'split-table':'D3','repeat-header-row':'D3','numbered-list':'D3','bulleted-list':'D3',
-  'change-list-format':'D3','increase-list-level':'D3','restart-list-numbering':'D3',
-  // D4 — References
-  'insert-footnote':'D4','insert-endnote':'D4','modify-footnote-endnote':'D4',
-  'insert-toc':'D4','customize-toc':'D4',
-  // D5 — Graphic Elements
-  'insert-shape':'D5','insert-picture':'D5','insert-3d-model':'D5','insert-smartart':'D5',
-  'insert-screenshot':'D5','insert-text-box':'D5','insert-icon':'D5',
-  'apply-artistic-effects':'D5','apply-picture-styles':'D5','remove-background':'D5',
-  'format-shape':'D5','format-smartart':'D5','format-3d-model':'D5',
-  'add-text-text-box':'D5','add-text-shape':'D5','modify-smartart-content':'D5',
-  'position-object':'D5','wrap-text':'D5','add-alt-text':'D5',
-  // D6 — Document Collaboration
-  'add-comment':'D6','review-reply-comment':'D6','resolve-comment':'D6','delete-comment':'D6',
-  'track-changes':'D6','review-tracked-changes':'D6','accept-tracked-change':'D6',
-  'reject-tracked-change':'D6','lock-track-changes':'D6',
-};
-const EXCEL_SKILL_DOMAIN_MAP = {
-  // E1 — Manage Worksheets and Workbooks
-  'import-text':'E1','import-online':'E1','search-data':'E1','navigate-named':'E1',
-  'hyperlinks':'E1','page-setup':'E1','row-col-size':'E1','headers-footers':'E1',
-  'options-views':'E1','customize-qat':'E1','worksheet-views':'E1','freeze-panes':'E1',
-  'window-views':'E1','workbook-properties':'E1','display-formulas':'E1','print-area':'E1',
-  'save-format-xl':'E1','print-settings':'E1','inspect-workbook':'E1','comments-notes':'E1',
-  // E2 — Manage Data Cells and Ranges
-  'paste-special':'E2','autofill':'E2','insert-delete-cols-rows':'E2','insert-delete-cells':'E2',
-  'randbetween-sequence':'E2','merge-unmerge':'E2','cell-alignment':'E2','format-painter-xl':'E2',
-  'wrap-text-xl':'E2','number-formats':'E2','format-cells':'E2','cell-styles':'E2',
-  'clear-formatting':'E2','group-worksheets':'E2','define-named-range':'E2','reference-named-range':'E2',
-  'sparklines':'E2','conditional-formatting':'E2','remove-conditional-formatting':'E2',
-  // E3 — Manage Tables and Table Data
-  'create-table-xl':'E3','table-styles':'E3','convert-table-range':'E3','table-rows-cols':'E3',
-  'table-style-options':'E3','total-row':'E3','filter-records':'E3','sort-multi-column':'E3',
-  // E4 — Formulas and Functions
-  'cell-references':'E4','structured-references':'E4','math-stats-fns':'E4','count-fns':'E4',
-  'if-function':'E4','sort-function':'E4','unique-function':'E4','left-right-mid':'E4',
-  'upper-lower-len':'E4','concat-textjoin':'E4','nested-if':'E4','countif':'E4','sumif':'E4',
-  'today-now':'E4','year-month-day':'E4','vlookup':'E4','xlookup':'E4','iferror':'E4',
-  // E5 — Manage Charts
-  'create-chart':'E5','chart-sheets':'E5','add-data-series':'E5','switch-row-column':'E5',
-  'chart-elements':'E5','apply-chart-layouts':'E5','chart-styles':'E5','chart-alt-text':'E5',
-};
 
 // ── Video links for skills (proof of concept — one skill) ──
 const SKILL_VIDEOS = {
@@ -2942,16 +2298,18 @@ function renderUnitContent(unitNum) {
               <div class="step-title">${step.title}</div>
               <div class="step-desc">${step.desc}</div>
             </div>
-            <div class="skill-check ${done ? 'done' : ''}" onclick="toggleStepComplete('${step.id}', event)" title="${done ? 'Click to unmark' : 'Mark this step complete'}">${done ? '✓' : ''}</div>
             <div class="step-cta">
-              <button onclick="goToStep('${step.id}', '${step.href}')">${done ? '✓ ' + step.cta : step.cta}</button>
+              ${done
+                ? `<button class="completed-btn">✓ Done</button>`
+                : `<button onclick="goToStep('${step.id}', '${step.href}')">${step.cta}</button>`
+              }
             </div>
           </div>
         `;
       }).join('');
 
       container.innerHTML += `
-        <div class="topic-card" id="topic-${topic.num}">
+        <div class="topic-card">
           <div class="topic-header">
             <div class="topic-num">${topic.num}</div>
             <div class="topic-info">
@@ -2976,7 +2334,7 @@ function renderUnitContent(unitNum) {
         const done = !!progress[skill.id];
         return `
           <div class="skill-row">
-            <div class="skill-check ${done ? 'done' : ''}" onclick="toggleSkillSelfCheck('${skill.id}', event)" title="Self-check: click to mark complete">${done ? '✓' : ''}</div>
+            <div class="skill-check ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
             <div class="skill-name-col">
               <div class="skill-name">${skill.name}</div>
               <div class="skill-hint">${skill.hint}${SKILL_VIDEO_INFO[skill.id] ? ` <span class="video-info-sep">|</span> <span class="video-info-section">${SKILL_VIDEO_INFO[skill.id].section}</span> <span class="video-info-arrow">→</span> <span class="video-info-title">${SKILL_VIDEO_INFO[skill.id].video}</span>` : ''}</div>
@@ -2989,11 +2347,10 @@ function renderUnitContent(unitNum) {
         `;
       }).join('');
 
-      const isGroupComplete = pct === 100;
       container.innerHTML += `
-        <div class="skill-group-card ${openGroupIds.has('group-' + group.id) ? 'open' : ''} ${isGroupComplete ? 'group-complete' : ''}" id="group-${group.id}">
+        <div class="skill-group-card ${gi === 0 ? 'open' : ''}" id="group-${group.id}">
           <div class="skill-group-header" onclick="toggleGroup('group-${group.id}')">
-            <div class="group-icon">${isGroupComplete ? '✓' : group.icon}</div>
+            <div class="group-icon">${group.icon}</div>
             <div class="group-info">
               <div class="group-name">${group.name}</div>
               <div class="group-sub">${totalCount} skills</div>
@@ -3019,7 +2376,7 @@ function renderUnitContent(unitNum) {
       container.innerHTML += `
         <div id="word-practice-submit" style="
           background:#fff;border:1px solid #dde3ee;border-radius:8px;
-          padding:20px 24px;margin-top:8px;column-span:all;break-inside:avoid;
+          padding:20px 24px;margin-top:8px;
         ">
           <div style="font-size:15px;font-weight:700;color:#2b579a;margin-bottom:6px">
             ✅ Check Your Word Practice Work
@@ -3081,7 +2438,7 @@ function renderUnitContent(unitNum) {
       container.innerHTML += `
         <div id="excel-practice-submit" style="
           background:#fff;border:1px solid #dde3ee;border-radius:8px;
-          padding:20px 24px;margin-top:8px;column-span:all;break-inside:avoid;
+          padding:20px 24px;margin-top:8px;
         ">
           <div style="font-size:15px;font-weight:700;color:#217346;margin-bottom:6px">
             ✅ Check Your Excel Practice Work
@@ -3138,23 +2495,7 @@ function renderUnitContent(unitNum) {
   }
 
 function toggleGroup(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle('open');
-  if (el.classList.contains('open')) openGroupIds.add(id); else openGroupIds.delete(id);
-}
-
-function collapseAllGroups() {
-  document.querySelectorAll('#skillGroupsContainer .skill-group-card').forEach(c => {
-    c.classList.remove('open');
-    openGroupIds.delete(c.id);
-  });
-}
-
-function expandAllGroups() {
-  document.querySelectorAll('#skillGroupsContainer .skill-group-card').forEach(c => {
-    c.classList.add('open');
-    openGroupIds.add(c.id);
-  });
+  document.getElementById(id).classList.toggle('open');
 }
 
 function updateUnitOverviewProgress(unitNum) {
@@ -3175,157 +2516,6 @@ function updateUnitOverviewProgress(unitNum) {
 }
 
 // ─────────────────────────────────────────────
-//  UNIT SIDEBAR NAV + JUMP-TO-PROJECTS LOCK
-// ─────────────────────────────────────────────
-function renderSidebarNav(unitNum) {
-  const unit = UNITS[unitNum];
-  const nav = document.getElementById('sidebarGroupNav');
-  if (!nav) return;
-  let html = '';
-
-  if (unit.type === 'topics') {
-    unit.topics.forEach(topic => {
-      const done = topic.steps.filter(s => progress[s.id]).length;
-      const total = topic.steps.length;
-      const pct = Math.round(done / total * 100);
-      const isDone = done === total;
-      html += `
-        <div class="sidebar-link ${isDone ? 'is-done' : ''}" onclick="scrollToSection('topic-${topic.num}', this)">
-          <div class="sl-icon">${isDone ? '✓' : topic.num}</div>
-          <div class="sl-t">
-            <div class="sl-name">${topic.title}</div>
-            <div class="sl-prow"><div class="sl-count">${done}/${total} steps</div><div class="sl-pct">${isDone ? '✓ Complete' : pct + '%'}</div></div>
-            <div class="sidebar-track"><div class="sidebar-fill" style="width:${pct}%"></div></div>
-          </div>
-        </div>`;
-    });
-  } else {
-    unit.groups.forEach(group => {
-      const done = group.skills.filter(s => progress[s.id]).length;
-      const total = group.skills.length;
-      const pct = Math.round(done / total * 100);
-      const isDone = done === total;
-      html += `
-        <div class="sidebar-link ${isDone ? 'is-done' : ''}" onclick="scrollToSection('group-${group.id}', this)">
-          <div class="sl-icon">${isDone ? '✓' : group.icon}</div>
-          <div class="sl-t">
-            <div class="sl-name">${group.name}</div>
-            <div class="sl-prow"><div class="sl-count">${done}/${total} skills</div><div class="sl-pct">${isDone ? '✓ Complete' : pct + '%'}</div></div>
-            <div class="sidebar-track"><div class="sidebar-fill" style="width:${pct}%"></div></div>
-          </div>
-        </div>`;
-    });
-  }
-  nav.innerHTML = html;
-}
-
-function scrollToSection(id, linkEl) {
-  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-  if (linkEl) linkEl.classList.add('active');
-  const el = document.getElementById(id);
-  if (el) {
-    // make sure a collapsed skill group is opened before scrolling to it
-    if (el.classList.contains('skill-group-card') && !el.classList.contains('open')) {
-      el.classList.add('open');
-      openGroupIds.add(el.id);
-    }
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-function allStepIdsForUnit(unitNum) {
-  const unit = UNITS[unitNum];
-  const ids = [];
-  if (unit.type === 'topics') {
-    unit.topics.forEach(t => t.steps.forEach(s => ids.push(s.id)));
-  } else {
-    unit.groups.forEach(g => g.skills.forEach(s => ids.push(s.id)));
-  }
-  return ids;
-}
-
-function updateJumpProjectsLock(unitNum) {
-  const unit = UNITS[unitNum];
-  const btn = document.getElementById('jumpProjectsBtn');
-  if (!btn || !unit.jumpTarget) return;
-
-  const ids = allStepIdsForUnit(unitNum);
-  const done = ids.filter(id => progress[id]).length;
-  const isComplete = ids.length > 0 && done === ids.length;
-  const wasLocked = btn.classList.contains('locked');
-
-  if (isComplete) {
-    btn.classList.remove('locked');
-    btn.innerHTML = '<span class="jp-txt">✓ Go to Projects</span><span class="jp-sub">All practice complete — you\'re ready</span>';
-    if (wasLocked) {
-      btn.classList.add('just-unlocked');
-      setTimeout(() => btn.classList.remove('just-unlocked'), 1900);
-    }
-  } else {
-    btn.classList.add('locked');
-    btn.innerHTML = '<span class="jp-txt">Jump to Projects</span><span class="jp-sub">Locked until you check off every skill below as complete</span><span class="jp-hint">Self-check — already know it? Just mark it complete. Low effort, but worth double-checking.</span>';
-  }
-}
-
-function showRemainingGroups(unitNum) {
-  const unit = UNITS[unitNum];
-  const names = [];
-  if (unit.type === 'topics') {
-    unit.topics.forEach(t => {
-      const done = t.steps.filter(s => progress[s.id]).length;
-      if (done < t.steps.length) names.push(t.title);
-    });
-  } else {
-    unit.groups.forEach(g => {
-      const done = g.skills.filter(s => progress[s.id]).length;
-      if (done < g.skills.length) names.push(g.name.split('—')[0].trim());
-    });
-  }
-  showToast('Still need: ' + names.join(', '), 'warning');
-}
-
-// Self-check: click a skill's round checkbox right on this page to mark/unmark it
-// complete, without leaving for the practice page. Low-effort, self-reported — the
-// same "if you already know it, just check it off" idea as the Jump to Projects copy.
-function toggleSkillSelfCheck(skillId, e) {
-  if (e) e.stopPropagation();
-  const wasDone = !!progress[skillId];
-  if (wasDone) {
-    delete progress[skillId];
-  } else {
-    progress[skillId] = true;
-  }
-  try {
-    localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
-  } catch (err) {}
-
-  renderAllProgress();
-  renderUnitContent(currentUnit);
-  updateUnitOverviewProgress(currentUnit);
-  renderSidebarNav(currentUnit);
-  updateJumpProjectsLock(currentUnit);
-  showToast(wasDone ? 'Unmarked skill' : 'Marked complete (self-check)', wasDone ? '' : 'success');
-
-  // Push to the server too, so a self-check made here survives a cleared
-  // browser or a new device — same endpoint the domain reference pages use.
-  // Best-effort: if this fails (offline, etc.) the local checkmark above
-  // still stands; it just won't be recoverable from the server until the
-  // student checks it again with a connection, or checks it from the
-  // matching domain reference page instead.
-  if (sessionToken) {
-    const domainMap = currentUnit === 2 ? WORD_SKILL_DOMAIN_MAP : currentUnit === 3 ? EXCEL_SKILL_DOMAIN_MAP : null;
-    const domain = domainMap ? domainMap[skillId] : null;
-    if (domain) {
-      fetch('/api/progress/skill', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-session-token': sessionToken },
-        body: JSON.stringify({ domain, skillId, completed: !wasDone })
-      }).catch(() => {});
-    }
-  }
-}
-
-// ─────────────────────────────────────────────
 //  NAVIGATION — STEPS / SKILLS
 // ─────────────────────────────────────────────
 function goToStep(stepId, href) {
@@ -3340,8 +2530,6 @@ function goToStep(stepId, href) {
     saveStepProgress(stepId);
     renderUnitContent(currentUnit);
     updateUnitOverviewProgress(currentUnit);
-    renderSidebarNav(currentUnit);
-    updateJumpProjectsLock(currentUnit);
     showToast('Step marked complete!', 'success');
   }
 }
@@ -3449,11 +2637,6 @@ function goPractice() {
 
 function jumpToProjects() {
   const unit = UNITS[currentUnit];
-  const btn = document.getElementById('jumpProjectsBtn');
-  if (btn && btn.classList.contains('locked')) {
-    showRemainingGroups(currentUnit);
-    return;
-  }
   if (unit && unit.jumpTarget) {
     window.location.href = unit.jumpTarget;
   } else {
@@ -3481,26 +2664,11 @@ function showToast(msg, type = '') {
 // ─────────────────────────────────────────────
 //  CHECK SESSION ON LOAD
 // ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
-  // LTI handoff — arriving here right after a Canvas launch (see lti/lti.js)
-  // carries the resolved NSHE ID as a query param. Stash it exactly like a
-  // normal returning visit would and let the existing session logic below
-  // (which only ever needed the NSHE ID, no password) take it from there.
-  const ltiParams = new URLSearchParams(window.location.search);
-  const ltiNshe = ltiParams.get('lti_nshe');
-  if (ltiNshe && /^\d{10}$/.test(ltiNshe)) {
-    localStorage.setItem('is101_nshe', ltiNshe);
-    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
-  }
-
+window.addEventListener('DOMContentLoaded', () => {
   // Check localStorage for existing session
   const saved = localStorage.getItem('is101_nshe');
   if (saved && /^\d{10}$/.test(saved)) {
     currentStudent = saved;
-    // Re-establish a server session every load (tokens expire after 8 hours,
-    // and this call needs no password — just the NSHE ID — so it's safe and
-    // cheap to refresh silently rather than try to persist the old token).
-    await establishSession(saved);
     afterLogin();
   } else {
     document.getElementById('loginGate').classList.add('show');
@@ -3561,11 +2729,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const autoSkills = data.skills.filter(s => s.type !== 'self');
     const passed = autoSkills.filter(s => s.passed).length;
     const total  = autoSkills.length;
+    const pct = total > 0 ? Math.round(passed / total * 100) : 0;
     const selfCount = data.skills.filter(s => s.type === 'self').length;
     const domains = [...new Set(data.skills.map(s => s.domain))];
 
     let html = '<div style="background:#2b579a;color:#fff;border-radius:6px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
-      '<div><div style="font-size:28px;font-weight:700">' + passed + ' / ' + total + '</div>' +
+      '<div><div style="font-size:28px;font-weight:700">' + passed + ' / ' + total + ' <span style="font-size:16px;font-weight:600;opacity:.85">(' + pct + '%)</span></div>' +
       '<div style="font-size:12px;opacity:.8">auto-graded skills detected</div></div>' +
       '<div style="font-size:12px;opacity:.9;text-align:right">' + total + ' auto-graded · ' + selfCount + ' self-check</div></div>';
 
@@ -3573,10 +2742,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       const skills = data.skills.filter(s => s.domain === domain);
       const da = skills.filter(s => s.type !== 'self');
       const dp = da.filter(s => s.passed).length;
+      const dpct = da.length > 0 ? Math.round(dp / da.length * 100) : 0;
       html += '<div style="border:1px solid #dde3ee;border-radius:6px;margin-bottom:10px;overflow:hidden">' +
         '<div style="background:#e8edf5;padding:8px 16px;display:flex;justify-content:space-between;align-items:center">' +
         '<span style="font-size:13px;font-weight:700;color:#2b579a">' + domain + '</span>' +
-        '<span style="font-size:12px;color:#555">' + dp + '/' + da.length + ' detected</span></div>';
+        '<span style="font-size:12px;color:#555">' + dp + '/' + da.length + ' detected (' + dpct + '%)</span></div>';
 
       for (const s of skills) {
         const isPass = s.type !== 'self' && s.passed;
@@ -3663,12 +2833,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     const autoSkills = data.skills.filter(s => s.type !== 'self');
     const passed = autoSkills.filter(s => s.passed).length;
     const total  = autoSkills.length;
+    const pct = total > 0 ? Math.round(passed / total * 100) : 0;
     const selfCount = data.skills.filter(s => s.type === 'self').length;
     const domains = [...new Set(data.skills.map(s => s.domain))];
     const green = '#217346';
 
     let html = '<div style="background:' + green + ';color:#fff;border-radius:6px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
-      '<div><div style="font-size:28px;font-weight:700">' + passed + ' / ' + total + '</div>' +
+      '<div><div style="font-size:28px;font-weight:700">' + passed + ' / ' + total + ' <span style="font-size:16px;font-weight:600;opacity:.85">(' + pct + '%)</span></div>' +
       '<div style="font-size:12px;opacity:.8">auto-graded skills detected</div></div>' +
       '<div style="font-size:12px;opacity:.9;text-align:right">' + total + ' auto-graded · ' + selfCount + ' self-check</div></div>';
 
@@ -3676,10 +2847,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       const skills = data.skills.filter(s => s.domain === domain);
       const da = skills.filter(s => s.type !== 'self');
       const dp = da.filter(s => s.passed).length;
+      const dpct = da.length > 0 ? Math.round(dp / da.length * 100) : 0;
       html += '<div style="border:1px solid #dde3ee;border-radius:6px;margin-bottom:10px;overflow:hidden">' +
         '<div style="background:#e8f5ee;padding:8px 16px;display:flex;justify-content:space-between;align-items:center">' +
         '<span style="font-size:13px;font-weight:700;color:' + green + '">' + domain + '</span>' +
-        '<span style="font-size:12px;color:#555">' + dp + '/' + da.length + ' detected</span></div>';
+        '<span style="font-size:12px;color:#555">' + dp + '/' + da.length + ' detected (' + dpct + '%)</span></div>';
 
       for (const s of skills) {
         const isPass = s.type !== 'self' && s.passed;

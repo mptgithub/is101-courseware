@@ -1385,16 +1385,29 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     const workforcePara = paragraphContaining(docXml, 'expanded its workforce by');
     const workforceParaNoDelText = workforcePara.replace(/<w:delText[^>]*>[\s\S]*?<\/w:delText>/g, '');
     const d1Accepted = d1TCMarkersGone && />15</.test(workforceParaNoDelText) && !/>12</.test(workforceParaNoDelText);
-    const d1Rejected = d1TCMarkersGone && />12</.test(workforceParaNoDelText) && !/>15</.test(workforceParaNoDelText);
     auto('D1 — Manage Documents','Accept a tracked change',
       d1Accepted,
       '✓ Tracked change accepted — corrected number (15) kept permanently.',
       '✗ Not detected. Fix: Click the tracked change near "full-time consultants" → Review → Accept.');
 
+    // "Reject a tracked change" cannot reuse the id 10/11 pair above --
+    // that one is earmarked for ACCEPTING (the curriculum instructs
+    // accepting the 12->15 correction), so no real student could ever
+    // satisfy a reject-id-10/11 check, the same class of bug just fixed
+    // for D6's "Accept" check. A genuine reject signal needs its own
+    // dedicated seeded tracked change: a Manager suggested edit to the
+    // lease-renewal year (del id="12" / ins id="13", "2027" -> "2029"),
+    // added as a real replace-pair. Rejecting it keeps "2027" as plain
+    // text and the wrapper disappears -- same "wrapper gone + correct
+    // side's text survives" pattern as Accept above and D6's own Reject.
+    const d1RejectMarkersGone = !docXml.includes('<w:del w:id="12"') && !docXml.includes('<w:ins w:id="13"');
+    const leasePara = paragraphContaining(docXml, 'renewed its lease through');
+    const leaseParaNoDelText = leasePara.replace(/<w:delText[^>]*>[\s\S]*?<\/w:delText>/g, '');
+    const d1Rejected = d1RejectMarkersGone && />2027</.test(leaseParaNoDelText) && !/>2029</.test(leaseParaNoDelText);
     auto('D1 — Manage Documents','Reject a tracked change',
       d1Rejected,
-      '✓ Tracked change rejected — original number (12) restored.',
-      '✗ Not detected. Fix: Click the tracked change near "full-time consultants" → Review → Reject.');
+      '✓ Tracked change rejected — original lease year (2027) restored.',
+      '✗ Not detected. Fix: Click the tracked change near "renewed its lease" → Review → Reject.');
 
     const trackLocked = settXml.includes('w:documentProtection') && settXml.includes('trackedChanges');
     auto('D1 — Manage Documents','Lock or unlock track changes',
