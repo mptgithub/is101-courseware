@@ -401,7 +401,7 @@
   </section>
 
   <div class="continue-row">
-    <a href="IS101_Unit1_RAGvsLLM_Guide.html" class="btn" id="continueLink" onclick="markStepComplete('ai-t1-watch')">Continue to LLMs and Academic Research &rarr;</a>
+    <a href="IS101_Unit1_RAGvsLLM_Guide.html" class="btn" id="continueLink">Continue to LLMs and Academic Research &rarr;</a>
   </div>
 
 </main>
@@ -409,8 +409,6 @@
 <footer class="page-footer">
   &copy; Dr. Mark Taormino &middot; All Rights Reserved &middot; College of Southern Nevada &middot; IS101 Introduction to Computing
 </footer>
-
-<script>function markStepComplete(stepId){try{var nshe=localStorage.getItem('is101_nshe');if(nshe){var key='is101_progress_'+nshe;var progress={};try{progress=JSON.parse(localStorage.getItem(key)||'{}');}catch(e2){}progress[stepId]=true;localStorage.setItem(key,JSON.stringify(progress));}}catch(e){}try{var token=sessionStorage.getItem('is101_session_token');if(token){var parts=stepId.split('-');fetch('/api/progress/step',{method:'POST',headers:{'Content-Type':'application/json','x-session-token':token},body:JSON.stringify({unitId:parts[0]||'u',topicId:parts[1]||'unknown',stepIdx:parts[2]||0,completed:true})}).catch(function(){});}}catch(e){}}</script>
 
 <script>
 (function () {
