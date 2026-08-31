@@ -1396,16 +1396,7 @@
 <!-- ══════════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════════ -->
-<script>
-// api-client.js stub — allows standalone testing without server
-window.ApiClient = {
-  login: (nshe, cb) => cb && cb({success:true}),
-  logout: () => {},
-  getProgress: (nshe, cb) => cb && cb({}),
-  saveProgress: (nshe, data, cb) => cb && cb({success:true}),
-  trackEvent: () => {}
-};
-</script>
+<script src="api-client.js"></script>
 <script>
 // ─────────────────────────────────────────────
 //  STATE
