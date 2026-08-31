@@ -1820,6 +1820,14 @@ function saveStepProgress(stepId) {
   renderAllProgress();
 }
 
+function unmarkStepProgress(stepId) {
+progress[stepId] = false;
+try {
+localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
+} catch(e) {}
+renderAllProgress();
+}
+
 function renderAllProgress() {
   // Unit 1
   const u1Steps = ['ai-t1-watch','ai-t1-read1','ai-t1-exam','ai-t2-watch','ai-t2-checklist','ai-t2-assignment'];
@@ -2300,7 +2308,7 @@ function renderUnitContent(unitNum) {
             </div>
             <div class="step-cta">
               ${done
-                ? `<button class="completed-btn">✓ Done</button>`
+                ? `<button class="completed-btn" onclick="unmarkStepProgress('${step.id}')">✓ Done</button>`
                 : `<button onclick="goToStep('${step.id}', '${step.href}')">${step.cta}</button>`
               }
             </div>
