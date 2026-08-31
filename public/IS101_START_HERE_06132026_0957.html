@@ -1773,12 +1773,11 @@ async function handleLogin() {
   afterLogin();
 }
 
-async function afterLogin() {
+function afterLogin() {
   document.getElementById('loginGate').classList.remove('show');
   document.getElementById('siteHeader').style.display = 'flex';
   document.getElementById('overallProgressBar').style.display = 'flex';
   document.getElementById('studentLabel').textContent = 'NSHE: ' + currentStudent;
-  try { if (typeof ApiClient !== 'undefined' && ApiClient.login) { await ApiClient.login(currentStudent); } } catch(e) {}
   loadProgress();
 }
 
