@@ -60,9 +60,9 @@ var IS101API = (function() {
     return api('GET', '/progress');
   }
 
-  async function markStepDone(unitId, topicId, stepIdx, completed) {
+  async function markStepDone(unitId, topicId, stepIdx) {
     if (!isLoggedIn()) return;
-    return api('POST', '/progress/step', { unitId, topicId, stepIdx, completed: completed !== false });
+    return api('POST', '/progress/step', { unitId, topicId, stepIdx });
   }
 
   async function saveLabAnswer(labId, questionIdx, answerIdx, correct) {
@@ -95,10 +95,6 @@ var ApiClient = {
     // stepId format: 'unit-topic-step' e.g. 'ai-t1-watch'
     var parts = stepId.split('-');
     return IS101API.markStepDone(parts[0] || 'u', parts[1] || 'unknown', parts[2] || 0);
-  },
-  removeStepProgress: function(stepId) {
-  var parts = stepId.split('-');
-  return IS101API.markStepDone(parts[0] || 'u', parts[1] || 'unknown', parts[2] || 0, false);
   },
   getSession: function() {
     // Return session info from sessionStorage — no server call needed
