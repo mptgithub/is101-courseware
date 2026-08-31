@@ -1801,25 +1801,14 @@ document.getElementById('nsheInput').addEventListener('keydown', (e) => {
 //  PROGRESS
 // ─────────────────────────────────────────────
 async function loadProgress() {
-  // Cached locally for instant load, then merged with server progress below
-    // (if logged in) so completed steps follow the student across devices.
+  // Pure localStorage mode — no server calls from START_HERE
+  // Progress saves locally in the browser; server sync is not required
   try {
     const stored = localStorage.getItem('is101_progress_' + currentStudent);
     progress = stored ? JSON.parse(stored) : {};
   } catch(e) {
     progress = {};
   }
-  try {
-  if (typeof ApiClient !== 'undefined') {
-  const server = await ApiClient.getProgress();
-  if (server && Array.isArray(server.steps)) {
-  server.steps.forEach(function(s) {
-  progress[s.unit_id + '-' + s.topic_id + '-' + s.step_idx] = true;
-  });
-  try { localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress)); } catch(e) {}
-  }
-  }
-  } catch(e) {}
   renderAllProgress();
 }
 
@@ -1828,7 +1817,6 @@ function saveStepProgress(stepId) {
   try {
     localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
   } catch(e) {}
-  try { if (typeof ApiClient !== 'undefined') ApiClient.saveStepProgress(stepId); } catch(e) {}
   renderAllProgress();
 }
 
@@ -1837,7 +1825,6 @@ progress[stepId] = false;
 try {
 localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress));
 } catch(e) {}
-try { if (typeof ApiClient !== 'undefined') ApiClient.removeStepProgress(stepId); } catch(e) {}
 renderAllProgress();
 }
 
