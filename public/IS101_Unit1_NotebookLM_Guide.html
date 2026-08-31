@@ -459,7 +459,7 @@
   </section>
 
   <div class="continue-row">
-    <a href="IS101_NotebookLM_Checklist_05272026_0928.html" class="btn" id="continueLink">Continue to NotebookLM Walkthrough &rarr;</a>
+    <a href="IS101_NotebookLM_Checklist_05272026_0928.html" class="btn" id="continueLink" onclick="markStepComplete('ai-t2-watch')">Continue to NotebookLM Walkthrough &rarr;</a>
   </div>
 
 </main>
@@ -468,7 +468,7 @@
   <p class="disclaimer">This lab is for educational purposes and reflects NotebookLM's features as of August 2026. Product features can vary by account, language, and rollout &mdash; always check the live tool.</p>
   &copy; Dr. Mark Taormino &middot; College of Southern Nevada &middot; IS101 Introduction to Computing
 </footer>
-
+<script>function markStepComplete(stepId){try{var nshe=localStorage.getItem('is101_nshe');if(nshe){var key='is101_progress_'+nshe;var progress={};try{progress=JSON.parse(localStorage.getItem(key)||'{}');}catch(e2){}progress[stepId]=true;localStorage.setItem(key,JSON.stringify(progress));}}catch(e){}try{var token=sessionStorage.getItem('is101_session_token');if(token){var parts=stepId.split('-');fetch('/api/progress/step',{method:'POST',headers:{'Content-Type':'application/json','x-session-token':token},body:JSON.stringify({unitId:parts[0]||'u',topicId:parts[1]||'unknown',stepIdx:parts[2]||0,completed:true})}).catch(function(){});}}catch(e){}}</script>
 <script>
 (function () {
   "use strict";
