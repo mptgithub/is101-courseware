@@ -361,8 +361,9 @@ function render(){
   el.innerHTML = html;
 }
 
-function markStepComplete(stepId){try{var nshe=localStorage.getItem('is101_nshe');if(nshe){var key='is101_progress_'+nshe;var progress={};try{progress=JSON.parse(localStorage.getItem(key)||'{}');}catch(e2){}progress[stepId]=true;localStorage.setItem(key,JSON.stringify(progress));}}catch(e){}try{var token=sessionStorage.getItem('is101_session_token');if(token){var parts=stepId.split('-');fetch('/api/progress/step',{method:'POST',headers:{'Content-Type':'application/json','x-session-token':token},body:JSON.stringify({unitId:parts[0]||'u',topicId:parts[1]||'unknown',stepIdx:parts[2]||0,completed:true})}).catch(function(){});}}catch(e){}}
-function markDone(){try { markStepComplete('ai-t2-checklist'); } catch(e){} window.location.href = 'IS101_START_HERE_06132026_0957.html';
+function markDone(){
+  try { window.parent.postMessage({type:'stepDone',labId:'nlm-checklist'},'*'); } catch(e){}
+  showToast('Walkthrough marked complete! Return to the Start Here page.');
 }
 
 function showToast(msg){
