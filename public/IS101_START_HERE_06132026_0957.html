@@ -1839,6 +1839,7 @@ localStorage.setItem('is101_progress_' + currentStudent, JSON.stringify(progress
 } catch(e) {}
 try { if (typeof ApiClient !== 'undefined') ApiClient.removeStepProgress(stepId); } catch(e) {}
 renderAllProgress();
+if (typeof currentUnit !== 'undefined' && currentUnit) { renderUnitContent(currentUnit); updateUnitOverviewProgress(currentUnit); }
 }
 
 function renderAllProgress() {
