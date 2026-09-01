@@ -2521,6 +2521,19 @@ function applyUnitLocks() {
     card.setAttribute('aria-disabled', locked ? 'true' : 'false');
     card.onclick = () => openUnit(n); // openUnit() itself blocks + toasts when locked
 
+    // The .unit-card.locked{opacity:.65} rule loses to this card's own
+    // fadeInUp entrance animation (animation-fill-mode:both pins its final
+    // keyframe's opacity:1 for the life of the element, which in the CSS
+    // cascade outranks a plain stylesheet rule). Force it with an
+    // !important inline override instead — that's the one thing that beats
+    // an animation's held value — and clear it again when unlocked so the
+    // card falls back to its normal opacity:1.
+    if (locked) {
+      card.style.setProperty('opacity', '0.65', 'important');
+    } else {
+      card.style.removeProperty('opacity');
+    }
+
     if (locked) {
       badge.textContent = 'Locked';
       badge.className = 'unit-status-badge badge-coming';
