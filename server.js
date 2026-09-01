@@ -226,6 +226,20 @@ app.get('/api/submit/status/:domain', requireStudent, (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// UNIT ACCESS (public read — students need this to know what's open)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Returns e.g. {"1":false,"2":false,"3":true,"4":true} — true means locked.
+// A unit with no row yet is treated as unlocked, so this defaults to
+// "everything open" until the instructor explicitly locks something.
+app.get('/api/unit-locks', (req, res) => {
+  const rows = stmts.getUnitLocks.all();
+  const locks = { 1: false, 2: false, 3: false, 4: false };
+  rows.forEach(r => { locks[r.unit_id] = !!r.locked; });
+  res.json(locks);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // INSTRUCTOR API
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -234,6 +248,22 @@ app.post('/api/instructor/login', (req, res) => {
   if (password !== INSTRUCTOR_PASSWORD)
     return res.status(403).json({ error: 'Incorrect password' });
   res.json({ success: true, token: 'instructor-' + Buffer.from(INSTRUCTOR_PASSWORD).toString('base64') });
+});
+
+// Body: { unitId: 1-4, locked: true|false }. Lets the instructor control unit
+// pacing independent of any student's own progress. Not a security boundary
+// (see openUnit()'s client-side guard) — same soft-gating pattern already
+// used for "Jump to Projects" and the decoy sign-in page elsewhere in this app.
+app.post('/api/instructor/unit-locks', requireInstructor, (req, res) => {
+  const unitId = parseInt(req.body.unitId, 10);
+  const locked = !!req.body.locked;
+  if (![1, 2, 3, 4].includes(unitId))
+    return res.status(400).json({ error: 'unitId must be 1-4' });
+  stmts.setUnitLock.run(unitId, locked ? 1 : 0);
+  const rows = stmts.getUnitLocks.all();
+  const locks = { 1: false, 2: false, 3: false, 4: false };
+  rows.forEach(r => { locks[r.unit_id] = !!r.locked; });
+  res.json({ success: true, locks });
 });
 
 app.get('/api/instructor/students', requireInstructor, (req, res) => {
