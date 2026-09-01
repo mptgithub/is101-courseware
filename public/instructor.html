@@ -3469,5 +3469,118 @@ document.getElementById('grade-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('grade-modal')) closeGradeModal();
 });
 </script>
+
+<!-- ══════════════════════════════════════════════
+     UNIT ACCESS CONTROL (added — lets the instructor manually
+     lock/unlock Units 1-4 independent of student progress, so
+     students can't get ahead of the class's current pace).
+     Self-contained: builds its own nav tab + section at runtime
+     rather than being spliced into the existing hand-authored
+     markup above, so it can't accidentally break anything there.
+══════════════════════════════════════════════ -->
+<script>
+(function() {
+  const UNIT_TITLES = {
+    1: 'Unit 1 — Artificial Intelligence',
+    2: 'Unit 2 — Word Processing (Microsoft Word 365)',
+    3: 'Unit 3 — Spreadsheets (Microsoft Excel 365)',
+    4: 'Unit 4 — Presentations',
+  };
+
+  function instructorHeaders() {
+    const token = localStorage.getItem('is101_instr_token');
+    return token ? { 'x-instructor-token': token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+  }
+
+  function buildUI() {
+    const linkedinTab = document.getElementById('tab-linkedin');
+    const navTabContainer = document.querySelector('.nav-tab') ? document.querySelector('.nav-tab').parentElement : null;
+    if (!linkedinTab || !navTabContainer) return; // page structure not what we expect — fail quietly, don't break the rest of the dashboard
+
+    // Nav tab button, styled to match the existing .nav-tab elements exactly
+    const navTab = document.createElement('div');
+    navTab.className = 'nav-tab';
+    navTab.textContent = 'Unit Access';
+    navTab.onclick = function() { showTab('unitaccess'); loadUnitAccess(); };
+    navTabContainer.appendChild(navTab);
+
+    // Tab content section, styled to match the card/stat look used elsewhere
+    // on this dashboard (white card, 10px radius, subtle border+shadow).
+    const section = document.createElement('div');
+    section.id = 'tab-unitaccess';
+    section.style.display = 'none';
+    section.innerHTML = `
+      <div style="background:#fff;border:0.8px solid #dde1e9;border-radius:10px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);max-width:720px;">
+        <h2 style="margin:0 0 4px;color:#2b579a;font-size:20px;">Unit Access Control</h2>
+        <p style="margin:0 0 20px;color:#6b7280;font-size:14px;line-height:1.5;">
+          Lock a unit to hide it from students and block direct access, regardless of
+          their individual progress. Use this to control pacing — for example, keep
+          Unit 3 locked until the class has finished Unit 2. Unlocked is the default;
+          locking is opt-in per unit.
+        </p>
+        <div id="unitAccessRows"></div>
+        <div id="unitAccessStatus" style="margin-top:14px;font-size:13px;color:#6b7280;min-height:18px;"></div>
+      </div>
+    `;
+    linkedinTab.parentElement.appendChild(section);
+  }
+
+  function rowHTML(n, locked) {
+    const badgeBg = locked ? '#fdf0e6' : '#e8f5ee';
+    const badgeColor = locked ? '#b05c1a' : '#2e7d4f';
+    const btnBg = locked ? '#2e7d4f' : '#b05c1a';
+    const btnLabel = locked ? 'Unlock' : 'Lock';
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid #eef0f4;">
+        <div>
+          <div style="font-weight:600;color:#1a1a2e;font-size:15px;">${UNIT_TITLES[n]}</div>
+          <span style="display:inline-block;margin-top:4px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;background:${badgeBg};color:${badgeColor};">${locked ? 'Locked' : 'Unlocked'}</span>
+        </div>
+        <button onclick="window.__toggleUnitAccess(${n}, ${locked})" style="background:${btnBg};color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+          ${btnLabel}
+        </button>
+      </div>
+    `;
+  }
+
+  window.loadUnitAccess = async function() {
+    const rowsEl = document.getElementById('unitAccessRows');
+    const statusEl = document.getElementById('unitAccessStatus');
+    if (!rowsEl) return;
+    statusEl.textContent = 'Loading…';
+    try {
+      const res = await fetch('/api/unit-locks');
+      const locks = await res.json();
+      rowsEl.innerHTML = [1, 2, 3, 4].map(n => rowHTML(n, !!locks[n])).join('');
+      statusEl.textContent = '';
+    } catch (e) {
+      statusEl.textContent = 'Could not load unit access state — check your connection and try again.';
+    }
+  };
+
+  window.__toggleUnitAccess = async function(n, currentlyLocked) {
+    const statusEl = document.getElementById('unitAccessStatus');
+    statusEl.textContent = 'Saving…';
+    try {
+      const res = await fetch('/api/instructor/unit-locks', {
+        method: 'POST',
+        headers: instructorHeaders(),
+        body: JSON.stringify({ unitId: n, locked: !currentlyLocked }),
+      });
+      if (!res.ok) throw new Error('save failed');
+      statusEl.textContent = 'Saved — students will see this the next time they load the page.';
+      window.loadUnitAccess();
+    } catch (e) {
+      statusEl.textContent = 'Could not save — check your connection and try again.';
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', buildUI);
+  } else {
+    buildUI();
+  }
+})();
+</script>
 </body>
 </html>
