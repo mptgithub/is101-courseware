@@ -1711,6 +1711,13 @@ let progress = {};
 let selectedSkill = null;
 let sessionToken = null; // server session token — lets this page read/write skill progress from the database, not just localStorage
 
+// Instructor-controlled unit pacing. {1:false,2:false,3:true,4:true} — true
+// means locked. Fetched once on load from /api/unit-locks (public, no auth
+// needed to read); defaults to "everything open" until that fetch resolves
+// or if it fails, so a slow/offline load never accidentally locks a unit
+// that isn't actually locked.
+let unitLocks = { 1: false, 2: false, 3: false, 4: false };
+
 // ─────────────────────────────────────────────
 //  UNIT DATA
 // ─────────────────────────────────────────────
@@ -2426,6 +2433,12 @@ function renderAllProgress() {
   if (u2Pct === 100) document.getElementById('u2Badge').textContent = '✓ Complete';
   if (u3Pct === 100) document.getElementById('u3Badge').textContent = '✓ Complete';
   if (u4Pct === 100) document.getElementById('u4Badge').textContent = '✓ Complete';
+
+  // Re-apply instructor unit locks last — this function runs on every
+  // progress change (any unit's, not just the one that changed), and it
+  // just overwrote every card's badge/CTA text above, so a locked card's
+  // "Locked" badge and disabled CTA have to be re-asserted every time too.
+  applyUnitLocks();
 }
 
 // ─────────────────────────────────────────────
@@ -2441,6 +2454,10 @@ function showView(name) {
 function openUnit(unitNum) {
   const unit = UNITS[unitNum];
   if (!unit) return;
+  if (unitLocks[unitNum]) {
+    showToast('Unit ' + unitNum + " isn't open yet — your instructor will unlock it soon.", 'warning');
+    return;
+  }
   currentUnit = unitNum;
 
   document.getElementById('unitBreadcrumb').textContent = 'Unit ' + unitNum;
@@ -2466,6 +2483,54 @@ function openUnit(unitNum) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('viewUnit').classList.add('active');
   window.scrollTo(0, 0);
+}
+
+// Fetches instructor-set unit locks from the server and stores them in
+// unitLocks, then repaints the four home-page unit cards to match: a locked
+// unit gets the same dimmed ".locked" treatment + "Coming Soon"-style badge
+// this app already used for an unbuilt Unit 4, plus a disabled CTA button
+// and its onclick swapped so clicking it shows a toast instead of navigating
+// (openUnit() also checks unitLocks directly, so this holds even if someone
+// calls openUnit() from the console instead of clicking the card).
+async function refreshUnitLocks() {
+  try {
+    const res = await fetch('/api/unit-locks');
+    if (res.ok) unitLocks = await res.json();
+  } catch (e) {
+    // Offline or server unreachable — keep whatever unitLocks already was
+    // (the safe "everything open" default on first load).
+  }
+  applyUnitLocks();
+}
+
+// Repaints the four home-page cards to match unitLocks. Safe to call
+// anytime (page load, after fetching locks, or from the end of
+// renderAllProgress) — for an unlocked unit it only touches the card's
+// class/onclick, leaving whatever badge/CTA text renderAllProgress already
+// set (that's the authoritative source for the unlocked "Active" /
+// "✓ Complete" / "Start Unit N" / "Continue Unit N" state).
+function applyUnitLocks() {
+  [1, 2, 3, 4].forEach(n => {
+    const card  = document.querySelector('.unit-card.u' + n);
+    const badge = document.getElementById('u' + n + 'Badge');
+    const cta   = document.getElementById('u' + n + 'CTA');
+    if (!card || !badge || !cta) return;
+    const locked = !!unitLocks[n];
+
+    card.classList.toggle('locked', locked);
+    card.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    card.onclick = () => openUnit(n); // openUnit() itself blocks + toasts when locked
+
+    if (locked) {
+      badge.textContent = 'Locked';
+      badge.className = 'unit-status-badge badge-coming';
+      cta.disabled = true;
+      cta.textContent = '🔒 Locked';
+    } else {
+      cta.disabled = false;
+    }
+    cta.onclick = () => openUnit(n);
+  });
 }
 
 // ── Skill → domain maps (Word D1–D6, Excel E1–E5) ──
@@ -3482,6 +3547,11 @@ function showToast(msg, type = '') {
 //  CHECK SESSION ON LOAD
 // ─────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  // Instructor unit-pacing locks — fetched unconditionally (no login
+  // required to read them) so the home cards are already correct the
+  // instant the login gate clears, rather than flashing unlocked-then-locked.
+  refreshUnitLocks();
+
   // LTI handoff — arriving here right after a Canvas launch (see lti/lti.js)
   // carries the resolved NSHE ID as a query param. Stash it exactly like a
   // normal returning visit would and let the existing session logic below
