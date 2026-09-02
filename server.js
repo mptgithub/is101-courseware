@@ -1254,9 +1254,9 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Margins changed from the default.',
       '✗ Margins not changed. Fix: Layout → Margins → Normal (or custom).');
 
-    auto('D1 — Manage Documents','Set page orientation', docXml.includes('w:orient="landscape"'),
-      '✓ Landscape orientation detected.',
-      '✗ Orientation not changed. Fix: Layout → Orientation → Landscape.');
+    auto('D1 — Manage Documents','Set orientation to Portrait', docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),
+      '✓ Portrait orientation confirmed.',
+      '✗ Document is Landscape. Fix: Layout → Orientation → Portrait (only the Financial Summary section should be Landscape, via a section break — see D2 tasks).');
 
     auto('D1 — Manage Documents','Set paper size to Letter',
       docXml.includes('w:w="12240"') && docXml.includes('w:h="15840"'),
