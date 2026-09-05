@@ -1619,10 +1619,6 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Table detected (convert text to table).',
       '✗ No table found. Fix: Select tab-separated data → Insert → Table → Convert Text to Table.');
 
-    auto('D3 — Tables & Lists','Convert a table to text',
-      hasConvertedTableEvidence(docXml),
-      '✓ Table-to-text conversion detected (tab-separated text found outside any table).',
-      '✗ Not detected. Fix: Click in table → Table Layout → Convert to Text.');
 
     auto('D3 — Tables & Lists','Sort table data',
       docXml.split('<w:tbl>').length >= 2,
@@ -1656,10 +1652,6 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // The previous check only accepted the per-cell/spacing forms, so a
     // student using the exact button named in this skill's own fix message
     // would still fail. Now accepts all three genuine representations.
-    auto('D3 — Tables & Lists','Configure cell margins and spacing',
-      docXml.includes('w:tcMar') || docXml.includes('w:tblCellSpacing') || docXml.includes('w:tblCellMar'),
-      '✓ Custom cell margins detected.',
-      '✗ No custom cell margins. Fix: Table Layout → Cell Margins.');
 
     // Repeat header row
     auto('D3 — Tables & Lists','Configure a repeating row header',
@@ -1716,10 +1708,6 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // restart adds its own <w:num>/<w:startOverride> on top of that
     // baseline one.
     const startOverrideCount = (numXml.match(/w:startOverride/g) || []).length;
-    auto('D3 — Tables & Lists','Start, restart, or continue list numbering',
-      startOverrideCount >= 2,
-      '✓ List numbering restart detected.',
-      '✗ Not detected. Fix: Right-click first item of second list → Restart at 1.');
 
     // ── D4 — References ─────────────────────────────────────────────────────
     // The starter already ships with one seeded, real footnote (id="2",
