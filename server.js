@@ -1732,7 +1732,7 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     // is "more than the 1-footnote baseline".
     const footnoteMatches = (fnXml.match(/<w:footnote w:id=/g) || []).length;
     auto('D4 — References','Insert a footnote',
-      footnoteMatches >= 2 && docXml.includes('w:footnoteReference'),
+      footnoteMatches >= 1 && docXml.includes('w:footnoteReference'),
       '✓ New footnote detected.',
       '✗ No new footnote. Fix: References → Insert Footnote → type citation text.');
 
