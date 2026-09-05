@@ -627,7 +627,8 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const ni=docXml.split('w:numId').length-1;
     check(18,2,'Create numbered list of research questions',ni>=3,`✓ List items found (${ni}).`,'✗ Fix: Select questions → Home → Numbering.');
     check(19,2,'Create bulleted list of key findings',ni>0&&numXml.includes('w:numFmt w:val="bullet"'),'✓ Bulleted list found.','✗ Fix: Select key findings → Home → Bullets.');
-    check(20,2,'Restart list numbering for second set',docXml.includes('w:startOverride')||numXml.includes('w:startOverride')||ni>5,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
+    const var1StartOverrideCount = (numXml.match(/w:startOverride/g) || []).length;
+    check(20,2,'Restart list numbering for second set',var1StartOverrideCount>=2,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
     check(21,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
     check(22,4,'Customize TOC: Heading 1 and 2 only',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),'✓ TOC customized to Heading 1 and 2 only.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 2.');
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
@@ -702,7 +703,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(14,3,'Apply text effects (shadow, glow, or reflection) to proposal title',docXml.includes('w:effect')||docXml.includes('w:shadow')||docXml.includes('a:outerShdw')||docXml.includes('a:glow')||docXml.includes('a:reflection'),'✓ Text effect found.','✗ Fix: Select title → Home → Font dialog → Text Effects → Shadow (or Glow/Reflection).');
     check(15,4,'Insert section break before Budget; change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'✓ Section break with Landscape section found.','✗ No Landscape section break. Fix: Layout → Breaks → Next Page before Budget, then set that section to Layout → Orientation → Landscape.');
     check(16,4,'Create 5-column budget table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 5 columns.');
-    const vv2Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(17,3,'Apply a table style to the budget table',vv2Tbl>=1&&docXml.includes('w:tblStyle'),'✓ Table style applied.','✗ No table style found. Fix: Click in the budget table → Table Design tab → choose a style from the Table Styles gallery.');
+    const vv2Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(17,3,'Merge header row cells for "Budget Summary"',vv2Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create the budget table first, then select the top row → Table Layout → Merge Cells.');
     check(18,3,'Sort vendor table by cost (ascending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the vendor table → Table Layout → Sort → Cost column → Ascending.');
     const ni=docXml.split('w:numId').length-1;
     check(19,2,'Create numbered timeline of event activities',ni>=3,`✓ List items (${ni}).`,'✗ Fix: Select timeline → Home → Numbering.');
