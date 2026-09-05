@@ -433,7 +433,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(4,4,'Insert header: company name and date',hC&&hD,'Header has company name and date.','Header incomplete. Company:'+hC+' Date:'+hD+'. Fix: Insert > Header > add Desert Sun Consulting and date.');
     check(5,3,'Insert footer: Confidential centered',fXml.toLowerCase().includes('confidential'),'Footer has Confidential.','Footer missing Confidential. Fix: Insert > Footer > type Confidential.');
     check(6,3,'Insert page numbers bottom right',fXml.includes('PAGE')||fXml.includes('fldChar'),'Page numbers in footer.','No page numbers. Fix: Insert > Page Number > Bottom of Page > Plain Number 3.');
-    check(7,3,'Add a DRAFT watermark',hXml.includes('DRAFT')||hXml.toLowerCase().includes('pict'),'DRAFT watermark found.','No watermark. Fix: Design > Watermark > DRAFT 1.');
+    check(7,3,'Add a DRAFT watermark',hXml.includes('DRAFT')&&(hXml.includes('v:shape')||hXml.includes('v:textpath')||hXml.includes('mc:AlternateContent')),'DRAFT watermark found.','No watermark. Fix: Design > Watermark > DRAFT 1.');
     check(8,3,'Set document properties Title and Author',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'Document properties set.','Properties incomplete. Fix: File > Info > Properties panel.');
     // D2 - 7 tasks - 22 pts
     const dsc=(docXml.match(/(?<![A-Z])DSC(?![A-Z])/g)||[]).length;
@@ -462,7 +462,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(25,4,'Insert DSC logo image on cover page',docXml.includes('w:drawing')||docXml.includes('a:blip'),'Image found.','No image. Fix: Insert > Pictures > This Device > select logo.');
     check(26,3,'Set text wrapping to Through for the logo',(docXml.includes('w:drawing')||docXml.includes('a:blip'))&&['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'Text wrapping set.','Wrapping not set. Fix: Insert logo first (T25), then Picture Format > Wrap Text > Through.');
     check(27,4,'Insert text box with report tagline on cover page',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'Text box found.','No text box. Fix: Insert > Text Box > Draw Text Box > type tagline.');
-    const c1HasImg=docXml.includes('a:blip'); const c1HasAlt=(docXml.match(/descr="[^"]{3,}"/g)||[]).length>=1; check(28,8,'Add alt text to ALL images in the document',c1HasImg&&c1HasAlt,'Alt text found on logo image.','No alt text on the logo image. Fix: Right-click the logo > Edit Alt Text > type a description.');
+    const c1Drw=(docXml.match(/<w:drawing>/g)||[]).length; const c1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to ALL images in the document',c1Drw>0&&c1Dsc>=c1Drw,'Alt text found on all '+c1Drw+' image(s).','Found '+c1Drw+' image(s) but only '+c1Dsc+' with alt text. Fix: Right-click EACH image > Edit Alt Text > type a description.');
     // D6 - 3 tasks - 9 pts
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
     check(29,3,'Add comment on revenue figure requesting verification',cc>=1,''+cc+' comment(s) found.','No comments. Fix: Select revenue figure > Review > New Comment.');
@@ -527,7 +527,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(4,4,'Insert header: "Nevada Valley Healthcare — Employee Training Manual"',(()=>{const _ht=[...hXml.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>m[1]).join(' ').replace(/\s+/g,' '); return (_ht.includes('Nevada Valley')||hXml.includes('NVH'))&&(_ht.includes('Training')||_ht.includes('Manual'));})(),'✓ Header content found.','✗ Header incomplete. Fix: Insert → Header → type full title.');
     check(5,3,'Insert footer with department name',fXml.length>50,'✓ Footer content found.','✗ Footer empty. Fix: Insert → Footer → Edit Footer → type the department name.');
     check(6,2,'Insert page numbers in the footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ No page numbers detected. Fix: Insert → Header & Footer → Footer → Edit Footer → Insert → Page Number → Current Position.');
-    check(7,3,'Add a "CONFIDENTIAL" watermark',hXml.toUpperCase().includes('CONFIDENTIAL')||hXml.toLowerCase().includes('pict'),'✓ Watermark detected.','✗ Fix: Design → Watermark → type CONFIDENTIAL.');
+    check(7,3,'Add a "CONFIDENTIAL" watermark',hXml.toUpperCase().includes('CONFIDENTIAL')&&(hXml.includes('v:shape')||hXml.includes('v:textpath')||hXml.includes('mc:AlternateContent')),'✓ Watermark detected.','✗ Fix: Design → Watermark → type CONFIDENTIAL.');
     check(8,3,'Set document properties: Title, Author, Subject, Keywords',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'✓ Properties set.','✗ Fix: File → Info → Properties panel.');
     check(9,2,'Add custom document property: Department = Human Resources',/name="Department"/.test(cstmXml)&&cstmXml.includes('Human Resources'),'✓ Custom property found.','✗ Fix: File → Info → Properties → Advanced Properties → Custom tab → Name: Department, Value: Human Resources → Add.');
     const nvh=(docXml.match(/(?<![A-Z])NVH(?![A-Z])/g)||[]).length;
@@ -634,7 +634,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(23,4,'Insert 2 footnotes citing sources',fnc>=2,`✓ ${fnc} footnotes found.`,`✗ Only ${fnc} footnote(s) — need 2. Fix: Click after a claim or statistic → References → Insert Footnote → type the source citation.`);
     check(24,4,'Insert bar chart screenshot',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select chart image.');
-    check(25,2,'Set text wrapping to Top and Bottom',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Top and Bottom.');
+    const v1HasImg=docXml.includes('w:drawing')||docXml.includes('a:blip'); check(25,2,'Set text wrapping to Top and Bottom',v1HasImg&&['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Insert the chart image first, then Picture Format → Wrap Text → Top and Bottom.');
     check(26,4,'Add text to shape for callout box',docXml.includes('wps:')||docXml.includes('w:txbxContent'),'✓ Shape with text found.','✗ Fix: Insert → Shapes → Callouts → draw → type statistic.');
     check(27,4,'Position callout shape in right margin',docXml.includes('wp:anchor')||docXml.includes('positionH'),'✓ Positioned object found.','✗ Fix: Picture Format → Position → right margin.');
     const v1Drw=(docXml.match(/<w:drawing>/g)||[]).length; const v1Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,7,'Add alt text to all figures',v1Drw>0&&v1Dsc>=v1Drw,'✓ Alt text on all '+v1Drw+' figure(s).','✗ Found '+v1Drw+' figure(s) but only '+v1Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
@@ -690,7 +690,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(4,4,'Insert header with Oasis Events and proposal number',hXml.toLowerCase().includes('oasis')||hXml.includes('Proposal')||hXml.length>80,'✓ Header content found.','✗ Fix: Insert → Header → add Oasis Events and proposal number.');
     check(5,3,'Insert footer: Oasis Events · Confidential · Page X of Y',fXml.toLowerCase().includes('oasis')||fXml.toLowerCase().includes('confidential')||fXml.length>50,'✓ Footer content found.','✗ Fix: Insert → Footer → type footer text.');
     check(6,2,'Insert page numbers in footer',fXml.includes('PAGE')||fXml.includes('fldChar'),'✓ Page numbers in footer.','✗ Fix: Insert → Page Number → Bottom of Page.');
-    check(7,3,'Add a light "PROPOSAL" watermark',hXml.toUpperCase().includes('PROPOSAL')||hXml.toLowerCase().includes('pict'),'✓ Watermark detected.','✗ Fix: Design → Watermark → type PROPOSAL.');
+    check(7,3,'Add a light "PROPOSAL" watermark',hXml.toUpperCase().includes('PROPOSAL')&&(hXml.includes('v:shape')||hXml.includes('v:textpath')||hXml.includes('mc:AlternateContent')),'✓ Watermark detected.','✗ Fix: Design → Watermark → type PROPOSAL.');
     check(8,3,'Set document properties: Title and Company',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'✓ Properties set.','✗ Fix: File → Info → Properties.');
     const tbd=(docXml.match(/\bTBD\b/g)||[]).length;
     check(9,2,'Find & Replace: "TBD" → specific venue details',tbd===0,'✓ No TBD placeholders.',`✗ Found ${tbd} TBD instance(s). Fix: Ctrl+H → Find TBD → Replace venue name.`);
@@ -714,7 +714,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
     check(24,4,'Insert footnote on pricing section',fnc>=1,`✓ ${fnc} footnote(s).`,`✗ Only ${fnc}. Fix: References → Insert Footnote → type terms.`);
     check(25,4,'Insert venue floor plan image',docXml.includes('w:drawing')||docXml.includes('a:blip'),'✓ Image found.','✗ Fix: Insert → Pictures → select floor plan.');
-    check(26,2,'Set text wrapping to Square',['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Picture Format → Wrap Text → Square.');
+    const v2HasImg=docXml.includes('w:drawing')||docXml.includes('a:blip'); check(26,2,'Set text wrapping to Square',v2HasImg&&['wrapThrough','wrapSquare','wrapTight','wrapTopAndBottom'].some(w=>docXml.includes(w)),'✓ Wrapping set.','✗ Fix: Insert the floor plan image first, then Picture Format → Wrap Text → Square.');
     check(27,4,'Insert text box with Oasis Events tagline',docXml.includes('w:txbxContent')||docXml.includes('wps:txbx'),'✓ Text box found.','✗ Fix: Insert → Text Box → Draw Text Box → type tagline.');
     const vv2Drw=(docXml.match(/<w:drawing>/g)||[]).length; const vv2Dsc=(docXml.match(/descr="[^"]{3,}"/g)||[]).length; check(28,8,'Add alt text to all graphics',vv2Drw>0&&vv2Dsc>=vv2Drw,'✓ Alt text on all '+vv2Drw+' graphic(s).','✗ Found '+vv2Drw+' graphic(s) but only '+vv2Dsc+' with alt text. Fix: Right-click EACH image/shape → Edit Alt Text.');
     const cc=(cmmXml.match(/<w:comment /g)||[]).length;
@@ -800,9 +800,12 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       hasCustomMargin,
       '✓ Custom cell margins found.','✗ No custom cell margins found. Fix: Click in table → Layout → Cell Margins → increase values.');
 
-    check(10,8,'Split the merged header cell in the ticket table into two columns',
-      !docXml.includes('w:gridSpan'),
-      '✓ Header cell appears split.','✗ Header cell still appears merged. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
+    const p5TicketTblStart = docXml.indexOf('Ticket #1001')>=0 ? docXml.lastIndexOf('<w:tbl>', docXml.indexOf('Ticket #1001')) : -1;
+      const p5TicketTblEnd = p5TicketTblStart>=0 ? docXml.indexOf('</w:tbl>', p5TicketTblStart) : -1;
+      const p5TicketTblXml = (p5TicketTblStart>=0 && p5TicketTblEnd>=0) ? docXml.slice(p5TicketTblStart, p5TicketTblEnd+8) : '';
+      check(10,8,'Split the merged header cell in the ticket table into two columns',
+      p5TicketTblXml.length>0 && !p5TicketTblXml.includes('w:gridSpan'),
+      '✓ Header cell appears split.','✗ Header cell still appears merged, or ticket table not found. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
 
     check(11,5,'Resize the equipment table columns to fit content',
       docXml.includes('w:tblLayout'),
