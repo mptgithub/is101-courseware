@@ -807,9 +807,34 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       p5TicketTblXml.length>0 && !p5TicketTblXml.includes('w:gridSpan'),
       '✓ Header cell appears split.','✗ Header cell still appears merged, or ticket table not found. Fix: Click the merged cell → Layout → Split Cells → 2 columns.');
 
+    const p5EquipTblStart = docXml.indexOf('Equipment Loan Table')>=0 ? docXml.indexOf('<w:tbl>', docXml.indexOf('Equipment Loan Table')) : -1;
+    const p5EquipTblEnd = p5EquipTblStart>=0 ? docXml.indexOf('</w:tbl>', p5EquipTblStart) : -1;
+    const p5EquipTblXml = (p5EquipTblStart>=0 && p5EquipTblEnd>=0) ? docXml.slice(p5EquipTblStart, p5EquipTblEnd+8) : '';
+    // Starter's Equipment table ships as an equal 3-column 2400/2400/2400
+    // twip grid, no per-cell tcW overrides, no explicit tblLayout element.
+    // A genuine resize -- whether by dragging a column border or using
+    // AutoFit Contents -- always changes the actual column widths
+    // (gridCol and/or per-cell tcW); Word does not reliably ALSO write an
+    // explicit <w:tblLayout> element for every resize path, so relying on
+    // that element alone as the sole signal misses real, correctly-done
+    // resizes (confirmed: a genuine width-only change with no tblLayout
+    // element previously graded as a false fail). Checking the widths
+    // themselves is the direct, unambiguous evidence; tblLayout is kept
+    // as an additional (not exclusive) accepted signal.
+    const p5EquipBaseline = [2400,2400,2400];
+    const p5EquipGridWidths = [...p5EquipTblXml.matchAll(/<w:gridCol w:w="(\d+)"/g)].map(m=>parseInt(m[1]));
+    const p5EquipTcWidths = [...p5EquipTblXml.matchAll(/<w:tcW w:w="(\d+)"[^>]*w:type="dxa"/g)].map(m=>parseInt(m[1]));
+    const p5EquipGridChanged = p5EquipGridWidths.length>0 && (
+      p5EquipGridWidths.length !== p5EquipBaseline.length ||
+      p5EquipGridWidths.some((w,i)=>w!==p5EquipBaseline[i])
+    );
+    const p5EquipTcWChanged = p5EquipTcWidths.some(w=>!p5EquipBaseline.includes(w));
+    const p5EquipResized = p5EquipTblXml.length>0 && (
+      p5EquipTblXml.includes('w:tblLayout') || p5EquipGridChanged || p5EquipTcWChanged
+    );
     check(11,5,'Resize the equipment table columns to fit content',
-      docXml.includes('w:tblLayout'),
-      '✓ Custom column widths found.','✗ No custom column resizing detected. Fix: Drag column borders or use Layout → AutoFit → AutoFit Contents.');
+      p5EquipResized,
+      '✓ Custom column widths found.','✗ No custom column resizing detected on the equipment table, or table not found. Fix: Click inside the equipment table → drag a column border, or Layout → AutoFit → AutoFit Contents.');
 
     // T12: Split inventory table — check that software inventory data spans 2+ tables
     // Look for multiple tables containing software-related content
