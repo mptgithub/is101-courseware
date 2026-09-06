@@ -1447,7 +1447,7 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     auto('D1 — Manage Documents','Lock or unlock track changes',
       !trackLocked,
       '✓ Track Changes lock removed from the starter.',
-      '✗ Still locked. Fix: Review → Track Changes dropdown → Lock Track Changes → click OK (no password).');
+      '✗ Still locked. Fix: Review → Track Changes dropdown → Lock Track Changes (to uncheck/remove the lock) → click OK (no password needed).');
 
     // ── D2 — Format Text and Paragraphs ────────────────────────────────────
     // Find+Replace DSC: starter has 11 DSC instances; after replace, zero
@@ -1639,10 +1639,21 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
       '✓ Split cell structure detected (nested table or uneven row cell counts).',
       '✗ Not detected. Fix: Click in cell → Table Layout → Split Cells.');
 
+    // "Split a table" previously required only 2 total <w:tbl> elements
+    // anywhere in the document -- but D3's own instructions already have
+    // students create 3 unrelated tables (Quarterly Revenue, Client List,
+    // Vendor Contact List) via ordinary text-to-table conversion, with no
+    // actual Table Layout -> Split Table action involved at all. That meant
+    // this check auto-passed as soon as a student finished just 2 of those
+    // 3 conversions, crediting a skill the student never performed. The
+    // starter's Quarterly Revenue instructions now explicitly ask students
+    // to split that table into two (Q1-Q2 / Q3-Q4) after building it, so a
+    // genuine split adds a 4th table on top of the 3 ordinary conversions --
+    // the threshold is raised to require that 4th table as real evidence.
     auto('D3 — Tables & Lists','Split a table',
-      docXml.split('<w:tbl>').length >= 3,
-      '✓ Multiple tables detected — table was split.',
-      '✗ Less than 3 tables. Fix: Click in the row where you want to split → Table Layout → Split Table.');
+      docXml.split('<w:tbl>').length >= 5,
+      '✓ Four or more tables detected — the Quarterly Revenue table was split into two.',
+      '✗ Fewer than 4 tables detected. Fix: Click in the Quarterly Revenue table where you want to split it (e.g. between Q2 and Q3) → Table Layout → Split Table.');
 
     // Resize table
     auto('D3 — Tables & Lists','Resize a table / rows / columns',
@@ -1988,7 +1999,7 @@ app.post('/api/grade/word-practice', upload.single('file'), async (req, res) => 
     auto('D6 — Collaboration','Lock or unlock track changes',
       !trackLocked,
       '✓ Track Changes lock removed.',
-      '✗ Still locked from starter. Fix: Review → Track Changes dropdown → Lock Track Changes → OK (no password).');
+      '✗ Still locked from starter. Fix: Review → Track Changes dropdown → Lock Track Changes (to uncheck/remove the lock) → OK (no password needed).');
 
     self('D6 — Collaboration','Resolve a comment (verify)',
       'After resolving, the comment shows a checkmark. The grader checks for this — verify the resolved state shows in the Comments pane.');
