@@ -428,7 +428,8 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     if(pgMar){const a=pgMar[1];mT=parseInt((a.match(/w:top="(\d+)"/)||[0,'0'])[1]);mB=parseInt((a.match(/w:bottom="(\d+)"/)||[0,'0'])[1]);mL=parseInt((a.match(/w:left="(\d+)"/)||[0,'0'])[1]);mR=parseInt((a.match(/w:right="(\d+)"/)||[0,'0'])[1]);}
     check(1,2,'Set 1-inch margins on all sides',[mT,mB,mL,mR].every(v=>Math.abs(v-INCH)<72),'Margins are 1 inch on all sides.','Margins not 1 inch. Fix: Layout > Margins > Normal.');
     check(2,2,'Set orientation to Portrait',docXml.split('<w:sectPr').length>=3||!docXml.includes('w:orient="landscape"'),'Portrait orientation confirmed.','Document is Landscape. Fix: Layout > Orientation > Portrait.');
-    check(3,2,'Apply the Basic Stylish style set',/(?:styleId|w:val)="Heading ?1"/.test(docXml)||/(?:styleId|w:val)="Heading ?2"/.test(docXml),'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
+    const c1H1M=stylesXml.match(/Heading1[\s\S]{0,800}?<w:color w:val="([^"]+)"/); const c1H1C=(c1H1M&&c1H1M[1]||'').toUpperCase(); const c1StyleOk=c1H1C.length>0&&c1H1C!=='2E74B5';
+    check(3,2,'Apply the Basic Stylish style set',c1StyleOk,'Style set applied.','No style set. Fix: Design > Style Sets > Basic (Stylish).');
     const hTexts=[...hXml.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>m[1]).join(' ').replace(/\s+/g,' '); const hC=hTexts.includes('Desert Sun'); const hD=/20(25|26|27)/.test(hXml)||/January|February|March|April|May|June|July|August|September|October|November|December/.test(hXml);
     check(4,4,'Insert header: company name and date',hC&&hD,'Header has company name and date.','Header incomplete. Company:'+hC+' Date:'+hD+'. Fix: Insert > Header > add Desert Sun Consulting and date.');
     check(5,3,'Insert footer: Confidential centered',fXml.toLowerCase().includes('confidential'),'Footer has Confidential.','Footer missing Confidential. Fix: Insert > Footer > type Confidential.');
@@ -443,16 +444,23 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(11,4,'Apply Heading 1 to all section headers',h1>=8,'Heading 1 on '+h1+' sections.','Only '+h1+' Heading 1 found - need 8. Fix: Apply Heading 1 to: Executive Summary, Financial Summary, Quarterly Revenue, Client Portfolio, Strategic Objectives, Services Offered, Organizational Structure, and Conclusion.');
     const h2=(docXml.match(/(?:styleId|w:val)="Heading ?2"/g)||[]).length;
     check(12,4,'Apply Heading 2 to all subsection headers',h2>=1,'Heading 2 on '+h2+' subsections.','No Heading 2. Fix: Click subsection headers > Home > Heading 2.');
-    check(13,2,'Set body text line spacing to 1.15',docXml.includes('w:lineRule')||docXml.includes('<w:spacing'),'Line spacing settings found.','No custom line spacing. Fix: Select body text > Home > Line Spacing > 1.15.');
-    check(14,2,'Set 6pt spacing after each paragraph',docXml.includes('w:after='),'Paragraph spacing after found.','No spacing after. Fix: Paragraph dialog > Spacing After 6pt.');
+    const c1SpacingElems=[...docXml.matchAll(/<w:spacing\s+([^>]*)\/>/g)].map(m=>m[1]); const c1Attr=(s,name)=>{const m=s.match(new RegExp('w:'+name+'="(\\d+)"')); return m?parseInt(m[1]):null;};
+    const c1LineOk=c1SpacingElems.some(s=>{const line=c1Attr(s,'line'); return /w:lineRule="auto"/.test(s)&&line!==null&&Math.abs(line-276)<=6;});
+    const c1AfterOk=c1SpacingElems.some(s=>{const after=c1Attr(s,'after'); return after!==null&&Math.abs(after-120)<=6;});
+    check(13,2,'Set body text line spacing to 1.15',c1LineOk,'Line spacing settings found.','No 1.15 line spacing detected. Fix: Select body text > Home > Line Spacing > 1.15.');
+    check(14,2,'Set 6pt spacing after each paragraph',c1AfterOk,'Paragraph spacing after found.','No 6pt spacing after detected. Fix: Paragraph dialog > Spacing After 6pt.');
     check(15,4,'Insert section break before Financial Summary and change to Landscape',(docXml.match(/<w:sectPr[ >]/g)||[]).length>=2 && docXml.includes('w:orient="landscape"'),'Section break with Landscape section found.','No Landscape section break. Fix: Layout > Breaks > Next Page before Financial Summary, then set that section to Layout > Orientation > Landscape.');
     // D3 - 6 tasks - 18 pts
     check(16,4,'Create a 4-column quarterly revenue table',docXml.includes('<w:tbl>'),'Table found.','No table. Fix: Insert > Table > 4 columns x 5 rows.');
-    const c1Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(17,3,'Merge top row cells for spanning title',c1Tbl>=1&&(docXml.includes('w:gridSpan')||docXml.includes('w:hMerge')),'Merged cells found.','No merged cells. Fix: Create table first (T16), then select top row > Table Layout > Merge Cells.');
+    const c1RevTblStart=docXml.indexOf('Quarterly Revenue')>=0?docXml.indexOf('<w:tbl>',docXml.indexOf('Quarterly Revenue')):-1; const c1RevTblEnd=c1RevTblStart>=0?docXml.indexOf('</w:tbl>',c1RevTblStart):-1; const c1RevTblXml=(c1RevTblStart>=0&&c1RevTblEnd>=0)?docXml.slice(c1RevTblStart,c1RevTblEnd+8):'';
+    check(17,3,'Merge top row cells for spanning title',c1RevTblXml.length>0&&(c1RevTblXml.includes('w:gridSpan')||c1RevTblXml.includes('w:hMerge')),'Merged cells found.','No merged cells found in the revenue table, or table not found. Fix: Create table first (T16), then select top row > Table Layout > Merge Cells.');
     check(18,3,'Sort client table alphabetically',docXml.split('<w:tbl>').length>=3,'Multiple tables found.','Client table not found. Fix: Add client table then Table Layout > Sort > Ascending.');
-    const ni=docXml.split('w:numId').length-1;
-    check(19,2,'Create numbered list of 5 strategic objectives',ni>=5,'Numbered list found ('+ni+' references).','Numbered list not found. Fix: Select 5 objectives > Home > Numbering.');
-    check(20,2,'Create bulleted list of services',ni>0&&numXml.includes('w:numFmt w:val="bullet"'),'Bulleted list found.','No bulleted list. Fix: Select the three service categories > Home > Bullets.');
+    const c1N2A={}; for(const m of numXml.matchAll(/<w:num w:numId="(\d+)"[^>]*>([\s\S]*?)<\/w:num>/g)){const am=m[2].match(/<w:abstractNumId w:val="(\d+)"/); if(am) c1N2A[m[1]]=am[1];}
+    const c1A2F={}; for(const m of numXml.matchAll(/<w:abstractNum w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g)){const l0=m[2].match(/<w:lvl w:ilvl="0"[^>]*>([\s\S]*?)<\/w:lvl>/); if(l0){const fm=l0[1].match(/<w:numFmt w:val="([^"]+)"/); if(fm) c1A2F[m[1]]=fm[1];}}
+    const c1NRefs=[...docXml.matchAll(/<w:numId w:val="(\d+)"\/>/g)].map(m=>m[1]);
+    const c1NumCount=c1NRefs.filter(id=>c1A2F[c1N2A[id]]==='decimal').length; const c1BulCount=c1NRefs.filter(id=>c1A2F[c1N2A[id]]==='bullet').length;
+    check(19,2,'Create numbered list of 5 strategic objectives',c1NumCount>=5,'Numbered list found ('+c1NumCount+' references).','Numbered list not found. Fix: Select 5 objectives > Home > Numbering.');
+    check(20,2,'Create bulleted list of services',c1BulCount>=1,'Bulleted list found.','No bulleted list. Fix: Select the three service categories > Home > Bullets.');
     check(21,4,'Increase list level for sub-items',/w:ilvl w:val="[1-9]"/.test(docXml),'Sub-level list items found.','No sub-level items. Fix: Select sub-items > Home > Increase Indent.');
     // D4 - 3 tasks - 10 pts
     check(22,3,'Insert Table of Contents after title page',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'TOC found.','No TOC. Fix: References > Table of Contents > Automatic Table 1.');
@@ -544,9 +552,12 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     check(18,3,'Create 3-column employee benefits summary table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 3 columns.');
     const c2Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(19,2,'Merge header row cells',c2Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create table first (T18), then select top row → Table Layout → Merge Cells.');
     check(20,2,'Enable Repeat Header Row',c2Tbl>=1&&docXml.includes('w:tblHeader'),'✓ Repeat Header Row enabled.','✗ Fix: Create table first (T18), then click header row → Table Layout → Repeat Header Rows.');
-    const ni=docXml.split('w:numId').length-1;
-    check(21,2,'Create numbered checklist of Day 1 tasks',ni>=5,`✓ List items found (${ni}).`,`✗ Numbered list not found. Fix: Select Day 1 tasks → Home → Numbering.`);
-    check(22,2,'Create bulleted list of conduct guidelines',ni>0&&numXml.includes('w:numFmt w:val="bullet"'),'✓ Bulleted list found.','✗ Fix: Select conduct guidelines → Home → Bullets.');
+    const c2N2A={}; for(const m of numXml.matchAll(/<w:num w:numId="(\d+)"[^>]*>([\s\S]*?)<\/w:num>/g)){const am=m[2].match(/<w:abstractNumId w:val="(\d+)"/); if(am) c2N2A[m[1]]=am[1];}
+    const c2A2F={}; for(const m of numXml.matchAll(/<w:abstractNum w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g)){const l0=m[2].match(/<w:lvl w:ilvl="0"[^>]*>([\s\S]*?)<\/w:lvl>/); if(l0){const fm=l0[1].match(/<w:numFmt w:val="([^"]+)"/); if(fm) c2A2F[m[1]]=fm[1];}}
+    const c2NRefs=[...docXml.matchAll(/<w:numId w:val="(\d+)"\/>/g)].map(m=>m[1]);
+    const c2NumCount=c2NRefs.filter(id=>c2A2F[c2N2A[id]]==='decimal').length; const c2BulCount=c2NRefs.filter(id=>c2A2F[c2N2A[id]]==='bullet').length;
+    check(21,2,'Create numbered checklist of Day 1 tasks',c2NumCount>=5,`✓ List items found (${c2NumCount}).`,`✗ Numbered list not found. Fix: Select Day 1 tasks → Home → Numbering.`);
+    check(22,2,'Create bulleted list of conduct guidelines',c2BulCount>=1,'✓ Bulleted list found.','✗ Fix: Select conduct guidelines → Home → Bullets.');
     check(23,4,'Add second-level bullets under each guideline',/w:ilvl w:val="[1-9]"/.test(docXml),'✓ Sub-level items found.','✗ Fix: Select sub-items → Home → Increase Indent.');
     check(24,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
     check(25,3,'Customize TOC: dotted leaders, 3 heading levels',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*3/.test(docXml),'✓ TOC customized to 3 levels.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → Show levels: 3.');
@@ -624,9 +635,12 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     check(15,4,'Create 4-column survey data table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 4 columns.');
     const v1Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(16,3,'Merge header row cells',v1Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create table first (T15), then select top row → Table Layout → Merge Cells.');
     check(17,3,'Sort data table by response percentage (descending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the survey table → Table Layout → Sort → Column 4 (Percentage) → Descending.');
-    const ni=docXml.split('w:numId').length-1;
-    check(18,2,'Create numbered list of research questions',ni>=3,`✓ List items found (${ni}).`,'✗ Fix: Select questions → Home → Numbering.');
-    check(19,2,'Create bulleted list of key findings',ni>0&&numXml.includes('w:numFmt w:val="bullet"'),'✓ Bulleted list found.','✗ Fix: Select key findings → Home → Bullets.');
+    const v1N2A={}; for(const m of numXml.matchAll(/<w:num w:numId="(\d+)"[^>]*>([\s\S]*?)<\/w:num>/g)){const am=m[2].match(/<w:abstractNumId w:val="(\d+)"/); if(am) v1N2A[m[1]]=am[1];}
+    const v1A2F={}; for(const m of numXml.matchAll(/<w:abstractNum w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g)){const l0=m[2].match(/<w:lvl w:ilvl="0"[^>]*>([\s\S]*?)<\/w:lvl>/); if(l0){const fm=l0[1].match(/<w:numFmt w:val="([^"]+)"/); if(fm) v1A2F[m[1]]=fm[1];}}
+    const v1NRefs=[...docXml.matchAll(/<w:numId w:val="(\d+)"\/>/g)].map(m=>m[1]);
+    const v1NumCount=v1NRefs.filter(id=>v1A2F[v1N2A[id]]==='decimal').length; const v1BulCount=v1NRefs.filter(id=>v1A2F[v1N2A[id]]==='bullet').length;
+    check(18,2,'Create numbered list of research questions',v1NumCount>=3,`✓ List items found (${v1NumCount}).`,'✗ Fix: Select questions → Home → Numbering.');
+    check(19,2,'Create bulleted list of key findings',v1BulCount>=1,'✓ Bulleted list found.','✗ Fix: Select key findings → Home → Bullets.');
     const var1StartOverrideCount = (numXml.match(/w:startOverride/g) || []).length;
     check(20,2,'Restart list numbering for second set',var1StartOverrideCount>=2,'✓ List restart detected.','✗ Fix: Right-click second list → Restart at 1.');
     check(21,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
@@ -705,10 +719,14 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     check(16,4,'Create 5-column budget table',docXml.includes('<w:tbl>'),'✓ Table found.','✗ Fix: Insert → Table → 5 columns.');
     const vv2Tbl=(docXml.match(/<w:tbl>/g)||[]).length; check(17,3,'Merge header row cells for "Budget Summary"',vv2Tbl>=1&&docXml.includes('w:gridSpan'),'✓ Merged cells found.','✗ No merged cells. Fix: Create the budget table first, then select the top row → Table Layout → Merge Cells.');
     check(18,3,'Sort vendor table by cost (ascending)',docXml.split('<w:tbl>').length>=2,'✓ Multiple tables found — sort verified visually.','✗ Fix: Click inside the vendor table → Table Layout → Sort → Cost column → Ascending.');
-    const ni=docXml.split('w:numId').length-1;
-    check(19,2,'Create numbered timeline of event activities',ni>=3,`✓ List items (${ni}).`,'✗ Fix: Select timeline → Home → Numbering.');
-    check(20,2,'Create bulleted list of services',ni>0&&numXml.includes('w:numFmt w:val="bullet"'),'✓ Bulleted list found.','✗ Fix: Select services → Home → Bullets.');
-    check(21,3,'Change bullet format for premium services to custom symbol',ni>0&&numXml.includes('w:numFmt w:val="bullet"')&&(numXml.includes('<w:lvlText')||numXml.includes('w:char=')),'✓ Custom bullet format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol → choose a custom symbol.');
+    const v2N2A={}; for(const m of numXml.matchAll(/<w:num w:numId="(\d+)"[^>]*>([\s\S]*?)<\/w:num>/g)){const am=m[2].match(/<w:abstractNumId w:val="(\d+)"/); if(am) v2N2A[m[1]]=am[1];}
+    const v2A2F={}; for(const m of numXml.matchAll(/<w:abstractNum w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g)){const l0=m[2].match(/<w:lvl w:ilvl="0"[^>]*>([\s\S]*?)<\/w:lvl>/); if(l0){const fm=l0[1].match(/<w:numFmt w:val="([^"]+)"/); if(fm) v2A2F[m[1]]=fm[1];}}
+    const v2NRefs=[...docXml.matchAll(/<w:numId w:val="(\d+)"\/>/g)].map(m=>m[1]);
+    const v2NumCount=v2NRefs.filter(id=>v2A2F[v2N2A[id]]==='decimal').length; const v2BulCount=v2NRefs.filter(id=>v2A2F[v2N2A[id]]==='bullet').length;
+    const v2DefaultBulletChars=['●','○','■']; const v2LvlTexts=[...numXml.matchAll(/<w:lvlText w:val="([^"]*)"/g)].map(m=>m[1]); const v2HasCustomBulletChar=v2LvlTexts.some(t=>t.length>0&&!v2DefaultBulletChars.includes(t));
+    check(19,2,'Create numbered timeline of event activities',v2NumCount>=3,`✓ List items (${v2NumCount}).`,'✗ Fix: Select timeline → Home → Numbering.');
+    check(20,2,'Create bulleted list of services',v2BulCount>=1,'✓ Bulleted list found.','✗ Fix: Select services → Home → Bullets.');
+    check(21,3,'Change bullet format for premium services to custom symbol',v2BulCount>=1&&v2HasCustomBulletChar,'✓ Custom bullet format detected.','✗ Fix: Home → Bullets dropdown → Define New Bullet → Symbol → choose a custom symbol.');
     check(22,4,'Insert Table of Contents',/<w:instrText[^>]*>[^<]*TOC[^<]*<\/w:instrText>/.test(docXml),'✓ TOC found.','✗ Fix: References → Table of Contents → Automatic Table 1.');
     check(23,4,'Customize TOC: dot leaders, right-aligned page numbers',/<w:instrText[^>]*>[^<]*TOC[^<]*\\o [&quot;"]*1[^<"]*-[^<"]*2/.test(docXml),'✓ TOC found with custom formatting.','✗ No TOC found to customize. Fix: Insert TOC first, then References → Custom TOC → set dot leaders.');
     const fnc=(fnXml.match(/<w:footnote w:id="[1-9]/g)||[]).length;
@@ -783,7 +801,15 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       '✓ Section with custom page setup found.','✗ No second section with 0.75" margins found. Fix: Insert a section break before the FAQ, then Layout → Margins → Custom → 0.75".');
 
     const tblCount = (docXml.match(/<w:tbl>/g)||[]).length;
-    const ticketPriorityInTable = /(<w:tbl>[\s\S]*?Critical[\s\S]*?<\/w:tbl>)/.test(docXml) || /(<w:tbl>[\s\S]*?Priority[\s\S]*?Response Time[\s\S]*?<\/w:tbl>)/.test(docXml);
+    const p5CritIdx = docXml.indexOf('Critical');
+    const p5CritTblS = p5CritIdx>=0 ? docXml.lastIndexOf('<w:tbl>', p5CritIdx) : -1;
+    const p5CritTblE = p5CritTblS>=0 ? docXml.indexOf('</w:tbl>', p5CritTblS) : -1;
+    const p5CritInOwnTbl = p5CritTblS>=0 && p5CritTblE>=0 && p5CritIdx < p5CritTblE;
+    const p5PrIdx = docXml.indexOf('Priority');
+    const p5PrTblS = p5PrIdx>=0 ? docXml.lastIndexOf('<w:tbl>', p5PrIdx) : -1;
+    const p5PrTblE = p5PrTblS>=0 ? docXml.indexOf('</w:tbl>', p5PrTblS) : -1;
+    const p5PrInOwnTbl = p5PrTblS>=0 && p5PrTblE>=0 && p5PrIdx < p5PrTblE && docXml.slice(p5PrIdx, p5PrTblE).includes('Response Time');
+    const ticketPriorityInTable = p5CritInOwnTbl || p5PrInOwnTbl;
     check(7,9,'Convert the tab-separated ticket priority list to a table',
       ticketPriorityInTable,
       '✓ Ticket priority table found.','✗ Ticket priority list is not yet a table. Fix: Select the list → Insert → Table → Convert Text to Table.');
@@ -793,12 +819,15 @@ app.post('/api/grade/project5', requireStudent, upload.single('file'), async (re
       docXml.includes('Microsoft Office') && !softwareVersionStillTable,
       '✓ Software version table converted to text.','✗ Software version table is still a table. Fix: Click in table → Layout → Convert to Text.');
 
-    const tcMarValues = [...docXml.matchAll(/<w:tcMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
-    const tblCellMarValues = [...docXml.matchAll(/<w:tblCellMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
-    const hasCustomMargin = tcMarValues.some(v => v !== 80) || tblCellMarValues.some(v => v > 80);
+    const p5EquipTblStart0 = docXml.indexOf('Equipment Loan Table')>=0 ? docXml.indexOf('<w:tbl>', docXml.indexOf('Equipment Loan Table')) : -1;
+    const p5EquipTblEnd0 = p5EquipTblStart0>=0 ? docXml.indexOf('</w:tbl>', p5EquipTblStart0) : -1;
+    const p5EquipTblXml0 = (p5EquipTblStart0>=0 && p5EquipTblEnd0>=0) ? docXml.slice(p5EquipTblStart0, p5EquipTblEnd0+8) : '';
+    const tcMarValues = [...p5EquipTblXml0.matchAll(/<w:tcMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
+    const tblCellMarValues = [...p5EquipTblXml0.matchAll(/<w:tblCellMar>[\s\S]*?<w:top[^>]*w:w="(\d+)"[^>]*\/>/g)].map(m=>parseInt(m[1]));
+    const hasCustomMargin = p5EquipTblXml0.length>0 && (tcMarValues.some(v => v !== 80) || tblCellMarValues.some(v => v > 80));
     check(9,5,'Increase cell margins on the equipment table for readability',
       hasCustomMargin,
-      '✓ Custom cell margins found.','✗ No custom cell margins found. Fix: Click in table → Layout → Cell Margins → increase values.');
+      '✓ Custom cell margins found.','✗ No custom cell margins found on the equipment table, or table not found. Fix: Click in the equipment table → Layout → Cell Margins → increase values.');
 
     const p5TicketTblStart = docXml.indexOf('Ticket #1001')>=0 ? docXml.lastIndexOf('<w:tbl>', docXml.indexOf('Ticket #1001')) : -1;
       const p5TicketTblEnd = p5TicketTblStart>=0 ? docXml.indexOf('</w:tbl>', p5TicketTblStart) : -1;
@@ -949,7 +978,10 @@ app.post('/api/grade/excel-core1', requireStudent, upload.single('file'), async 
     check(6,3,'Set print area',H.wbxml.includes('Print_Area'),'Print area set.','Set Page Layout > Print Area > Set Print Area.');
     check(7,4,'Insert hyperlink in A1',billing.includes('<hyperlink')||H.names.some(n=>n.endsWith('.rels')&&n.includes('sheet1')&&H.P[n].toLowerCase().includes('hyperlink')),'Hyperlink added.','Add a hyperlink in A1 (Insert > Link).');
     check(8,3,'Merge & center title A1:F1',billing.includes('<mergeCell ref="A1:F1"'),'Title merged.','Merge & Center A1:F1 (Home > Merge & Center).');
-    check(9,3,'Center-align header row',H.anyXf(billing,x=>x.includes('horizontal="center"')),'Headers centered.','Center-align the header row.');
+    const c1CellStylesInRow = (sx, row) => { const re = /<c r="([A-Za-z]+)(\d+)"([^>]*)>/g; const out=[]; let m; while((m=re.exec(sx))){ if(parseInt(m[2])===row){ const sm=m[3].match(/\bs="(\d+)"/); out.push(sm?parseInt(sm[1]):0); } } return out; };
+    const c1HeaderRowStyles = c1CellStylesInRow(billing, 3);
+    const c1T9Ok = c1HeaderRowStyles.some(i=>i<H.XFS.length && H.XFS[i].includes('horizontal="center"'));
+    check(9,3,'Center-align header row',c1T9Ok,'Headers centered.','Center-align the header row (row 3) specifically — merging/centering the title (Task 8) does not count.');
     check(10,3,'Format Amount Billed as Currency',usedNumFmt(billing)||/formatCode="[^"]*\$[^"]*"/.test(H.styles),'Currency applied.','Format the Amount Billed column as Currency.');
     check(11,3,'Bold + fill header row',H.anyXf(billing,x=>(/applyFill="(1|true)"/.test(x))&&((x.match(/fillId="(\d+)"/)||[])[1]!=='0')),'Header filled.','Apply bold font and a fill color to the header row.');
     check(12,3,'Wrap text in Notes column',H.anyXf(billing,x=>x.includes('wrapText="1"')||x.includes('wrapText="true"')),'Wrap enabled.','Enable Wrap Text on the Notes column.');
@@ -1000,10 +1032,10 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
     check(10,3,'Format Hourly Rate as Currency',(()=>{for(const i of H.usedStyles(roster)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format the Hourly Rate column as Currency.');
     check(11,5,'Add column sparklines',roster.toLowerCase().includes('sparkline'),'Sparklines added.','Add column sparklines for weekly shift counts.');
     check(12,3,'Merge & center banner',roster.includes('<mergeCell ref="A1:'),'Banner merged.','Merge and center the title banner starting at A1 across the data columns.');
-    check(13,5,'Convert roster to Table',H.tables.length>=1||H.wbxml.includes('RosterTable'),'Roster table created.','Convert the staffing roster to an Excel Table (Ctrl+T).');
-    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row (Table Design > Style Options).');
+    check(13,5,'Convert roster to Table',H.tables.some(t=>t.includes('RosterTable')),'Roster table created.','Convert the staffing roster to an Excel Table (Ctrl+T) and name it RosterTable.');
+    check(14,4,'Enable Banded Rows + Header Row options',H.tables.some(t=>t.includes('RosterTable')&&t.includes('showRowStripes="1"')),'Style options enabled.','Enable Banded Rows and Header Row on the roster table specifically (Table Design > Style Options).');
     check(15,5,'Convert certifications table to range',!H.tables.some(t=>t.includes('CertTable')),'Certifications converted to range.','Convert the old certifications table back to a range (Table Design > Convert to Range).');
-    check(16,4,'Apply a table style',H.tables.some(t=>/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table (Table Design > Table Styles).');
+    check(16,4,'Apply a table style',H.tables.some(t=>t.includes('RosterTable')&&/tableStyleInfo name="TableStyle\w+"/.test(t)),'Table style applied.','Apply a table style to the roster table specifically (Table Design > Table Styles).');
     check(17,3,'Filter to Emergency department',roster.includes('<filterColumn')||H.tables.some(t=>t.includes('<filterColumn')),'Filter applied.','Filter the roster to the Emergency department: click the Department dropdown → select Emergency.');
     check(18,3,'Freeze first column',roster.includes('state="frozen"'),'Column frozen.','Freeze the first column (View > Freeze Panes > Freeze First Column).');
     check(19,3,'Vertically center cells',H.anyXf(roster,x=>x.includes('vertical="center"')),'Cells centered.','Vertically center all cells in the roster.');
@@ -1125,7 +1157,13 @@ app.post('/api/grade/excel-var2', requireStudent, upload.single('file'), async (
     check(4,4,'Currency on Unit Cost and Line Total',(()=>{for(const i of H.usedStyles(inv)){if(i<H.XFS.length){const m=H.XFS[i].match(/numFmtId="(\d+)"/);if(m&&m[1]!=='0'&&m[1]!=='164')return true;}}return /formatCode="[^"]*\$[^"]*"/.test(H.styles);})(),'Currency applied.','Format Unit Cost and Line Total as Currency.');
     check(5,3,'Convert inventory to Table',H.tables.length>=1,'Table created.','Convert the inventory list to an Excel Table (Ctrl+T, Insert → Table, or Home → Format as Table).');
     check(6,4,'Add Line Total column to table',H.tables.some(t=>/ref="A3:[A-Z]+1[012]"/.test(t)),'Column added.','Add a Line Total column to the inventory table.');
-    check(7,4,'Add Total Row summing Line Total',H.tables.some(t=>t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"')),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
+    check(7,4,'Add Total Row summing Line Total',(function(){
+      return H.tables.some(function(t){
+        if(!(t.includes('totalsRowShown="1"')||t.includes('totalsRowCount="1"'))) return false;
+        var cols=t.match(/<tableColumn\b[^>]*>/g)||[];
+        return cols.some(function(c){ return /name="Line Total"/.test(c) && /totalsRowFunction="sum"/i.test(c); });
+      });
+    })(),'Total row added.','Add a Total Row: click in the table → Table Design → check Total Row. Then click the Total Row cell under Line Total → dropdown → Sum.');
     check(8,6,'Calculate Line Total',(function(){
       var expect=new Set([420,180,150,100,280,360,176,84]); var found=new Set();
       for(var r=4;r<=11;r++){var v=H.cellVal(inv,'F'+r);if(v)found.add(v);}
