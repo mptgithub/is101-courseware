@@ -414,7 +414,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
     const docXml=getXml('word/document.xml'), stylesXml=getXml('word/styles.xml'), coreXml=getXml('docProps/core.xml');
     let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
-    const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
+    let fXml=''; for(const _f of ['word/footer1.xml','word/footer2.xml','word/footer3.xml']) fXml+=getXml(_f);
     const cmmXml=getXml('word/comments.xml'), fnXml=getXml('word/footnotes.xml');
     const numXml=getXml('word/numbering.xml');
     const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
@@ -436,7 +436,7 @@ app.post('/api/grade/core1', requireStudent, upload.single('file'), async (req, 
     check(7,3,'Add a DRAFT watermark',hXml.includes('DRAFT')&&(hXml.includes('v:shape')||hXml.includes('v:textpath')||hXml.includes('mc:AlternateContent')),'DRAFT watermark found.','No watermark. Fix: Design > Watermark > DRAFT 1.');
     check(8,3,'Set document properties Title and Author',/<dc:title>[^<]+<\/dc:title>/.test(coreXml)&&/<dc:creator>[^<]+<\/dc:creator>/.test(coreXml),'Document properties set.','Properties incomplete. Fix: File > Info > Properties panel.');
     // D2 - 7 tasks - 22 pts
-    const dsc=(docXml.match(/(?<![A-Z])DSC(?![A-Z])/g)||[]).length;
+    const c1BodyText=[...docXml.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>m[1]).join(' '); const dsc=(c1BodyText.match(/(?<![A-Z])DSC(?![A-Z])/g)||[]).length;
     check(9,3,'Find and Replace DSC with Desert Sun Consulting',dsc===0,'No DSC abbreviations found.','Found '+dsc+' DSC instances. Fix: Ctrl+H > Find DSC > Replace Desert Sun Consulting > Replace All.');
     check(10,3,'Apply Title style to document title',docXml.includes('styleId="Title"')||docXml.includes('w:val="Title"'),'Title style applied.','Title style not found. Fix: Click title > Home > Styles > Title.');
     const h1=(docXml.match(/(?:styleId|w:val)="Heading ?1"/g)||[]).length;
