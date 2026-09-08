@@ -499,7 +499,7 @@ app.post('/api/grade/core2', requireStudent, upload.single('file'), async (req, 
     const coreXml = getXml('docProps/core.xml');
     const cstmXml = getXml('docProps/custom.xml');
     let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
-    const fXml = getXml('word/footer1.xml') || getXml('word/footer2.xml') || getXml('word/footer3.xml');
+    let fXml=''; for(const _f of ['word/footer1.xml','word/footer2.xml','word/footer3.xml']) fXml+=getXml(_f);
     const cmmXml = getXml('word/comments.xml');
     const enXml = getXml('word/endnotes.xml');
     const numXml = getXml('word/numbering.xml');
@@ -585,7 +585,7 @@ app.post('/api/grade/var1', requireStudent, upload.single('file'), async (req, r
     const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
     const docXml=getXml('word/document.xml'),stylesXml=getXml('word/styles.xml'),coreXml=getXml('docProps/core.xml');
     let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
-    const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
+    let fXml=''; for(const _f of ['word/footer1.xml','word/footer2.xml','word/footer3.xml']) fXml+=getXml(_f);
     const cmmXml=getXml('word/comments.xml'),fnXml=getXml('word/footnotes.xml');
     const numXml=getXml('word/numbering.xml');
     const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
@@ -667,7 +667,7 @@ app.post('/api/grade/var2', requireStudent, upload.single('file'), async (req, r
     const getXml=(n)=>{try{return zip.readAsText(n)||'';}catch(e){return '';}};
     const docXml=getXml('word/document.xml'),stylesXml=getXml('word/styles.xml'),coreXml=getXml('docProps/core.xml');
     let hXml=''; for(const _h of ['word/header1.xml','word/header2.xml','word/header3.xml']) hXml+=getXml(_h);
-    const fXml=getXml('word/footer1.xml')||getXml('word/footer2.xml')||getXml('word/footer3.xml');
+    let fXml=''; for(const _f of ['word/footer1.xml','word/footer2.xml','word/footer3.xml']) fXml+=getXml(_f);
     const cmmXml=getXml('word/comments.xml'),fnXml=getXml('word/footnotes.xml');
     const numXml=getXml('word/numbering.xml');
     const allXml=docXml+stylesXml+coreXml+hXml+fXml+cmmXml+fnXml+numXml;
@@ -2498,7 +2498,7 @@ app.post('/api/grade/project6', requireStudent, upload.single('file'), async (re
     try { fs.unlinkSync(req.file.path); } catch(e) {}
     const results = []; let earned = 0, total = 0;
     const check = (task,pts,desc,passed,fp,ff) => { total += pts; if (passed) earned += pts; results.push({ task, pts_possible: pts, pts_earned: passed ? pts : 0, description: desc, passed, feedback: passed ? fp : ff }); };
-    const scopeParagraph = (xml, anchor) => { const i = xml.indexOf(anchor); if (i < 0) return ''; const start = xml.lastIndexOf('<w:p>', i) >= 0 ? xml.lastIndexOf('<w:p>', i) : xml.lastIndexOf('<w:p ', i); const end = xml.indexOf('</w:p>', i); if (start < 0 || end < 0) return ''; return xml.slice(start, end + 6); };
+    const scopeParagraph = (xml, anchor) => { const i = xml.indexOf(anchor); if (i < 0) return ''; const before = xml.slice(0, i); const starts = [...before.matchAll(/<w:p(?:\s[^>]*)?>/g)]; if (!starts.length) return ''; const start = starts[starts.length - 1].index; const end = xml.indexOf('</w:p>', i); if (start < 0 || end < 0) return ''; return xml.slice(start, end + 6); };
     // 1. remove-hidden-properties — known starter author value gone
     check(1,6,"Remove hidden personal information (previous student worker's name) from document properties",!coreXml.includes('J. Rivera'),'✓ Author metadata removed.',"✗ The previous student worker's name is still in the document properties. Fix: File → Info → Check for Issues → Inspect Document → Remove Document Properties and Personal Information.");
     // 2. format-painter — Staff Spotlight paragraph now matches Heading1's resolved formatting
