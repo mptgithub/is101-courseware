@@ -2475,6 +2475,86 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
   }
 });
 
+// ── GRADE PROJECT 6 ─────────────────────────────────────────────────────────────
+// POST /api/grade/project6 -- auto-grade Project 6 (14 tasks, 100 pts)
+// "Campus Life Newsletter — Editorial Review." Covers the 14 Tier-1 skills
+// identified in IS101_Project6_29Skills_Grading_Plan.md as gradeable but not
+// tested by any of the five existing projects. Uses the same known-baseline
+// technique as the rest of this file: every check is scoped to a specific
+// element (anchor text, comment id, or tracked-change id) and compared
+// against a known starter value, never a bare "does this appear anywhere".
+app.post('/api/grade/project6', requireStudent, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file received.' });
+  if (path.extname(req.file.originalname).toLowerCase() !== '.docx') { try { fs.unlinkSync(req.file.path); } catch(e) {} return res.status(400).json({ error: 'Please upload a .docx file.' }); }
+  try {
+    let AdmZip; try { AdmZip = require('adm-zip'); } catch(e) { return res.status(500).json({ error: 'adm-zip module not installed.' }); }
+    const zip = new AdmZip(req.file.path);
+    const getXml = (n) => { try { return zip.readAsText(n) || ''; } catch(e) { return ''; } };
+    const docXml = getXml('word/document.xml');
+    const settingsXml = getXml('word/settings.xml');
+    const coreXml = getXml('docProps/core.xml');
+    const commentsXml = getXml('word/comments.xml');
+    const commentsExtXml = getXml('word/commentsExtended.xml');
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    const results = []; let earned = 0, total = 0;
+    const check = (task,pts,desc,passed,fp,ff) => { total += pts; if (passed) earned += pts; results.push({ task, pts_possible: pts, pts_earned: passed ? pts : 0, description: desc, passed, feedback: passed ? fp : ff }); };
+    const scopeParagraph = (xml, anchor) => { const i = xml.indexOf(anchor); if (i < 0) return ''; const start = xml.lastIndexOf('<w:p>', i) >= 0 ? xml.lastIndexOf('<w:p>', i) : xml.lastIndexOf('<w:p ', i); const end = xml.indexOf('</w:p>', i); if (start < 0 || end < 0) return ''; return xml.slice(start, end + 6); };
+    // 1. remove-hidden-properties — known starter author value gone
+    check(1,6,"Remove hidden personal information (previous student worker's name) from document properties",!coreXml.includes('J. Rivera'),'✓ Author metadata removed.',"✗ The previous student worker's name is still in the document properties. Fix: File → Info → Check for Issues → Inspect Document → Remove Document Properties and Personal Information.");
+    // 2. format-painter — Staff Spotlight paragraph now matches Heading1's resolved formatting
+    const p6StaffPara = scopeParagraph(docXml, 'Staff Spotlight');
+    const p6StaffFixed = p6StaffPara.includes('365F91') && p6StaffPara.includes('w:sz w:val="28"') && !p6StaffPara.includes('C00000') && !p6StaffPara.includes('w:sz w:val="24"');
+    check(2,6,'Use Format Painter to match the "Staff Spotlight" heading to "Upcoming Events"',p6StaffFixed,'✓ Heading formatting matches.','✗ "Staff Spotlight" still doesn\'t match the other heading\'s formatting, or the heading wasn\'t found. Fix: select "Upcoming Events" → Format Painter → paint onto "Staff Spotlight".');
+    // 3. clear-formatting — known override markers gone from that paragraph
+    const p6NotePara = scopeParagraph(docXml, 'Editor’s note');
+    const p6NoteCleared = p6NotePara.length > 0 && !p6NotePara.includes('Comic Sans MS') && !p6NotePara.includes('FF0000') && !p6NotePara.includes('w:sz w:val="32"');
+    check(3,6,'Use Clear Formatting on the over-formatted pull-quote/editor’s-note paragraph',p6NoteCleared,'✓ Formatting cleared.','✗ Mismatched formatting (font, color, or size) is still present, or the paragraph wasn\'t found. Fix: select the paragraph → Home → Clear All Formatting.');
+    // 4. modify-footnote-endnote — footnote numbering format changed to lowerRoman
+    const p6FootnotePr = /<w:footnotePr>[\s\S]*?<\/w:footnotePr>/.exec(settingsXml);
+    check(4,7,"Change the source-citation footnote's numbering format to lowercase roman numerals",!!p6FootnotePr && p6FootnotePr[0].includes('lowerRoman'),'✓ Footnote numbering format is lowercase roman numerals.','✗ Footnote numbering format is not lowercase roman numerals. Fix: References → Footnote dialog launcher → Number format → i, ii, iii.');
+    // 5. apply-artistic-effects — scoped to the event photo's pic:pic block
+    const p6EventPicStart = docXml.indexOf('Fall Festival Photo');
+    const p6EventPicXml = p6EventPicStart >= 0 ? docXml.slice(p6EventPicStart, docXml.indexOf('</pic:pic>', p6EventPicStart) + 10) : '';
+    check(5,8,'Apply an artistic effect to the fall festival photo',/a14:artistic[A-Za-z]+/.test(p6EventPicXml),'✓ Artistic effect found.','✗ No artistic effect found on the fall festival photo, or photo not found. Fix: select the photo → Picture Format → Artistic Effects.');
+    // 6. apply-picture-styles — scoped to the staff photo's pic:pic block
+    const p6StaffPicStart = docXml.indexOf('Staff Spotlight Photo');
+    const p6StaffPicXml = p6StaffPicStart >= 0 ? docXml.slice(p6StaffPicStart, docXml.indexOf('</pic:pic>', p6StaffPicStart) + 10) : '';
+    check(6,7,'Apply a picture style (border/shadow) to the staff spotlight photo',p6StaffPicXml.includes('a:effectLst') || p6StaffPicXml.includes('a:outerShdw') || p6StaffPicXml.includes('<a:ln'),'✓ Picture style found.','✗ No picture style found on the staff photo, or photo not found. Fix: select the photo → Picture Format → Picture Styles.');
+    // 7. remove-picture-background — scoped to the club logo's pic:pic block
+    const p6LogoPicStart = docXml.indexOf('Student Club Logo');
+    const p6LogoPicXml = p6LogoPicStart >= 0 ? docXml.slice(p6LogoPicStart, docXml.indexOf('</pic:pic>', p6LogoPicStart) + 10) : '';
+    check(7,8,'Remove the background from the student club logo',p6LogoPicXml.includes('a:alphaBiLevel'),'✓ Background removal found.','✗ No background removal found on the club logo, or logo not found. Fix: select the logo → Picture Format → Remove Background.');
+    // 8/9. format-shape / add-text-textbox — scoped to the PullQuoteShape
+    const p6ShapeStart = docXml.indexOf('PullQuoteShape');
+    const p6ShapeEnd = p6ShapeStart >= 0 ? docXml.indexOf('</wps:wsp>', p6ShapeStart) : -1;
+    const p6ShapeXml = (p6ShapeStart >= 0 && p6ShapeEnd >= 0) ? docXml.slice(p6ShapeStart, p6ShapeEnd + 10) : '';
+    check(8,7,"Format the pull-quote callout shape's fill and outline",p6ShapeXml.includes('a:solidFill') && !p6ShapeXml.includes('a:noFill'),'✓ Shape formatting found.','✗ Shape still has no fill, or shape not found. Fix: select the callout shape → Shape Format → Shape Fill / Shape Outline.');
+    const p6TxbxMatch = /<wps:txbx><w:txbxContent>([\s\S]*?)<\/w:txbxContent><\/wps:txbx>/.exec(p6ShapeXml);
+    const p6TxbxText = p6TxbxMatch ? p6TxbxMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+    check(9,7,'Add the pull-quote text inside the callout text box',p6TxbxText.length > 0,'✓ Text box contains text.','✗ Text box is still empty, or shape not found. Fix: click inside the callout shape and type the pull-quote text.');
+    // 10. delete-comment — known comment id=1 (Copyeditor) is gone
+    check(10,7,"Delete the copyeditor's outdated (already-addressed) comment",!commentsXml.includes('<w:comment w:id="1"'),'✓ Outdated comment removed.','✗ The copyeditor\'s comment is still present. Fix: right-click the comment → Delete Comment.');
+    // 11. resolve-comment — known paraId R2HEAD01 flagged done="1"
+    const p6ResolvedMatch = /<w15:commentEx w15:paraId="R2HEAD01" w15:done="(\d)"\/>/.exec(commentsExtXml);
+    check(11,7,"Resolve the reviewer's comment about the headline",!!p6ResolvedMatch && p6ResolvedMatch[1] === '1','✓ Comment resolved.','✗ The headline comment is not marked resolved. Fix: click the comment → Resolve.');
+    // 12. accept-change — known corrected value survives, wrong value + wrapper gone
+    check(12,8,"Accept the copyeditor's tracked-change correction to the opening sentence",docXml.includes('200 students to the quad') && !docXml.includes('150 students to the quad') && !docXml.includes('w:id="201"') && !docXml.includes('w:id="202"'),'✓ Correction accepted.','✗ The tracked-change correction to the opening sentence has not been accepted. Fix: Review → click the change → Accept.');
+    // 13. reject-change — known correct original value survives, wrong value + wrapper gone
+    check(13,8,"Reject the reviewer's incorrect tracked-change edit to the event date",docXml.includes('October 15') && !docXml.includes('October 22') && !docXml.includes('w:id="301"') && !docXml.includes('w:id="302"'),'✓ Incorrect edit rejected.','✗ The incorrect tracked-change edit to the event date has not been rejected. Fix: Review → click the change → Reject.');
+    // 14. lock-track-changes
+    check(14,8,'Turn on and lock Track Changes before sending the final draft to the print shop',/<w:documentProtection[^>]*w:edit="trackedChanges"/.test(settingsXml),'✓ Track Changes is locked.','✗ Track Changes is not locked. Fix: Review → Restrict Editing → Track changes → Yes, Start Enforcing Protection.');
+    const pct = Math.round(earned/total*100);
+    const output = { score: earned, total, pct, passed: results.filter(r=>r.passed).length, failed: results.filter(r=>!r.passed).length, results };
+    stmts.savePracticeGrade.run(req.nsheId,'Project6',null,earned,total,JSON.stringify(results));
+    sendGradeToLms(req.nsheId,'Project6',earned,total).catch(()=>{});
+    res.json(output);
+  } catch(err) {
+    console.error('Project6 grading error:', err.stack || err);
+    try { fs.unlinkSync(req.file.path); } catch(e) {}
+    res.status(500).json({ error: 'Grading failed: ' + (err.message || String(err)) });
+  }
+});
+
 // ── LTI 1.3 ───────────────────────────────────────────────────────────────────
 // Forward ONLY the three paths ltijs owns into lti.app. This is not just an
 // optimization: ltijs's internal session validator treats every path that
