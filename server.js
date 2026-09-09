@@ -2122,7 +2122,7 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
 
     // Helper: check if a numFmtId is non-default (not 0=General, not openpyxl defaults)
     const defaultNumFmts = new Set(['0','164','49','1','2','3','4','9','10','11','12','13','14','15','16','17','18','19','20','21','22','37','38','39','40','41','42','43','44','45','46','47','48']);
-    const cellXfs = stylesXml.match(/<cellXfs>([\s\S]*?)<\/cellXfs>/)?.[1] || '';
+    const cellXfs = stylesXml.match(/<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/)?.[1] || '';
     const appliedNumFmts = [...cellXfs.matchAll(/numFmtId="(\d+)"/g)].map(m => m[1]);
     const hasCustomNumFmt = appliedNumFmts.some(id => !defaultNumFmts.has(id) && id !== '0');
 
@@ -2197,7 +2197,7 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
 
     auto('E1 — Manage Worksheets & Workbooks','Modify built-in workbook properties',
       (()=>{
-        const title = (coreXml.match(/<dc:title>([^<]+)<\/dc:title>/) || [])[1] || '';
+        const title = (coreXml.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/) || [])[1] || '';
         return title.length > 0 && title !== 'Excel Practice Starter';
       })(),
       '✓ Workbook properties updated.',
@@ -2334,17 +2334,23 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
       '✓ Table style applied.',
       '✗ No table style. Fix: Click in table → Table Design → Table Styles gallery.');
 
-    auto('E3 — Manage Tables & Table Data','Convert tables to cell ranges',
-      // Starter has no tables; student creates one then converts another
-      // Detect: student converted a table (hard to detect after conversion)
-      // Better: if student has done convert, the table XML count < number they created
-      // Self-check fallback since conversion leaves no artifact
-      false,
-      '✓ Table converted to range.',
-      '✗ Not detected. Fix: Click in table → Table Design → Convert to Range.');
+    // Conversion leaves no artifact in the file to detect either way, so this
+    // is genuinely a self-check, not an auto() — it was previously wired as
+    // auto() with a hardcoded `false`, which meant no student could ever pass
+    // it regardless of what they did. Fixed 2026-09-09.
+    self('E3 — Manage Tables & Table Data','Convert tables to cell ranges',
+      'Click in table → Table Design → Convert to Range. The result is indistinguishable from data that was never a table.');
 
     auto('E3 — Manage Tables & Table Data','Add or remove table rows and columns',
-      tableEntries.length > 0 && /<table[^>]*ref="[A-Z]+1:[A-Z]+(?:[2-9]|[1-9]\d)"/.test(allTableXml),
+      // Previously required the table's ref to start at row 1 literally, which
+      // made this unsatisfiable for any table placed below a title row (the
+      // Practice starter's own instructed layout). Now just requires the table
+      // to span more than its header row, at whatever row it actually starts.
+      (()=>{
+        const m = allTableXml.match(/<table[^>]*\bref="[A-Z]+(\d+):[A-Z]+(\d+)"/);
+        if (!m) return false;
+        return parseInt(m[2], 10) > parseInt(m[1], 10);
+      })(),
       '✓ Table with data rows detected.',
       '✗ No table with rows. Fix: Click last row of table → Tab to add a new row.');
 
@@ -2359,7 +2365,14 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
       '✗ No total row. Fix: Click in table → Table Design → Total Row checkbox.');
 
     auto('E3 — Manage Tables & Table Data','Filter records',
-      /<autoFilter>/.test(allSheetXml) && /<filterColumn/.test(allSheetXml),
+      // Previously only checked the worksheet-level <autoFilter> (and required
+      // it to carry zero attributes, which real Excel never writes). A filter
+      // applied to an Excel Table -- which this task's own step 1 requires
+      // using -- stores its active filter inside the table XML part instead,
+      // so a correct student submission could never satisfy this. Now checks
+      // both XML sources, with attribute-tolerant tags.
+      /<autoFilter[^>]*>[\s\S]*?<filterColumn/.test(allSheetXml) ||
+      /<autoFilter[^>]*>[\s\S]*?<filterColumn/.test(allTableXml),
       '✓ Active filter detected.',
       '✗ No filter applied. Fix: Click column dropdown → uncheck some values to filter.');
 
