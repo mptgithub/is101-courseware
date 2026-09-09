@@ -2161,6 +2161,8 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
     // ── E1 — Manage Worksheets and Workbooks ──────────────────────────────
     self('E1 — Manage Worksheets & Workbooks','Import data from text file',
       'Data → Get Data → From Text/CSV → select a .csv file → Load. The end result is indistinguishable from typed data.');
+    self('E1 — Manage Worksheets & Workbooks','Import data from online sources',
+      'Data → Get Data → From Other Sources → From Web → enter a URL → Load. The end result is indistinguishable from typed data.');
 
     auto('E1 — Manage Worksheets & Workbooks','Insert and remove hyperlinks',
       allSheetXml.includes('<hyperlink') || allRelsXml.includes('hyperlink'),
