@@ -2554,9 +2554,18 @@ app.post('/api/grade/project6', requireStudent, upload.single('file'), async (re
     const scopeParagraph = (xml, anchor) => { const i = xml.indexOf(anchor); if (i < 0) return ''; const before = xml.slice(0, i); const starts = [...before.matchAll(/<w:p(?:\s[^>]*)?>/g)]; if (!starts.length) return ''; const start = starts[starts.length - 1].index; const end = xml.indexOf('</w:p>', i); if (start < 0 || end < 0) return ''; return xml.slice(start, end + 6); };
     // 1. remove-hidden-properties — known starter author value gone
     check(1,6,"Remove hidden personal information (previous student worker's name) from document properties",!coreXml.includes('J. Rivera'),'✓ Author metadata removed.',"✗ The previous student worker's name is still in the document properties. Fix: File → Info → Check for Issues → Inspect Document → Remove Document Properties and Personal Information.");
-    // 2. format-painter — Staff Spotlight paragraph now matches Heading1's resolved formatting
+    // 2. format-painter — Staff Spotlight paragraph now matches Upcoming Events'
+    // resolved formatting. Accept either route a real Format Painter action can
+    // produce: (a) explicit copied run-level overrides matching Heading1's
+    // resolved color/size, or (b) the paragraph itself now carries the
+    // Heading1 style (exactly how "Upcoming Events" achieves the same look,
+    // with zero direct overrides) -- both render identically in Word. Either
+    // way, the starter's bad direct overrides (red, 12pt) must be gone.
     const p6StaffPara = scopeParagraph(docXml, 'Staff Spotlight');
-    const p6StaffFixed = p6StaffPara.includes('365F91') && p6StaffPara.includes('w:sz w:val="28"') && !p6StaffPara.includes('C00000') && !p6StaffPara.includes('w:sz w:val="24"');
+    const p6StaffNoBadOverride = !p6StaffPara.includes('C00000') && !p6StaffPara.includes('w:sz w:val="24"');
+    const p6StaffExplicitMatch = p6StaffPara.includes('365F91') && p6StaffPara.includes('w:sz w:val="28"');
+    const p6StaffStyleMatch = /<w:pStyle w:val="Heading1"\s*\/>/.test(p6StaffPara);
+    const p6StaffFixed = p6StaffNoBadOverride && (p6StaffExplicitMatch || p6StaffStyleMatch);
     check(2,6,'Use Format Painter to match the "Staff Spotlight" heading to "Upcoming Events"',p6StaffFixed,'✓ Heading formatting matches.','✗ "Staff Spotlight" still doesn\'t match the other heading\'s formatting, or the heading wasn\'t found. Fix: select "Upcoming Events" → Format Painter → paint onto "Staff Spotlight".');
     // 3. clear-formatting — known override markers gone from that paragraph
     const p6NotePara = scopeParagraph(docXml, 'Editor’s note');
@@ -2576,7 +2585,11 @@ app.post('/api/grade/project6', requireStudent, upload.single('file'), async (re
     // 7. remove-picture-background — scoped to the club logo's pic:pic block
     const p6LogoPicStart = docXml.indexOf('Student Club Logo');
     const p6LogoPicXml = p6LogoPicStart >= 0 ? docXml.slice(p6LogoPicStart, docXml.indexOf('</pic:pic>', p6LogoPicStart) + 10) : '';
-    check(7,8,'Remove the background from the student club logo',p6LogoPicXml.includes('a:alphaBiLevel'),'✓ Background removal found.','✗ No background removal found on the club logo, or logo not found. Fix: select the logo → Picture Format → Remove Background.');
+    // Real Word writes the "Remove Background" edit as an a14:imgLayer /
+    // a14:backgroundRemoval extension (the re-editable removal mask), not
+    // a:alphaBiLevel -- keep alphaBiLevel too for any older/alternate path.
+    const p6BgRemoved = p6LogoPicXml.includes('a:alphaBiLevel') || p6LogoPicXml.includes('a14:backgroundRemoval') || p6LogoPicXml.includes('a14:imgLayer');
+    check(7,8,'Remove the background from the student club logo',p6BgRemoved,'✓ Background removal found.','✗ No background removal found on the club logo, or logo not found. Fix: select the logo → Picture Format → Remove Background.');
     // 8/9. format-shape / add-text-textbox — scoped to the PullQuoteShape
     const p6ShapeStart = docXml.indexOf('PullQuoteShape');
     const p6ShapeEnd = p6ShapeStart >= 0 ? docXml.indexOf('</wps:wsp>', p6ShapeStart) : -1;
@@ -2587,9 +2600,14 @@ app.post('/api/grade/project6', requireStudent, upload.single('file'), async (re
     check(9,7,'Add the pull-quote text inside the callout text box',p6TxbxText.length > 0,'✓ Text box contains text.','✗ Text box is still empty, or shape not found. Fix: click inside the callout shape and type the pull-quote text.');
     // 10. delete-comment — known comment id=1 (Copyeditor) is gone
     check(10,7,"Delete the copyeditor's outdated (already-addressed) comment",!commentsXml.includes('<w:comment w:id="1"'),'✓ Outdated comment removed.','✗ The copyeditor\'s comment is still present. Fix: right-click the comment → Delete Comment.');
-    // 11. resolve-comment — known paraId R2HEAD01 flagged done="1"
-    const p6ResolvedMatch = /<w15:commentEx w15:paraId="R2HEAD01" w15:done="(\d)"\/>/.exec(commentsExtXml);
-    check(11,7,"Resolve the reviewer's comment about the headline",!!p6ResolvedMatch && p6ResolvedMatch[1] === '1','✓ Comment resolved.','✗ The headline comment is not marked resolved. Fix: click the comment → Resolve.');
+    // 11. resolve-comment — the starter's placeholder paraId "R2HEAD01" is
+    // not valid hex and does not survive a real Word save (Word regenerates
+    // w14:paraId on edit). Look up the headline comment's CURRENT paraId via
+    // its stable w:id="0"/author anchor instead of a hardcoded starter value.
+    const p6HeadlineCommentMatch = /<w:comment w:id="0"[^>]*>[\s\S]*?<w:p w14:paraId="([^"]+)"/.exec(commentsXml);
+    const p6HeadlinePara = p6HeadlineCommentMatch ? p6HeadlineCommentMatch[1] : null;
+    const p6HeadlineResolved = !!p6HeadlinePara && new RegExp('<w15:commentEx w15:paraId="' + p6HeadlinePara.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '" w15:done="1"\\/>').test(commentsExtXml);
+    check(11,7,"Resolve the reviewer's comment about the headline",p6HeadlineResolved,'✓ Comment resolved.','✗ The headline comment is not marked resolved. Fix: click the comment → Resolve.');
     // 12. accept-change — known corrected value survives, wrong value + wrapper gone
     check(12,8,"Accept the copyeditor's tracked-change correction to the opening sentence",docXml.includes('200 students to the quad') && !docXml.includes('150 students to the quad') && !docXml.includes('w:id="201"') && !docXml.includes('w:id="202"'),'✓ Correction accepted.','✗ The tracked-change correction to the opening sentence has not been accepted. Fix: Review → click the change → Accept.');
     // 13. reject-change — known correct original value survives, wrong value + wrapper gone
