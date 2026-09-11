@@ -16,7 +16,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .hero{background:#fff;border:1px solid var(--border);border-radius:10px;padding:28px;margin-bottom:24px}
 .hero h1{font-size:22px;margin-bottom:6px;color:var(--blue-dark)}
 .hero p{color:var(--muted);font-size:14px;margin-bottom:16px}
-.upload-box{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;background:#fafafa}
+.upload-box{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;background:#fafafa;transition:all .15s}
+.upload-box.over{border-color:var(--blue);background:#eef4fb}
+.drop-hint{font-size:13px;color:var(--muted);margin-bottom:12px}
 .upload-box input{display:none}
 .upload-btn{display:inline-block;background:var(--blue);color:#fff;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600}
 .upload-btn:hover{background:var(--blue-dark)}
@@ -100,7 +102,8 @@ background:#c42b1c;color:white;border:none;transition:all .15s">
 ⬇ Download Instructions (.pdf)
 </a>
 </div>
-<div class="upload-box">
+<div class="upload-box" id="uploadBox">
+<div class="drop-hint">Drag your completed <strong>Word_Project6_Starter.docx</strong> here, or</div>
 <label class="upload-btn" for="fileInput">Choose .docx File</label>
 <input type="file" id="fileInput" accept=".docx">
 <div id="fname">No file selected</div>
@@ -171,6 +174,26 @@ const fname = document.getElementById('fname');
 const gradeBtn = document.getElementById('gradeBtn');
 const errorBox = document.getElementById('errorBox');
 const results = document.getElementById('results');
+
+const uploadBox = document.getElementById('uploadBox');
+uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('over'); });
+uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('over'));
+uploadBox.addEventListener('drop', e => {
+e.preventDefault();
+uploadBox.classList.remove('over');
+if (!e.dataTransfer.files.length) return;
+const dropped = e.dataTransfer.files[0];
+if (!dropped.name.toLowerCase().endsWith('.docx')) {
+errorBox.textContent = 'Please drop a .docx file.';
+errorBox.style.display = 'block';
+return;
+}
+errorBox.style.display = 'none';
+const dt = new DataTransfer();
+dt.items.add(dropped);
+fileInput.files = dt.files;
+fileInput.dispatchEvent(new Event('change'));
+});
 
 fileInput.addEventListener('change', () => {
 if (fileInput.files.length) {
