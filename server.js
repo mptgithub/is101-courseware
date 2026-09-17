@@ -2313,6 +2313,8 @@ app.post('/api/grade/excel-practice', upload.single('file'), (req, res) => {
       'Home → Paste → Paste Special (Ctrl+Alt+V). The end result is indistinguishable from typed values.');
     self('E2 — Manage Data Cells & Ranges','Insert and delete multiple columns or rows',
       'Right-click a row/column header → Insert or Delete. Final layout looks the same as data always there.');
+    self('E2 — Manage Data Cells & Ranges','Insert and delete cells',
+      'Right-click a cell → Insert or Delete → shift cells left/up or right/down. Final layout looks the same as data always there.');
     self('E2 — Manage Data Cells & Ranges','Format cells by using Format Painter',
       'Click a formatted cell → Home → Format Painter → click target. End result is the same as manual formatting.');
     self('E2 — Manage Data Cells & Ranges','Clear cell formatting',
