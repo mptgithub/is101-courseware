@@ -1022,7 +1022,7 @@ app.post('/api/grade/excel-core2', requireStudent, upload.single('file'), async 
 
     check(1,4,'Set column width and row height',(roster.includes('customWidth="1"')||roster.includes('customWidth="true"'))&&(roster.includes('customHeight="1"')||roster.includes('customHeight="true"')),'Sizes set.','Set Department column width to 28 and header row height to 30.');
     check(2,5,'Add header and footer',/<oddHeader>[\s\S]*\S[\s\S]*<\/oddHeader>/.test(roster)||(roster.includes('Staffing')&&roster.includes('<oddHeader')),'Header/footer added.','Add a header and a footer with the sheet name.');
-    check(3,4,'Switch to Page Layout view',roster.includes('view="pageLayout"'),'Page Layout view set.','Switch the Roster sheet to Page Layout view (View tab).');
+    check(3,4,'Switch to Page Layout view',H.names.some(n=>/^xl\/worksheets\/sheet\d+\.xml$/.test(n)&&H.P[n].includes('view="pageLayout"')),'Page Layout view set.','Switch the Certifications sheet to Page Layout view (View tab). Leave Roster in Normal view: Freeze Panes (Task 18) is not available in Page Layout view.');
     check(4,3,'Set print area',H.wbxml.includes('Print_Area'),'Print area set.','Set the print area to the roster range.');
     check(5,3,'Configure print to fit one page wide',roster.includes('fitToPage="1"')||roster.includes('fitToPage="true"'),'Fit-to-page set.','Configure print settings to fit all columns on one page wide.');
     check(6,5,'Add comment on PTO column',H.hasComments,'Comment added.','Add a comment on the PTO column (Review > New Comment).');
