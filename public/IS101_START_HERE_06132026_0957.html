@@ -622,6 +622,14 @@
   .unit-objectives-panel.u3 { border-left-color: #16a34a; }
   .unit-objectives-panel.u4 { border-left-color: #9333ea; }
   .obj-toggle {
+    /* real <button> for keyboard access; reset default button styling */
+    width: 100%;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -639,6 +647,7 @@
     text-transform: uppercase;
     color: var(--text-dark);
   }
+  .obj-toggle:focus-visible { outline: 2px solid var(--navy); outline-offset: 4px; border-radius: 4px; }
   .obj-toggle-left .obj-icon { font-size: 15px; }
   .obj-chevron {
     color: var(--text-muted);
@@ -742,8 +751,8 @@
 
   /* sidebar group/topic navigation */
   .sidebar-nav-label {
-    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.4); font-weight: 700; margin-bottom: 10px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.65); /* WCAG: was 10.5px at 0.4 alpha (3.8:1) */ font-weight: 700; margin-bottom: 10px;
   }
   .sidebar-link {
     display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px;
@@ -1457,7 +1466,7 @@
   <div class="units-grid">
 
     <!-- UNIT 1 -->
-    <div class="unit-card u1" onclick="openUnit(1)">
+    <div class="unit-card u1" data-unit="1">
       <div class="card-accent"></div>
       <div class="card-body">
         <div class="card-header-row">
@@ -1489,7 +1498,7 @@
     </div>
 
     <!-- UNIT 2 -->
-    <div class="unit-card u2" onclick="openUnit(2)">
+    <div class="unit-card u2" data-unit="2">
       <div class="card-accent"></div>
       <div class="card-body">
         <div class="card-header-row">
@@ -1520,7 +1529,7 @@
     </div>
 
     <!-- UNIT 3 -->
-    <div class="unit-card u3" onclick="openUnit(3)">
+    <div class="unit-card u3" data-unit="3">
       <div class="card-accent"></div>
       <div class="card-body">
         <div class="card-header-row">
@@ -1551,7 +1560,7 @@
     </div>
 
     <!-- UNIT 4 -->
-    <div class="unit-card u4" onclick="openUnit(4)">
+    <div class="unit-card u4" data-unit="4">
       <div class="card-accent"></div>
       <div class="card-body">
         <div class="card-header-row">
@@ -1613,10 +1622,10 @@
 
       <!-- Learning Objectives recap -->
       <div class="unit-objectives-panel open" id="unitObjectivesPanel">
-        <div class="obj-toggle" onclick="toggleUnitObjectives()">
-          <div class="obj-toggle-left"><span class="obj-icon" aria-hidden="true">🎯</span> Learning Objectives</div>
+        <button type="button" class="obj-toggle" id="objToggleBtn" aria-expanded="true" aria-controls="unitObjectivesList" onclick="toggleUnitObjectives()">
+          <span class="obj-toggle-left"><span class="obj-icon" aria-hidden="true">🎯</span> Learning Objectives</span>
           <span class="obj-chevron" aria-hidden="true">▼</span>
-        </div>
+        </button>
         <div class="course-outcome" id="unitCourseOutcome"><!-- filled dynamically --></div>
         <ul class="obj-list" id="unitObjectivesList"><!-- filled dynamically --></ul>
       </div>
@@ -2157,6 +2166,8 @@ function renderUnitObjectives(unitNum) {
   const list = document.getElementById('unitObjectivesList');
   const outcomeBox = document.getElementById('unitCourseOutcome');
   panel.className = 'unit-objectives-panel open u' + unitNum;
+  const objBtn = document.getElementById('objToggleBtn');
+  if (objBtn) objBtn.setAttribute('aria-expanded', 'true');
   const label = outcomes.length > 1 ? 'Course Learning Outcomes' : 'Course Learning Outcome';
   outcomeBox.innerHTML = `
     <span class="co-icon" aria-hidden="true">🎓</span>
@@ -2173,7 +2184,9 @@ function renderUnitObjectives(unitNum) {
 }
 
 function toggleUnitObjectives() {
-  document.getElementById('unitObjectivesPanel').classList.toggle('open');
+  const isOpen = document.getElementById('unitObjectivesPanel').classList.toggle('open');
+  const btn = document.getElementById('objToggleBtn');
+  if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
 
 // Which skill groups are expanded in the Unit Overview accordion — persists across
