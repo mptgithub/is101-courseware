@@ -2531,7 +2531,7 @@ function applyUnitLocks() {
     // an animation's held value — and clear it again when unlocked so the
     // card falls back to its normal opacity:1.
     if (locked) {
-      card.style.setProperty('opacity', '0.65', 'important');
+      card.style.removeProperty('opacity'); // WCAG contrast: no fade; locked cards are dimmed by the .unit-card.locked saturate() filter instead
     } else {
       card.style.removeProperty('opacity');
     }
