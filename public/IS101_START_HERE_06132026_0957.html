@@ -1388,23 +1388,27 @@
     outline-offset: 2px;
   }
 
-  .faculty-link{
-    position:fixed;top:18px;right:18px;z-index:1000;
-    background:#fff;color:var(--navy);border:1.5px solid var(--navy);
-    font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-    padding:8px 16px;border-radius:20px;text-decoration:none;
-    transition:background .15s,color .15s;
-    box-shadow:var(--shadow-sm);
+  .admin-link{
+    background:rgba(255,255,255,0.08);
+    border:1px solid var(--gold);
+    color:var(--gold-bright);
+    padding:5px 12px;
+    border-radius:6px;
+    font-size:11px;
+    font-weight:700;
+    text-decoration:none;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+    transition:all .2s;
   }
-  .faculty-link:hover{background:var(--navy);color:#fff}
-  @media (max-width:480px){
-    .faculty-link{top:10px;right:10px;font-size:11px;padding:6px 12px}
+  .admin-link:hover{
+    background:var(--gold);
+    color:var(--navy);
   }
 </style>
 </head>
 <body>
 <a href="#mainContent" class="skip-link">Skip to main content</a>
-<a href="/instructor.html" class="faculty-link">Faculty Only</a>
 
 <!-- ══════════════════════════════════════════════
      LOGIN GATE
@@ -1434,6 +1438,7 @@
     </div>
   </div>
   <div class="header-right">
+    <a href="/instructor.html" class="admin-link">Admin</a>
     <div class="student-badge">
       <span class="dot" aria-hidden="true"></span>
       <span id="studentLabel">Student</span>
