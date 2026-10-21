@@ -56,23 +56,23 @@ body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(
 
 .footer{margin-top:20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.6}
 
-.faculty-link{
-  position:fixed;top:18px;right:18px;z-index:100;
-  background:#fff;color:var(--csn);border:1.5px solid var(--csn);
-  font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-  padding:8px 16px;border-radius:20px;text-decoration:none;
+.admin-link{
+  position:fixed;top:14px;right:14px;z-index:100;
+  background:#fff;color:var(--csn);border:1px solid var(--csn);
+  font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+  padding:5px 11px;border-radius:14px;text-decoration:none;
   transition:background .15s,color .15s;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-.faculty-link:hover{background:var(--csn);color:#fff}
+.admin-link:hover{background:var(--csn);color:#fff}
 @media (max-width:480px){
-  .faculty-link{top:10px;right:10px;font-size:11px;padding:6px 12px}
+  .admin-link{top:8px;right:8px;font-size:9px;padding:4px 9px}
 }
 </style>
 </head>
 <body>
 
-<a href="/instructor.html" class="faculty-link">Faculty Only</a>
+<a href="/instructor.html" class="admin-link">Admin</a>
 
 <div class="login-wrap">
   <div style="text-align:center;margin-bottom:6px">
